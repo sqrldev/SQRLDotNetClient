@@ -190,7 +190,12 @@ namespace SQRLUtilsLib
             return xorKey;
         }
 
-
+        /// <summary>
+        /// Generates a SQRL Identity Block Array
+        /// </summary>
+        /// <param name="iuk"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public object[] GenerateIdentityBlock1(byte[] iuk, String password)
         {
 
@@ -208,15 +213,15 @@ namespace SQRLUtilsLib
             object[] block1 = new object[14];
             block1[0] = (UInt16)125; //Length
             block1[1] = (UInt16)1; //Type
-            block1[2] = (UInt16)45;
-            block1[3] = Sodium.Utilities.BinaryToHex(initVector);
-            block1[4] = Sodium.Utilities.BinaryToHex(randomSalt);
-            block1[5] = sbyte.Parse("9");
-            block1[6] = (UInt32)iterationCount;
-            block1[7] = (UInt16)499;
-            block1[8] = sbyte.Parse("4");
-            block1[9] = sbyte.Parse("5");
-            block1[10] = (UInt16)15;
+            block1[2] = (UInt16)45; //inner block length
+            block1[3] = initVector; //Init Vector
+            block1[4] = randomSalt; //Random Salt
+            block1[5] = sbyte.Parse("9"); //N Log
+            block1[6] = (UInt32)iterationCount; //Iteration Count
+            block1[7] = (UInt16)499; //Flags
+            block1[8] = sbyte.Parse("4"); //Hint Length
+            block1[9] = sbyte.Parse("5"); //PW Verify Sec
+            block1[10] = (UInt16)15; //Time out in Minutes
 
             IEnumerable<byte> unencryptedKeys = imk.Concat(ilk);
             for(int i=0; i< 11;i++)
@@ -224,12 +229,12 @@ namespace SQRLUtilsLib
                 additionalData.AddRange(GetBytes(block1[i]));
             }
 
-            byte[] encryptedData = aesGcmEncrypt(unencryptedKeys.ToArray(), additionalData.ToArray(), initVector, key);
-            block1[11] = Sodium.Utilities.BinaryToHex(encryptedData.ToList().GetRange(0, 32).ToArray());
-            block1[12] = Sodium.Utilities.BinaryToHex(encryptedData.ToList().GetRange(32, 32).ToArray());
-            block1[13] = Sodium.Utilities.BinaryToHex(encryptedData.ToList().GetRange(encryptedData.Length-16, 16).ToArray());
+            byte[] encryptedData = aesGcmEncrypt(unencryptedKeys.ToArray(), additionalData.ToArray(), initVector, key); //Should be 80 bytes
+            block1[11] = encryptedData.ToList().GetRange(0, 32).ToArray();
+            block1[12] = encryptedData.ToList().GetRange(32, 32).ToArray();
+            block1[13] = encryptedData.ToList().GetRange(encryptedData.Length-16, 16).ToArray();
 
-            return block1;
+            return block1; 
         }
 
         private IEnumerable<byte> GetBytes(object v)
@@ -254,6 +259,10 @@ namespace SQRLUtilsLib
             {
                 return BitConverter.GetBytes((UInt32)v);
             }
+           else if(v.GetType()==typeof(byte[]))
+            {
+                return (byte[])v;
+            }
            else return null;
         }
 
@@ -265,6 +274,7 @@ namespace SQRLUtilsLib
             if (!SodiumInitialized)
                 SodiumInit();
 
+            //Had to override Sodium Core to allow more than 16 bytes of additional data
             cipherText = Sodium.SecretAeadAes.Encrypt(message, iv, key, additionalData);
 
             return cipherText;
