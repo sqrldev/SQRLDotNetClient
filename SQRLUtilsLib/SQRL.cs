@@ -83,6 +83,7 @@ namespace SQRLUtilsLib
         private void SodiumInit()
         {
             Sodium.SodiumCore.Init();
+            SodiumInitialized = true;
         }
 
         /// <summary>
@@ -132,22 +133,26 @@ namespace SQRLUtilsLib
             byte[] passwordBytes = Encoding.ASCII.GetBytes(password);
             DateTime startTime = DateTime.Now;
             byte[] xorKey = new byte[32];
+            byte[] key = new byte[32];
             count = 0;
             while(Math.Abs((DateTime.Now-startTime).TotalSeconds)<secondsToRun)
             {
-                passwordBytes = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
+                key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
 
                 if (count == 0)
                 {
-                    passwordBytes.CopyTo(xorKey, 0);
+                    key.CopyTo(xorKey, 0);
+
                 }
                 else
                 {
                     BitArray og = new BitArray(xorKey);
-                    BitArray newG = new BitArray(passwordBytes);
+                    BitArray newG = new BitArray(key);
                     BitArray newXor = og.Xor(newG);
                     newXor.CopyTo(xorKey, 0);
+
                 }
+                randomSalt = key;
 
                 count++;
             }
@@ -168,25 +173,29 @@ namespace SQRLUtilsLib
             if (!SodiumInitialized)
                 SodiumInit();
 
-            byte[] passwordBytes = Encoding.ASCII.GetBytes(password);
+            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
             DateTime startTime = DateTime.Now;
             byte[] xorKey = new byte[32];
+            byte[] key = new byte[32];
             int count = 0;
             while (count<intCount)
             {
-                passwordBytes = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
+                key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
 
                 if (count == 0)
                 {
-                    passwordBytes.CopyTo(xorKey, 0);
+                    key.CopyTo(xorKey, 0);
+                    
                 }
                 else
                 {
                     BitArray og = new BitArray(xorKey);
-                    BitArray newG = new BitArray(passwordBytes);
+                    BitArray newG = new BitArray(key);
                     BitArray newXor = og.Xor(newG);
                     newXor.CopyTo(xorKey, 0);
+                    
                 }
+                randomSalt = key;
 
                 count++;
             }
