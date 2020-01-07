@@ -5,6 +5,10 @@ using System.Text;
 using System.Linq;
 namespace SQRLUtilsLib
 {
+    /// <summary>
+    /// This library performs a lot of the crypto needed for a SQRL Client.
+    /// A lot of the code here was adapted from @AlexHouser's IdTool at https://github.com/sqrldev/IdTool
+    /// </summary>
     public class SQRL
     {
         private static bool SodiumInitialized = false;
@@ -26,7 +30,7 @@ namespace SQRLUtilsLib
         /// Creates a 24 character random Rescue Code
         /// </summary>
         /// <returns></returns>
-        public string CreateNewRescueCode()
+        public string CreateRescueCode()
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -208,7 +212,7 @@ namespace SQRLUtilsLib
             int iterationCount = 0;
             byte[] imk = CreateIMK(iuk);
             byte[] ilk = CreateILK(iuk);
-            key = enScriptTime(password, randomSalt, 512, 5, out iterationCount);
+            key = enScriptTime(password, randomSalt, (int)Math.Pow(2,9), 5, out iterationCount);
 
             object[] block1 = new object[14];
             block1[0] = (UInt16)125; //Length
