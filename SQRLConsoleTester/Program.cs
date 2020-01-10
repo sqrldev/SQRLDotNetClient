@@ -16,10 +16,17 @@ namespace SQRLConsoleTester
             identity.Block1.ToByteArray();
             identity.Block2.ToByteArray();
 
-            string s = sqrl.FormatRescueCodeForDisplay(rescueCode);
+             string s = sqrl.FormatRescueCodeForDisplay(rescueCode);
 
-            sqrl.GenerateTextualIdentityBase56(identity.ToByteArray());
+            string textID = sqrl.GenerateTextualIdentityBase56(identity.ToByteArray());
+            byte[] input = identity.ToByteArray();
             
+            byte[] output = sqrl.Base56DecodeIdentity("KSzZ 46JU 4vaG FB33 H");
+
+            string text2=sqrl.GenerateTextualIdentityBase56(output);
+
+
+
         }
     }
 }

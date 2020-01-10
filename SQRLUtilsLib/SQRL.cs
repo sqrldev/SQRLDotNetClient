@@ -450,6 +450,109 @@ namespace SQRLUtilsLib
 
 
 
+        public byte[] Base56DecodeIdentity(string identityStr, bool bypassCheck =false)
+        {
+            byte[] identity = null;
+            if(VerifyEncodedIdentity(identityStr)|| bypassCheck)
+            {
+                identityStr = Regex.Replace(identityStr, @"\s+", "").Replace("\r\n", "");
+                //identityStr = RemoveNthCharacterRecursivelly(identityStr, 19);
+                StringBuilder sb = new StringBuilder();
+                for(int i=0;i < identityStr.Length-1;i++)
+                {
+                    if ((i + 1) % 20 == 0)
+                        continue;
+                    sb.Append(identityStr[i]);
+                }
+                identityStr = sb.ToString();
 
+                int expectedNumberOfBytes = (int)(identityStr.Length * (Math.Log(ENCODING_BASE)/ Math.Log(2)) /8);
+                BigInteger powVal = 0;
+                BigInteger bigInt = 0;
+                for(int i =0; i< identityStr.Length; i++)
+                {
+                    if (powVal.IsZero)
+                        powVal = 1;
+                    else
+                        powVal *= ENCODING_BASE;
+
+                    int idex = Array.IndexOf(BASE56_ALPHABETH, identityStr[i]);
+                    BigInteger newVal = BigInteger.Multiply(powVal, idex);
+                    bigInt=BigInteger.Add(bigInt, newVal);
+                }
+
+                //List<byte> identityArray = bigInt.ToByteArray().ToList();
+                identity = bigInt.ToByteArray();
+                if (identity.Length > expectedNumberOfBytes)
+                    identity = identity.Take(identity.Length - 1).ToArray();
+
+                int lengthDiff = expectedNumberOfBytes - identity.Length;
+                if(lengthDiff > 0)
+                {
+                    for (int i = 0; i < lengthDiff; i++)
+                        identity = identity.Concat(new byte[] { 0 }).ToArray();
+                }
+
+
+            }
+            return identity;
+        }
+
+        public bool VerifyEncodedIdentity(string identityStr)
+        {
+            //Remove White Space
+            identityStr = Regex.Replace(identityStr, @"\s+", "").Replace("\r\n","");
+
+            byte lineNr = 0;
+            for(int i=0; i < identityStr.Length;i+=20)
+            {
+                int checkSumPosition = i + 19;
+                int checkSumDataLength = 19;
+                if (checkSumPosition >= identityStr.Length)
+                {
+                    checkSumPosition = identityStr.Length - 1;
+                    checkSumDataLength = checkSumPosition-i;
+                }
+
+                List<byte> checkSumBytes = new List<byte>();
+                foreach (char x in identityStr.Substring(i, checkSumDataLength).ToCharArray())
+                {
+                    checkSumBytes.Add((byte)x);
+                }
+                checkSumBytes.Add((byte)lineNr);
+                char computerCheckSumChar = GetBase56CheckSum(checkSumBytes.ToArray());
+                if (computerCheckSumChar != identityStr[checkSumPosition])
+                        return false;
+
+                lineNr++;
+            }
+
+            return true;
+        }
+
+        private string RemoveNthCharacterRecursivelly(String s, int charAt)
+        {
+            if (s.Length > charAt)
+            {
+                s = s.Remove(charAt,1);
+                s = RemoveNthCharacterRecursivelly(s, charAt += 18);
+            }
+            else
+            {
+                s = s.Remove(s.Length - 1,1);
+            }
+            return s;
+        }
+
+    }
+
+    
+}
+
+public static class UtilClass
+{
+    public static string CleanUpString(this string s)
+    {
+        return s.Replace(" ", "").Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("\\n","");
     }
 }
