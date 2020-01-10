@@ -15,6 +15,11 @@ namespace SQRLConsoleTester
             sqrl.GenerateIdentityBlock2(iuk, rescueCode, identity);
             identity.Block1.ToByteArray();
             identity.Block2.ToByteArray();
+
+            string s = sqrl.FormatRescueCodeForDisplay(rescueCode);
+
+            sqrl.GenerateTextualIdentityBase56(identity.ToByteArray());
+            
         }
     }
 }

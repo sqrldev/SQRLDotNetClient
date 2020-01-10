@@ -53,5 +53,35 @@ namespace SQRLUtilLibTest
             }
             
         }
+
+
+        [Fact]
+        public void Base56EncodeText()
+        {
+            WebClient wc = new WebClient();
+            String enScryptVectors = wc.DownloadString("https://raw.githubusercontent.com/sqrldev/sqrl-test-vectors/master/vectors/base56-full-format-vectors.txt");
+            String[] lines = enScryptVectors.Split("\n");
+            bool first = true;
+            SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
+            foreach (var line in lines)
+            {
+                if (first)
+                {
+                    first = false;
+                    continue;
+                }
+                string[] data = line.Replace("\"", "").Split(',');
+
+                string s = sqrl.GenerateTextualIdentityBase56(Sodium.Utilities.Base64ToBinary(data[0], string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+
+
+
+                Assert.Equal(s, data[2]);
+            }
+
+        }
+
+
+        
     }
 }

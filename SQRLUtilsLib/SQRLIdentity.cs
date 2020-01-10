@@ -24,6 +24,9 @@ namespace SQRLUtilsLib
     public interface SQRLBlock
     {
         byte[] ToByteArray();
+        ushort Length { get; }
+        ushort Type { get; }
+
     }
     public class SQRLBlock1: SQRLBlock
     {
