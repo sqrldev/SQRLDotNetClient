@@ -25,8 +25,10 @@ namespace SQRLConsoleTester
 
             string text2=sqrl.GenerateTextualIdentityBase56(output);
 
+            var idty = sqrl.ImportSqrlIdentityFromFile(@"C:\Users\jose\Downloads\SQRL-Test-Identity-Resources\Spec-Vectors-Identity.sqrl");
+            idty.WriteToFile(@"C:\Users\jose\Downloads\SQRL-Test-Identity-Resources\Spec-Vectors-Identity_Clone.sqrl");
 
-
+            
         }
     }
 }

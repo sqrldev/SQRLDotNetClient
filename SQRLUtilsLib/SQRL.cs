@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Numerics;
+using System.IO;
 
 namespace SQRLUtilsLib
 {
@@ -530,20 +531,29 @@ namespace SQRLUtilsLib
             return true;
         }
 
-        private string RemoveNthCharacterRecursivelly(String s, int charAt)
+        public SQRLIdentity ImportSqrlIdentityFromFile(string file)
         {
-            if (s.Length > charAt)
-            {
-                s = s.Remove(charAt,1);
-                s = RemoveNthCharacterRecursivelly(s, charAt += 18);
-            }
-            else
-            {
-                s = s.Remove(s.Length - 1,1);
-            }
-            return s;
-        }
+            SQRLIdentity id = null;
 
+            if (File.Exists(file))
+            {
+                byte[] fileBytes = File.ReadAllBytes(file);
+                string sqrlData = System.Text.Encoding.UTF8.GetString(fileBytes.Take(8).ToArray());
+                if (sqrlData.Equals("sqrldata", StringComparison.OrdinalIgnoreCase))
+                {
+                    byte[] block1 = fileBytes.Skip(8).Take(125).ToArray();
+                    id = new SQRLIdentity();
+                    id.Block1.FromByteArray(block1);
+                    byte[] block2 = fileBytes.Skip(133).Take(73).ToArray();
+                    id.Block2.FromByteArray(block2);
+
+                }
+                else
+                    throw new IOException("Invalid File Exception, not a valid SQRL Identity File");
+            }
+
+            return id;
+        }
     }
 
     
