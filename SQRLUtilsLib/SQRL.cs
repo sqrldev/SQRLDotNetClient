@@ -93,7 +93,7 @@ namespace SQRLUtilsLib
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        private byte[] enHash(byte[] data)
+        public byte[] enHash(byte[] data)
         {
             byte[] result = new byte[32];
             byte[] xor = new byte[32];
@@ -209,7 +209,7 @@ namespace SQRLUtilsLib
         /// <param name="iuk"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public object[] GenerateIdentityBlock1(byte[] iuk, String password)
+        public void GenerateIdentityBlock1(byte[] iuk, String password, SQRLIdentity identity)
         {
 
             if (!SodiumInitialized)
@@ -222,7 +222,7 @@ namespace SQRLUtilsLib
             byte[] imk = CreateIMK(iuk);
             byte[] ilk = CreateILK(iuk);
             key = enScriptTime(password, randomSalt, (int)Math.Pow(2,9), 5, out iterationCount);
-
+            
             object[] block1 = new object[14];
             block1[0] = (UInt16)125; //Length
             block1[1] = (UInt16)1; //Type
@@ -235,19 +235,50 @@ namespace SQRLUtilsLib
             block1[8] = sbyte.Parse("4"); //Hint Length
             block1[9] = sbyte.Parse("5"); //PW Verify Sec
             block1[10] = (UInt16)15; //Time out in Minutes
+            identity.Block1.ScryptInitVector = initVector;
+            identity.Block1.ScryptRandomSalt = randomSalt;
+            identity.Block1.IterationCount = (uint)iterationCount;
 
             IEnumerable<byte> unencryptedKeys = imk.Concat(ilk);
             for(int i=0; i< 11;i++)
             {
                 additionalData.AddRange(GetBytes(block1[i]));
             }
-
+            
             byte[] encryptedData = aesGcmEncrypt(unencryptedKeys.ToArray(), additionalData.ToArray(), initVector, key); //Should be 80 bytes
-            block1[11] = encryptedData.ToList().GetRange(0, 32).ToArray();
-            block1[12] = encryptedData.ToList().GetRange(32, 32).ToArray();
-            block1[13] = encryptedData.ToList().GetRange(encryptedData.Length-16, 16).ToArray();
+            identity.Block1.EncryptedIMK = encryptedData.ToList().GetRange(0, 32).ToArray();
+            identity.Block1.EncryptedILK = encryptedData.ToList().GetRange(32, 32).ToArray();
+            identity.Block1.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length-16, 16).ToArray();
+        }
 
-            return block1; 
+
+        public void GenerateIdentityBlock2(byte[] iuk, String rescueCode, SQRLIdentity identity)
+        {
+            if (!SodiumInitialized)
+                SodiumInit();
+            byte[] initVector = Sodium.SodiumCore.GetRandomBytes(12);
+            byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
+            byte[] key = new byte[32];
+            List<byte> additionalData = new List<byte>();
+            int iterationCount = 0;
+            object[] block2 = new object[6];
+            block2[0] = (UInt16)73;
+            block2[1] = (UInt16)2;
+            block2[2] = randomSalt;
+            block2[3] = sbyte.Parse("9");
+            key = enScriptTime(rescueCode, randomSalt, (int)Math.Pow(2, 9), 5, out iterationCount);
+            block2[4] = (UInt32)iterationCount;
+            for (int i = 0; i < 5; i++)
+            {
+                additionalData.AddRange(GetBytes(block2[i]));
+            }
+
+            identity.Block2.RandomSalt = randomSalt;
+            identity.Block2.IterationCount = (uint)iterationCount;
+            byte[] encryptedData = aesGcmEncrypt(iuk, additionalData.ToArray(), initVector, key); //Should be 80 bytes
+            identity.Block2.EncryptedIdentityLock = encryptedData.ToList().GetRange(0, 32).ToArray(); ;
+            identity.Block2.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray(); ;
+
         }
 
         private IEnumerable<byte> GetBytes(object v)

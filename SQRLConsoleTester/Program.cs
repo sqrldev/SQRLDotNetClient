@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SQRLUtilsLib;
+using System;
 
 namespace SQRLConsoleTester
 {
@@ -8,7 +9,12 @@ namespace SQRLConsoleTester
         {
             SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
             byte[]iuk = sqrl.CreateIUK();
-            object[] idblock1 = sqrl.GenerateIdentityBlock1(iuk, "larry");
+            string rescueCode = sqrl.CreateRescueCode();
+            SQRLIdentity identity = new SQRLIdentity();
+            sqrl.GenerateIdentityBlock1(iuk, "larry", identity);
+            sqrl.GenerateIdentityBlock2(iuk, rescueCode, identity);
+            identity.Block1.ToByteArray();
+            identity.Block2.ToByteArray();
         }
     }
 }
