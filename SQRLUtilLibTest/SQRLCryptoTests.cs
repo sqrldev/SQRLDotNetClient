@@ -134,7 +134,7 @@ namespace SQRLUtilLibTest
         public void IUKRescueCodeEncryptDecryptTest()
         {
             SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 10; i++)
             {
                 SQRLIdentity identity = new SQRLIdentity();
                 byte[] iuk = sqrl.CreateIUK();

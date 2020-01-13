@@ -680,7 +680,15 @@ namespace SQRLUtilsLib
             return false;
         }
 
-
+        /// <summary>
+        /// Creates a Site KeyValuePair from the IMK Domain and AltID (if available)
+        /// 
+        /// </summary>
+        /// <param name="domain"></param>
+        /// <param name="altID"></param>
+        /// <param name="imk"></param>
+        /// <param name="test">This is specifically for the vextor tests since they don't use the x param (should be fixed)</param>
+        /// <returns></returns>
         public Sodium.KeyPair CreateSiteKey(Uri domain, String altID, byte[] imk, bool test =false)
         {
             byte[] domainBytes = Encoding.UTF8.GetBytes(domain.DnsSafeHost+(test?(domain.LocalPath.Equals("/")?"":domain.LocalPath):""));
@@ -705,17 +713,17 @@ namespace SQRLUtilsLib
             return kp;
         }
 
-        
-
-        public Uri NormalizeURL(Uri url)
-        {
-            Uri formatted = new Uri(url.DnsSafeHost.ToLower());
-
-            return url;
-        }
-
-        
-
+    
+        /// <summary>
+        /// Generates an Ident Request to the server
+        /// </summary>
+        /// <param name="sqrl">Server URI</param>
+        /// <param name="siteKP">Site Key Pair</param>
+        /// <param name="priorServerMessaage">Prior Server Message (base64)</param>
+        /// <param name="opts">Options (SUK, CPS etc)</param>
+        /// <param name="message"></param>
+        /// <param name="addClientData">Additional Client Data to Sendin VUK / SUK etc</param>
+        /// <returns></returns>
         public SQRLServerResponse GenerateIdentCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string[] opts, out string message,StringBuilder addClientData=null )
         {
             SQRLServerResponse serverResponse = null;
@@ -753,6 +761,14 @@ namespace SQRLUtilsLib
             
         }
 
+        /// <summary>
+        /// Generates a Quer command (repeats the command up to 3 times if there is a transient error)
+        /// </summary>
+        /// <param name="sqrl"></param>
+        /// <param name="siteKP"></param>
+        /// <param name="opts"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
         public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP,string[] opts = null, int count=0)
         {
             SQRLServerResponse serverResponse = null;
@@ -791,22 +807,30 @@ namespace SQRLUtilsLib
             return serverResponse;
         }
 
+        /// <summary>
+        /// Generates a Client Response Message to the Server from a Client, Server Strings
+        /// </summary>
+        /// <param name="sqrl"></param>
+        /// <param name="siteKP"></param>
+        /// <param name="client"></param>
+        /// <param name="server"></param>
+        /// <returns></returns>
         private static Dictionary<string, string> GenerateResponse(Uri sqrl, KeyPair siteKP, StringBuilder client, StringBuilder server)
         {
             
-            string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
+            
             string encodedServer = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(server.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
-            byte[] signature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), siteKP.PrivateKey);
-            string encodedSignature = Sodium.Utilities.BinaryToBase64(signature, Utilities.Base64Variant.UrlSafeNoPadding);
-            Dictionary<string, string> strContent = new Dictionary<string, string>()
-                {
-                    {"client",encodedClient },
-                    {"server",encodedServer },
-                    {"ids",encodedSignature },
-                };
-            return strContent;
+            return GenerateResponse(sqrl, siteKP, client, encodedServer);
         }
 
+        /// <summary>
+        /// Generates a Client Message to the Server
+        /// </summary>
+        /// <param name="sqrl"></param>
+        /// <param name="siteKP"></param>
+        /// <param name="client"></param>
+        /// <param name="server"></param>
+        /// <returns></returns>
         private static Dictionary<string, string> GenerateResponse(Uri sqrl, KeyPair siteKP, StringBuilder client, string server)
         {
 
