@@ -6,6 +6,10 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Numerics;
 using System.IO;
+using Sodium;
+using System.Net;
+using System.Net.Http;
+using System.Web;
 
 namespace SQRLUtilsLib
 {
@@ -19,6 +23,7 @@ namespace SQRLUtilsLib
 
         private readonly char[] BASE56_ALPHABETH = { '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
         private const int ENCODING_BASE = 56;
+        private const int CLIENT_VERSION = 1;
         /// <summary>
         /// Creates a Random Identity Unlock Key
         /// </summary>
@@ -84,6 +89,33 @@ namespace SQRLUtilsLib
 
             return Sodium.ScalarMult.Base(iuk);
         }
+
+
+        public byte[] RandomLockKey()
+        {
+            if (!SodiumInitialized)
+                SodiumInit();
+
+            return Sodium.SodiumCore.GetRandomBytes(32);
+        }
+
+        public KeyValuePair<byte[],byte[]> GetSukVuk(byte[] ILK)
+        {
+            if (!SodiumInitialized)
+                SodiumInit();
+
+            var RLK = RandomLockKey();
+            var SUK = Sodium.ScalarMult.Base(RLK);
+
+            var bytesToSign = Sodium.ScalarMult.Mult(RLK, ILK);
+
+            var vukKeyPair = Sodium.PublicKeyAuth.GenerateKeyPair(bytesToSign);
+
+            var VUK = vukKeyPair.PublicKey;
+            
+            return KeyValuePair.Create(SUK, VUK);
+        }
+
 
         private void SodiumInit()
         {
@@ -649,13 +681,22 @@ namespace SQRLUtilsLib
         }
 
 
-        public Sodium.KeyPair CreateSiteKey(Uri domain, String altID, byte[] imk)
+        public Sodium.KeyPair CreateSiteKey(Uri domain, String altID, byte[] imk, bool test =false)
         {
-            byte[] domainBytes = Encoding.UTF8.GetBytes(domain.DnsSafeHost+(domain.LocalPath.Equals("/")?"":domain.LocalPath));
-            if(!string.IsNullOrEmpty(altID))
+            byte[] domainBytes = Encoding.UTF8.GetBytes(domain.DnsSafeHost+(test?(domain.LocalPath.Equals("/")?"":domain.LocalPath):""));
+
+            var nvC = HttpUtility.ParseQueryString(domain.Query);
+            if(nvC["x"]!=null)
+            {
+                string extended = domain.LocalPath.Substring(0, int.Parse(nvC["x"]));
+                domainBytes = domainBytes.Concat(Encoding.UTF8.GetBytes(extended)).ToArray();
+            }
+
+            if (!string.IsNullOrEmpty(altID))
             {
                 domainBytes = domainBytes.Concat(new byte[] { 0 }).Concat(Encoding.UTF8.GetBytes(altID)).ToArray();
             }
+
 
             byte[] siteSeed = Sodium.SecretKeyAuth.SignHmacSha256(domainBytes, imk);
 
@@ -673,6 +714,114 @@ namespace SQRLUtilsLib
             return url;
         }
 
+        
+
+        public SQRLServerResponse GenerateIdentCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string[] opts, out string message,StringBuilder addClientData=null )
+        {
+            SQRLServerResponse serverResponse = null;
+            message = "";
+            using (HttpClient wc = new HttpClient())
+            {
+                wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez SQRL Client");
+                if (opts == null)
+                {
+                    opts = new string[]
+                    {
+                        "suk"
+                    };
+                }
+                StringBuilder client = new StringBuilder();
+                client.AppendLineWindows($"ver={CLIENT_VERSION}");
+                client.AppendLineWindows($"cmd=ident");
+                client.AppendLineWindows($"opt={string.Join("~", opts)}");
+                if(addClientData!=null)
+                    client.Append(addClientData);
+                client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
+
+                
+                Dictionary<string, string> strContent = GenerateResponse(sqrl, siteKP, client, priorServerMessaage);
+                var content = new FormUrlEncodedContent(strContent);
+
+                var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
+                var result = response.Content.ReadAsStringAsync().Result;
+                serverResponse = new SQRLServerResponse(result, sqrl.Host, sqrl.IsDefaultPort ? 443 : sqrl.Port);
+               
+            }
+
+            return serverResponse;
+
+            
+        }
+
+        public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP,string[] opts = null, int count=0)
+        {
+            SQRLServerResponse serverResponse = null;
+            using (HttpClient wc = new HttpClient())
+            {
+                wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez SQRL Client");
+                if(opts==null)
+                {
+                    opts = new string[]
+                    {
+                        "suk"
+                    };
+                }
+                StringBuilder client = new StringBuilder();
+                client.AppendLineWindows($"ver={CLIENT_VERSION}");
+                client.AppendLineWindows($"cmd=query");
+                client.AppendLineWindows($"opt={string.Join("~",opts)}");
+                client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
+
+
+                StringBuilder server = new StringBuilder();
+                server.Append($"{sqrl.OriginalString}");
+                Dictionary<string, string> strContent = GenerateResponse(sqrl, siteKP, client, server);
+                var content = new FormUrlEncodedContent(strContent);
+
+                var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort?"":$":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
+                var result = response.Content.ReadAsStringAsync().Result;
+                    serverResponse = new SQRLServerResponse(result,sqrl.Host, sqrl.IsDefaultPort?443:sqrl.Port);
+                if(serverResponse.TransientError && count <=3)
+                {
+                    serverResponse = GenerateQueryCommand(new Uri($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{serverResponse.Qry}"), siteKP, opts,++count); ;
+                }
+                
+            }
+
+            return serverResponse;
+        }
+
+        private static Dictionary<string, string> GenerateResponse(Uri sqrl, KeyPair siteKP, StringBuilder client, StringBuilder server)
+        {
+            
+            string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
+            string encodedServer = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(server.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
+            byte[] signature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), siteKP.PrivateKey);
+            string encodedSignature = Sodium.Utilities.BinaryToBase64(signature, Utilities.Base64Variant.UrlSafeNoPadding);
+            Dictionary<string, string> strContent = new Dictionary<string, string>()
+                {
+                    {"client",encodedClient },
+                    {"server",encodedServer },
+                    {"ids",encodedSignature },
+                };
+            return strContent;
+        }
+
+        private static Dictionary<string, string> GenerateResponse(Uri sqrl, KeyPair siteKP, StringBuilder client, string server)
+        {
+
+            string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
+            string encodedServer = server;
+            byte[] signature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), siteKP.PrivateKey);
+            string encodedSignature = Sodium.Utilities.BinaryToBase64(signature, Utilities.Base64Variant.UrlSafeNoPadding);
+            Dictionary<string, string> strContent = new Dictionary<string, string>()
+                {
+                    {"client",encodedClient },
+                    {"server",encodedServer },
+                    {"ids",encodedSignature },
+                };
+            return strContent;
+        }
     }
 
     
@@ -683,5 +832,12 @@ public static class UtilClass
     public static string CleanUpString(this string s)
     {
         return s.Replace(" ", "").Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("\\n","");
+    }
+
+    public static StringBuilder AppendLineWindows(this StringBuilder sb, string s)
+    {
+        sb.Append(s);
+        sb.Append("\r\n");
+        return sb;
     }
 }

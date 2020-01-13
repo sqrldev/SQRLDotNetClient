@@ -167,7 +167,7 @@ namespace SQRLUtilLibTest
                 }
                 string[] data = line.CleanUpString().Replace("\"", "").Split(',');
 
-                var keys = sqrl.CreateSiteKey(new Uri($"sqrl://{data[3]}"), data[4], Sodium.Utilities.Base64ToBinary(data[2], string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+                var keys = sqrl.CreateSiteKey(new Uri($"sqrl://{data[3]}"), data[4], Sodium.Utilities.Base64ToBinary(data[2], string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding),true);
 
                 Assert.Equal(Sodium.Utilities.BinaryToBase64(keys.PublicKey,Sodium.Utilities.Base64Variant.UrlSafeNoPadding), data[5]);
             }
