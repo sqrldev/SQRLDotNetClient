@@ -123,7 +123,7 @@ namespace Sodium
         throw new AdditionalDataOutOfRangeException(
           string.Format("additionalData must be between {0} and {1} bytes in length.", 0, ABYTES));*/
 
-      var message = new byte[cipher.Length - additionalData.Length];
+      var message = new byte[cipher.Length +16];
       var bin = Marshal.AllocHGlobal(message.Length);
       long messageLength;
 
@@ -145,5 +145,61 @@ namespace Sodium
 
       return tmp;
     }
-  }
+
+        /// <summary>
+        /// Decrypts a cipher with an authentication tag and additional data using AES-GCM.
+        /// </summary>
+        /// <param name="cipher">The cipher to be decrypted.</param>
+        /// <param name="nonce">The 12 byte nonce.</param>
+        /// <param name="key">The 32 byte key.</param>
+        /// <param name="additionalData">The additional data; may be null, otherwise between 0 and 16 bytes.</param>
+        /// <returns>The decrypted cipher.</returns>
+        /// <exception cref="KeyOutOfRangeException"></exception>
+        /// <exception cref="NonceOutOfRangeException"></exception>
+        /// <exception cref="AdditionalDataOutOfRangeException"></exception>
+        /// <exception cref="CryptographicException"></exception>
+        public static byte[] DecryptDetached(byte[] cipher, byte[] nonce, byte[] key, byte[] mac, byte[] additionalData = null)
+        {
+            //additionalData can be null
+            if (additionalData == null)
+                additionalData = new byte[0x00];
+
+            //validate the length of the key
+            if (key == null || key.Length != KEYBYTES)
+                throw new KeyOutOfRangeException("key", (key == null) ? 0 : key.Length,
+                  string.Format("key must be {0} bytes in length.", KEYBYTES));
+
+            //validate the length of the nonce
+            if (nonce == null || nonce.Length != NPUBBYTES)
+                throw new NonceOutOfRangeException("nonce", (nonce == null) ? 0 : nonce.Length,
+                  string.Format("nonce must be {0} bytes in length.", NPUBBYTES));
+
+            //validate the length of the additionalData
+            /*if (additionalData.Length > ABYTES || additionalData.Length < 0)
+              throw new AdditionalDataOutOfRangeException(
+                string.Format("additionalData must be between {0} and {1} bytes in length.", 0, ABYTES));*/
+
+            var message = new byte[cipher.Length - additionalData.Length];
+            var bin = Marshal.AllocHGlobal(message.Length);
+            long messageLength;
+
+            var ret = SodiumLibrary.crypto_aead_aes256gcm_decrypt_detached(bin, null, cipher, cipher.Length, mac,
+              additionalData, additionalData.Length, nonce, key);
+
+            Marshal.Copy(bin, message, 0, cipher.Length);
+            Marshal.FreeHGlobal(bin);
+
+            if (ret != 0)
+                throw new CryptographicException("Error decrypting message.");
+
+            if (message.Length == cipher.Length)
+                return message;
+
+            //remove the trailing nulls from the array
+            var tmp = new byte[cipher.Length];
+            Array.Copy(message, 0, tmp, 0, (int)cipher.Length);
+
+            return tmp;
+        }
+    }
 }

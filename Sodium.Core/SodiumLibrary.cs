@@ -299,6 +299,10 @@ namespace Sodium
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int crypto_aead_aes256gcm_decrypt(IntPtr message, out long messageLength, byte[] nsec, byte[] cipher, long cipherLength, byte[] additionalData, long additionalDataLength, byte[] nonce, byte[] key);
 
+
+        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int crypto_aead_aes256gcm_decrypt_detached(IntPtr message, byte[] nsec, byte[] cipher, long cipherLength, byte[] mac, byte[] additionalData, long additionalDataLength, byte[] nonce, byte[] key);
+
         //crypto_generichash_init
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int crypto_generichash_init(IntPtr state, byte[] key, int keySize, int hashSize);
