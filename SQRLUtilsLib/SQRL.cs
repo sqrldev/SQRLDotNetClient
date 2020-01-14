@@ -64,6 +64,14 @@ namespace SQRLUtilsLib
             return new String(tempBytes);
         }
 
+        public byte[] GetURSKey(byte[] IUK, byte[] SUK)
+        {
+            var bytesToSign = Sodium.ScalarMult.Mult(IUK, SUK);
+            var ursKeyPair = Sodium.PublicKeyAuth.GenerateKeyPair(bytesToSign);
+
+            return ursKeyPair.PrivateKey;
+        }
+
         /// <summary>
         /// Creates an Identity Master Key derives from the Identity Unlock Key
         /// </summary>
@@ -123,7 +131,9 @@ namespace SQRLUtilsLib
             SodiumInitialized = true;
         }
 
-       
+        
+
+
 
         /// <summary>
         ///  EnHash Algorithm
@@ -771,23 +781,18 @@ namespace SQRLUtilsLib
         /// <param name="opts"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP,string[] opts = null, int count=0)
+        public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP,SQRLOptions opts = null, int count=0)
         {
             SQRLServerResponse serverResponse = null;
             using (HttpClient wc = new HttpClient())
             {
                 wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez SQRL Client");
-                if(opts==null)
-                {
-                    opts = new string[]
-                    {
-                        "suk"
-                    };
-                }
+              
                 StringBuilder client = new StringBuilder();
                 client.AppendLineWindows($"ver={CLIENT_VERSION}");
                 client.AppendLineWindows($"cmd=query");
-                client.AppendLineWindows($"opt={string.Join("~",opts)}");
+                if(opts!=null)
+                    client.AppendLineWindows($"opt={opts}");
                 client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
 
 
@@ -809,24 +814,19 @@ namespace SQRLUtilsLib
             return serverResponse;
         }
 
-        public SQRLServerResponse GenerateCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string command, string[] opts, out string message, StringBuilder addClientData = null)
+        public SQRLServerResponse GenerateCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string command, SQRLOptions opts, out string message, StringBuilder addClientData = null)
         {
             SQRLServerResponse serverResponse = null;
             message = "";
             using (HttpClient wc = new HttpClient())
             {
                 wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez SQRL Client");
-                if (opts == null)
-                {
-                    opts = new string[]
-                    {
-                        "suk"
-                    };
-                }
+                
                 StringBuilder client = new StringBuilder();
                 client.AppendLineWindows($"ver={CLIENT_VERSION}");
                 client.AppendLineWindows($"cmd={command}");
-                client.AppendLineWindows($"opt={string.Join("~", opts)}");
+                if(opts!=null)
+                    client.AppendLineWindows($"opt={opts}");
                 if (addClientData != null)
                     client.Append(addClientData);
                 client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
@@ -844,6 +844,54 @@ namespace SQRLUtilsLib
             return serverResponse;
 
         }
+
+
+        public SQRLServerResponse GenerateCommandWithURS(Uri sqrl, KeyPair siteKP, byte[] ursKey, string priorServerMessaage,string command, SQRLOptions opts=null, StringBuilder addClientData = null)
+        {
+            SQRLServerResponse serverResponse = null;
+            
+            using (HttpClient wc = new HttpClient())
+            {
+                wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez's SQRL Client");
+         
+                StringBuilder client = new StringBuilder();
+                client.AppendLineWindows($"ver={CLIENT_VERSION}");
+                client.AppendLineWindows($"cmd={command}");
+                if(opts!=null)
+                    client.AppendLineWindows($"opt={opts}");
+                if (addClientData != null)
+                    client.Append(addClientData);
+                client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
+
+
+                string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
+                string encodedServer = priorServerMessaage;
+                
+                byte[] signature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), siteKP.PrivateKey);
+                string encodedSignature = Sodium.Utilities.BinaryToBase64(signature, Utilities.Base64Variant.UrlSafeNoPadding);
+                byte[] ursSignature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), ursKey);
+                string encodedUrsSignature = Sodium.Utilities.BinaryToBase64(ursSignature, Utilities.Base64Variant.UrlSafeNoPadding);
+                Dictionary<string, string> strContent = new Dictionary<string, string>()
+                {
+                    {"client",encodedClient },
+                    {"server",encodedServer },
+                    {"ids",encodedSignature },
+                    {"urs",encodedUrsSignature },
+                };
+                
+                var content = new FormUrlEncodedContent(strContent);
+
+                var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
+                var result = response.Content.ReadAsStringAsync().Result;
+                serverResponse = new SQRLServerResponse(result, sqrl.Host, sqrl.IsDefaultPort ? 443 : sqrl.Port);
+                ZeroFillByteArray(ursKey);
+            }
+
+            return serverResponse;
+
+        }
+
+
 
         /// <summary>
         /// Generates a Client Response Message to the Server from a Client, Server Strings
@@ -885,6 +933,14 @@ namespace SQRLUtilsLib
                     {"ids",encodedSignature },
                 };
             return strContent;
+        }
+
+        public void ZeroFillByteArray(byte[] key)
+        {
+            for(int i=0; i < key.Length;i++)
+            {
+                key[0] = 0;
+            }
         }
 
         
