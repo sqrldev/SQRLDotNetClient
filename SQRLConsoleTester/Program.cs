@@ -1,5 +1,6 @@
 ﻿using SQRLUtilsLib;
 using System;
+using System.IO;
 using System.Text;
 using static SQRLUtilsLib.SQRLOptions;
 
@@ -11,7 +12,7 @@ namespace SQRLConsoleTester
         {
             SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
 
-            SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(@"C:\Users\jose\Downloads\SQRL-Test-Identity-Resources\Spec-Vectors-Identity.sqrl");
+            SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(Path.Combine(Directory.GetCurrentDirectory(), @"Spec-Vectors-Identity.sqrl"));
             SQRLOptions opts = new SQRLOptions(SQRLOpts.SUK | SQRLOpts.NOIPTEST);
 
             Console.WriteLine("Enter SQRL URL:");
