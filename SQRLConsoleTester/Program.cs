@@ -99,7 +99,7 @@ namespace SQRLConsoleTester
                     {
                         case 0:
                             {
-                                serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "disable", opts,  addClientData);
+                                serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "ident", opts,  addClientData);
                             }
                             break;
                         case 1:
