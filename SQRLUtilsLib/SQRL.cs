@@ -23,6 +23,18 @@ namespace SQRLUtilsLib
         private readonly char[] BASE56_ALPHABETH = { '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
         private const int ENCODING_BASE = 56;
         private const int CLIENT_VERSION = 1;
+
+        public CPSServer cps=null;
+
+
+        public SQRL(bool startCPS=false)
+        {
+            if (startCPS)
+                this.cps = new CPSServer();
+        }
+
+
+
         /// <summary>
         /// Creates a Random Identity Unlock Key
         /// </summary>
