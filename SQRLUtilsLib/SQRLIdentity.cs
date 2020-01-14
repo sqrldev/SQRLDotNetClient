@@ -11,15 +11,22 @@ namespace SQRLUtilsLib
         {
             this.Block1 = new SQRLBlock1();
             this.Block2 = new SQRLBlock2();
+            this.Block3 = new SQRLBlock3();
         }
 
         public const String SQRLHEADER = "sqrldata";
         public SQRLBlock1 Block1 { get; set; }
         public SQRLBlock2 Block2 { get; set; }
+        public SQRLBlock3 Block3{ get; set; }
 
         public byte[] ToByteArray()
         {
-            return System.Text.Encoding.UTF8.GetBytes(SQRLHEADER).Concat(this.Block1.ToByteArray().Concat(Block2.ToByteArray()).ToArray()).ToArray();
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(SQRLHEADER).Concat(this.Block1.ToByteArray().Concat(Block2.ToByteArray()).ToArray()).ToArray();
+            if(this.Block3!=null && this.Block3.ToByteArray().Length>0)
+            {
+                data= data.Concat(this.Block3.ToByteArray()).ToArray();
+            }
+            return data;
         }
 
         public void WriteToFile(string fileName)
@@ -142,6 +149,56 @@ namespace SQRLUtilsLib
             byteAry.Add(LogNFactor);
             byteAry.AddRange(BitConverter.GetBytes(IterationCount));
             byteAry.AddRange(EncryptedIdentityLock);
+            byteAry.AddRange(VerificationTag);
+
+            return byteAry.ToArray();
+        }
+
+
+
+    }
+
+    public class SQRLBlock3 : ISQRLBlock
+    {
+        public ushort Length { get; set; } = 54;
+        public ushort Type { get; } = 3;
+
+        public ushort Edition { get; set; } = 2;
+
+        public List<byte[]> EncryptedPrevIUKs { get; set; }
+        
+        public byte[] VerificationTag { get; set; }
+        
+        public SQRLBlock3()
+        {
+            EncryptedPrevIUKs = new List<byte[]>();
+        }
+        public void FromByteArray(byte[] blockData)
+        {
+            if (blockData.Length != 54 && blockData.Length != 86 && blockData.Length != 118 && blockData.Length != 150)
+                throw new Exception("Invalid Block 3, incorrect number of bytes");
+            this.Length = BitConverter.ToUInt16(blockData.Skip(0).Take(2).ToArray());
+            this.Edition = BitConverter.ToUInt16(blockData.Skip(4).Take(2).ToArray());
+            int skip = 6;
+            for(int i =0; i < this.Edition; i++)
+            {
+                if (this.EncryptedPrevIUKs == null)
+                    this.EncryptedPrevIUKs = new List<byte[]>();
+
+                this.EncryptedPrevIUKs.Add(blockData.Skip(skip).Take(32).ToArray());
+                skip += 32;
+            }
+            this.VerificationTag = blockData.Skip(skip).Take(16).ToArray();
+            
+        }
+
+        public byte[] ToByteArray()
+        {
+            List<byte> byteAry = new List<byte>();
+            byteAry.AddRange(BitConverter.GetBytes(Length));
+            byteAry.AddRange(BitConverter.GetBytes(Type));
+            byteAry.AddRange(BitConverter.GetBytes(Edition));
+            this.EncryptedPrevIUKs.ForEach(x => byteAry.AddRange(x));
             byteAry.AddRange(VerificationTag);
 
             return byteAry.ToArray();

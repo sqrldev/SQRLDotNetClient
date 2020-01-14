@@ -12,7 +12,7 @@ namespace Sodium
     {
         private const int KEYBYTES = 32;
         private const int NPUBBYTES = 12;
-        //private const int ABYTES = 16;
+        private const int ABYTES = 16;
 
         /// <summary>Detect if the current CPU supports the required instructions (SSSE3, aesni, pcmul).</summary>
         /// <returns><c>true</c> if the CPU supports the necessary instructions, otherwise <c>false</c></returns>
@@ -66,7 +66,7 @@ namespace Sodium
                throw new AdditionalDataOutOfRangeException(
                  string.Format("additionalData must be between {0} and {1} bytes in length.", 0, ABYTES));*/
 
-            var cipher = new byte[message.Length + additionalData.Length];
+            var cipher = new byte[message.Length + ABYTES];
             var bin = Marshal.AllocHGlobal(cipher.Length);
             long cipherLength;
 

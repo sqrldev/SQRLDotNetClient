@@ -341,7 +341,7 @@ namespace SQRLUtilsLib
 
             byte[] encryptedData = AesGcmEncrypt(iuk, plainText.ToArray(), initVector, key); //Should be 80 bytes
             identity.Block2.EncryptedIdentityLock = encryptedData.ToList().GetRange(0, 32).ToArray(); ;
-            identity.Block2.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray(); ;
+            identity.Block2.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray(); 
 
         }
 
@@ -610,6 +610,11 @@ namespace SQRLUtilsLib
                     id.Block1.FromByteArray(block1);
                     byte[] block2 = fileBytes.Skip(133).Take(73).ToArray();
                     id.Block2.FromByteArray(block2);
+
+                    var block3Length = BitConverter.ToUInt16(fileBytes.Skip(133 + 73).Take(2).ToArray());
+
+                    byte[] block3 = fileBytes.Skip(133+73).Take(block3Length).ToArray();
+                    id.Block3.FromByteArray(block3);
 
                 }
                 else
@@ -979,6 +984,75 @@ namespace SQRLUtilsLib
                 };
             return strContent;
         }
+
+
+        public SQRLIdentity RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, out string newRescueCode)
+        {
+            SQRLIdentity newID = new SQRLIdentity();
+            this.DecryptBlock2(identity, rescueCode, out byte[] oldIuk);
+            newRescueCode = CreateRescueCode();
+            byte[] newIUK = CreateIUK();
+            
+            GenerateIdentityBlock1(newIUK, newPassword, newID);
+            GenerateIdentityBlock2(newIUK, newRescueCode, newID);
+            GenerateIdentityBlock3(oldIuk, identity, newID, CreateIMK(oldIuk), CreateIMK(newIUK));
+            return newID;
+        }
+
+        private void GenerateIdentityBlock3(byte[] oldIuk, SQRLIdentity oldIdentity, SQRLIdentity newID, byte[] oldImk, byte[] newImk)
+        {
+
+            byte[] decryptedBlock3 = null;
+            List<byte> unencryptedOldKeys = new List<byte>();
+            unencryptedOldKeys.AddRange(oldIuk);
+            int skip = 0;
+            if (oldIdentity.Block3.EncryptedPrevIUKs.Count > 0)
+            {
+                decryptedBlock3 = DecryptBlock3(oldImk, oldIdentity);
+
+                skip = 0;
+                int ct = 0;
+                while (skip < decryptedBlock3.Length)
+                {
+                    unencryptedOldKeys.AddRange(decryptedBlock3.Skip(skip).Take(32).ToArray());
+                    skip += 32;
+                    ;
+                    if (++ct >= 3)
+                        break;
+
+                }
+            }
+            List<byte> plainText = new List<byte>();
+            ushort newLength = (ushort)(oldIdentity.Block3.Length + 32 > 150 ? 150 : oldIdentity.Block3.Length + 32);
+            plainText.AddRange(GetBytes(newLength));
+            newID.Block3.Length = newLength;
+            plainText.AddRange(GetBytes(newID.Block3.Type));
+            plainText.AddRange(GetBytes((ushort)(unencryptedOldKeys.Count / 32)));
+            newID.Block3.Edition = (ushort)(unencryptedOldKeys.Count / 32);
+            byte[] result = AesGcmEncrypt(unencryptedOldKeys.ToArray(), plainText.ToArray(),new byte[12], newImk);
+            skip = 0;
+            while (skip+16 < result.Length)
+            {
+                newID.Block3.EncryptedPrevIUKs.Add(result.Skip(skip).Take(32).ToArray());
+                skip += 32;
+            }
+            newID.Block3.VerificationTag = result.Skip(result.Length - 16).Take(16).ToArray();
+            
+        }
+
+        public byte[] DecryptBlock3(byte[] ikm, SQRLIdentity identity)
+        {
+            List<byte> plainText = new List<byte>();
+            plainText.AddRange(GetBytes(identity.Block3.Length));
+            plainText.AddRange(GetBytes(identity.Block3.Type));
+            plainText.AddRange(GetBytes(identity.Block3.Edition));
+            List<byte> encryptedKeys = new List<byte>();
+            identity.Block3.EncryptedPrevIUKs.ForEach(x => encryptedKeys.AddRange(x));
+            encryptedKeys.AddRange(identity.Block3.VerificationTag);
+            byte[] result = Sodium.SecretAeadAes.Decrypt(encryptedKeys.ToArray(), new byte[12], ikm, plainText.ToArray());
+            return result;
+        }
+
 
         /// <summary>
         /// Zeroes out a byte array to remove our keys from memory

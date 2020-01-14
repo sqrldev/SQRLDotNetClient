@@ -15,14 +15,20 @@ namespace SQRLConsoleTester
             SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(Path.Combine(Directory.GetCurrentDirectory(), @"Spec-Vectors-Identity.sqrl"));
             SQRLOptions opts = new SQRLOptions(SQRLOpts.SUK | SQRLOpts.NOIPTEST | SQRLOpts.CPS);
             bool run =true;
+            
+           
+            sqrl.DecryptBlock1(newId, "Zingo-Bingo-Slingo-Dingo", out byte[] imk, out byte[] ilk);
+            
+            
             do
             {
+                
                 Console.WriteLine("Enter SQRL URL:");
                 string url = Console.ReadLine();
                 Uri requestURI = new Uri(url);
                 string AltID = "";
 
-                sqrl.DecryptBlock1(newId, "Zingo-Bingo-Slingo-Dingo", out byte[] imk, out byte[] ilk);
+               
                 var siteKvp = sqrl.CreateSiteKey(requestURI, AltID, imk);
                 SQRL.ZeroFillByteArray(imk);
                 var serverRespose = sqrl.GenerateQueryCommand(requestURI, siteKvp, opts);
