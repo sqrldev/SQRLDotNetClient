@@ -45,12 +45,13 @@ namespace SQRLUtilsLib
             {
                 try
                 {
+                    Console.WriteLine("Http Listening");
                     HttpListenerContext context = _listener.GetContext();
                     Process(context);
                 }
                 catch (Exception ex)
                 {
-
+                    Console.WriteLine($"Error with CPS: {ex}");
                 }
             }
         }
@@ -58,16 +59,20 @@ namespace SQRLUtilsLib
 
         private void Process(HttpListenerContext context)
         {
+            Console.WriteLine("Processing Request");
             string filename = context.Request.Url.AbsolutePath;
-            Console.WriteLine(filename);
+            
             string extension = Path.GetExtension(filename);
             if(extension.Equals(".gif", StringComparison.OrdinalIgnoreCase))
             {
+                Console.WriteLine($"Got Gif request");
                 RespondWithGif(context);
+                Console.WriteLine($"Responded to Gif request");
             }
             else
             {
                 this.PendingResponse = true;
+                
                 RespondWithCPS(context);
                 this.PendingResponse = false;
             }
@@ -75,6 +80,7 @@ namespace SQRLUtilsLib
 
         private void RespondWithCPS(HttpListenerContext context)
         {
+            Console.WriteLine($"Got CPS Request");
             string data = context.Request.Url.AbsolutePath.Substring(1);
             Sodium.SodiumCore.Init();
             Uri cpsData = new Uri(Encoding.UTF8.GetString(Sodium.Utilities.Base64ToBinary(data, "", Sodium.Utilities.Base64Variant.UrlSafeNoPadding)));
@@ -88,13 +94,16 @@ namespace SQRLUtilsLib
                 this.Can = new Uri(Encoding.UTF8.GetString(Sodium.Utilities.Base64ToBinary(nvC["can"],string.Empty,Sodium.Utilities.Base64Variant.UrlSafeNoPadding)));
             }
 
-            foreach(var x in cpsBC.GetConsumingEnumerable())
+            Console.WriteLine($"Holding here till CPS is Ready");
+            foreach (var x in cpsBC.GetConsumingEnumerable())
             {
+                Console.WriteLine($"Redirecting To: {x}");
                 context.Response.Redirect(x.ToString());
-                context.Response.Close();
                 context.Response.StatusCode = (int)HttpStatusCode.Redirect;
+                context.Response.Close();
                break;
             }
+            Console.WriteLine($"Done with Request");
 
         }
 
@@ -112,6 +121,7 @@ namespace SQRLUtilsLib
                 context.Response.OutputStream.Write(gif, 0, gif.Length);
                 context.Response.StatusCode = (int)HttpStatusCode.OK;
                 context.Response.OutputStream.Flush();
+                context.Response.Close();
             }
             catch (Exception ex)
             {

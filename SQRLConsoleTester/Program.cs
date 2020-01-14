@@ -14,6 +14,7 @@ namespace SQRLConsoleTester
 
             SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(Path.Combine(Directory.GetCurrentDirectory(), @"Spec-Vectors-Identity.sqrl"));
             SQRLOptions opts = new SQRLOptions(SQRLOpts.SUK | SQRLOpts.NOIPTEST | SQRLOpts.CPS);
+            bool run =true;
             do
             {
                 Console.WriteLine("Enter SQRL URL:");
@@ -148,13 +149,13 @@ namespace SQRLConsoleTester
                             default:
                                 {
                                     Console.WriteLine("bye");
-                                    Environment.Exit(0);
+                                    run = false;
                                 }
                                 break;
                         }
                     }
                 }
-            } while (true);
+            } while (run);
         }
     }
 }
