@@ -53,6 +53,8 @@ namespace SQRLUtilsLib
 
         public bool HasAsk { get; set; }
 
+        public string SUK { get; set; }
+
         public string AskMessage { get
             {
                 return Encoding.UTF8.GetString(Sodium.Utilities.Base64ToBinary(this.Ask.Split('~')[0],string.Empty,Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
@@ -134,6 +136,10 @@ namespace SQRLUtilsLib
                 {
                     this.Ask = value;
                     this.HasAsk = true;
+                }
+                else if(key.Equals("suk",StringComparison.OrdinalIgnoreCase))
+                {
+                    this.SUK = value;
                 }
             }
         }

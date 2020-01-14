@@ -123,6 +123,8 @@ namespace SQRLUtilsLib
             SodiumInitialized = true;
         }
 
+       
+
         /// <summary>
         ///  EnHash Algorithm
         ///  SHA256 is iterated 16 times with each
@@ -807,6 +809,42 @@ namespace SQRLUtilsLib
             return serverResponse;
         }
 
+        public SQRLServerResponse GenerateCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string command, string[] opts, out string message, StringBuilder addClientData = null)
+        {
+            SQRLServerResponse serverResponse = null;
+            message = "";
+            using (HttpClient wc = new HttpClient())
+            {
+                wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez SQRL Client");
+                if (opts == null)
+                {
+                    opts = new string[]
+                    {
+                        "suk"
+                    };
+                }
+                StringBuilder client = new StringBuilder();
+                client.AppendLineWindows($"ver={CLIENT_VERSION}");
+                client.AppendLineWindows($"cmd={command}");
+                client.AppendLineWindows($"opt={string.Join("~", opts)}");
+                if (addClientData != null)
+                    client.Append(addClientData);
+                client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
+
+
+                Dictionary<string, string> strContent = GenerateResponse(sqrl, siteKP, client, priorServerMessaage);
+                var content = new FormUrlEncodedContent(strContent);
+
+                var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
+                var result = response.Content.ReadAsStringAsync().Result;
+                serverResponse = new SQRLServerResponse(result, sqrl.Host, sqrl.IsDefaultPort ? 443 : sqrl.Port);
+
+            }
+
+            return serverResponse;
+
+        }
+
         /// <summary>
         /// Generates a Client Response Message to the Server from a Client, Server Strings
         /// </summary>
@@ -822,6 +860,8 @@ namespace SQRLUtilsLib
             string encodedServer = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(server.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
             return GenerateResponse(sqrl, siteKP, client, encodedServer);
         }
+
+
 
         /// <summary>
         /// Generates a Client Message to the Server
@@ -846,6 +886,8 @@ namespace SQRLUtilsLib
                 };
             return strContent;
         }
+
+        
     }
 
     

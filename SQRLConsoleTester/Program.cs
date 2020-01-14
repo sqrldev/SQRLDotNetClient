@@ -10,7 +10,7 @@ namespace SQRLConsoleTester
         {
             SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
 
-            SQRLIdentity newId=sqrl.ImportSqrlIdentityFromFile(@"C:\Users\jose\Downloads\SQRL-Test-Identity-Resources\Spec-Vectors-Identity.sqrl");
+            SQRLIdentity newId = sqrl.ImportSqrlIdentityFromFile(@"C:\Users\jose\Downloads\SQRL-Test-Identity-Resources\Spec-Vectors-Identity.sqrl");
 
             //sqrl.InitiateRequest(, newId, "Zingo-Bingo-Slingo-Dingo");
             Console.WriteLine("Enter SQRL URL:");
@@ -33,13 +33,13 @@ namespace SQRLConsoleTester
                         addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
                         addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
 
-                        serverRespose = sqrl.GenerateIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, null, out string message, addClientData);
+                        serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "ident", null, out string message, addClientData);
                     }
                 }
-                else if(serverRespose.CurrentIDMatch)
+                else if (serverRespose.CurrentIDMatch)
                 {
                     int askResponse = 0;
-                    if(serverRespose.HasAsk)
+                    if (serverRespose.HasAsk)
                     {
                         Console.WriteLine(serverRespose.AskMessage);
                         Console.WriteLine($"Enter 1 for {serverRespose.GetAskButtons[0]} or 2 for {serverRespose.GetAskButtons[1]}");
@@ -72,8 +72,9 @@ namespace SQRLConsoleTester
                     Console.WriteLine("1- Disable ");
                     Console.WriteLine("2- Enable ");
                     Console.WriteLine("3- Remove ");
+                    Console.WriteLine("10- Quit ");
                     Console.WriteLine("*********************************************");
-                    var value =Console.ReadLine();
+                    var value = Console.ReadLine();
                     int selection = 0;
                     int.TryParse(value, out selection);
 
@@ -81,7 +82,17 @@ namespace SQRLConsoleTester
                     {
                         case 0:
                             {
-                                serverRespose = sqrl.GenerateIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, null, out string message, addClientData);
+                                serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "disable", null, out string message, addClientData);
+                            }
+                            break;
+                        case 1:
+                            {
+                                Console.WriteLine("This will disable all use of this SQRL Identity on the server, are you sure you want to proceed?: (Y/N)");
+                                if (Console.ReadLine().StartsWith("Y", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "ident", null, out string message, addClientData);
+                                }
+
                             }
                             break;
                         default:
@@ -90,20 +101,22 @@ namespace SQRLConsoleTester
                             }
                             break;
                     }
-
-
-
-
-                    //serverRespose = sqrl.GenerateIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, null, out string message, addClientData);
-
-
-                    /*else
-                    {
-                        serverRespose = sqrl.GenerateIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, null, out string message, null);
-                    }*/
                 }
-            }
 
+
+
+
+
+                //serverRespose = sqrl.GenerateIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, null, out string message, addClientData);
+
+
+                /*else
+                {
+                    serverRespose = sqrl.GenerateIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, null, out string message, null);
+                }*/
+            }
         }
+
     }
+}
 }
