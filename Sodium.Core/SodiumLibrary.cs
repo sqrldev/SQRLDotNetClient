@@ -10,7 +10,7 @@ namespace Sodium
     {
 
 #if IOS
-    const string DllName = "__Internal";
+        const string DllName = "__Internal";
 #else
         const string DllName = "libsodium";
 #endif

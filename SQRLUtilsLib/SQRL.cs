@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Sodium;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Numerics;
 using System.IO;
-using Sodium;
-using System.Net;
+using System.Linq;
 using System.Net.Http;
+using System.Numerics;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace SQRLUtilsLib
@@ -64,8 +63,11 @@ namespace SQRLUtilsLib
             return new String(tempBytes);
         }
 
-        public byte[] GetURSKey(byte[] IUK, byte[] SUK)
+        public  byte[] GetURSKey(byte[] IUK, byte[] SUK)
         {
+            if (!SodiumInitialized)
+                SodiumInit();
+
             var bytesToSign = Sodium.ScalarMult.Mult(IUK, SUK);
             var ursKeyPair = Sodium.PublicKeyAuth.GenerateKeyPair(bytesToSign);
 
@@ -82,7 +84,7 @@ namespace SQRLUtilsLib
             if (!SodiumInitialized)
                 SodiumInit();
 
-            return enHash(iuk);
+            return EnHash(iuk);
         }
 
         /// <summary>
@@ -107,7 +109,7 @@ namespace SQRLUtilsLib
             return Sodium.SodiumCore.GetRandomBytes(32);
         }
 
-        public KeyValuePair<byte[],byte[]> GetSukVuk(byte[] ILK)
+        public KeyValuePair<byte[], byte[]> GetSukVuk(byte[] ILK)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -120,7 +122,7 @@ namespace SQRLUtilsLib
             var vukKeyPair = Sodium.PublicKeyAuth.GenerateKeyPair(bytesToSign);
 
             var VUK = vukKeyPair.PublicKey;
-            
+
             return KeyValuePair.Create(SUK, VUK);
         }
 
@@ -131,7 +133,7 @@ namespace SQRLUtilsLib
             SodiumInitialized = true;
         }
 
-        
+
 
 
 
@@ -142,9 +144,11 @@ namespace SQRLUtilsLib
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public byte[] enHash(byte[] data)
+        public  byte[] EnHash(byte[] data)
         {
-            byte[] result = new byte[32];
+            if (!SodiumInitialized)
+                SodiumInit();
+
             byte[] xor = new byte[32];
             for (int i = 0; i < 16; i++)
             {
@@ -174,7 +178,7 @@ namespace SQRLUtilsLib
         /// <param name="secondsToRun">Amount of time to Iterate</param>
         /// <param name="count">Output of how many iterations the above Time Took</param>
         /// <returns></returns>
-        public byte[] enScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, out int count)
+        public byte[] EnScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, out int count)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -182,11 +186,10 @@ namespace SQRLUtilsLib
             byte[] passwordBytes = Encoding.ASCII.GetBytes(password);
             DateTime startTime = DateTime.Now;
             byte[] xorKey = new byte[32];
-            byte[] key = new byte[32];
             count = 0;
             while (Math.Abs((DateTime.Now - startTime).TotalSeconds) < secondsToRun)
             {
-                key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
+                byte[] key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
 
                 if (count == 0)
                 {
@@ -217,19 +220,18 @@ namespace SQRLUtilsLib
         /// <param name="logNFactor">Log N Factor</param>
         /// <param name="intCount">Number of Iterations (inclusive)</param>
         /// <returns></returns>
-        public byte[] enScryptCT(String password, byte[] randomSalt, int logNFactor, int intCount)
+        public byte[] EnScryptCT(String password, byte[] randomSalt, int logNFactor, int intCount)
         {
             if (!SodiumInitialized)
                 SodiumInit();
 
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
-            DateTime startTime = DateTime.Now;
+            
             byte[] xorKey = new byte[32];
-            byte[] key = new byte[32];
             int count = 0;
             while (count < intCount)
             {
-                key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
+                byte[] key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
 
                 if (count == 0)
                 {
@@ -265,14 +267,13 @@ namespace SQRLUtilsLib
                 SodiumInit();
             byte[] initVector = Sodium.SodiumCore.GetRandomBytes(12);
             byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
-            byte[] key = new byte[32];
-            
-            int iterationCount = 0;
+
+
             byte[] imk = CreateIMK(iuk);
             byte[] ilk = CreateILK(iuk);
-            key = enScryptTime(password, randomSalt, (int)Math.Pow(2, 9), 5, out iterationCount);
+            var key = EnScryptTime(password, randomSalt, (int)Math.Pow(2, 9), 5, out int iterationCount);
 
-          
+
             identity.Block1.ScryptInitVector = initVector;
             identity.Block1.ScryptRandomSalt = randomSalt;
             identity.Block1.IterationCount = (uint)iterationCount;
@@ -288,12 +289,12 @@ namespace SQRLUtilsLib
             plainText.Add(identity.Block1.HintLenght);
             plainText.Add(identity.Block1.PwdVerifySeconds);
             plainText.AddRange(GetBytes(identity.Block1.PwdTimeoutMins));
-            
-            
-            IEnumerable<byte> unencryptedKeys = imk.Concat(ilk);
-          
 
-            byte[] encryptedData = aesGcmEncrypt(unencryptedKeys.ToArray(), plainText.ToArray(), initVector, key); //Should be 80 bytes
+
+            IEnumerable<byte> unencryptedKeys = imk.Concat(ilk);
+
+
+            byte[] encryptedData = AesGcmEncrypt(unencryptedKeys.ToArray(), plainText.ToArray(), initVector, key); //Should be 80 bytes
             identity.Block1.EncryptedIMK = encryptedData.ToList().GetRange(0, 32).ToArray();
             identity.Block1.EncryptedILK = encryptedData.ToList().GetRange(32, 32).ToArray();
             identity.Block1.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray();
@@ -313,9 +314,9 @@ namespace SQRLUtilsLib
             byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
 
 
-            byte[] key = enScryptTime(rescueCode, randomSalt, (int)Math.Pow(2, 9), 5, out int iterationCount);
+            byte[] key = EnScryptTime(rescueCode, randomSalt, (int)Math.Pow(2, 9), 5, out int iterationCount);
             identity.Block2.RandomSalt = randomSalt;
-            
+
             identity.Block2.IterationCount = (uint)iterationCount;
 
             List<byte> plainText = new List<byte>();
@@ -325,8 +326,8 @@ namespace SQRLUtilsLib
             plainText.Add(identity.Block2.LogNFactor);
             plainText.AddRange(GetBytes(identity.Block2.IterationCount));
 
-            
-            byte[] encryptedData = aesGcmEncrypt(iuk, plainText.ToArray(), initVector, key); //Should be 80 bytes
+
+            byte[] encryptedData = AesGcmEncrypt(iuk, plainText.ToArray(), initVector, key); //Should be 80 bytes
             identity.Block2.EncryptedIdentityLock = encryptedData.ToList().GetRange(0, 32).ToArray(); ;
             identity.Block2.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray(); ;
 
@@ -374,16 +375,13 @@ namespace SQRLUtilsLib
         /// <param name="iv"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        public byte[] aesGcmEncrypt(byte[] message, byte[] additionalData, byte[] iv, byte[] key)
+        public byte[] AesGcmEncrypt(byte[] message, byte[] additionalData, byte[] iv, byte[] key)
         {
-            long length = message.Length + 16;
-            byte[] cipherText = new byte[length];
-
             if (!SodiumInitialized)
                 SodiumInit();
 
             //Had to override Sodium Core to allow more than 16 bytes of additional data
-            cipherText = Sodium.SecretAeadAes.Encrypt(message, iv, key, additionalData);
+            byte[] cipherText = Sodium.SecretAeadAes.Encrypt(message, iv, key, additionalData);
 
             return cipherText;
         }
@@ -393,7 +391,7 @@ namespace SQRLUtilsLib
         /// </summary>
         /// <param name="rescueCode"></param>
         /// <returns></returns>
-        public string FormatRescueCodeForDisplay(string rescueCode)
+        public static string FormatRescueCodeForDisplay(string rescueCode)
         {
             return Regex.Replace(rescueCode, ".{4}(?!$)", "$0-");
         }
@@ -406,8 +404,8 @@ namespace SQRLUtilsLib
         /// <returns></returns>
         public string GenerateTextualIdentityBase56(byte[] identity)
         {
-          
-            int maxLength = (int)Math.Ceiling((double)(identity.Length * 8) / (Math.Log(ENCODING_BASE)/ Math.Log(2)));
+
+            int maxLength = (int)Math.Ceiling((double)(identity.Length * 8) / (Math.Log(ENCODING_BASE) / Math.Log(2)));
             BigInteger bigNum = new BigInteger(identity.Concat(new byte[] { (byte)0 }).ToArray());
             List<byte> checksumBytes = new List<byte>();
             List<char> TextID = new List<char>();
@@ -430,8 +428,7 @@ namespace SQRLUtilsLib
                 }
                 else
                 {
-                    BigInteger bigRemainder;
-                    bigNum = BigInteger.DivRem(bigNum, ENCODING_BASE, out bigRemainder);
+                    bigNum = BigInteger.DivRem(bigNum, ENCODING_BASE, out BigInteger bigRemainder);
                     TextID.Add(BASE56_ALPHABETH[(int)bigRemainder]);
                     checksumBytes.Add((byte)BASE56_ALPHABETH[(int)bigRemainder]);
                 }
@@ -456,12 +453,11 @@ namespace SQRLUtilsLib
 
             byte[] hash = Sodium.CryptoHash.Sha256(dataBytes);
             BigInteger bigI = new BigInteger(hash.Concat(new byte[] { 0 }).ToArray());
-            BigInteger remainder;
-            BigInteger.DivRem(bigI, ENCODING_BASE, out remainder);
+            BigInteger.DivRem(bigI, ENCODING_BASE, out BigInteger remainder);
             return BASE56_ALPHABETH[(int)remainder];
         }
 
-        
+
 
         /// <summary>
         /// Formats the Textual Identity for Displays using a format of 
@@ -469,16 +465,16 @@ namespace SQRLUtilsLib
         /// </summary>
         /// <param name="textID"></param>
         /// <returns></returns>
-        public string FormatTextualIdentity(char[] textID)
+        public static string FormatTextualIdentity(char[] textID)
         {
             StringBuilder sb = new StringBuilder();
-            for(int i=0; i< textID.Length; i++)
+            for (int i = 0; i < textID.Length; i++)
             {
                 sb.Append(textID[i]);
 
-                if(i+1 < textID.Length)
+                if (i + 1 < textID.Length)
                 {
-                    if((i+1) %20 ==0)
+                    if ((i + 1) % 20 == 0)
                     {
                         sb.AppendLine();
                         continue;
@@ -497,15 +493,15 @@ namespace SQRLUtilsLib
         /// <param name="identityStr"></param>
         /// <param name="bypassCheck"></param>
         /// <returns></returns>
-        public byte[] Base56DecodeIdentity(string identityStr, bool bypassCheck =false)
+        public byte[] Base56DecodeIdentity(string identityStr, bool bypassCheck = false)
         {
             byte[] identity = null;
-            if(VerifyEncodedIdentity(identityStr)|| bypassCheck)
+            if (VerifyEncodedIdentity(identityStr) || bypassCheck)
             {
                 identityStr = Regex.Replace(identityStr, @"\s+", "").Replace("\r\n", "");
 
                 StringBuilder sb = new StringBuilder();
-                for(int i=0;i < identityStr.Length-1;i++)
+                for (int i = 0; i < identityStr.Length - 1; i++)
                 {
                     if ((i + 1) % 20 == 0)
                         continue;
@@ -513,10 +509,10 @@ namespace SQRLUtilsLib
                 }
                 identityStr = sb.ToString();
 
-                int expectedNumberOfBytes = (int)(identityStr.Length * (Math.Log(ENCODING_BASE)/ Math.Log(2)) /8);
+                int expectedNumberOfBytes = (int)(identityStr.Length * (Math.Log(ENCODING_BASE) / Math.Log(2)) / 8);
                 BigInteger powVal = 0;
                 BigInteger bigInt = 0;
-                for(int i =0; i< identityStr.Length; i++)
+                for (int i = 0; i < identityStr.Length; i++)
                 {
                     if (powVal.IsZero)
                         powVal = 1;
@@ -525,7 +521,7 @@ namespace SQRLUtilsLib
 
                     int idex = Array.IndexOf(BASE56_ALPHABETH, identityStr[i]);
                     BigInteger newVal = BigInteger.Multiply(powVal, idex);
-                    bigInt=BigInteger.Add(bigInt, newVal);
+                    bigInt = BigInteger.Add(bigInt, newVal);
                 }
 
                 //List<byte> identityArray = bigInt.ToByteArray().ToList();
@@ -534,7 +530,7 @@ namespace SQRLUtilsLib
                     identity = identity.Take(identity.Length - 1).ToArray();
 
                 int lengthDiff = expectedNumberOfBytes - identity.Length;
-                if(lengthDiff > 0)
+                if (lengthDiff > 0)
                 {
                     for (int i = 0; i < lengthDiff; i++)
                         identity = identity.Concat(new byte[] { 0 }).ToArray();
@@ -553,17 +549,17 @@ namespace SQRLUtilsLib
         public bool VerifyEncodedIdentity(string identityStr)
         {
             //Remove White Space
-            identityStr = Regex.Replace(identityStr, @"\s+", "").Replace("\r\n","");
+            identityStr = Regex.Replace(identityStr, @"\s+", "").Replace("\r\n", "");
 
             byte lineNr = 0;
-            for(int i=0; i < identityStr.Length;i+=20)
+            for (int i = 0; i < identityStr.Length; i += 20)
             {
                 int checkSumPosition = i + 19;
                 int checkSumDataLength = 19;
                 if (checkSumPosition >= identityStr.Length)
                 {
                     checkSumPosition = identityStr.Length - 1;
-                    checkSumDataLength = checkSumPosition-i;
+                    checkSumDataLength = checkSumPosition - i;
                 }
 
                 List<byte> checkSumBytes = new List<byte>();
@@ -574,7 +570,7 @@ namespace SQRLUtilsLib
                 checkSumBytes.Add((byte)lineNr);
                 char computerCheckSumChar = GetBase56CheckSum(checkSumBytes.ToArray());
                 if (computerCheckSumChar != identityStr[checkSumPosition])
-                        return false;
+                    return false;
 
                 lineNr++;
             }
@@ -587,7 +583,7 @@ namespace SQRLUtilsLib
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
-        public SQRLIdentity ImportSqrlIdentityFromFile(string file)
+        public static SQRLIdentity ImportSqrlIdentityFromFile(string file)
         {
             SQRLIdentity id = null;
 
@@ -622,11 +618,11 @@ namespace SQRLUtilsLib
         /// <returns></returns>
         public bool DecryptBlock1(SQRLIdentity identity, string password, out byte[] imk, out byte[] ilk)
         {
-            byte[] key = enScryptCT(password, identity.Block1.ScryptRandomSalt, (int)Math.Pow(2, identity.Block1.LogNFactor), (int)identity.Block1.IterationCount);
+            byte[] key = EnScryptCT(password, identity.Block1.ScryptRandomSalt, (int)Math.Pow(2, identity.Block1.LogNFactor), (int)identity.Block1.IterationCount);
 
             List<byte> plainText = new List<byte>();
-            byte[] ary = identity.Block1.ToByteArray();
-          
+            
+
             plainText.AddRange(GetBytes(identity.Block1.Length));
             plainText.AddRange(GetBytes(identity.Block1.Type));
             plainText.AddRange(GetBytes(identity.Block1.InnerBlockLength));
@@ -641,7 +637,7 @@ namespace SQRLUtilsLib
 
 
             byte[] encryptedKeys = identity.Block1.EncryptedIMK.Concat(identity.Block1.EncryptedILK).Concat(identity.Block1.VerificationTag).ToArray();
-            byte[] result =Sodium.SecretAeadAes.Decrypt(encryptedKeys, identity.Block1.ScryptInitVector, key, plainText.ToArray());
+            byte[] result = Sodium.SecretAeadAes.Decrypt(encryptedKeys, identity.Block1.ScryptInitVector, key, plainText.ToArray());
             if (result != null)
             {
                 imk = result.Skip(0).Take(32).ToArray();
@@ -653,7 +649,7 @@ namespace SQRLUtilsLib
                 ilk = null;
                 imk = null;
             }
-                return false;
+            return false;
         }
 
         /// <summary>
@@ -665,10 +661,10 @@ namespace SQRLUtilsLib
         /// <returns></returns>
         public bool DecryptBlock2(SQRLIdentity identity, string rescueCode, out byte[] iuk)
         {
-            byte[] key = enScryptCT(rescueCode, identity.Block2.RandomSalt, (int)Math.Pow(2, identity.Block2.LogNFactor), (int)identity.Block2.IterationCount);
+            byte[] key = EnScryptCT(rescueCode, identity.Block2.RandomSalt, (int)Math.Pow(2, identity.Block2.LogNFactor), (int)identity.Block2.IterationCount);
 
             List<byte> plainText = new List<byte>();
-            
+
             plainText.AddRange(GetBytes(identity.Block2.Length));
             plainText.AddRange(GetBytes(identity.Block2.Type));
             plainText.AddRange(identity.Block2.RandomSalt);
@@ -701,12 +697,15 @@ namespace SQRLUtilsLib
         /// <param name="imk"></param>
         /// <param name="test">This is specifically for the vextor tests since they don't use the x param (should be fixed)</param>
         /// <returns></returns>
-        public Sodium.KeyPair CreateSiteKey(Uri domain, String altID, byte[] imk, bool test =false)
+        public  Sodium.KeyPair CreateSiteKey(Uri domain, String altID, byte[] imk, bool test = false)
         {
-            byte[] domainBytes = Encoding.UTF8.GetBytes(domain.DnsSafeHost+(test?(domain.LocalPath.Equals("/")?"":domain.LocalPath):""));
+            if (!SodiumInitialized)
+                SodiumInit();
+
+            byte[] domainBytes = Encoding.UTF8.GetBytes(domain.DnsSafeHost + (test ? (domain.LocalPath.Equals("/") ? "" : domain.LocalPath) : ""));
 
             var nvC = HttpUtility.ParseQueryString(domain.Query);
-            if(nvC["x"]!=null)
+            if (nvC["x"] != null)
             {
                 string extended = domain.LocalPath.Substring(0, int.Parse(nvC["x"]));
                 domainBytes = domainBytes.Concat(Encoding.UTF8.GetBytes(extended)).ToArray();
@@ -725,7 +724,7 @@ namespace SQRLUtilsLib
             return kp;
         }
 
-    
+
         /// <summary>
         /// Generates an Ident Request to the server
         /// </summary>
@@ -736,8 +735,11 @@ namespace SQRLUtilsLib
         /// <param name="message"></param>
         /// <param name="addClientData">Additional Client Data to Sendin VUK / SUK etc</param>
         /// <returns></returns>
-        public SQRLServerResponse GenerateIdentCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string[] opts, out string message,StringBuilder addClientData=null )
+        public  SQRLServerResponse GenerateIdentCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string[] opts, out string message, StringBuilder addClientData = null)
         {
+            if (!SodiumInitialized)
+                SodiumInit();
+
             SQRLServerResponse serverResponse = null;
             message = "";
             using (HttpClient wc = new HttpClient())
@@ -754,23 +756,23 @@ namespace SQRLUtilsLib
                 client.AppendLineWindows($"ver={CLIENT_VERSION}");
                 client.AppendLineWindows($"cmd=ident");
                 client.AppendLineWindows($"opt={string.Join("~", opts)}");
-                if(addClientData!=null)
+                if (addClientData != null)
                     client.Append(addClientData);
                 client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
 
-                
-                Dictionary<string, string> strContent = GenerateResponse(sqrl, siteKP, client, priorServerMessaage);
+
+                Dictionary<string, string> strContent = GenerateResponse( siteKP, client, priorServerMessaage);
                 var content = new FormUrlEncodedContent(strContent);
 
                 var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
                 var result = response.Content.ReadAsStringAsync().Result;
                 serverResponse = new SQRLServerResponse(result, sqrl.Host, sqrl.IsDefaultPort ? 443 : sqrl.Port);
-               
+
             }
 
             return serverResponse;
 
-            
+
         }
 
         /// <summary>
@@ -781,58 +783,73 @@ namespace SQRLUtilsLib
         /// <param name="opts"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP,SQRLOptions opts = null, int count=0)
+        public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, int count = 0)
         {
+            if (!SodiumInitialized)
+                SodiumInit();
             SQRLServerResponse serverResponse = null;
             using (HttpClient wc = new HttpClient())
             {
                 wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez SQRL Client");
-              
+
                 StringBuilder client = new StringBuilder();
                 client.AppendLineWindows($"ver={CLIENT_VERSION}");
                 client.AppendLineWindows($"cmd=query");
-                if(opts!=null)
+                if (opts != null)
                     client.AppendLineWindows($"opt={opts}");
                 client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
 
 
                 StringBuilder server = new StringBuilder();
                 server.Append($"{sqrl.OriginalString}");
-                Dictionary<string, string> strContent = GenerateResponse(sqrl, siteKP, client, server);
+                Dictionary<string, string> strContent = GenerateResponse(siteKP, client, server);
                 var content = new FormUrlEncodedContent(strContent);
 
-                var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort?"":$":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
+                var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
                 var result = response.Content.ReadAsStringAsync().Result;
-                    serverResponse = new SQRLServerResponse(result,sqrl.Host, sqrl.IsDefaultPort?443:sqrl.Port);
-                if(serverResponse.TransientError && count <=3)
+                serverResponse = new SQRLServerResponse(result, sqrl.Host, sqrl.IsDefaultPort ? 443 : sqrl.Port);
+                if (serverResponse.TransientError && count <= 3)
                 {
-                    serverResponse = GenerateQueryCommand(new Uri($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{serverResponse.Qry}"), siteKP, opts,++count); ;
+                    serverResponse = GenerateQueryCommand(new Uri($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{serverResponse.Qry}"), siteKP, opts, ++count); ;
                 }
-                
+
             }
 
             return serverResponse;
         }
 
-        public SQRLServerResponse GenerateCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string command, SQRLOptions opts, out string message, StringBuilder addClientData = null)
+        /// <summary>
+        /// Generates a response command
+        /// </summary>
+        /// <param name="sqrl"></param>
+        /// <param name="siteKP"></param>
+        /// <param name="priorServerMessaage"></param>
+        /// <param name="command"></param>
+        /// <param name="opts"></param>
+        /// <param name="addClientData"></param>
+        /// <returns></returns>
+        public  SQRLServerResponse GenerateCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string command, SQRLOptions opts,  StringBuilder addClientData = null)
         {
+            if (!SodiumInitialized)
+                SodiumInit();
+
             SQRLServerResponse serverResponse = null;
-            message = "";
+            
             using (HttpClient wc = new HttpClient())
             {
                 wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez SQRL Client");
-                
+
                 StringBuilder client = new StringBuilder();
                 client.AppendLineWindows($"ver={CLIENT_VERSION}");
                 client.AppendLineWindows($"cmd={command}");
-                if(opts!=null)
+                if (opts != null)
                     client.AppendLineWindows($"opt={opts}");
                 if (addClientData != null)
                     client.Append(addClientData);
                 client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
 
 
-                Dictionary<string, string> strContent = GenerateResponse(sqrl, siteKP, client, priorServerMessaage);
+                Dictionary<string, string> strContent = GenerateResponse( siteKP, client, priorServerMessaage);
                 var content = new FormUrlEncodedContent(strContent);
 
                 var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
@@ -845,19 +862,32 @@ namespace SQRLUtilsLib
 
         }
 
-
-        public SQRLServerResponse GenerateCommandWithURS(Uri sqrl, KeyPair siteKP, byte[] ursKey, string priorServerMessaage,string command, SQRLOptions opts=null, StringBuilder addClientData = null)
+        /// <summary>
+        /// Generates a command with a URS Signature
+        /// </summary>
+        /// <param name="sqrl"></param>
+        /// <param name="siteKP"></param>
+        /// <param name="ursKey"></param>
+        /// <param name="priorServerMessaage"></param>
+        /// <param name="command"></param>
+        /// <param name="opts"></param>
+        /// <param name="addClientData"></param>
+        /// <returns></returns>
+        public  SQRLServerResponse GenerateCommandWithURS(Uri sqrl, KeyPair siteKP, byte[] ursKey, string priorServerMessaage, string command, SQRLOptions opts = null, StringBuilder addClientData = null)
         {
+            if (!SodiumInitialized)
+                SodiumInit();
+
             SQRLServerResponse serverResponse = null;
-            
+
             using (HttpClient wc = new HttpClient())
             {
                 wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez's SQRL Client");
-         
+
                 StringBuilder client = new StringBuilder();
                 client.AppendLineWindows($"ver={CLIENT_VERSION}");
                 client.AppendLineWindows($"cmd={command}");
-                if(opts!=null)
+                if (opts != null)
                     client.AppendLineWindows($"opt={opts}");
                 if (addClientData != null)
                     client.Append(addClientData);
@@ -866,7 +896,7 @@ namespace SQRLUtilsLib
 
                 string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
                 string encodedServer = priorServerMessaage;
-                
+
                 byte[] signature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), siteKP.PrivateKey);
                 string encodedSignature = Sodium.Utilities.BinaryToBase64(signature, Utilities.Base64Variant.UrlSafeNoPadding);
                 byte[] ursSignature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), ursKey);
@@ -878,7 +908,7 @@ namespace SQRLUtilsLib
                     {"ids",encodedSignature },
                     {"urs",encodedUrsSignature },
                 };
-                
+
                 var content = new FormUrlEncodedContent(strContent);
 
                 var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
@@ -901,12 +931,13 @@ namespace SQRLUtilsLib
         /// <param name="client"></param>
         /// <param name="server"></param>
         /// <returns></returns>
-        private static Dictionary<string, string> GenerateResponse(Uri sqrl, KeyPair siteKP, StringBuilder client, StringBuilder server)
+        private  Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, StringBuilder server)
         {
-            
-            
+            if (!SodiumInitialized)
+                SodiumInit();
+
             string encodedServer = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(server.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
-            return GenerateResponse(sqrl, siteKP, client, encodedServer);
+            return GenerateResponse(siteKP, client, encodedServer);
         }
 
 
@@ -919,8 +950,10 @@ namespace SQRLUtilsLib
         /// <param name="client"></param>
         /// <param name="server"></param>
         /// <returns></returns>
-        private static Dictionary<string, string> GenerateResponse(Uri sqrl, KeyPair siteKP, StringBuilder client, string server)
+        private  Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, string server)
         {
+            if (!SodiumInitialized)
+                SodiumInit();
 
             string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
             string encodedServer = server;
@@ -935,25 +968,29 @@ namespace SQRLUtilsLib
             return strContent;
         }
 
-        public void ZeroFillByteArray(byte[] key)
+        /// <summary>
+        /// Zeroes out a byte array to remove our keys from memory
+        /// </summary>
+        /// <param name="key"></param>
+        public static void ZeroFillByteArray(byte[] key)
         {
-            for(int i=0; i < key.Length;i++)
+            for (int i = 0; i < key.Length; i++)
             {
                 key[0] = 0;
             }
         }
 
-        
+
     }
 
-    
+
 }
 
 public static class UtilClass
 {
     public static string CleanUpString(this string s)
     {
-        return s.Replace(" ", "").Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("\\n","");
+        return s.Replace(" ", "").Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("\\n", "");
     }
 
     public static StringBuilder AppendLineWindows(this StringBuilder sb, string s)

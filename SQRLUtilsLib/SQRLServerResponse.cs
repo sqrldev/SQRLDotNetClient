@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Linq;
+using System.Text;
 namespace SQRLUtilsLib
 {
     public class SQRLServerResponse
@@ -55,10 +54,12 @@ namespace SQRLUtilsLib
 
         public string SUK { get; set; }
 
-        public string AskMessage { get
+        public string AskMessage
+        {
+            get
             {
-                return Encoding.UTF8.GetString(Sodium.Utilities.Base64ToBinary(this.Ask.Split('~')[0],string.Empty,Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-            } 
+                return Encoding.UTF8.GetString(Sodium.Utilities.Base64ToBinary(this.Ask.Split('~')[0], string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+            }
         }
 
         public string[] GetAskButtons
@@ -89,9 +90,13 @@ namespace SQRLUtilsLib
             }
         }
 
-        public Uri NewNutURL { get {
+        public Uri NewNutURL
+        {
+            get
+            {
                 return new Uri($"https://{this.Host}{(Port == 443 ? "" : $":{this.Port}")}{this.Qry}");
-        } }
+            }
+        }
         public SQRLServerResponse(string response, string host, int port)
         {
             this.Host = host;
@@ -104,14 +109,14 @@ namespace SQRLUtilsLib
         }
         public void ParseServerResponse(string s)
         {
-            byte[] serverResponse = Sodium.Utilities.Base64ToBinary(s,"",Sodium.Utilities.Base64Variant.UrlSafeNoPadding);
+            byte[] serverResponse = Sodium.Utilities.Base64ToBinary(s, "", Sodium.Utilities.Base64Variant.UrlSafeNoPadding);
             string serverResponseStr = Encoding.UTF8.GetString(serverResponse);
             this.FullServerRequest = s;
             string[] serverResponseArray = serverResponseStr.Split("\r\n");
-            foreach(var line in serverResponseArray.Where(x=>!string.IsNullOrEmpty(x)))
+            foreach (var line in serverResponseArray.Where(x => !string.IsNullOrEmpty(x)))
             {
                 string key = line.Substring(0, line.IndexOf("="));
-                string value = line.Substring(line.IndexOf("=")+1);
+                string value = line.Substring(line.IndexOf("=") + 1);
                 if (key.Equals("ver", StringComparison.OrdinalIgnoreCase))
                 {
                     this.Ver = int.Parse(value);
@@ -128,16 +133,16 @@ namespace SQRLUtilsLib
                 {
                     this.Qry = value;
                 }
-                else if(key.Equals("url", StringComparison.OrdinalIgnoreCase))
+                else if (key.Equals("url", StringComparison.OrdinalIgnoreCase))
                 {
                     this.SuccessUrl = value;
                 }
-                else if(key.Equals("ask", StringComparison.OrdinalIgnoreCase))
+                else if (key.Equals("ask", StringComparison.OrdinalIgnoreCase))
                 {
                     this.Ask = value;
                     this.HasAsk = true;
                 }
-                else if(key.Equals("suk",StringComparison.OrdinalIgnoreCase))
+                else if (key.Equals("suk", StringComparison.OrdinalIgnoreCase))
                 {
                     this.SUK = value;
                 }

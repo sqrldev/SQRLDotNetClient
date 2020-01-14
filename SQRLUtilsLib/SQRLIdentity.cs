@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using System.IO;
+using System.Linq;
 
 namespace SQRLUtilsLib
 {
@@ -18,7 +17,7 @@ namespace SQRLUtilsLib
         public SQRLBlock1 Block1 { get; set; }
         public SQRLBlock2 Block2 { get; set; }
 
-       public byte[] ToByteArray()
+        public byte[] ToByteArray()
         {
             return System.Text.Encoding.UTF8.GetBytes(SQRLHEADER).Concat(this.Block1.ToByteArray().Concat(Block2.ToByteArray()).ToArray()).ToArray();
         }
@@ -28,11 +27,11 @@ namespace SQRLUtilsLib
             File.WriteAllBytes(fileName, this.ToByteArray());
         }
 
-     
+
     }
 
 
-    public interface SQRLBlock
+    public interface ISQRLBlock
     {
         byte[] ToByteArray();
         ushort Length { get; }
@@ -40,7 +39,7 @@ namespace SQRLUtilsLib
         void FromByteArray(byte[] blockData);
 
     }
-    public class SQRLBlock1: SQRLBlock
+    public class SQRLBlock1 : ISQRLBlock
     {
         public ushort Length { get; } = 125;
         public ushort Type { get; } = 1;
@@ -94,7 +93,7 @@ namespace SQRLUtilsLib
             byteAry.AddRange(BitConverter.GetBytes(InnerBlockLength));
             byteAry.AddRange(ScryptInitVector);
             byteAry.AddRange(ScryptRandomSalt);
-            byteAry.Add( LogNFactor );
+            byteAry.Add(LogNFactor);
             byteAry.AddRange(BitConverter.GetBytes(IterationCount));
             byteAry.AddRange(BitConverter.GetBytes(OptionFlags));
             byteAry.Add(HintLenght);
@@ -108,7 +107,7 @@ namespace SQRLUtilsLib
         }
     }
 
-    public class SQRLBlock2 : SQRLBlock
+    public class SQRLBlock2 : ISQRLBlock
     {
         public ushort Length { get; set; } = 73;
         public ushort Type { get; set; } = 2;
@@ -148,7 +147,7 @@ namespace SQRLUtilsLib
             return byteAry.ToArray();
         }
 
-        
-       
+
+
     }
 }

@@ -11,7 +11,7 @@ namespace SQRLConsoleTester
         {
             SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
 
-            SQRLIdentity newId = sqrl.ImportSqrlIdentityFromFile(@"C:\Users\jose\Downloads\SQRL-Test-Identity-Resources\Spec-Vectors-Identity.sqrl");
+            SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(@"C:\Users\jose\Downloads\SQRL-Test-Identity-Resources\Spec-Vectors-Identity.sqrl");
             SQRLOptions opts = new SQRLOptions(SQRLOpts.SUK | SQRLOpts.NOIPTEST);
 
             Console.WriteLine("Enter SQRL URL:");
@@ -21,8 +21,8 @@ namespace SQRLConsoleTester
 
             sqrl.DecryptBlock1(newId, "Zingo-Bingo-Slingo-Dingo", out byte[] imk, out byte[] ilk);
             var siteKvp = sqrl.CreateSiteKey(requestURI, AltID, imk);
-            sqrl.ZeroFillByteArray(imk);
-            var serverRespose = sqrl.GenerateQueryCommand(requestURI, siteKvp,opts);
+            SQRL.ZeroFillByteArray(imk);
+            var serverRespose = sqrl.GenerateQueryCommand(requestURI, siteKvp, opts);
             if (!serverRespose.CommandFailed)
             {
                 if (!serverRespose.CurrentIDMatch)
@@ -31,12 +31,12 @@ namespace SQRLConsoleTester
                     if (Console.ReadLine().StartsWith("Y", StringComparison.OrdinalIgnoreCase))
                     {
                         var sukvuk = sqrl.GetSukVuk(ilk);
-                        sqrl.ZeroFillByteArray(ilk);
+                        SQRL.ZeroFillByteArray(ilk);
                         StringBuilder addClientData = new StringBuilder();
                         addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
                         addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
 
-                        serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "ident", opts, out string message, addClientData);
+                        serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "ident", opts, addClientData);
                     }
                 }
                 else if (serverRespose.CurrentIDMatch)
@@ -46,7 +46,7 @@ namespace SQRLConsoleTester
                     {
                         Console.WriteLine(serverRespose.AskMessage);
                         Console.WriteLine($"Enter 1 for {serverRespose.GetAskButtons[0]} or 2 for {serverRespose.GetAskButtons[1]}");
-                        int resp = 0;
+                        int resp;
                         do
                         {
                             string response = Console.ReadLine();
@@ -80,8 +80,8 @@ namespace SQRLConsoleTester
                             byte[] ursKey = null;
                             ursKey = sqrl.GetURSKey(iuk, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
 
-                            serverRespose = sqrl.GenerateCommandWithURS(serverRespose.NewNutURL, siteKvp, ursKey, serverRespose.FullServerRequest,"enable", opts,  null);
-                            
+                            serverRespose = sqrl.GenerateCommandWithURS(serverRespose.NewNutURL, siteKvp, ursKey, serverRespose.FullServerRequest, "enable", opts, null);
+
                         }
                     }
 
@@ -93,14 +93,13 @@ namespace SQRLConsoleTester
                     Console.WriteLine("10- Quit ");
                     Console.WriteLine("*********************************************");
                     var value = Console.ReadLine();
-                    int selection = 0;
-                    int.TryParse(value, out selection);
+                    int.TryParse(value, out int selection);
 
                     switch (selection)
                     {
                         case 0:
                             {
-                                serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "disable", opts, out string message, addClientData);
+                                serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "disable", opts,  addClientData);
                             }
                             break;
                         case 1:
@@ -108,7 +107,7 @@ namespace SQRLConsoleTester
                                 Console.WriteLine("This will disable all use of this SQRL Identity on the server, are you sure you want to proceed?: (Y/N)");
                                 if (Console.ReadLine().StartsWith("Y", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "disable",opts, out string message, addClientData);
+                                    serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "disable", opts, addClientData);
                                 }
 
                             }
@@ -118,10 +117,9 @@ namespace SQRLConsoleTester
                                 Console.WriteLine("Enter your Rescue Code (No Sapces or Dashes)");
                                 string rescueCode = Console.ReadLine().Trim();
                                 sqrl.DecryptBlock2(newId, rescueCode, out byte[] iuk);
-                                byte[] ursKey = null;
-                                ursKey = sqrl.GetURSKey(iuk, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+                                byte[] ursKey = sqrl.GetURSKey(iuk, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
 
-                                serverRespose = sqrl.GenerateCommandWithURS(serverRespose.NewNutURL, siteKvp, ursKey, serverRespose.FullServerRequest, "remove", opts,  null);
+                                serverRespose = sqrl.GenerateCommandWithURS(serverRespose.NewNutURL, siteKvp, ursKey, serverRespose.FullServerRequest, "remove", opts, null);
                             }
                             break;
                         default:
