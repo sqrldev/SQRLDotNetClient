@@ -11,19 +11,167 @@ An implementation of the full client protocol for SQRL written in Dot Net Core f
 
 #### Requirements
 
-To use this library you will need Sodium.Core.ForSqrl package (can also be installed from nuget)
 This is a Dot Net Core 3.1 library so you will need a compatible project
 
 #### How to Use
 
-Create an Instance of the SQRL library
+##### Create an Instance of the SQRLib class
 
-```charp
-//the boolean here tells the library to start the CPS server
-SQRLUtilsLib.SQRL sqrlLib = new SQRLUtilsLib.SQRL(true); 
+```csharp
+
+/* 
+Create an Instance of the SQRL library
+the boolean here tells the library to start the CPS server.
+If no CPS server is desired, pass false
+*/ 
+SQRL sqrlLib = new SQRLUtilsLib.SQRL(true); 
+```
+
+##### Create a new SQRL Identity (from scratch)
+
+```csharp
+//Creates a new Identity Object
+SQRLIdentity newIdentity = new SQRLUtilsLib.SQRLIdentity();
+
+//Generates a Identity Unlock Key
+var iuk = sqrlLib.CreateIUK();
+
+// Generaties a Rescue Code
+var rescueCode = sqrlLib.CreateRescueCode();
+
+// Used to Report Progress when Encrypting / Decrypting (progress bar maybe)
+var progress = new Progress<KeyValuePair<int, string>>(percent =>
+{
+	Console.WriteLine($"{percent.Value}: {percent.Key}%");
+});
+
+newIdentity = await sqrlLib.GenerateIdentityBlock1(iuk, "My-Awesome-Password", newIdentity, progress);
+
+newIdentity = await sqrlLib.GenerateIdentityBlock2(iuk, rescueCode, newIdentity, progress);
+```
+##### Import Identity From File
+
+```csharp
+SQRLIdentity newIdentity=SQRL.ImportSqrlIdentityFromFile(@"C:\Temp\identiy.sqrl");
 ```
 
 
+
+##### Import Identity from Text
+
+```csharp
+//Creates a new Identity Object
+string identityTxt = "KKcC 3BaX akxc Xwbf xki7 k7mF GHhg jQes gzWd 6TrK vMsZ dBtB pZbC zsz8 cUWj DtS2 ZK2s ZdAQ 8Yx3 iDyt QuXt CkTC y6gc qG8n Xfj9 bHDA 422";
+
+string rescueCode = "119887487132283883187570";
+
+string password = "Zingo-Bingo-Slingo-Dingo";        
+
+//Reports progress while decrypting / encrypting the identity
+var progress = new Progress<KeyValuePair<int, string>>(percent =>
+{
+	Console.WriteLine($"{percent.Value}: {percent.Key}%");
+});
+
+// Decodes the identity from Text Import
+SQRLIdentity newIdentity = await sqrlLib.DecodeSqrlIdentityFromText(identityTxt, rescueCode, password, progress);
+```
+##### Export Identity to File
+
+```csharp
+newIdentity.WriteToFile(@"C:\Temp\My-SQRL-Identity.sqrl");
+```
+
+##### Re-Key Identity
+
+```csharp
+//Have an existing Identity Object (somehow)
+SQRLUtilsLib.SQRLIdentity existingIdentity = SQRL.ImportSqrlIdentityFromFile(@"C:\Temp\MyCurrentIdentity.sqrl");        
+
+//Reports progress while decrypting / encrypting the identity it is optional
+var progress = new Progress<KeyValuePair<int, string>>(percent =>
+{
+	Console.WriteLine($"{percent.Value}: {percent.Key}%");
+});
+//Re-Keys the existing Identity object and returns a tuple of your new rescue code and the new Identity (which now contains a new entry in block3 )
+var reKeyResponse = await sqrlLib.RekeyIdentity(existingIdentity, rescueCode, "My-New-Even-Better-Password", progress); 
+
+Console.WriteLine($"New Rescue Code: {reKeyResponse.Key}");
+
+var NewlyReKeyedIdentity = reKeyResponse.Value;
+```
+
+
+##### Generate a Site Key Pair
+
+```csharp
+SQRLUtilsLib.SQRL sqrlLib = new SQRLUtilsLib.SQRL();
+//Reports progress while decrypting / encrypting the identity
+var progress = new Progress<KeyValuePair<int, string>>(percent =>
+{
+	Console.WriteLine($"{percent.Value}: {percent.Key}%");
+});
+//Have an existing identity (some-how)
+SQRLIdentity existingIdentity = SQRL.ImportSqrlIdentityFromFile(@"C:\Temp\MyCurrentIdentity.sqrl");
+
+//Returns a tuple of 3 values a boolean indicating sucess, Item2 = IMK Item3 = ILK
+var block1DecryptedData= await sqrlLib.DecryptBlock1(existingIdentity, "My-Awesome-Password", progress);
+/*
+Note that bloc1DecryptedData returns a tuple as mentioned above 
+Item1 is a  boolean (sucess/not)
+Item2 is (IMK) Identity Master Key
+Item3 is (ILK) Identity Lock Key
+*/
+if (block1DecryptedData.Item1) //If Sucess
+{
+    //This is the site's Key Pair for signing requests
+	Sodium.KeyPair siteKP = sqrlLib.CreateSiteKey(new Uri("sqrl://sqrl.grc.com/cli.sqrl?nut=fXkb4MBToCm7"), "Alt-ID-If-You-Want-One", block1DecryptedData.Item2); //Item2=IMK
+}
+else
+	throw new Exception("Invalid password, failed to decrypt");
+```
+
+
+##### Generate a Query Command to the Server
+
+Assumes you have a valid SiteKeyPair
+
+```csharp
+//SQRL url
+Uri sqrlUrl = new Uri("sqrl://sqrl.grc.com/cli.sqrl?nut=fXkb4MBToCm7");
+//SQRL client options include CPS, SUK, HARDLOCK, NOIPTEST,SQRLONLY
+SQRLOptions opts = new SQRLOptions(SQRLOptions.SQRLOpts.CPS | SQRLOptions.SQRLOpts.SUK | SQRLOptions.SQRLOpts.);            
+/*
+Generates a query command and sends it to the server, requires that you have a  valid site keypair
+returns a "SQRLServerResponse" object which contains all pertinent data of the response from the server
+              
+*/
+SQRLServerResponse sqrlResponse = sqrlLib.GenerateQueryCommand(sqrlUrl, siteKP, opts);
+```
+##### Generate Ident (create) Command
+
+Assumes you have a generated SiteKeyPair
+Assumes you have a decrypted ILK (Identity Lock Key) (by decrypting block1)
+
+```csharp
+if (!serverRespose.CurrentIDMatch)
+{
+    //Generates the SUK / VUK from ILK and RLK (Random Lock Key)
+    var sukvuk = sqrl.GetSukVuk(decryptedData.Item3); // ILK from Decrypted Block1
+    SQRL.ZeroFillByteArray(decryptedData.Item3); // Clear ILK from memory because we need to be good citizens
+
+    //builds the special client data that's required for this command VUK/SUK
+    StringBuilder addClientData = new StringBuilder();
+
+    addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+    addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");                                
+
+    //Calls the Ident command, notice we are passing the prior (Query's) serverResponse.NewNutURL
+    serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "ident", opts, addClientData);
+}
+```
+
+****
 
 ### SQRL Dot Net Core Client
 
