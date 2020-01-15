@@ -21,7 +21,7 @@ namespace SQRLConsoleTester
                 Console.WriteLine($"{percent.Value}: {percent.Key}%");
             });
             
-            SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(Path.Combine(Directory.GetCurrentDirectory(), @"Spec-Vectors-Identity.sqrl"));
+            SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(Path.Combine(Directory.GetCurrentDirectory(), @"Spec-Vectors-Identity_2.sqrl"));
 
             SQRLOpts optsFlags = (sqrl.cps != null && sqrl.cps.Running ? SQRLOpts.SUK | SQRLOpts.CPS : SQRLOpts.SUK);
 
@@ -31,7 +31,7 @@ namespace SQRLConsoleTester
             
            
             var decryptedData = await sqrl.DecryptBlock1(newId, "Zingo-Bingo-Slingo-Dingo", progress);
-            if (!decryptedData.Item1)
+            if (decryptedData.Item1)
             {
                 try
                 {

@@ -9,6 +9,8 @@ This project has 2 main parts a SQRL library and a SQRL Client below is informat
 
 An implementation of the full client protocol for SQRL written in Dot Net Core fully cross-platform to (Win, Nix, Mac)
 
+![SQRLClientDemo](/SQRLUtilsLib/Resources/SQRLClientDemo.gif)
+
 #### How to Install
 
 `Install-Package SQRLClientLib` 
