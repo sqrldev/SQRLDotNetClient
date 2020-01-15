@@ -2,25 +2,34 @@
 
   <PropertyGroup>
     <TargetFrameworks>Xamarin.iOS10;netstandard1.6;netstandard2.0</TargetFrameworks>
-    <Description>libsodium for .net core</Description>
-    <Copyright>Copyright © tabrath 2019</Copyright>
+    <Description>libsodium for .net core modified to work with the SQRL Protocol</Description>
+    <Copyright>Copyright © josecgomez 2020</Copyright>
     <AssemblyTitle>Sodium.Core</AssemblyTitle>
     <VersionPrefix>1.2.1</VersionPrefix>
-    <Authors>tabrath</Authors>
+    <Authors>tabrath,josecgomez</Authors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <AssemblyName>Sodium.Core</AssemblyName>
-    <PackageId>Sodium.Core</PackageId>
+    <AssemblyName>Sodium.Core.ForSqrl</AssemblyName>
+    <PackageId>Sodium.Core.ForSqrl</PackageId>
     <PackageTags>libsodium;xamarin;xamarin.ios;xamarin.android</PackageTags>
-    <PackageLicenseUrl>https://github.com/tabrath/libsodium-core/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/tabrath/libsodium-core/</RepositoryUrl>
+    <RepositoryUrl>https://github.com/sqrldev/SQRLDotNetClient</RepositoryUrl>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputType>Library</OutputType>
-    <PackageProjectUrl>https://github.com/tabrath/libsodium-core/</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/sqrldev/SQRLDotNetClient</PackageProjectUrl>
     <RootNamespace>Sodium</RootNamespace>
     <PackageIconUrl>http://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Salt_shaker_on_white_background.jpg/220px-Salt_shaker_on_white_background.jpg</PackageIconUrl>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <LangVersion>7.3</LangVersion>
+    <Version>1.2.2.1</Version>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <AssemblyVersion>1.2.2.1</AssemblyVersion>
+    <FileVersion>1.2.2.1</FileVersion>
+    <PackageReleaseNotes>Modified version of Sodium.Core to work with SQRL Protocol.</PackageReleaseNotes>
+    <Product>Sodium.Core.ForSqrl</Product>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <Company>tabrath,josecgomez</Company>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -43,6 +52,14 @@
 
   <ItemGroup>
     <PackageReference Include="libsodium" Version="1.0.17.1" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

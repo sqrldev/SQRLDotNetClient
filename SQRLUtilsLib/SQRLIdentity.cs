@@ -195,11 +195,14 @@ namespace SQRLUtilsLib
         public byte[] ToByteArray()
         {
             List<byte> byteAry = new List<byte>();
-            byteAry.AddRange(BitConverter.GetBytes(Length));
-            byteAry.AddRange(BitConverter.GetBytes(Type));
-            byteAry.AddRange(BitConverter.GetBytes(Edition));
-            this.EncryptedPrevIUKs.ForEach(x => byteAry.AddRange(x));
-            byteAry.AddRange(VerificationTag);
+            if (this.EncryptedPrevIUKs.Count > 0)
+            {
+                byteAry.AddRange(BitConverter.GetBytes(Length));
+                byteAry.AddRange(BitConverter.GetBytes(Type));
+                byteAry.AddRange(BitConverter.GetBytes(Edition));
+                this.EncryptedPrevIUKs.ForEach(x => byteAry.AddRange(x));
+                byteAry.AddRange(VerificationTag);
+            }
 
             return byteAry.ToArray();
         }

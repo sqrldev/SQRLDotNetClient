@@ -32,6 +32,8 @@ namespace SQRLUtilsLib
 
         public bool PendingResponse = false;
 
+        public bool Running = false;
+
         /// <summary>
         /// Instanciates a CPS Http Server on the SQRL Default Port
         /// </summary>
@@ -51,21 +53,29 @@ namespace SQRLUtilsLib
 
         private void Listen()
         {
-            _listener = new HttpListener();
-            _listener.Prefixes.Add("http://*:" + this.Port.ToString() + "/");
-            _listener.Start();
-            while (true)
+            try
             {
-                try
+                _listener = new HttpListener();
+                _listener.Prefixes.Add("http://*:" + this.Port.ToString() + "/");
+                _listener.Start();
+                this.Running = true;
+                while (true)
                 {
-                    Console.WriteLine("Http Listening");
-                    HttpListenerContext context = _listener.GetContext();
-                    Process(context);
+                    try
+                    {
+                        Console.WriteLine("Http Listening");
+                        HttpListenerContext context = _listener.GetContext();
+                        Process(context);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error with CPS: {ex}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error with CPS: {ex}");
-                }
+            }
+            catch(Exception ex)
+            {
+                this.Running = false;
             }
         }
 

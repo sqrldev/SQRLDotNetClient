@@ -9,7 +9,7 @@ namespace SQRLUtilLibTest
     public class SQRLCryptoTests
     {
         [Fact]
-        public void EnScryptTest()
+        public async void EnScryptTest()
         {
             using (WebClient wc = new WebClient())
             {
@@ -25,7 +25,7 @@ namespace SQRLUtilLibTest
                         continue;
                     }
                     string[] data = line.Replace("\"", "").Split(',');
-                    byte[] ary = sqrl.EnScryptCT(data[0], Encoding.UTF8.GetBytes(data[1]), (int)Math.Pow(2, 9), int.Parse(data[2]));
+                    byte[] ary = await sqrl.EnScryptCT(data[0], Encoding.UTF8.GetBytes(data[1]), (int)Math.Pow(2, 9), int.Parse(data[2]));
                     string hex = data[4];
                     string result = Sodium.Utilities.BinaryToHex(ary);
                     Assert.Equal(hex.CleanUpString(), result.CleanUpString());
@@ -118,7 +118,7 @@ namespace SQRLUtilLibTest
         }
 
         [Fact]
-        public void LMKILKPasswordEncryptDecryptTest()
+        public async void LMKILKPasswordEncryptDecryptTest()
         {
             SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
             for (int i = 0; i < 50; i++)
@@ -127,17 +127,17 @@ namespace SQRLUtilLibTest
                 byte[] iuk = sqrl.CreateIUK();
                 string password = Sodium.Utilities.BinaryToHex(Sodium.SodiumCore.GetRandomBytes(32), Sodium.Utilities.HexFormat.None, Sodium.Utilities.HexCase.Lower);
 
-                sqrl.GenerateIdentityBlock1(iuk, password, identity);
+                identity= await sqrl.GenerateIdentityBlock1(iuk, password, identity);
                 byte[] imk = sqrl.CreateIMK(iuk);
                 byte[] ilk = sqrl.CreateILK(iuk);
-                sqrl.DecryptBlock1(identity, password, out byte[] decryptedImk, out byte[] decryptedIlk);
-                Assert.Equal(Sodium.Utilities.BinaryToHex(imk), Sodium.Utilities.BinaryToHex(decryptedImk));
-                Assert.Equal(Sodium.Utilities.BinaryToHex(ilk), Sodium.Utilities.BinaryToHex(decryptedIlk));
+                var decryptedData = await sqrl.DecryptBlock1(identity, password);
+                Assert.Equal(Sodium.Utilities.BinaryToHex(imk), Sodium.Utilities.BinaryToHex(decryptedData.Item2));
+                Assert.Equal(Sodium.Utilities.BinaryToHex(ilk), Sodium.Utilities.BinaryToHex(decryptedData.Item3));
             }
         }
 
         [Fact]
-        public void IUKRescueCodeEncryptDecryptTest()
+        public async void IUKRescueCodeEncryptDecryptTest()
         {
             SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
             for (int i = 0; i < 10; i++)
@@ -146,11 +146,11 @@ namespace SQRLUtilLibTest
                 byte[] iuk = sqrl.CreateIUK();
 
                 string rescueCode = sqrl.CreateRescueCode();
-                sqrl.GenerateIdentityBlock2(iuk, rescueCode, identity);
+                identity= await sqrl.GenerateIdentityBlock2(iuk, rescueCode, identity);
 
 
-                sqrl.DecryptBlock2(identity, rescueCode, out byte[] decryptedIUK);
-                Assert.Equal(Sodium.Utilities.BinaryToHex(iuk), Sodium.Utilities.BinaryToHex(decryptedIUK));
+                var t = await sqrl.DecryptBlock2(identity, rescueCode);
+                Assert.Equal(Sodium.Utilities.BinaryToHex(iuk), Sodium.Utilities.BinaryToHex(t.Item2));
 
             }
         }

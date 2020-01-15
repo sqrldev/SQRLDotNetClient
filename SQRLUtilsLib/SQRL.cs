@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace SQRLUtilsLib
@@ -190,7 +191,7 @@ namespace SQRLUtilsLib
         /// <param name="secondsToRun">Amount of time to Iterate</param>
         /// <param name="count">Output of how many iterations the above Time Took</param>
         /// <returns></returns>
-        public byte[] EnScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, out int count)
+        public async Task<KeyValuePair<int, byte[]>> EnScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -198,30 +199,47 @@ namespace SQRLUtilsLib
             byte[] passwordBytes = Encoding.ASCII.GetBytes(password);
             DateTime startTime = DateTime.Now;
             byte[] xorKey = new byte[32];
-            count = 0;
-            while (Math.Abs((DateTime.Now - startTime).TotalSeconds) < secondsToRun)
+            int count = 0;
+            var kvp =await Task.Run(() =>
             {
-                byte[] key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
-
-                if (count == 0)
+                count = 0;
+                while (Math.Abs((DateTime.Now - startTime).TotalSeconds) < secondsToRun)
                 {
-                    key.CopyTo(xorKey, 0);
+                    
+                    byte[] key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
 
+                    if (count == 0)
+                    {
+                        key.CopyTo(xorKey, 0);
+
+                    }
+                    else
+                    {
+                        BitArray og = new BitArray(xorKey);
+                        BitArray newG = new BitArray(key);
+                        BitArray newXor = og.Xor(newG);
+                        newXor.CopyTo(xorKey, 0);
+
+                    }
+                    randomSalt = key;
+                    if (progress != null)
+                    {
+                        double totSecs = (DateTime.Now - startTime).TotalSeconds;
+                        int report = (int) ((totSecs / (double)secondsToRun) * 100);
+                        if (report > 100)
+                            report = 100;
+                        if (progressText == null)
+                            progressText = "Encrypting Data for {secondsToRun} seconds:";
+                        var reportKvp = new KeyValuePair<int, string>(report, progressText);
+                        progress.Report(reportKvp);
+                        
+                    }
+                    count++;
                 }
-                else
-                {
-                    BitArray og = new BitArray(xorKey);
-                    BitArray newG = new BitArray(key);
-                    BitArray newXor = og.Xor(newG);
-                    newXor.CopyTo(xorKey, 0);
+                return new KeyValuePair<int, byte[]>(count, xorKey);
+            });
 
-                }
-                randomSalt = key;
-
-                count++;
-            }
-
-            return xorKey;
+            return kvp;
         }
 
         /// <summary>
@@ -232,38 +250,51 @@ namespace SQRLUtilsLib
         /// <param name="logNFactor">Log N Factor</param>
         /// <param name="intCount">Number of Iterations (inclusive)</param>
         /// <returns></returns>
-        public byte[] EnScryptCT(String password, byte[] randomSalt, int logNFactor, int intCount)
+        public async Task<byte[]> EnScryptCT(String password, byte[] randomSalt, int logNFactor, int intCount, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
 
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
             
-            byte[] xorKey = new byte[32];
-            int count = 0;
-            while (count < intCount)
+            
+            var kvp = await Task.Run(() =>
             {
-                byte[] key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
-
-                if (count == 0)
+                byte[] xorKey = new byte[32];
+                int count = 0;
+                while (count < intCount)
                 {
-                    key.CopyTo(xorKey, 0);
+                    byte[] key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
 
+                    if (count == 0)
+                    {
+                        key.CopyTo(xorKey, 0);
+
+                    }
+                    else
+                    {
+                        BitArray og = new BitArray(xorKey);
+                        BitArray newG = new BitArray(key);
+                        BitArray newXor = og.Xor(newG);
+                        newXor.CopyTo(xorKey, 0);
+
+                    }
+                    randomSalt = key;
+
+                    count++;
+                    if(progress!=null)
+                    {
+                        int prog = (int)(((double)count / (double)intCount) * 100);
+                        if (progressText == null)
+                            progressText = "Encrypting Data:";
+                        var reportKvp = new KeyValuePair<int, string>(prog, progressText);
+                        progress.Report(reportKvp);
+                    }
                 }
-                else
-                {
-                    BitArray og = new BitArray(xorKey);
-                    BitArray newG = new BitArray(key);
-                    BitArray newXor = og.Xor(newG);
-                    newXor.CopyTo(xorKey, 0);
+                return xorKey;
+            });
 
-                }
-                randomSalt = key;
-
-                count++;
-            }
-
-            return xorKey;
+            return kvp;
         }
 
         /// <summary>
@@ -272,7 +303,7 @@ namespace SQRLUtilsLib
         /// <param name="iuk"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public void GenerateIdentityBlock1(byte[] iuk, String password, SQRLIdentity identity)
+        public async Task<SQRLIdentity>  GenerateIdentityBlock1(byte[] iuk, String password, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress=null, int encTime=5)
         {
 
             if (!SodiumInitialized)
@@ -283,33 +314,38 @@ namespace SQRLUtilsLib
 
             byte[] imk = CreateIMK(iuk);
             byte[] ilk = CreateILK(iuk);
-            var key = EnScryptTime(password, randomSalt, (int)Math.Pow(2, 9), 5, out int iterationCount);
+            var key = await EnScryptTime(password, randomSalt, (int)Math.Pow(2, 9), encTime, progress, "Generating Block 1");
+
+            var identityT = await Task.Run(() =>
+             {
+                 identity.Block1.ScryptInitVector = initVector;
+                 identity.Block1.ScryptRandomSalt = randomSalt;
+                 identity.Block1.IterationCount = (uint)key.Key;
+
+                 List<byte> plainText = new List<byte>();
+                 plainText.AddRange(GetBytes(identity.Block1.Length));
+                 plainText.AddRange(GetBytes(identity.Block1.Type));
+                 plainText.AddRange(GetBytes(identity.Block1.InnerBlockLength));
+                 plainText.AddRange(GetBytes(identity.Block1.ScryptInitVector));
+                 plainText.AddRange(GetBytes(identity.Block1.ScryptRandomSalt));
+                 plainText.Add(identity.Block1.LogNFactor);
+                 plainText.AddRange(GetBytes(identity.Block1.IterationCount));
+                 plainText.AddRange(GetBytes(identity.Block1.OptionFlags));
+                 plainText.Add(identity.Block1.HintLenght);
+                 plainText.Add(identity.Block1.PwdVerifySeconds);
+                 plainText.AddRange(GetBytes(identity.Block1.PwdTimeoutMins));
 
 
-            identity.Block1.ScryptInitVector = initVector;
-            identity.Block1.ScryptRandomSalt = randomSalt;
-            identity.Block1.IterationCount = (uint)iterationCount;
-            List<byte> plainText = new List<byte>();
-            plainText.AddRange(GetBytes(identity.Block1.Length));
-            plainText.AddRange(GetBytes(identity.Block1.Type));
-            plainText.AddRange(GetBytes(identity.Block1.InnerBlockLength));
-            plainText.AddRange(GetBytes(identity.Block1.ScryptInitVector));
-            plainText.AddRange(GetBytes(identity.Block1.ScryptRandomSalt));
-            plainText.Add(identity.Block1.LogNFactor);
-            plainText.AddRange(GetBytes(identity.Block1.IterationCount));
-            plainText.AddRange(GetBytes(identity.Block1.OptionFlags));
-            plainText.Add(identity.Block1.HintLenght);
-            plainText.Add(identity.Block1.PwdVerifySeconds);
-            plainText.AddRange(GetBytes(identity.Block1.PwdTimeoutMins));
+                 IEnumerable<byte> unencryptedKeys = imk.Concat(ilk);
 
 
-            IEnumerable<byte> unencryptedKeys = imk.Concat(ilk);
-
-
-            byte[] encryptedData = AesGcmEncrypt(unencryptedKeys.ToArray(), plainText.ToArray(), initVector, key); //Should be 80 bytes
-            identity.Block1.EncryptedIMK = encryptedData.ToList().GetRange(0, 32).ToArray();
-            identity.Block1.EncryptedILK = encryptedData.ToList().GetRange(32, 32).ToArray();
-            identity.Block1.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray();
+                 byte[] encryptedData = AesGcmEncrypt(unencryptedKeys.ToArray(), plainText.ToArray(), initVector, key.Value); //Should be 80 bytes
+                 identity.Block1.EncryptedIMK = encryptedData.ToList().GetRange(0, 32).ToArray();
+                 identity.Block1.EncryptedILK = encryptedData.ToList().GetRange(32, 32).ToArray();
+                 identity.Block1.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray();
+                 return identity;
+             });
+            return identityT;
         }
 
         /// <summary>
@@ -318,7 +354,7 @@ namespace SQRLUtilsLib
         /// <param name="iuk"></param>
         /// <param name="rescueCode"></param>
         /// <param name="identity"></param>
-        public void GenerateIdentityBlock2(byte[] iuk, String rescueCode, SQRLIdentity identity)
+        public async Task<SQRLIdentity> GenerateIdentityBlock2(byte[] iuk, String rescueCode, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress = null, int encTime=5)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -326,23 +362,27 @@ namespace SQRLUtilsLib
             byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
 
 
-            byte[] key = EnScryptTime(rescueCode, randomSalt, (int)Math.Pow(2, 9), 5, out int iterationCount);
-            identity.Block2.RandomSalt = randomSalt;
+            var key = await EnScryptTime(rescueCode, randomSalt, (int)Math.Pow(2, 9), encTime, progress,"Generating Block 2");
+            var identityT = await Task.Run(() =>
+            {
+                identity.Block2.RandomSalt = randomSalt;
 
-            identity.Block2.IterationCount = (uint)iterationCount;
+                identity.Block2.IterationCount = (uint)key.Key;
 
-            List<byte> plainText = new List<byte>();
-            plainText.AddRange(GetBytes(identity.Block2.Length));
-            plainText.AddRange(GetBytes(identity.Block2.Type));
-            plainText.AddRange(identity.Block2.RandomSalt);
-            plainText.Add(identity.Block2.LogNFactor);
-            plainText.AddRange(GetBytes(identity.Block2.IterationCount));
+                List<byte> plainText = new List<byte>();
+                plainText.AddRange(GetBytes(identity.Block2.Length));
+                plainText.AddRange(GetBytes(identity.Block2.Type));
+                plainText.AddRange(identity.Block2.RandomSalt);
+                plainText.Add(identity.Block2.LogNFactor);
+                plainText.AddRange(GetBytes(identity.Block2.IterationCount));
 
 
-            byte[] encryptedData = AesGcmEncrypt(iuk, plainText.ToArray(), initVector, key); //Should be 80 bytes
-            identity.Block2.EncryptedIdentityLock = encryptedData.ToList().GetRange(0, 32).ToArray(); ;
-            identity.Block2.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray(); 
-
+                byte[] encryptedData = AesGcmEncrypt(iuk, plainText.ToArray(), initVector, key.Value); //Should be 80 bytes
+                identity.Block2.EncryptedIdentityLock = encryptedData.ToList().GetRange(0, 32).ToArray(); ;
+                identity.Block2.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray();
+                return identity;
+            });
+            return identityT;
         }
 
         /// <summary>
@@ -408,6 +448,11 @@ namespace SQRLUtilsLib
             return Regex.Replace(rescueCode, ".{4}(?!$)", "$0-");
         }
 
+
+        public string GenerateTextualIdentityFromSqrlID(SQRLIdentity sqrlId)
+        {
+            return GenerateTextualIdentityBase56(sqrlId.Block2.ToByteArray().Concat(sqrlId.Block3.ToByteArray()).ToArray());
+        }
 
         /// <summary>
         /// Generates a Base56 Encoded Textual Identity from a byte array
@@ -498,6 +543,26 @@ namespace SQRLUtilsLib
             return sb.ToString();
         }
 
+
+        public async Task<SQRLIdentity> DecodeSqrlIdentityFromText(string identityTxt, string rescueCode, string newPassword, Progress<KeyValuePair<int, string>> progress = null)
+        {
+            byte[] id = Base56DecodeIdentity(identityTxt, false);
+            SQRLIdentity identity = new SQRLIdentity();
+            identity.Block2.FromByteArray(id.Take(73).ToArray());
+            if (id.Length > 73)
+            {
+                var block3Length = BitConverter.ToUInt16(id.Skip(73).Take(2).ToArray());
+
+                byte[] block3 = id.Skip(73).Take(block3Length).ToArray();
+                identity.Block3.FromByteArray(block3);
+            }
+
+            var iukRespose = await this.DecryptBlock2(identity, rescueCode, progress);
+            if(iukRespose.Item1)
+                identity = await this.GenerateIdentityBlock1(iukRespose.Item2, newPassword, identity, progress);
+
+            return identity;
+        }
 
         /// <summary>
         /// Decodes the Textual Identity into a byte array
@@ -633,10 +698,10 @@ namespace SQRLUtilsLib
         /// <param name="imk"></param>
         /// <param name="ilk"></param>
         /// <returns></returns>
-        public bool DecryptBlock1(SQRLIdentity identity, string password, out byte[] imk, out byte[] ilk)
+        public async Task<Tuple<bool, byte[], byte[]>> DecryptBlock1(SQRLIdentity identity, string password, IProgress<KeyValuePair<int,string>> progress = null)
         {
-            byte[] key = EnScryptCT(password, identity.Block1.ScryptRandomSalt, (int)Math.Pow(2, identity.Block1.LogNFactor), (int)identity.Block1.IterationCount);
-
+            byte[] key = await EnScryptCT(password, identity.Block1.ScryptRandomSalt, (int)Math.Pow(2, identity.Block1.LogNFactor), (int)identity.Block1.IterationCount, progress, "Decrypting Block 1");
+            bool allgood = false;
             List<byte> plainText = new List<byte>();
             
 
@@ -652,21 +717,35 @@ namespace SQRLUtilsLib
             plainText.Add(identity.Block1.PwdVerifySeconds);
             plainText.AddRange(GetBytes(identity.Block1.PwdTimeoutMins));
 
-
-            byte[] encryptedKeys = identity.Block1.EncryptedIMK.Concat(identity.Block1.EncryptedILK).Concat(identity.Block1.VerificationTag).ToArray();
-            byte[] result = Sodium.SecretAeadAes.Decrypt(encryptedKeys, identity.Block1.ScryptInitVector, key, plainText.ToArray());
-            if (result != null)
+            var tupl = await Task.Run(() =>
             {
-                imk = result.Skip(0).Take(32).ToArray();
-                ilk = result.Skip(32).Take(32).ToArray();
-                return true;
-            }
-            else
-            {
-                ilk = null;
-                imk = null;
-            }
-            return false;
+                byte[] encryptedKeys = identity.Block1.EncryptedIMK.Concat(identity.Block1.EncryptedILK).Concat(identity.Block1.VerificationTag).ToArray();
+                byte[] result = null;
+                try
+                {
+                    result = Sodium.SecretAeadAes.Decrypt(encryptedKeys, identity.Block1.ScryptInitVector, key, plainText.ToArray());
+                }
+                catch(Exception ex)
+                {
+                    Console.Error.WriteLine($"Failed to Decrypt: {ex.ToString()} Call Stack: {ex.StackTrace}");
+                }
+                byte[] imk = null;
+                byte[] ilk = null;
+                if (result != null)
+                {
+                    imk = result.Skip(0).Take(32).ToArray();
+                    ilk = result.Skip(32).Take(32).ToArray();
+                    allgood = true;
+                }
+                else
+                {
+                    ilk = null;
+                    imk = null;
+                    allgood = false;
+                }
+                return new Tuple<bool,byte[],byte[]>(allgood, imk, ilk);
+            });
+            return tupl;
         }
 
         /// <summary>
@@ -676,33 +755,44 @@ namespace SQRLUtilsLib
         /// <param name="rescueCode"></param>
         /// <param name="iuk"></param>
         /// <returns></returns>
-        public bool DecryptBlock2(SQRLIdentity identity, string rescueCode, out byte[] iuk)
+        public async Task<Tuple<bool,byte[], string>> DecryptBlock2(SQRLIdentity identity, string rescueCode, IProgress<KeyValuePair<int, string>> progress = null)
         {
-            byte[] key = EnScryptCT(rescueCode, identity.Block2.RandomSalt, (int)Math.Pow(2, identity.Block2.LogNFactor), (int)identity.Block2.IterationCount);
+            byte[] key = await EnScryptCT(rescueCode, identity.Block2.RandomSalt, (int)Math.Pow(2, identity.Block2.LogNFactor), (int)identity.Block2.IterationCount, progress,"Decrypting Block 2");
 
-            List<byte> plainText = new List<byte>();
-
-            plainText.AddRange(GetBytes(identity.Block2.Length));
-            plainText.AddRange(GetBytes(identity.Block2.Type));
-            plainText.AddRange(identity.Block2.RandomSalt);
-            plainText.Add(identity.Block2.LogNFactor);
-            plainText.AddRange(GetBytes(identity.Block2.IterationCount));
-            byte[] initVector = new byte[12];
-
-
-
-            byte[] encryptedKeys = identity.Block2.EncryptedIdentityLock.Concat(identity.Block2.VerificationTag).ToArray();
-            byte[] result = Sodium.SecretAeadAes.Decrypt(encryptedKeys, initVector, key, plainText.ToArray());
-            if (result != null)
+            var tupl = await Task.Run(() =>
             {
-                iuk = result.Skip(0).Take(32).ToArray();
-                return true;
-            }
-            else
-            {
-                iuk = null;
-            }
-            return false;
+                List<byte> plainText = new List<byte>();
+                bool allGood = false;
+                plainText.AddRange(GetBytes(identity.Block2.Length));
+                plainText.AddRange(GetBytes(identity.Block2.Type));
+                plainText.AddRange(identity.Block2.RandomSalt);
+                plainText.Add(identity.Block2.LogNFactor);
+                plainText.AddRange(GetBytes(identity.Block2.IterationCount));
+                byte[] iuk = null;
+                byte[] initVector = new byte[12];
+                byte[] encryptedKeys = identity.Block2.EncryptedIdentityLock.Concat(identity.Block2.VerificationTag).ToArray();
+                byte[] result = null;
+                try
+                {
+                    result = Sodium.SecretAeadAes.Decrypt(encryptedKeys, initVector, key, plainText.ToArray());
+                }
+                catch(Exception x)
+                {
+                    Console.Error.WriteLine($"Failed to Decrypt: {x.ToString()} CallStack: {x.StackTrace}");
+                }
+                if (result != null)
+                {
+                    iuk = result.Skip(0).Take(32).ToArray();
+                    allGood= true;
+                }
+                else
+                {
+                    iuk = null;
+                    allGood = false;
+                }
+                return new Tuple<bool, byte[], string>(allGood, iuk, (!allGood?"Failed to Decrypt bad Password or Rescue Code":""));
+            });
+            return tupl;
         }
 
         /// <summary>
@@ -986,17 +1076,19 @@ namespace SQRLUtilsLib
         }
 
 
-        public SQRLIdentity RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, out string newRescueCode)
+        public async Task<KeyValuePair<string,SQRLIdentity>> RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, IProgress<KeyValuePair<int,string>> progress)
         {
             SQRLIdentity newID = new SQRLIdentity();
-            this.DecryptBlock2(identity, rescueCode, out byte[] oldIuk);
-            newRescueCode = CreateRescueCode();
+            var oldIukData = await this.DecryptBlock2(identity, rescueCode, progress);
+            string newRescueCode = CreateRescueCode();
             byte[] newIUK = CreateIUK();
-            
-            GenerateIdentityBlock1(newIUK, newPassword, newID);
-            GenerateIdentityBlock2(newIUK, newRescueCode, newID);
-            GenerateIdentityBlock3(oldIuk, identity, newID, CreateIMK(oldIuk), CreateIMK(newIUK));
-            return newID;
+            if (oldIukData.Item1)
+            {
+                newID= await GenerateIdentityBlock1(newIUK, newPassword, newID, progress);
+                newID= await GenerateIdentityBlock2(newIUK, newRescueCode, newID, progress);
+                GenerateIdentityBlock3(oldIukData.Item2, identity, newID, CreateIMK(oldIukData.Item2), CreateIMK(newIUK));
+            }
+            return new KeyValuePair<string, SQRLIdentity>(newRescueCode,newID);
         }
 
         private void GenerateIdentityBlock3(byte[] oldIuk, SQRLIdentity oldIdentity, SQRLIdentity newID, byte[] oldImk, byte[] newImk)
@@ -1008,19 +1100,24 @@ namespace SQRLUtilsLib
             int skip = 0;
             if (oldIdentity.Block3.EncryptedPrevIUKs.Count > 0)
             {
-                decryptedBlock3 = DecryptBlock3(oldImk, oldIdentity);
-
-                skip = 0;
-                int ct = 0;
-                while (skip < decryptedBlock3.Length)
+                
+                decryptedBlock3 = DecryptBlock3(oldImk, oldIdentity, out bool allGood);
+                if (allGood)
                 {
-                    unencryptedOldKeys.AddRange(decryptedBlock3.Skip(skip).Take(32).ToArray());
-                    skip += 32;
-                    ;
-                    if (++ct >= 3)
-                        break;
+                    skip = 0;
+                    int ct = 0;
+                    while (skip < decryptedBlock3.Length)
+                    {
+                        unencryptedOldKeys.AddRange(decryptedBlock3.Skip(skip).Take(32).ToArray());
+                        skip += 32;
+                        ;
+                        if (++ct >= 3)
+                            break;
 
+                    }
                 }
+                else
+                    throw new Exception("Failed to Decrypt Block 3, bad ILK");
             }
             List<byte> plainText = new List<byte>();
             ushort newLength = (ushort)(oldIdentity.Block3.Length + 32 > 150 ? 150 : oldIdentity.Block3.Length + 32);
@@ -1040,16 +1137,26 @@ namespace SQRLUtilsLib
             
         }
 
-        public byte[] DecryptBlock3(byte[] ikm, SQRLIdentity identity)
+        public byte[] DecryptBlock3(byte[] ikm, SQRLIdentity identity, out bool boolAllGood)
         {
             List<byte> plainText = new List<byte>();
             plainText.AddRange(GetBytes(identity.Block3.Length));
             plainText.AddRange(GetBytes(identity.Block3.Type));
             plainText.AddRange(GetBytes(identity.Block3.Edition));
             List<byte> encryptedKeys = new List<byte>();
+            boolAllGood = false;
             identity.Block3.EncryptedPrevIUKs.ForEach(x => encryptedKeys.AddRange(x));
             encryptedKeys.AddRange(identity.Block3.VerificationTag);
-            byte[] result = Sodium.SecretAeadAes.Decrypt(encryptedKeys.ToArray(), new byte[12], ikm, plainText.ToArray());
+            byte[] result = null;
+            try
+            {
+                result = Sodium.SecretAeadAes.Decrypt(encryptedKeys.ToArray(), new byte[12], ikm, plainText.ToArray());
+                boolAllGood = true;
+            }
+            catch(Exception ex)
+            {
+                Console.Error.WriteLine($"Failed to Decrypt: {ex.ToString()} CallStack: {ex.StackTrace}");
+            }
             return result;
         }
 

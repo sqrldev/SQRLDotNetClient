@@ -5,13 +5,13 @@ VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLDotNetClient", "SQRLDotNetClient\SQRLDotNetClient.csproj", "{EE0E1771-0A53-4D67-9AD2-6FFB59E32322}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQRLUtilsLib", "SQRLUtilsLib\SQRLUtilsLib.csproj", "{93BD94E4-B982-44BF-8C06-57411E1EEB15}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLUtilsLib", "SQRLUtilsLib\SQRLUtilsLib.csproj", "{93BD94E4-B982-44BF-8C06-57411E1EEB15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQRLConsoleTester", "SQRLConsoleTester\SQRLConsoleTester.csproj", "{6A8B0B36-86F1-4577-BC2E-210D66B44372}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLConsoleTester", "SQRLConsoleTester\SQRLConsoleTester.csproj", "{6A8B0B36-86F1-4577-BC2E-210D66B44372}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sodium.Core", "Sodium.Core\Sodium.Core.csproj", "{16AA4068-F64B-43B2-BBB6-0E4324FE289C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sodium.Core.ForSqrl", "Sodium.Core\Sodium.Core.ForSqrl.csproj", "{16AA4068-F64B-43B2-BBB6-0E4324FE289C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQRLUtilLibTest", "SQRLUtilLibTest\SQRLUtilLibTest.csproj", "{3A039539-3128-413E-AB5C-531DEED89609}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLUtilLibTest", "SQRLUtilLibTest\SQRLUtilLibTest.csproj", "{3A039539-3128-413E-AB5C-531DEED89609}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
