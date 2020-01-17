@@ -163,7 +163,7 @@ namespace SQRLUtilsLib
         public ushort Length { get; set; } = 54;
         public ushort Type { get; } = 3;
 
-        public ushort Edition { get; set; } = 2;
+        public ushort Edition { get; set; } = 0;
 
         public List<byte[]> EncryptedPrevIUKs { get; set; }
         

@@ -1,7 +1,9 @@
-﻿using SQRLUtilsLib;
+﻿using Sodium;
+using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static SQRLUtilsLib.SQRLOptions;
@@ -20,8 +22,11 @@ namespace SQRLConsoleTester
             {
                 Console.WriteLine($"{percent.Value}: {percent.Key}%");
             });
+
+            //SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(Path.Combine(Directory.GetCurrentDirectory(), @"Spec-Vectors-Identity_2.sqrl"));
+            SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(@"C:\temp\SQRL\newnew2.sqrl");
+
             
-            SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(Path.Combine(Directory.GetCurrentDirectory(), @"Spec-Vectors-Identity_2.sqrl"));
 
             SQRLOpts optsFlags = (sqrl.cps != null && sqrl.cps.Running ? SQRLOpts.SUK | SQRLOpts.CPS : SQRLOpts.SUK);
 
@@ -30,7 +35,7 @@ namespace SQRLConsoleTester
             bool run =true;
             
            
-            var decryptedData = await sqrl.DecryptBlock1(newId, "Zingo-Bingo-Slingo-Dingo", progress);
+            var decryptedData = await sqrl.DecryptBlock1(newId, "Larry", progress);
             if (decryptedData.Item1)
             {
                 try
@@ -44,11 +49,34 @@ namespace SQRLConsoleTester
 
 
                         var siteKvp = sqrl.CreateSiteKey(requestURI, AltID, decryptedData.Item2);
+                        Dictionary<byte[],KeyPair> priorKvps = null;
+                        if(newId.Block3.Edition>0)
+                        {
+                            byte[] decryptedBlock3 = sqrl.DecryptBlock3(decryptedData.Item2, newId, out bool allGood);
+                            List<byte[]> oldIUKs = new List<byte[]>();
+                            if(allGood)
+                            {
+                                int skip = 0;
+                                int ct = 0;
+                                while (skip < decryptedBlock3.Length)
+                                {
+                                    oldIUKs.Add(decryptedBlock3.Skip(skip).Take(32).ToArray());
+                                    skip += 32;
+                                    ;
+                                    if (++ct >= 3)
+                                        break;
+                                }
+                                
+                                SQRL.ZeroFillByteArray(decryptedBlock3);
+                                priorKvps=sqrl.CreatePriorSiteKeys(oldIUKs, requestURI, AltID);
+                                oldIUKs.Clear();
+                            }
+                        }
                         SQRL.ZeroFillByteArray(decryptedData.Item2);
-                        var serverRespose = sqrl.GenerateQueryCommand(requestURI, siteKvp, opts);
+                        var serverRespose = sqrl.GenerateQueryCommand(requestURI, siteKvp, opts,0, priorKvps);
                         if (!serverRespose.CommandFailed)
                         {
-                            if (!serverRespose.CurrentIDMatch)
+                            if (!serverRespose.CurrentIDMatch && !serverRespose.PreviousIDMatch)
                             {
                                 Console.WriteLine("The site doesn't recognize this ID, would you like to proceed and create one? (Y/N)");
                                 if (Console.ReadLine().StartsWith("Y", StringComparison.OrdinalIgnoreCase))
@@ -61,6 +89,20 @@ namespace SQRLConsoleTester
 
                                     serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "ident", opts, addClientData);
                                 }
+                            }
+                            else if(serverRespose.PreviousIDMatch)
+                            {
+                                var sukvuk = sqrl.GetSukVuk(decryptedData.Item3);
+                                SQRL.ZeroFillByteArray(decryptedData.Item3);
+                                StringBuilder addClientData = new StringBuilder();
+                                addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+                                addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+
+                                byte[] ursKey = null;
+                                ursKey = sqrl.GetURSKey(serverRespose.PriorMatchedKey.Key, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+                                
+
+                                serverRespose = sqrl.GenerateCommandWithURS(serverRespose.NewNutURL, siteKvp,ursKey, serverRespose.FullServerRequest, "ident", opts, addClientData,serverRespose.PriorMatchedKey.Value);
                             }
                             else if (serverRespose.CurrentIDMatch)
                             {
@@ -125,6 +167,7 @@ namespace SQRLConsoleTester
                                 Console.WriteLine("1- Disable ");
                                 Console.WriteLine("2- Remove ");
                                 Console.WriteLine("3- Cancel ");
+                                Console.WriteLine("4- Re-Key ");
                                 Console.WriteLine("10- Quit ");
                                 Console.WriteLine("*********************************************");
                                 var value = Console.ReadLine();

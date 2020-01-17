@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Sodium;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 namespace SQRLUtilsLib
@@ -54,6 +56,7 @@ namespace SQRLUtilsLib
 
         public string SUK { get; set; }
 
+        public KeyValuePair<byte[],KeyPair> PriorMatchedKey { get; set; }
         public string AskMessage
         {
             get

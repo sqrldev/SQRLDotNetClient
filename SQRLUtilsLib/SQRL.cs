@@ -675,11 +675,13 @@ namespace SQRLUtilsLib
                     id.Block1.FromByteArray(block1);
                     byte[] block2 = fileBytes.Skip(133).Take(73).ToArray();
                     id.Block2.FromByteArray(block2);
+                    if (fileBytes.Length > 133 + 73)
+                    {
+                        var block3Length = BitConverter.ToUInt16(fileBytes.Skip(133 + 73).Take(2).ToArray());
 
-                    var block3Length = BitConverter.ToUInt16(fileBytes.Skip(133 + 73).Take(2).ToArray());
-
-                    byte[] block3 = fileBytes.Skip(133+73).Take(block3Length).ToArray();
-                    id.Block3.FromByteArray(block3);
+                        byte[] block3 = fileBytes.Skip(133 + 73).Take(block3Length).ToArray();
+                        id.Block3.FromByteArray(block3);
+                    }
 
                 }
                 else
@@ -795,6 +797,17 @@ namespace SQRLUtilsLib
             return tupl;
         }
 
+
+        public Dictionary<byte[],Sodium.KeyPair> CreatePriorSiteKeys(List<byte[]> oldIUKs, Uri domain, String altID)
+        {
+            Dictionary<byte[], Sodium.KeyPair> priorSiteKeys = new Dictionary<byte[], Sodium.KeyPair>();
+            foreach(var oldIUK in oldIUKs)
+            {
+                priorSiteKeys.Add(oldIUK,CreateSiteKey(domain, altID, CreateIMK(oldIUK)));
+            }
+            return priorSiteKeys;
+        }
+
         /// <summary>
         /// Creates a Site KeyValuePair from the IMK Domain and AltID (if available)
         /// 
@@ -890,7 +903,7 @@ namespace SQRLUtilsLib
         /// <param name="opts"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, int count = 0)
+        public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, int count = 0, Dictionary<byte[],KeyPair> priorSiteKeys=null, string priorEncodedServer=null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -905,11 +918,17 @@ namespace SQRLUtilsLib
                 if (opts != null)
                     client.AppendLineWindows($"opt={opts}");
                 client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
+                if(priorSiteKeys!=null && priorSiteKeys.Count>0)
+                    client.AppendLineWindows($"pidk={Sodium.Utilities.BinaryToBase64(priorSiteKeys.First().Value.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
 
 
                 StringBuilder server = new StringBuilder();
                 server.Append($"{sqrl.OriginalString}");
-                Dictionary<string, string> strContent = GenerateResponse(siteKP, client, server);
+                Dictionary<string, string> strContent = null;
+                if(priorEncodedServer==null)
+                    strContent= GenerateResponse(siteKP, client, server, priorSiteKeys?.First().Value);
+                else
+                    strContent = GenerateResponse(siteKP, client, priorEncodedServer, priorSiteKeys?.First().Value);
                 var content = new FormUrlEncodedContent(strContent);
 
                 var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
@@ -917,7 +936,16 @@ namespace SQRLUtilsLib
                 serverResponse = new SQRLServerResponse(result, sqrl.Host, sqrl.IsDefaultPort ? 443 : sqrl.Port);
                 if (serverResponse.TransientError && count <= 3)
                 {
-                    serverResponse = GenerateQueryCommand(new Uri($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{serverResponse.Qry}"), siteKP, opts, ++count); ;
+                    serverResponse = GenerateQueryCommand(serverResponse.NewNutURL, siteKP, opts, ++count, priorSiteKeys, serverResponse.FullServerRequest);
+                }
+                if(!serverResponse.CommandFailed && !serverResponse.CurrentIDMatch && !serverResponse.PreviousIDMatch && priorSiteKeys?.Count>1)
+                {
+                    priorSiteKeys.Remove(priorSiteKeys.First().Key);
+                    serverResponse = GenerateQueryCommand(serverResponse.NewNutURL, siteKP, opts, ++count, priorSiteKeys, serverResponse.FullServerRequest);
+                }
+                else if(serverResponse.PreviousIDMatch && serverResponse.PriorMatchedKey.Equals(default(KeyValuePair<byte[],KeyPair>)))
+                {
+                    serverResponse.PriorMatchedKey = priorSiteKeys.First();
                 }
 
             }
@@ -935,7 +963,7 @@ namespace SQRLUtilsLib
         /// <param name="opts"></param>
         /// <param name="addClientData"></param>
         /// <returns></returns>
-        public  SQRLServerResponse GenerateCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string command, SQRLOptions opts,  StringBuilder addClientData = null)
+        public  SQRLServerResponse GenerateCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string command, SQRLOptions opts,  StringBuilder addClientData = null, KeyPair priorSiteKP=null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -954,9 +982,10 @@ namespace SQRLUtilsLib
                 if (addClientData != null)
                     client.Append(addClientData);
                 client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
+                if(priorSiteKP!=null)
+                    client.AppendLineWindows($"pidk={Sodium.Utilities.BinaryToBase64(priorSiteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
 
-
-                Dictionary<string, string> strContent = GenerateResponse( siteKP, client, priorServerMessaage);
+                Dictionary<string, string> strContent = GenerateResponse( siteKP, client, priorServerMessaage, priorSiteKP);
                 var content = new FormUrlEncodedContent(strContent);
 
                 var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
@@ -980,7 +1009,7 @@ namespace SQRLUtilsLib
         /// <param name="opts"></param>
         /// <param name="addClientData"></param>
         /// <returns></returns>
-        public  SQRLServerResponse GenerateCommandWithURS(Uri sqrl, KeyPair siteKP, byte[] ursKey, string priorServerMessaage, string command, SQRLOptions opts = null, StringBuilder addClientData = null)
+        public  SQRLServerResponse GenerateCommandWithURS(Uri sqrl, KeyPair siteKP, byte[] ursKey, string priorServerMessaage, string command, SQRLOptions opts = null, StringBuilder addClientData = null, KeyPair priorMatchedKey=null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -999,7 +1028,10 @@ namespace SQRLUtilsLib
                 if (addClientData != null)
                     client.Append(addClientData);
                 client.AppendLineWindows($"idk={Sodium.Utilities.BinaryToBase64(siteKP.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
-
+                if(priorMatchedKey!=null)
+                {
+                    client.AppendLineWindows($"pidk={Sodium.Utilities.BinaryToBase64(priorMatchedKey.PublicKey, Utilities.Base64Variant.UrlSafeNoPadding)}");
+                }
 
                 string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
                 string encodedServer = priorServerMessaage;
@@ -1008,6 +1040,9 @@ namespace SQRLUtilsLib
                 string encodedSignature = Sodium.Utilities.BinaryToBase64(signature, Utilities.Base64Variant.UrlSafeNoPadding);
                 byte[] ursSignature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), ursKey);
                 string encodedUrsSignature = Sodium.Utilities.BinaryToBase64(ursSignature, Utilities.Base64Variant.UrlSafeNoPadding);
+
+                
+
                 Dictionary<string, string> strContent = new Dictionary<string, string>()
                 {
                     {"client",encodedClient },
@@ -1015,6 +1050,13 @@ namespace SQRLUtilsLib
                     {"ids",encodedSignature },
                     {"urs",encodedUrsSignature },
                 };
+
+                if(priorMatchedKey!=null)
+                {
+                    byte[] priorSignature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), priorMatchedKey.PrivateKey);
+                    string priorEncodedSignature = Sodium.Utilities.BinaryToBase64(priorSignature, Utilities.Base64Variant.UrlSafeNoPadding);
+                    strContent.Add("pids", priorEncodedSignature);
+                }
 
                 var content = new FormUrlEncodedContent(strContent);
 
@@ -1038,13 +1080,13 @@ namespace SQRLUtilsLib
         /// <param name="client"></param>
         /// <param name="server"></param>
         /// <returns></returns>
-        private  Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, StringBuilder server)
+        private  Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, StringBuilder server, KeyPair priorKP=null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
 
             string encodedServer = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(server.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
-            return GenerateResponse(siteKP, client, encodedServer);
+            return GenerateResponse(siteKP, client, encodedServer, priorKP);
         }
 
 
@@ -1057,7 +1099,7 @@ namespace SQRLUtilsLib
         /// <param name="client"></param>
         /// <param name="server"></param>
         /// <returns></returns>
-        private  Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, string server)
+        private  Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, string server, KeyPair priorKP = null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -1066,12 +1108,21 @@ namespace SQRLUtilsLib
             string encodedServer = server;
             byte[] signature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), siteKP.PrivateKey);
             string encodedSignature = Sodium.Utilities.BinaryToBase64(signature, Utilities.Base64Variant.UrlSafeNoPadding);
+            
+
             Dictionary<string, string> strContent = new Dictionary<string, string>()
                 {
                     {"client",encodedClient },
                     {"server",encodedServer },
                     {"ids",encodedSignature },
                 };
+
+            if(priorKP!=null)
+            {
+                byte[] priorSignature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), priorKP.PrivateKey);
+                string priorEncodedSignature = Sodium.Utilities.BinaryToBase64(priorSignature, Utilities.Base64Variant.UrlSafeNoPadding);
+                strContent.Add("pids", priorEncodedSignature);
+            }
             return strContent;
         }
 
