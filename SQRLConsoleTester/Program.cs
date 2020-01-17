@@ -73,7 +73,7 @@ namespace SQRLConsoleTester
                             }
                         }
                         SQRL.ZeroFillByteArray(decryptedData.Item2);
-                        var serverRespose = sqrl.GenerateQueryCommand(requestURI, siteKvp, opts,0, priorKvps);
+                        var serverRespose = sqrl.GenerateQueryCommand(requestURI, siteKvp, opts,null,0, priorKvps);
                         if (!serverRespose.CommandFailed)
                         {
                             if (!serverRespose.CurrentIDMatch && !serverRespose.PreviousIDMatch)
