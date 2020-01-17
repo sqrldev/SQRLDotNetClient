@@ -198,7 +198,6 @@ namespace SQRLConsoleTester
                                             if (iukData.Item1)
                                             {
                                                 byte[] ursKey = sqrl.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-                                                //SQRL.ZeroFillByteArray(ref iukData.Item2);
                                                 iukData.Item2.ZeroFill();
                                                 serverRespose = sqrl.GenerateSQRLCommand(SQRLCommands.remove, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts,null,ursKey);
                                                 if (sqrl.cps != null && sqrl.cps.PendingResponse)
