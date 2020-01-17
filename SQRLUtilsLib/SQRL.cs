@@ -1132,8 +1132,6 @@ namespace SQRLUtilsLib
                 var response = wc.PostAsync($"https://{sqrlUri.Host}{(sqrlUri.IsDefaultPort ? "" : $":{sqrlUri.Port}")}{sqrlUri.PathAndQuery}", content).Result;
                 var result = response.Content.ReadAsStringAsync().Result;
                 serverResponse = new SQRLServerResponse(result, sqrlUri.Host, sqrlUri.IsDefaultPort ? 443 : sqrlUri.Port);
-                if (serverResponse.PreviousIDMatch)
-                    serverResponse.PriorMatchedKey = priorKey;
             }
 
             return serverResponse;
