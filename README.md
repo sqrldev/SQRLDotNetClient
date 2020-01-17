@@ -1,5 +1,5 @@
 # SQRL Dot Net Core Client and Library
-This project has 2 main parts a SQRL library and a SQRL Client below is information on both.
+This project has 2 main parts a SQRL library and a SQRL Client below is information on both. 
 
 [SQRL Dot Net Core Library](#SQRL-Dot-Net-Core-Library)
 
