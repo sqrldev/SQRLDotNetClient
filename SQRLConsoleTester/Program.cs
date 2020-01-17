@@ -24,7 +24,7 @@ namespace SQRLConsoleTester
             });
 
             //SQRLIdentity newId = SQRLIdentity.FromFile(Path.Combine(Directory.GetCurrentDirectory(), @"Spec-Vectors-Identity_2.sqrl"));
-            SQRLIdentity newId = SQRLIdentity.FromFile(@"C:\temp\SQRL\newnew2.sqrl");
+            SQRLIdentity newId = SQRLIdentity.FromFile(Path.Combine(Directory.GetCurrentDirectory(), @"980591756918003626376697.sqrl"));
 
             SQRLOpts optsFlags = (sqrl.cps != null && sqrl.cps.Running ? SQRLOpts.SUK | SQRLOpts.CPS : SQRLOpts.SUK);
 
@@ -33,7 +33,7 @@ namespace SQRLConsoleTester
             bool run =true;
             
            
-            var decryptedData = await sqrl.DecryptBlock1(newId, "Larry", progress);
+            var decryptedData = await sqrl.DecryptBlock1(newId, "Zingo-Bingo-Slingo-Dingo", progress);
             if (decryptedData.Item1)
             {
                 try
@@ -48,7 +48,7 @@ namespace SQRLConsoleTester
 
                         var siteKvp = sqrl.CreateSiteKey(requestURI, AltID, decryptedData.Item2);
                         Dictionary<byte[],KeyPair> priorKvps = null;
-                        if(newId.Block3.Edition>0)
+                        if(newId.Block3!=null && newId.Block3.Edition>0)
                         {
                             byte[] decryptedBlock3 = sqrl.DecryptBlock3(decryptedData.Item2, newId, out bool allGood);
                             List<byte[]> oldIUKs = new List<byte[]>();
@@ -65,12 +65,14 @@ namespace SQRLConsoleTester
                                         break;
                                 }
                                 
-                                SQRL.ZeroFillByteArray(decryptedBlock3);
+                                SQRL.ZeroFillByteArray(ref decryptedBlock3);
                                 priorKvps=sqrl.CreatePriorSiteKeys(oldIUKs, requestURI, AltID);
                                 oldIUKs.Clear();
                             }
                         }
-                        SQRL.ZeroFillByteArray(decryptedData.Item2);
+
+                        //SQRL.ZeroFillByteArray(ref decryptedData.Item2);
+                        //decryptedData.Item2.ZeroFill();
                         var serverRespose = sqrl.GenerateQueryCommand(requestURI, siteKvp, opts,null,0, priorKvps);
                         if (!serverRespose.CommandFailed)
                         {
@@ -79,28 +81,15 @@ namespace SQRLConsoleTester
                                 Console.WriteLine("The site doesn't recognize this ID, would you like to proceed and create one? (Y/N)");
                                 if (Console.ReadLine().StartsWith("Y", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    var sukvuk = sqrl.GetSukVuk(decryptedData.Item3);
-                                    SQRL.ZeroFillByteArray(decryptedData.Item3);
-                                    StringBuilder addClientData = new StringBuilder();
-                                    addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
-                                    addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
-
-                                    serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "ident", opts, addClientData);
+                                    serverRespose = sqrl.GenerateNewIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3, opts);
                                 }
                             }
                             else if(serverRespose.PreviousIDMatch)
                             {
-                                var sukvuk = sqrl.GetSukVuk(decryptedData.Item3);
-                                SQRL.ZeroFillByteArray(decryptedData.Item3);
-                                StringBuilder addClientData = new StringBuilder();
-                                addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
-                                addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
-
+                                
                                 byte[] ursKey = null;
                                 ursKey = sqrl.GetURSKey(serverRespose.PriorMatchedKey.Key, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-                                
-
-                                serverRespose = sqrl.GenerateCommandWithURS(serverRespose.NewNutURL, siteKvp,ursKey, serverRespose.FullServerRequest, "ident", opts, addClientData,serverRespose.PriorMatchedKey.Value);
+                                serverRespose = sqrl.GenerateIdentCommandWithReplace(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3,ursKey,serverRespose.PriorMatchedKey.Value,opts);
                             }
                             else if (serverRespose.CurrentIDMatch)
                             {
@@ -148,8 +137,9 @@ namespace SQRLConsoleTester
                                         {
                                             byte[] ursKey = null;
                                             ursKey = sqrl.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-                                            SQRL.ZeroFillByteArray(iukData.Item2);
-                                            serverRespose = sqrl.GenerateCommandWithURS(serverRespose.NewNutURL, siteKvp, ursKey, serverRespose.FullServerRequest, "enable", opts, null);
+                                            
+                                            iukData.Item2.ZeroFill();
+                                            serverRespose = sqrl.GenerateEnableCommand(serverRespose.NewNutURL, siteKvp,serverRespose.FullServerRequest, ursKey,addClientData, opts);
                                         }
                                         else
                                         {
@@ -175,7 +165,7 @@ namespace SQRLConsoleTester
                                 {
                                     case 0:
                                         {
-                                            serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "ident", opts, addClientData);
+                                            serverRespose = sqrl.GenerateSQRLCommand(SQRLCommands.ident, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts);
                                             if (sqrl.cps != null && sqrl.cps.PendingResponse)
                                             {
                                                 sqrl.cps.cpsBC.Add(new Uri(serverRespose.SuccessUrl));
@@ -187,7 +177,7 @@ namespace SQRLConsoleTester
                                             Console.WriteLine("This will disable all use of this SQRL Identity on the server, are you sure you want to proceed?: (Y/N)");
                                             if (Console.ReadLine().StartsWith("Y", StringComparison.OrdinalIgnoreCase))
                                             {
-                                                serverRespose = sqrl.GenerateCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, "disable", opts, addClientData);
+                                                serverRespose =sqrl.GenerateSQRLCommand(SQRLCommands.disable, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts);
                                                 if (sqrl.cps != null && sqrl.cps.PendingResponse)
                                                 {
                                                     sqrl.cps.cpsBC.Add(sqrl.cps.Can);
@@ -208,8 +198,9 @@ namespace SQRLConsoleTester
                                             if (iukData.Item1)
                                             {
                                                 byte[] ursKey = sqrl.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-                                                SQRL.ZeroFillByteArray(iukData.Item2);
-                                                serverRespose = sqrl.GenerateCommandWithURS(serverRespose.NewNutURL, siteKvp, ursKey, serverRespose.FullServerRequest, "remove", opts, null);
+                                                //SQRL.ZeroFillByteArray(ref iukData.Item2);
+                                                iukData.Item2.ZeroFill();
+                                                serverRespose = sqrl.GenerateSQRLCommand(SQRLCommands.remove, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts,null,ursKey);
                                                 if (sqrl.cps != null && sqrl.cps.PendingResponse)
                                                 {
                                                     sqrl.cps.cpsBC.Add(sqrl.cps.Can);

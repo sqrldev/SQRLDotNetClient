@@ -894,7 +894,7 @@ namespace SQRLUtilsLib
             {
                 serverResponse = GenerateQueryCommand(serverResponse.NewNutURL, siteKP,opts, serverResponse.FullServerRequest,++count, priorSiteKeys);
             }
-            else if(!serverResponse.CommandFailed && !serverResponse.PreviousIDMatch && !serverResponse.CurrentIDMatch && priorSiteKeys.Count>0)
+            else if(!serverResponse.CommandFailed && !serverResponse.PreviousIDMatch && !serverResponse.CurrentIDMatch && priorSiteKeys?.Count>1)
             {
                 priorSiteKeys.Remove(priorSiteKeys.First().Key);
                 serverResponse = GenerateQueryCommand(serverResponse.NewNutURL, siteKP, opts, serverResponse.FullServerRequest, ++count, priorSiteKeys);
@@ -906,6 +906,53 @@ namespace SQRLUtilsLib
 
             return serverResponse;
         }
+
+        /// <summary>
+        /// Sends a new Identity (along with VUK/SUK) to server along with an ident command
+        /// </summary>
+        /// <param name="sqrl"></param>
+        /// <param name="siteKP"></param>
+        /// <param name="encodedServerMessage"></param>
+        /// <param name="ilk"></param>
+        /// <param name="opts"></param>
+        /// <returns></returns>
+        public SQRLServerResponse GenerateNewIdentCommand(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk, SQRLOptions opts = null)
+        {
+
+            SQRLServerResponse serverResponse = null;
+            var sukvuk = GetSukVuk(ilk);
+            StringBuilder addClientData = new StringBuilder();
+            addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            serverResponse = GenerateSQRLCommand(SQRLCommands.ident, sqrl, siteKP, encodedServerMessage, addClientData, opts, null);
+
+            return serverResponse;
+        }
+
+        public SQRLServerResponse GenerateIdentCommandWithReplace(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk,byte[] ursKey, KeyPair priorKey, SQRLOptions opts = null)
+        {
+
+            SQRLServerResponse serverResponse = null;
+            var sukvuk = GetSukVuk(ilk);
+            StringBuilder addClientData = new StringBuilder();
+            addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            serverResponse = GenerateSQRLCommand(SQRLCommands.ident, sqrl, siteKP, encodedServerMessage, addClientData, opts, priorKey, ursKey);
+
+            return serverResponse;
+        }
+
+        ///
+        public SQRLServerResponse GenerateEnableCommand(Uri sqrl, KeyPair siteKP, string encodedServerMessage,byte[] ursKey, StringBuilder addClientData=null, SQRLOptions opts = null)
+        {
+
+            SQRLServerResponse serverResponse = null;
+            
+            serverResponse = GenerateSQRLCommand(SQRLCommands.enable, sqrl, siteKP, encodedServerMessage, addClientData, opts,null, ursKey);
+
+            return serverResponse;
+        }
+
 
         /// <summary>
         /// Generates a response command
@@ -1017,7 +1064,7 @@ namespace SQRLUtilsLib
                 var response = wc.PostAsync($"https://{sqrl.Host}{(sqrl.IsDefaultPort ? "" : $":{sqrl.Port}")}{sqrl.PathAndQuery}", content).Result;
                 var result = response.Content.ReadAsStringAsync().Result;
                 serverResponse = new SQRLServerResponse(result, sqrl.Host, sqrl.IsDefaultPort ? 443 : sqrl.Port);
-                ZeroFillByteArray(ursKey);
+                ZeroFillByteArray(ref ursKey);
             }
 
             return serverResponse;
@@ -1282,11 +1329,11 @@ namespace SQRLUtilsLib
         /// Zeroes out a byte array to remove our keys from memory
         /// </summary>
         /// <param name="key"></param>
-        public static void ZeroFillByteArray(byte[] key)
+        public static void ZeroFillByteArray(ref byte[] key)
         {
             for (int i = 0; i < key.Length; i++)
             {
-                key[0] = 0;
+                key[i] = 0;
             }
         }
 
@@ -1301,6 +1348,11 @@ public static class UtilClass
     public static string CleanUpString(this string s)
     {
         return s.Replace(" ", "").Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("\\n", "");
+    }
+
+    public static void ZeroFill(this byte[] ary)
+    {
+        SQRLUtilsLib.SQRL.ZeroFillByteArray(ref ary);
     }
 
     public static StringBuilder AppendLineWindows(this StringBuilder sb, string s)
