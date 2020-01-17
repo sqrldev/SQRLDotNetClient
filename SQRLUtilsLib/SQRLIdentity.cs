@@ -7,34 +7,127 @@ namespace SQRLUtilsLib
 {
     public class SQRLIdentity
     {
-        public SQRLIdentity()
+        public SQRLIdentity() 
         {
-            this.Block1 = new SQRLBlock1();
-            this.Block2 = new SQRLBlock2();
-            this.Block3 = new SQRLBlock3();
+            Blocks = new List<ISQRLBlock>();
         }
 
         public const String SQRLHEADER = "sqrldata";
-        public SQRLBlock1 Block1 { get; set; }
-        public SQRLBlock2 Block2 { get; set; }
-        public SQRLBlock3 Block3{ get; set; }
+        public List<ISQRLBlock> Blocks { get; set; }
+        public SQRLBlock1 Block1 { get { return (SQRLBlock1)GetBlock(1); } }
+        public SQRLBlock2 Block2 { get { return (SQRLBlock2)GetBlock(2); } }
+        public SQRLBlock3 Block3 { get { return (SQRLBlock3)GetBlock(3); } }
 
+        /// <summary>
+        /// Returns true if a block of the given type exists within the identity,
+        /// or false otherwise
+        /// </summary>
+        public bool HasBlock(ushort blockType)
+        {
+            return (GetBlock(blockType) != null);
+        }
+
+        /// <summary>
+        /// Returns the block with the given block type if it exists within the
+        /// identity, or null otherwise
+        /// </summary>
+        public ISQRLBlock GetBlock(ushort blockType)
+        {
+            foreach (var block in Blocks) 
+                if (block.Type == blockType) return block;
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the raw byte representation of the current identity
+        /// </summary>
         public byte[] ToByteArray()
         {
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(SQRLHEADER).Concat(this.Block1.ToByteArray().Concat(Block2.ToByteArray()).ToArray()).ToArray();
-            if(this.Block3!=null && this.Block3.ToByteArray().Length>0)
-            {
-                data= data.Concat(this.Block3.ToByteArray()).ToArray();
-            }
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(SQRLHEADER);
+            foreach(var block in Blocks) data = data.Concat(block.ToByteArray()).ToArray();
             return data;
         }
 
+        /// <summary>
+        /// Writes the raw byte representation of the current identity 
+        /// to a file with the given file name.
+        /// </summary>
         public void WriteToFile(string fileName)
         {
             File.WriteAllBytes(fileName, this.ToByteArray());
         }
 
+        /// <summary>
+        /// Creates a SQRLIdentity object from the specified file 
+        /// </summary>
+        /// <returns>The imported identity object, or null if the file does not exist.</returns>
+        public static SQRLIdentity FromFile(string file)
+        {
+            if (!File.Exists(file)) return null;
+            
+            byte[] fileBytes = File.ReadAllBytes(file);
+            return SQRLIdentity.FromByteArray(fileBytes);
+        }
 
+        /// <summary>
+        /// Parses a SQRL identity from the given raw byte array 
+        /// </summary>
+        public static SQRLIdentity FromByteArray(byte[] identityData)
+        {
+            SQRLIdentity id = new SQRLIdentity();
+
+            // Check header
+            string sqrlHeader = System.Text.Encoding.UTF8.GetString(identityData.Take(8).ToArray());
+            if (!sqrlHeader.Equals("sqrldata", StringComparison.OrdinalIgnoreCase))
+                throw new IOException("Invalid File Exception, not a valid SQRL Identity File");
+
+            // Remove header
+            identityData = identityData.Skip(8).ToArray();
+
+            int i = 0;
+            while (i < identityData.Length)
+            {
+                // we need to be able to read type and length
+                if (i + 4 > identityData.Length) break;
+
+                ushort blockLength = BitConverter.ToUInt16(identityData.Skip(i).Take(2).ToArray());
+                ushort blockType = BitConverter.ToUInt16(identityData.Skip(i + 2).Take(2).ToArray());
+
+                // check if specified length exceeds real length
+                if (i + blockLength > identityData.Length) break;
+
+                switch (blockType)
+                {
+                    case 1:
+                        SQRLBlock1 block1 = new SQRLBlock1();
+                        block1.FromByteArray(identityData.Skip(i).Take(blockLength).ToArray());
+                        id.Blocks.Add(block1);
+                        break;
+
+                    case 2:
+                        SQRLBlock2 block2= new SQRLBlock2();
+                        block2.FromByteArray(identityData.Skip(i).Take(blockLength).ToArray());
+                        id.Blocks.Add(block2);
+                        break;
+
+                    case 3:
+                        SQRLBlock3 block3 = new SQRLBlock3();
+                        block3.FromByteArray(identityData.Skip(i).Take(blockLength).ToArray());
+                        id.Blocks.Add(block3);
+                        break;
+
+                    default:
+                        SQRLBlock block = new SQRLBlock();
+                        block.FromByteArray(identityData.Skip(i).Take(blockLength).ToArray());
+                        id.Blocks.Add(block);
+                        break;
+                }
+
+                i += blockLength;
+            }
+
+            return id;
+        }
     }
 
 
@@ -44,6 +137,38 @@ namespace SQRLUtilsLib
         ushort Length { get; }
         ushort Type { get; }
         void FromByteArray(byte[] blockData);
+
+    }
+
+    /// <summary>
+    /// Represents an "unknown" SQRL block type
+    /// </summary>
+    public class SQRLBlock : ISQRLBlock
+    {
+        public ushort Length { get; set; }
+        public ushort Type { get; set; }
+        public byte[] BlockData { get; set; }
+
+        public void FromByteArray(byte[] blockData)
+        {
+            if (blockData.Length < 4)
+                throw new Exception("Invalid Block, incorrect number of bytes");
+            this.Length = BitConverter.ToUInt16(blockData.Take(2).ToArray());
+            this.Type = BitConverter.ToUInt16(blockData.Skip(2).Take(2).ToArray());
+            
+            if (blockData.Length < this.Length)
+                throw new Exception("Invalid Block, incorrect number of bytes");
+            this.BlockData = blockData.Skip(4).Take(this.Length-4).ToArray();
+        }
+
+        public byte[] ToByteArray()
+        {
+            List<byte> byteAry = new List<byte>();
+            byteAry.AddRange(BitConverter.GetBytes(Length));
+            byteAry.AddRange(BitConverter.GetBytes(Type));
+            byteAry.AddRange(BlockData);
+            return byteAry.ToArray();
+        }
 
     }
     public class SQRLBlock1 : ISQRLBlock
@@ -153,9 +278,6 @@ namespace SQRLUtilsLib
 
             return byteAry.ToArray();
         }
-
-
-
     }
 
     public class SQRLBlock3 : ISQRLBlock
@@ -206,8 +328,5 @@ namespace SQRLUtilsLib
 
             return byteAry.ToArray();
         }
-
-
-
     }
 }
