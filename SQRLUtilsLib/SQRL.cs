@@ -322,10 +322,12 @@ namespace SQRLUtilsLib
 
             if (!SodiumInitialized)
                 SodiumInit();
+
+            if (!identity.HasBlock(1))
+                identity.Blocks.Add(new SQRLBlock1());
+
             byte[] initVector = Sodium.SodiumCore.GetRandomBytes(12);
             byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
-
-
             byte[] imk = CreateIMK(iuk);
             byte[] ilk = CreateILK(iuk);
             var key = await EnScryptTime(password, randomSalt, (int)Math.Pow(2, 9), encTime, progress, "Generating Block 1");
@@ -372,9 +374,12 @@ namespace SQRLUtilsLib
         {
             if (!SodiumInitialized)
                 SodiumInit();
+
+            if (!identity.HasBlock(2))
+                identity.Blocks.Add(new SQRLBlock2());
+
             byte[] initVector = new byte[12];
             byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
-
 
             var key = await EnScryptTime(rescueCode, randomSalt, (int)Math.Pow(2, 9), encTime, progress,"Generating Block 2");
             var identityT = await Task.Run(() =>
