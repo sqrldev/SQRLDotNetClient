@@ -670,43 +670,6 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Imports the SQRL Identity from a File 
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        public static SQRLIdentity ImportSqrlIdentityFromFile(string file)
-        {
-            SQRLIdentity id = null;
-
-            if (File.Exists(file))
-            {
-                byte[] fileBytes = File.ReadAllBytes(file);
-                string sqrlData = System.Text.Encoding.UTF8.GetString(fileBytes.Take(8).ToArray());
-                if (sqrlData.Equals("sqrldata", StringComparison.OrdinalIgnoreCase))
-                {
-                    byte[] block1 = fileBytes.Skip(8).Take(125).ToArray();
-                    id = new SQRLIdentity();
-                    id.Block1.FromByteArray(block1);
-                    byte[] block2 = fileBytes.Skip(133).Take(73).ToArray();
-                    id.Block2.FromByteArray(block2);
-                    if (fileBytes.Length > 133 + 73)
-                    {
-                        var block3Length = BitConverter.ToUInt16(fileBytes.Skip(133 + 73).Take(2).ToArray());
-
-                        byte[] block3 = fileBytes.Skip(133 + 73).Take(block3Length).ToArray();
-                        id.Block3.FromByteArray(block3);
-                    }
-
-                }
-                else
-                    throw new IOException("Invalid File Exception, not a valid SQRL Identity File");
-            }
-
-            return id;
-        }
-
-
-        /// <summary>
         ///  //Decrypts SQRL Identity Block 1
         /// </summary>
         /// <param name="identity"></param>
