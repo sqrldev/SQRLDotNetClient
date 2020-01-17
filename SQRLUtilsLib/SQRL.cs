@@ -319,7 +319,6 @@ namespace SQRLUtilsLib
         /// <returns></returns>
         public async Task<SQRLIdentity>  GenerateIdentityBlock1(byte[] iuk, String password, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress=null, int encTime=5)
         {
-
             if (!SodiumInitialized)
                 SodiumInit();
 
@@ -1267,7 +1266,7 @@ namespace SQRLUtilsLib
             List<byte> unencryptedOldKeys = new List<byte>();
             unencryptedOldKeys.AddRange(oldIuk);
             int skip = 0;
-            if (oldIdentity.Block3.EncryptedPrevIUKs.Count > 0)
+            if (oldIdentity.HasBlock(3) && oldIdentity.Block3.EncryptedPrevIUKs.Count > 0)
             {
                 
                 decryptedBlock3 = DecryptBlock3(oldImk, oldIdentity, out bool allGood);
@@ -1282,15 +1281,16 @@ namespace SQRLUtilsLib
                         ;
                         if (++ct >= 3)
                             break;
-
                     }
                 }
                 else
                     throw new Exception("Failed to Decrypt Block 3, bad ILK");
             }
             List<byte> plainText = new List<byte>();
-            ushort newLength = (ushort)(oldIdentity.Block3.Length + 32 > 150 ? 150 : oldIdentity.Block3.Length + 32);
+            ushort oldLength = (ushort)(oldIdentity.HasBlock(3) ? oldIdentity.Block3.Length : 54);
+            ushort newLength = (ushort)(oldLength + 32 > 150 ? 150 : oldLength + 32);
             plainText.AddRange(GetBytes(newLength));
+            if (!newID.HasBlock(3)) newID.Blocks.Add(new SQRLBlock3());
             newID.Block3.Length = newLength;
             plainText.AddRange(GetBytes(newID.Block3.Type));
             plainText.AddRange(GetBytes((ushort)(unencryptedOldKeys.Count / 32)));
