@@ -23,10 +23,8 @@ namespace SQRLConsoleTester
                 Console.WriteLine($"{percent.Value}: {percent.Key}%");
             });
 
-            //SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(Path.Combine(Directory.GetCurrentDirectory(), @"Spec-Vectors-Identity_2.sqrl"));
-            SQRLIdentity newId = SQRL.ImportSqrlIdentityFromFile(@"C:\temp\SQRL\newnew2.sqrl");
-
-            
+            //SQRLIdentity newId = SQRLIdentity.FromFile(Path.Combine(Directory.GetCurrentDirectory(), @"Spec-Vectors-Identity_2.sqrl"));
+            SQRLIdentity newId = SQRLIdentity.FromFile(@"C:\temp\SQRL\newnew2.sqrl");
 
             SQRLOpts optsFlags = (sqrl.cps != null && sqrl.cps.Running ? SQRLOpts.SUK | SQRLOpts.CPS : SQRLOpts.SUK);
 
