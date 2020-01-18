@@ -3,15 +3,53 @@
         xmlns:vm="clr-namespace:SQRLDotNetClient.ViewModels;assembly=SQRLDotNetClient"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
         x:Class="SQRLDotNetClient.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="SQRLDotNetClient">
+        Icon="/Assets/sqrl_icon_normal_48_icon.ico"
+        Title="SQRL Client"
+        Width="400"
+        Height="450"
+        MinHeight="450"
+        MaxHeight="450"
+        MinWidth="400"
+        MaxWidth="400"
+        WindowStartupLocation="CenterScreen"
+        >
 
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
+  <Design.DataContext>
+    <vm:MainWindowViewModel/>
+  </Design.DataContext>
+  <DockPanel>
+    <Grid DockPanel.Dock="Top"  Background="AliceBlue" ShowGridLines="True">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition />
+      </Grid.RowDefinitions>
+      
+      <Image Source="/Assets/sqrl_icon_normal_256.ico" Height="50" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0"></Image>
+      <TextBlock HorizontalAlignment="Center" FontSize="15" Margin="10" Grid.Row="0" Grid.Column="0">SQRL (Secure Quick Reliable Login) Client </TextBlock>
+      
+    </Grid>
+    <Grid DockPanel.Dock="Bottom" ShowGridLines="False">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition />
+        <ColumnDefinition />
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Button Name="btnNewIdentity" Command="{Binding OnNewIdentityClick}" Height="30" Width="100" Margin="10" Grid.Row="0" Grid.Column="0">New Identity</Button>
+      <Button Name="btnOtherButt" Height="30" Width="100" Margin="10" Grid.Row="0" Grid.Column="1">Other Button</Button>
+      <Button Name="btnOtherButt2" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="0">Other Button2</Button>
+      <Button Name="btnOtherButt3" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="1">Other Button3</Button>
+    </Grid>
+  </DockPanel>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-  
 </Window>

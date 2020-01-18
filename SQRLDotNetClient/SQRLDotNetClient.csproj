@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <ApplicationIcon>Assets\sqrl_icon_normal_48_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Models\" />
@@ -12,11 +13,36 @@
       <SubType>Designer</SubType>
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\**" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal.svg" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal_128.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal_16.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal_256.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal_32.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal_64.png" />
+    <AvaloniaResource Remove="Views\NewIdentityWindow.xaml" />
     <Folder Include="SQRL\" />
+    <None Remove="Assets\SQRL_icon_normal_128.png" />
+    <None Remove="Assets\SQRL_icon_normal_16.png" />
+    <None Remove="Assets\SQRL_icon_normal_256.png" />
+    <None Remove="Assets\SQRL_icon_normal_32.png" />
+    <None Remove="Assets\SQRL_icon_normal_64.png" />
+    <None Remove="Views\NewIdentityWindow.xaml" />
+    <Content Include="Assets\SQRL_icon_normal_128.png" />
+    <Content Include="Assets\SQRL_icon_normal_16.png" />
+    <Content Include="Assets\SQRL_icon_normal_256.png" />
+    <Content Include="Assets\SQRL_icon_normal_32.png" />
+    <Content Include="Assets\SQRL_icon_normal_64.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.9.1" />
     <PackageReference Include="Avalonia.Desktop" Version="0.9.1" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.1" />
+    <PackageReference Include="MessageBox.Avalonia" Version="0.9.0" />
+    <PackageReference Include="SQRLClientLib" Version="1.0.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\NewIdentityWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
