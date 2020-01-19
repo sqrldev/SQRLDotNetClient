@@ -38,8 +38,8 @@ namespace SQRLUtilLibTest
         {
             using (WebClient wc = new WebClient())
             {
-                String enScryptVectors = wc.DownloadString("https://raw.githubusercontent.com/sqrldev/sqrl-test-vectors/master/vectors/enhash-vectors.txt");
-                String[] lines = enScryptVectors.Split("\n");
+                String enHashVectors = wc.DownloadString("https://raw.githubusercontent.com/sqrldev/sqrl-test-vectors/master/vectors/enhash-vectors.txt");
+                String[] lines = enHashVectors.Split("\n");
                 bool first = true;
                 SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
                 foreach (var line in lines)
@@ -59,14 +59,13 @@ namespace SQRLUtilLibTest
 
         }
 
-
         [Fact]
         public void Base56EncodeTest()
         {
             using (WebClient wc = new WebClient())
             {
-                String enScryptVectors = wc.DownloadString("https://raw.githubusercontent.com/sqrldev/sqrl-test-vectors/master/vectors/base56-full-format-vectors.txt");
-                String[] lines = enScryptVectors.Split("\n");
+                String base56FullVectors = wc.DownloadString("https://raw.githubusercontent.com/sqrldev/sqrl-test-vectors/master/vectors/base56-full-format-vectors.txt");
+                String[] lines = base56FullVectors.Split("\n");
                 bool first = true;
                 SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
                 foreach (var line in lines)
@@ -87,8 +86,6 @@ namespace SQRLUtilLibTest
             }
 
         }
-
-
 
         [Fact]
         public void Base56EncodeDecodeTest()
@@ -148,10 +145,8 @@ namespace SQRLUtilLibTest
                 string rescueCode = sqrl.CreateRescueCode();
                 identity= await sqrl.GenerateIdentityBlock2(iuk, rescueCode, identity);
 
-
                 var t = await sqrl.DecryptBlock2(identity, rescueCode);
                 Assert.Equal(Sodium.Utilities.BinaryToHex(iuk), Sodium.Utilities.BinaryToHex(t.Item2));
-
             }
         }
 
@@ -160,8 +155,8 @@ namespace SQRLUtilLibTest
         {
             using (WebClient wc = new WebClient())
             {
-                String base56FullVectors = wc.DownloadString("https://raw.githubusercontent.com/sqrldev/sqrl-test-vectors/master/vectors/identity-vectors.txt");
-                String[] lines = base56FullVectors.Split("\n");
+                String identityVectors = wc.DownloadString("https://raw.githubusercontent.com/sqrldev/sqrl-test-vectors/master/vectors/identity-vectors.txt");
+                String[] lines = identityVectors.Split("\n");
                 bool first = true;
                 SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
                 foreach (var line in lines)
@@ -176,6 +171,36 @@ namespace SQRLUtilLibTest
                     var keys = sqrl.CreateSiteKey(new Uri($"sqrl://{data[3]}"), data[4], Sodium.Utilities.Base64ToBinary(data[2], string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding), true);
 
                     Assert.Equal(Sodium.Utilities.BinaryToBase64(keys.PublicKey, Sodium.Utilities.Base64Variant.UrlSafeNoPadding), data[5]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GenerateIndexedSecretTest()
+        {
+            using (WebClient wc = new WebClient())
+            {
+                String insVectors = wc.DownloadString("https://raw.githubusercontent.com/sqrldev/sqrl-test-vectors/master/vectors/ins-vectors.txt");
+                String[] lines = insVectors.Split("\n");
+                bool first = true;
+                SQRLUtilsLib.SQRL sqrl = new SQRLUtilsLib.SQRL();
+                foreach (var line in lines)
+                {
+                    if (first || string.IsNullOrEmpty(line))
+                    {
+                        first = false;
+                        continue;
+                    }
+                    string[] data = line.CleanUpString().Replace("\"", "").Split(',');
+
+                    var ins = sqrl.CreateIndexedSecret(
+                        new Uri($"sqrl://{data[1]}"), 
+                        string.Empty, 
+                        Sodium.Utilities.Base64ToBinary(data[0], string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding),
+                        Encoding.UTF8.GetBytes(data[2]), 
+                        true);
+
+                    Assert.Equal(Sodium.Utilities.BinaryToBase64(ins, Sodium.Utilities.Base64Variant.UrlSafeNoPadding), data[3]);
                 }
             }
         }

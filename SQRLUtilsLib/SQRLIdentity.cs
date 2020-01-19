@@ -75,14 +75,21 @@ namespace SQRLUtilsLib
         public static SQRLIdentity FromByteArray(byte[] identityData)
         {
             SQRLIdentity id = new SQRLIdentity();
+            bool isBase64 = false;
 
             // Check header
             string sqrlHeader = System.Text.Encoding.UTF8.GetString(identityData.Take(8).ToArray());
-            if (!sqrlHeader.Equals("sqrldata", StringComparison.OrdinalIgnoreCase))
+            if (!sqrlHeader.Equals(SQRLHEADER, StringComparison.OrdinalIgnoreCase))
                 throw new IOException("Invalid File Exception, not a valid SQRL Identity File");
+            if (sqrlHeader.Equals(SQRLHEADER.ToUpper())) isBase64 = true;
 
             // Remove header
-            identityData = identityData.Skip(8).ToArray();
+            identityData = identityData.Skip(SQRLHEADER.Length).ToArray();
+
+            // If we're dealing with a base64url-encoded identity, 
+            // decode it to binary first
+            if (isBase64) identityData = Sodium.Utilities.Base64ToBinary(
+                System.Text.Encoding.UTF8.GetString(identityData), string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding);
 
             int i = 0;
             while (i < identityData.Length)

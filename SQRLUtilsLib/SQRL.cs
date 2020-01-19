@@ -800,6 +800,28 @@ namespace SQRLUtilsLib
         /// <returns></returns>
         public  Sodium.KeyPair CreateSiteKey(Uri domain, String altID, byte[] imk, bool test = false)
         {
+            byte[] siteSeed = CreateSiteSeed(domain, altID, imk, test);
+            Sodium.KeyPair kp = Sodium.PublicKeyAuth.GenerateKeyPair(siteSeed);
+
+            return kp;
+        }
+
+        /// <summary>
+        /// Creates and returns the so called "Indexed Secret" (INS) 
+        /// for the given, server-provided "Secret Index" (SIN).
+        /// 
+        /// </summary>
+        public byte[] CreateIndexedSecret(Uri domain, String altID, byte[] imk, byte[] secretIndex, bool test = false)
+        {
+            byte[] siteSeed = CreateSiteSeed(domain, altID, imk, test);
+            byte[] key = EnHash(siteSeed);
+            byte[] indexedSecret = Sodium.SecretKeyAuth.SignHmacSha256(secretIndex, key);
+
+            return indexedSecret;
+        }
+
+        private byte[] CreateSiteSeed(Uri domain, String altID, byte[] imk, bool test = false)
+        {
             if (!SodiumInitialized)
                 SodiumInit();
 
@@ -817,14 +839,10 @@ namespace SQRLUtilsLib
                 domainBytes = domainBytes.Concat(new byte[] { 0 }).Concat(Encoding.UTF8.GetBytes(altID)).ToArray();
             }
 
-
             byte[] siteSeed = Sodium.SecretKeyAuth.SignHmacSha256(domainBytes, imk);
 
-            Sodium.KeyPair kp = Sodium.PublicKeyAuth.GenerateKeyPair(siteSeed);
-
-            return kp;
+            return siteSeed;
         }
-
 
         /// <summary>
         /// Generates an Ident Request to the server
