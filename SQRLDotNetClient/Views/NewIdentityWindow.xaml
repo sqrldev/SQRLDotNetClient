@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
         x:Class="SQRLDotNetClient.Views.NewIdentityWindow"
         Title="Create New SQRL Identity"
-        Icon="/Assets/sqrl_icon_normal_48_icon.ico"
+        
         Height="400"
         Width="400"
         MaxWidth="400"
