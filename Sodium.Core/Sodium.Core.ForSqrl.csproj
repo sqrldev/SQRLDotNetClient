@@ -1,7 +1,7 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>Xamarin.iOS10;netstandard1.6;netstandard2.0</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <Description>libsodium for .net core modified to work with the SQRL Protocol</Description>
     <Copyright>Copyright © josecgomez 2020</Copyright>
     <AssemblyTitle>Sodium.Core</AssemblyTitle>
@@ -45,9 +45,7 @@
     <DefineConstants>$(DefineConstants)</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(TargetFramework.StartsWith('Xamarin.iOS'))">
-    <DefineConstants>$(DefineConstants);IOS</DefineConstants>
-  </PropertyGroup>
+
 
 
   <ItemGroup>
