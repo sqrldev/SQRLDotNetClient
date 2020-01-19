@@ -30,7 +30,7 @@ Changed the way some commands are issued</PackageReleaseNotes>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Sodium.Core.ForSqrl" Version="1.2.2.1" />
+    <PackageReference Include="Sodium.Core.ForSqrl" Version="1.2.2.2" />
   </ItemGroup>
 
 </Project>
