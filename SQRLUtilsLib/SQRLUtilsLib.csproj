@@ -7,7 +7,6 @@
     <Authors>josecgomez</Authors>
     <Description>A library which implements the full client protocol for SQRL written in Dot Net Core fully cross-platform to (Win, Nix, Mac)</Description>
     <Copyright>josecgomez.dev</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/sqrldev/SQRLDotNetClient</PackageProjectUrl>
     <PackageIconUrl>https://github.com/sqrldev/sqrl-icons/raw/master/normal/SQRL_icon_normal_64.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/sqrldev/SQRLDotNetClient</RepositoryUrl>
