@@ -21,11 +21,11 @@
     <PackageIconUrl>http://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Salt_shaker_on_white_background.jpg/220px-Salt_shaker_on_white_background.jpg</PackageIconUrl>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <LangVersion>7.3</LangVersion>
-    <Version>1.2.2.1</Version>
+    <Version>1.2.2.2</Version>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <AssemblyVersion>1.2.2.1</AssemblyVersion>
-    <FileVersion>1.2.2.1</FileVersion>
-    <PackageReleaseNotes>Modified version of Sodium.Core to work with SQRL Protocol.</PackageReleaseNotes>
+    <AssemblyVersion>1.2.2.2</AssemblyVersion>
+    <FileVersion>1.2.2.2</FileVersion>
+    <PackageReleaseNotes>Modified version of Sodium.Core to work with SQRL Protocol. Made it core only, no longer netstandard</PackageReleaseNotes>
     <Product>Sodium.Core.ForSqrl</Product>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
