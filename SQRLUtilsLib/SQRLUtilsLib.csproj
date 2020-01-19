@@ -11,15 +11,14 @@
     <PackageIconUrl>https://github.com/sqrldev/sqrl-icons/raw/master/normal/SQRL_icon_normal_64.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/sqrldev/SQRLDotNetClient</RepositoryUrl>
     <PackageTags>SQRL</PackageTags>
-    <PackageReleaseNotes>Changed the way the library imports from File (thanks alex)
-Changed the way some commands are issued</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated Sodium Core to latest version</PackageReleaseNotes>
     <Product>SQRLClientLib</Product>
-    <Version>1.0.0.3</Version>
+    <Version>1.0.0.4</Version>
     <PackageLicenseUrl>https://raw.githubusercontent.com/sqrldev/SQRLDotNetClient/master/LICENSE</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Company>josecgomez</Company>
-    <AssemblyVersion>1.0.0.3</AssemblyVersion>
-    <FileVersion>1.0.0.3</FileVersion>
+    <AssemblyVersion>1.0.0.4</AssemblyVersion>
+    <FileVersion>1.0.0.4</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
