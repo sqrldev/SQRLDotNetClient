@@ -13,7 +13,7 @@ namespace SQRLDotNetClient.ViewModels
         {
             this.sqrlInstance = new SQRLUtilsLib.SQRL(false);
         }
-        public MainWindowViewModel(bool cps=false)
+        public MainWindowViewModel(bool cps = false)
         {
             this.sqrlInstance = new SQRLUtilsLib.SQRL(cps);
         }
@@ -21,8 +21,10 @@ namespace SQRLDotNetClient.ViewModels
         public async void OnNewIdentityClick()
         {
             NewIdentityWindow w = new NewIdentityWindow(this.sqrlInstance);
-           await w.ShowDialog(this.CurrentWindow);
-
+            ((NewIdentityModel)w.DataContext).ParentWindow = this.CurrentWindow;
+            this.CurrentWindow.Hide();
+            await w.ShowDialog(this.CurrentWindow);
+            this.CurrentWindow.Show();
         }
     }
 }

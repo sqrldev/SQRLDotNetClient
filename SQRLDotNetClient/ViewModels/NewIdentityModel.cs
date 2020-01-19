@@ -1,4 +1,6 @@
-﻿using ReactiveUI;
+﻿using Avalonia;
+using ReactiveUI;
+using SQRLDotNetClient.Views;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
@@ -9,6 +11,8 @@ namespace SQRLDotNetClient.ViewModels
     public class NewIdentityModel: ViewModelBase
     {
         public SQRL sqrlInstance { get; }
+
+        public MainWindow ParentWindow { get; set; }
         public NewIdentityModel()
         {
             
@@ -37,27 +41,37 @@ namespace SQRLDotNetClient.ViewModels
 
         public async void GenerateNewIdentity()
         {
-            SQRLIdentity newId =new SQRLIdentity();
-            byte[] iuk = this.sqrlInstance.CreateIUK();
-            var progress = new Progress<KeyValuePair<int, string>>(percent =>
+            if (this.Password.Equals(this.PasswordConfirm))
             {
-                this.ProgressPercentage = (int)percent.Key/2;
-                this.GenerationStep = percent.Value + percent.Key;
-            });
-            newId = await this.sqrlInstance.GenerateIdentityBlock1(iuk, this.Password, newId, progress);
-            if(newId.Block1!=null)
-            {
-                progress = new Progress<KeyValuePair<int, string>>(percent =>
+                AvaloniaLocator.Current.GetService<MainWindow>().Show();
+                SQRLIdentity newId = new SQRLIdentity();
+                byte[] iuk = this.sqrlInstance.CreateIUK();
+                var progress = new Progress<KeyValuePair<int, string>>(percent =>
                 {
-                    this.ProgressPercentage = 50 + (int)(percent.Key / 2);
+                    this.ProgressPercentage = (int)percent.Key / 2;
                     this.GenerationStep = percent.Value + percent.Key;
                 });
-                newId = await this.sqrlInstance.GenerateIdentityBlock2(iuk, this.RescueCode, newId, progress);
-                if(newId.Block2!=null)
+                newId = await this.sqrlInstance.GenerateIdentityBlock1(iuk, this.Password, newId, progress);
+                if (newId.Block1 != null)
                 {
-                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Identity Generated", "Identity Generated!");
-                    await messageBoxStandardWindow.Show();
+                    progress = new Progress<KeyValuePair<int, string>>(percent =>
+                    {
+                        this.ProgressPercentage = 50 + (int)(percent.Key / 2);
+                        this.GenerationStep = percent.Value + percent.Key;
+                    });
+                    newId = await this.sqrlInstance.GenerateIdentityBlock2(iuk, this.RescueCode, newId, progress);
+                    if (newId.Block2 != null)
+                    {
+                        var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Identity Generated", "Identity Generated!");
+                        await messageBoxStandardWindow.Show();
+                    }
                 }
+            }
+            else
+            {
+                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Error, Passwords don't match!", "Error!",MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
+                
+                await messageBoxStandardWindow.Show();
             }
         }
     }

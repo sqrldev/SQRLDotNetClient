@@ -22,7 +22,7 @@
     <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="100"/>
-        <ColumnDefinition Width="300"/>
+        <ColumnDefinition Width="275"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition />
@@ -33,8 +33,8 @@
         <RowDefinition  />
         <RowDefinition  />
       </Grid.RowDefinitions>
-      
-    <TextBlock Margin="10" Text="{Binding Message}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
+      <Image Source="/Assets/sqrl_icon_normal_256.ico" Height="50" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image> 
+    <TextBlock Margin="10" Text="{Binding Message}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
     <TextBlock Margin="10" Text="Identity Name:"  Grid.Row="1" Grid.Column="0" TextAlignment="Left"/>
     <TextBox Margin="10" Text="{Binding IdentityName}" Grid.Row="1" Grid.Column="1"/>
     <TextBlock Margin="10" Text="Rescue Code:" Grid.Row="2" Grid.Column="0"/>

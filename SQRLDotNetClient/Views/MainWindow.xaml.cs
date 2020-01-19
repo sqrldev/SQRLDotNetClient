@@ -18,6 +18,8 @@ namespace SQRLDotNetClient.Views
                 
             }
             this.DataContextChanged += MainWindow_DataContextChanged;
+            AvaloniaLocator.CurrentMutable.Bind<MainWindow>().ToConstant(this);
+
 #if DEBUG
             this.AttachDevTools();
 #endif

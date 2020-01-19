@@ -23,6 +23,7 @@
     <Folder Include="SQRL\" />
     <None Remove="Assets\SQRL_icon_normal_128.png" />
     <None Remove="Assets\SQRL_icon_normal_16.png" />
+    <None Remove="Assets\sqrl_icon_normal_256.ico" />
     <None Remove="Assets\SQRL_icon_normal_256.png" />
     <None Remove="Assets\SQRL_icon_normal_32.png" />
     <None Remove="Assets\sqrl_icon_normal_48_icon.ico" />
@@ -46,5 +47,8 @@
     <EmbeddedResource Include="Views\NewIdentityWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\sqrl_icon_normal_256.ico" />
   </ItemGroup>
 </Project>
