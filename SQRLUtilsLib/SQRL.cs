@@ -467,6 +467,12 @@ namespace SQRLUtilsLib
         }
 
 
+        public static string CleanUpRescueCode(string rescueCode)
+        {
+            return rescueCode.Trim().Replace(" ", "").Replace("-", "");
+        }
+
+
         public string GenerateTextualIdentityFromSqrlID(SQRLIdentity sqrlId)
         {
             return GenerateTextualIdentityBase56(sqrlId.Block2.ToByteArray().Concat(sqrlId.Block3.ToByteArray()).ToArray());

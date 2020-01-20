@@ -9,24 +9,26 @@ namespace SQRLDotNetClient.Views
     {
         public NewIdentityWindow()
         {
-            this.InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
+            this.StartUP();
         }
         public NewIdentityWindow(SQRLUtilsLib.SQRL instance)
         {
             this.DataContext = new NewIdentityModel(instance);
-            this.InitializeComponent();
-
-#if DEBUG
-            this.AttachDevTools();
-#endif
+            this.StartUP();
         }
 
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        private void StartUP()
+        {
+            this.InitializeComponent();
+            AvaloniaLocator.CurrentMutable.Bind<NewIdentityWindow>().ToConstant(this);
+#if DEBUG
+            this.AttachDevTools();
+#endif
         }
     }
 }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
         x:Class="SQRLDotNetClient.Views.MainWindow"
-        
+        Icon="resm:SQRLDotNetClient.Assets.sqrl_icon_normal_48_icon.ico"
         Title="SQRL Client"
         Width="400"
         Height="400"

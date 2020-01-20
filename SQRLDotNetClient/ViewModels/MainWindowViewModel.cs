@@ -1,4 +1,5 @@
-﻿using SQRLDotNetClient.Views;
+﻿using Avalonia;
+using SQRLDotNetClient.Views;
 
 namespace SQRLDotNetClient.ViewModels
 {
@@ -21,10 +22,10 @@ namespace SQRLDotNetClient.ViewModels
         public async void OnNewIdentityClick()
         {
             NewIdentityWindow w = new NewIdentityWindow(this.sqrlInstance);
-            ((NewIdentityModel)w.DataContext).ParentWindow = this.CurrentWindow;
-            this.CurrentWindow.Hide();
-            await w.ShowDialog(this.CurrentWindow);
-            this.CurrentWindow.Show();
+
+           
+            await w.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+
         }
     }
 }

@@ -9,6 +9,7 @@
     <Compile Update="**\*.xaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
+	
     <AvaloniaResource Include="**\*.xaml">
       <SubType>Designer</SubType>
     </AvaloniaResource>
@@ -19,6 +20,8 @@
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_256.png" />
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_32.png" />
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_64.png" />
+    <AvaloniaResource Remove="Assets\VL.png" />
+    <AvaloniaResource Remove="Views\NewIdentityVerifyWindow.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityWindow.xaml" />
     <Folder Include="SQRL\" />
     <None Remove="Assets\SQRL_icon_normal_128.png" />
@@ -28,25 +31,35 @@
     <None Remove="Assets\SQRL_icon_normal_32.png" />
     <None Remove="Assets\sqrl_icon_normal_48_icon.ico" />
     <None Remove="Assets\SQRL_icon_normal_64.png" />
+    <None Remove="Assets\VL.png" />
+    <None Remove="Views\NewIdentityVerifyWindow.xaml" />
     <None Remove="Views\NewIdentityWindow.xaml" />
     <Content Include="Assets\SQRL_icon_normal_128.png" />
     <Content Include="Assets\SQRL_icon_normal_16.png" />
     <Content Include="Assets\SQRL_icon_normal_256.png" />
     <Content Include="Assets\SQRL_icon_normal_32.png" />
     <Content Include="Assets\SQRL_icon_normal_64.png" />
+    <EmbeddedResource Include="Assets\VL.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.9.1" />
     <PackageReference Include="Avalonia.Desktop" Version="0.9.1" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.1" />
     <PackageReference Include="MessageBox.Avalonia" Version="0.9.0" />
-    <PackageReference Include="SQRLClientLib" Version="1.0.0.3" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\sqrl_icon_normal_48_icon.ico" />
     <EmbeddedResource Include="Views\NewIdentityWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\NewIdentityVerifyWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SQRLUtilsLib\SQRLUtilsLib.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\sqrl_icon_normal_256.ico" />

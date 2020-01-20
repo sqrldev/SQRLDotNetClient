@@ -1,0 +1,65 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:SQRLDotNetClient.ViewModels;assembly=SQRLDotNetClient"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="SQRLDotNetClient.Views.NewIdentityVerifyWindow"
+        Title="NewIdentityVerifyWindow"
+        Icon="resm:SQRLDotNetClient.Assets.sqrl_icon_normal_48_icon.ico"
+        Height="400"
+        Width="400"
+        MaxWidth="400"
+        MaxHeight="400"
+        MinWidth="400"
+        MinHeight="400"
+        WindowStartupLocation="CenterOwner"
+        >
+  <Design.DataContext>
+    <vm:NewIdentityVerifyModel/>
+  </Design.DataContext>
+  <StackPanel>
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="100"/>
+        <ColumnDefinition Width="275"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition  />
+        <RowDefinition  />
+        <RowDefinition  />
+      </Grid.RowDefinitions>
+      <Image Source="avares://SQRLDotNetClient/Assets/sqrl_icon_normal_256.ico" Height="50" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
+      <TextBlock Margin="10" Text="{Binding Message}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
+      
+      <TextBlock Margin="10" Text="Rescue Code:" Grid.Row="2" Grid.Column="0"/>
+      <TextBox Margin="10" Text="{Binding RescueCode}" Grid.Row="2" Grid.Column="1"  />
+      <TextBlock Margin="10" Text="Password:" Grid.Row="3" Grid.Column="0" />
+      <TextBox Margin="10" Text="{Binding Password}" PasswordChar="*" Grid.Row="3" Grid.Column="1"/>
+      
+      <ProgressBar Margin="10"  IsIndeterminate="False" Value="{Binding ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Height="20"/>
+      <Panel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,-10,10,10">
+        <Grid ShowGridLines="False">
+          <Grid.ColumnDefinitions>
+          <ColumnDefinition />
+          <ColumnDefinition />
+          <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+          <RowDefinition />
+            </Grid.RowDefinitions>
+      <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right">Decrypting Block 1</TextBlock>
+          <Image Grid.Row="0" Grid.Column="1" Source="resm:SQRLDotNetClient.Assets.VL.png" Height="25" Stretch="Uniform"/>
+      <TextBlock Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" TextAlignment="Right" >Decrypting Block 2</TextBlock>
+        </Grid>
+      </Panel>
+      <Button Margin="10" Command="{Binding GenerateNewIdentity}" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="1" Width="50" HorizontalAlignment="Left">Prev</Button>
+      <Button Margin="10" Command="{Binding VerifyRescueCode}" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="1" Width="50" HorizontalAlignment="Left">Next</Button>
+    </Grid>
+  </StackPanel>
+</Window>

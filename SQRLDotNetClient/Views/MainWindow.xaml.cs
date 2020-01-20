@@ -11,13 +11,8 @@ namespace SQRLDotNetClient.Views
         {
             InitializeComponent();
             
-            if (this.DataContext != null)
-            {
-                var vm = (MainWindowViewModel)this.DataContext;
-                vm.CurrentWindow = this;
-                
-            }
-            this.DataContextChanged += MainWindow_DataContextChanged;
+            
+            
             AvaloniaLocator.CurrentMutable.Bind<MainWindow>().ToConstant(this);
 
 #if DEBUG
@@ -25,14 +20,6 @@ namespace SQRLDotNetClient.Views
 #endif
         }
 
-        private void MainWindow_DataContextChanged(object sender, System.EventArgs e)
-        {
-            if (this.DataContext != null)
-            {
-                var vm = (MainWindowViewModel)this.DataContext;
-                vm.CurrentWindow = this;
-            }
-        }
 
         private void InitializeComponent()
         {
