@@ -1,10 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using SQRLDotNetClient.ViewModels;
-using SQRLDotNetClient.Views;
+using SQRLDotNetClientUI.ViewModels;
+using SQRLDotNetClientUI.Views;
 
-namespace SQRLDotNetClient
+namespace SQRLDotNetClientUI
 {
     public class App : Application
     {
@@ -17,10 +17,12 @@ namespace SQRLDotNetClient
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
+                
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(true),
+                    DataContext = new MainWindowViewModel(),
                 };
+                
             }
 
             base.OnFrameworkInitializationCompleted();

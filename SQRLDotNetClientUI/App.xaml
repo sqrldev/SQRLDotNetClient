@@ -1,7 +1,7 @@
 ﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:SQRLDotNetClient"
-             x:Class="SQRLDotNetClient.App">
+             xmlns:local="clr-namespace:SQRLDotNetClientUI"
+             x:Class="SQRLDotNetClientUI.App">
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>

@@ -1,26 +1,27 @@
 ﻿using Avalonia;
 using ReactiveUI;
-using SQRLDotNetClient.Views;
+using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SQRLDotNetClient.ViewModels
+namespace SQRLDotNetClientUI.ViewModels
 {
-    public class NewIdentityModel: ViewModelBase
+    public class NewIdentityViewModel: ViewModelBase
     {
         public SQRL sqrlInstance { get; }
 
-        
-        public NewIdentityModel()
+
+        public NewIdentityViewModel()
         {
-            this.rescueCode = SQRLUtilsLib.SQRL.FormatRescueCodeForDisplay(sqrlInstance.CreateRescueCode());
+            
         }
-        public NewIdentityModel(SQRL sqrlInstance )
+        public NewIdentityViewModel(SQRL sqrlInstance)
         {
             this.sqrlInstance = sqrlInstance;
             this.rescueCode = SQRLUtilsLib.SQRL.FormatRescueCodeForDisplay(sqrlInstance.CreateRescueCode());
+            this.Title = "SQRL Client - New Identity";
         }
         public string Message => "To generate a new identity you need to save this rescue code shown below and enter a password. You REALLY need to save this rescue code, we will test you later!";
 
@@ -34,8 +35,9 @@ namespace SQRLDotNetClient.ViewModels
         public string IdentityName { get; set; } = string.Empty;
 
         private int _ProgressPercentage = 0;
-        
-        public int ProgressPercentage { get => _ProgressPercentage; set => this.RaiseAndSetIfChanged(ref _ProgressPercentage,value); }
+
+        public int ProgressPercentage { get => _ProgressPercentage; set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); }
+
 
         public int ProgressMax { get; set; } = 100;
 
@@ -47,7 +49,7 @@ namespace SQRLDotNetClient.ViewModels
         {
             if (this.Password.Equals(this.PasswordConfirm))
             {
-                
+
                 SQRLIdentity newId = new SQRLIdentity();
                 byte[] iuk = this.sqrlInstance.CreateIUK();
                 var progress = new Progress<KeyValuePair<int, string>>(percent =>
@@ -67,19 +69,25 @@ namespace SQRLDotNetClient.ViewModels
                     if (newId.Block2 != null)
                     {
                         this.Identity = newId;
-                        
-                        AvaloniaLocator.Current.GetService<NewIdentityWindow>().Hide();
+                        ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new NewIdentityVerifyViewModel(this.sqrlInstance, newId);
+                        /*AvaloniaLocator.Current.GetService<NewIdentityWindow>().Hide();
                         NewIdentityVerifyWindow idV = new NewIdentityVerifyWindow(this.sqrlInstance, newId);
-                        await idV.ShowDialog(AvaloniaLocator.Current.GetService<NewIdentityWindow>());
+                        await idV.ShowDialog(AvaloniaLocator.Current.GetService<NewIdentityWindow>());*/
                     }
                 }
             }
             else
             {
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Error, Passwords don't match!", "Error!",MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
-                
+                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow("Error, Passwords don't match!", "Error!", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
+
                 await messageBoxStandardWindow.Show();
             }
         }
+
+        public  void Cancel()
+        {
+            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).PriorContent;
+        }
     }
+
 }

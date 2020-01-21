@@ -1,26 +1,25 @@
 ﻿using Avalonia;
 using ReactiveUI;
-using SQRLDotNetClient.Views;
+using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SQRLDotNetClient.ViewModels
+namespace SQRLDotNetClientUI.ViewModels
 {
-
-    public class NewIdentityVerifyModel : ViewModelBase
+    public class NewIdentityVerifyViewModel: ViewModelBase
     {
-
-        public NewIdentityVerifyModel()
+        public NewIdentityVerifyViewModel()
         {
 
         }
 
-        public NewIdentityVerifyModel(SQRL sqrlInstance, SQRLIdentity identity)
+        public NewIdentityVerifyViewModel(SQRL sqrlInstance, SQRLIdentity identity)
         {
             this.SQRLInstance = sqrlInstance;
             this.Identity = identity;
+            this.Title = "SQRL Client - New Identity Verify";
         }
 
         public string RescueCode { get; set; }
@@ -39,11 +38,7 @@ namespace SQRLDotNetClient.ViewModels
 
         public void GenerateNewIdentity()
         {
-            if (AvaloniaLocator.Current.GetService<NewIdentityWindow>() != null)
-            {
-                AvaloniaLocator.Current.GetService<NewIdentityVerifyWindow>().Hide();
-                AvaloniaLocator.Current.GetService<NewIdentityWindow>().Show();
-            }
+            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).PriorContent;
         }
 
 
@@ -56,20 +51,20 @@ namespace SQRLDotNetClient.ViewModels
 
             var data = await SQRLInstance.DecryptBlock1(this.Identity, this.Password, progress);
             string msg = "";
-            if(!data.Item1)
+            if (!data.Item1)
             {
                 msg = $"Invalid Password{Environment.NewLine}";
             }
             progress = new Progress<KeyValuePair<int, string>>(percent =>
             {
-                this.ProgressPercentage = 50+ ((int)percent.Key / 2);
+                this.ProgressPercentage = 50 + ((int)percent.Key / 2);
             });
-            var dataBlock2 = await SQRLInstance.DecryptBlock2(this.Identity,  SQRL.CleanUpRescueCode(this.RescueCode), progress);
-            if(!dataBlock2.Item1)
+            var dataBlock2 = await SQRLInstance.DecryptBlock2(this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progress);
+            if (!dataBlock2.Item1)
             {
                 msg += $"Invalid Rescue Code{Environment.NewLine}";
             }
-            if(!string.IsNullOrEmpty(msg))
+            if (!string.IsNullOrEmpty(msg))
             {
                 var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"{msg}!", "Error!", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
 

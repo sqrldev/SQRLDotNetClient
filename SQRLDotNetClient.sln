@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLDotNetClient", "SQRLDotNetClient\SQRLDotNetClient.csproj", "{EE0E1771-0A53-4D67-9AD2-6FFB59E32322}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLUtilsLib", "SQRLUtilsLib\SQRLUtilsLib.csproj", "{93BD94E4-B982-44BF-8C06-57411E1EEB15}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLConsoleTester", "SQRLConsoleTester\SQRLConsoleTester.csproj", "{6A8B0B36-86F1-4577-BC2E-210D66B44372}"
@@ -13,16 +11,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sodium.Core.ForSqrl", "Sodi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLUtilLibTest", "SQRLUtilLibTest\SQRLUtilLibTest.csproj", "{3A039539-3128-413E-AB5C-531DEED89609}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLDotNetClientUI", "SQRLDotNetClientUI\SQRLDotNetClientUI.csproj", "{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{EE0E1771-0A53-4D67-9AD2-6FFB59E32322}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EE0E1771-0A53-4D67-9AD2-6FFB59E32322}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE0E1771-0A53-4D67-9AD2-6FFB59E32322}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EE0E1771-0A53-4D67-9AD2-6FFB59E32322}.Release|Any CPU.Build.0 = Release|Any CPU
 		{93BD94E4-B982-44BF-8C06-57411E1EEB15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{93BD94E4-B982-44BF-8C06-57411E1EEB15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93BD94E4-B982-44BF-8C06-57411E1EEB15}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +35,10 @@ Global
 		{3A039539-3128-413E-AB5C-531DEED89609}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A039539-3128-413E-AB5C-531DEED89609}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A039539-3128-413E-AB5C-531DEED89609}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

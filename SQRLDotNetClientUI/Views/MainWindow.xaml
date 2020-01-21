@@ -1,0 +1,22 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
+        xmlns:views="clr-namespace:SQRLDotNetClientUI.Views"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
+        x:Class="SQRLDotNetClientUI.Views.MainWindow"
+        Icon="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico"
+        Title="{Binding Content.Title}"
+        Content="{Binding Content}"
+        Height="400"
+        Width="400"
+        >
+    
+  <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    
+
+</Window>

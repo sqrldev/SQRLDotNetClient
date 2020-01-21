@@ -2,28 +2,33 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <ApplicationIcon>Assets\sqrl_icon_normal_48_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Models\" />
     <Compile Update="**\*.xaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
-	
     <AvaloniaResource Include="**\*.xaml">
       <SubType>Designer</SubType>
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+  <ItemGroup>
     <AvaloniaResource Remove="Assets\SQRL_icon_normal.svg" />
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_128.png" />
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_16.png" />
+    <AvaloniaResource Remove="Assets\sqrl_icon_normal_256.ico" />
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_256.png" />
+    <AvaloniaResource Remove="Assets\sqrl_icon_normal_256_32_icon.ico" />
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_32.png" />
+    <AvaloniaResource Remove="Assets\sqrl_icon_normal_48_icon.ico" />
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_64.png" />
     <AvaloniaResource Remove="Assets\VL.png" />
-    <AvaloniaResource Remove="Views\NewIdentityVerifyWindow.xaml" />
-    <AvaloniaResource Remove="Views\NewIdentityWindow.xaml" />
-    <Folder Include="SQRL\" />
+    <AvaloniaResource Remove="Views\MainMenuView.xaml" />
+    <AvaloniaResource Remove="Views\NewIdentityVerifyView.xaml" />
+    <AvaloniaResource Remove="Views\NewIdentityView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Assets\SQRL_icon_normal_128.png" />
     <None Remove="Assets\SQRL_icon_normal_16.png" />
     <None Remove="Assets\sqrl_icon_normal_256.ico" />
@@ -32,29 +37,37 @@
     <None Remove="Assets\sqrl_icon_normal_48_icon.ico" />
     <None Remove="Assets\SQRL_icon_normal_64.png" />
     <None Remove="Assets\VL.png" />
-    <None Remove="Views\NewIdentityVerifyWindow.xaml" />
-    <None Remove="Views\NewIdentityWindow.xaml" />
+    <None Remove="Views\MainMenuView.xaml" />
+    <None Remove="Views\NewIdentityVerifyView.xaml" />
+    <None Remove="Views\NewIdentityView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Assets\SQRL_icon_normal_128.png" />
     <Content Include="Assets\SQRL_icon_normal_16.png" />
     <Content Include="Assets\SQRL_icon_normal_256.png" />
     <Content Include="Assets\SQRL_icon_normal_32.png" />
     <Content Include="Assets\SQRL_icon_normal_64.png" />
-    <EmbeddedResource Include="Assets\VL.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.9.1" />
-    <PackageReference Include="Avalonia.Desktop" Version="0.9.1" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.1" />
+    <PackageReference Include="Avalonia" Version="0.9.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.9.2" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.2" />
     <PackageReference Include="MessageBox.Avalonia" Version="0.9.0" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\sqrl_icon_normal_48_icon.ico" />
-    <EmbeddedResource Include="Views\NewIdentityWindow.xaml">
+    <EmbeddedResource Include="Assets\VL.png" />
+    <EmbeddedResource Include="Views\MainMenuView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Views\NewIdentityVerifyWindow.xaml">
+    <EmbeddedResource Include="Views\NewIdentityView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\NewIdentityVerifyView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>
