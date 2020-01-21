@@ -70,6 +70,10 @@ namespace SQRLDotNetClientUI.ViewModels
 
                 await messageBoxStandardWindow.Show();
             }
+            else
+            {
+                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ExportIdentityViewModel(this.SQRLInstance, this.Identity);
+            }
         }
     }
 }

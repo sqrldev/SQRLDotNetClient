@@ -1,0 +1,27 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
+             x:Class="SQRLDotNetClientUI.Views.ExportIdentityView">
+  <Design.DataContext>
+    <vm:ExportIdentityViewModel/>
+  </Design.DataContext>
+  <Grid>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="Auto"/>
+    
+  </Grid.ColumnDefinitions>
+  <Grid.RowDefinitions>
+    <RowDefinition />
+    <RowDefinition />
+    <RowDefinition />
+    <RowDefinition />
+    <RowDefinition />
+    <RowDefinition  />
+    <RowDefinition  />
+  </Grid.RowDefinitions>
+  <Image Source="{Binding QRImage}" Stretch="Fill" Height="200" Width="200" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
+  </Grid>
+</UserControl>
