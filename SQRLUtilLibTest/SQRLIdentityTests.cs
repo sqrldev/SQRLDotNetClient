@@ -10,7 +10,7 @@ namespace SQRLUtilLibTest
     public class SQRLIdentityTests
     {
 		[Fact]
-		public async void FromToByteArrayTest()
+		public void FromToByteArrayTest()
 		{
 			List<Tuple<byte[], bool>> idVectors = new List<Tuple<byte[], bool>>()
 			{

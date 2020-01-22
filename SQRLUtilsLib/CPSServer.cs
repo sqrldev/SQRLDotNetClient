@@ -73,7 +73,7 @@ namespace SQRLUtilsLib
                     }
                 }
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 this.Running = false;
             }
@@ -165,7 +165,7 @@ namespace SQRLUtilsLib
                 context.Response.OutputStream.Flush();
                 context.Response.Close();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
