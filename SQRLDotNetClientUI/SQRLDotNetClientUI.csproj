@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -32,6 +32,7 @@
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_32.png" />
     <AvaloniaResource Remove="Assets\sqrl_icon_normal_48_icon.ico" />
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_64.png" />
+    <AvaloniaResource Remove="Assets\SQRL_InAction.gif" />
     <AvaloniaResource Remove="Assets\VL.png" />
     <AvaloniaResource Remove="Views\ExportIdentityView.xaml" />
     <AvaloniaResource Remove="Views\ImportIdentitySetupView.xaml" />

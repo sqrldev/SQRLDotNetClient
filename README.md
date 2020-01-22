@@ -1,9 +1,17 @@
 # SQRL Dot Net Core Client and Library
 This project has 2 main parts a SQRL library and a SQRL Client below is information on both. 
 
+[SQRL Dot Net Core Client](#SQRL-Dot-Net-Core-Client)
+
 [SQRL Dot Net Core Library](#SQRL-Dot-Net-Core-Library)
 
-[SQRL Dot Net Core Client](#SQRL-Dot-Net-Core-Client)
+### SQRL Dot Net Core Client
+
+An implementation of a full SQRL client along with a cross-platform UI using Avalonia
+
+TODO: Finish Writing it and Document it
+
+![SQRLClientDemo](/SQRLDotNetClientUI/Assets/SQRL_InAction.gif)
 
 ### SQRL Dot Net Core Library
 
@@ -302,8 +310,3 @@ if (sqrl.cps != null && sqrl.cps.PendingResponse)
 }
 ```
 
-### SQRL Dot Net Core Client
-
-An implementation of a full SQRL client along with a cross-platform UI using Avalonia
-
-//TODO Write it and Document it
