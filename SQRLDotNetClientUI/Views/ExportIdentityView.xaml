@@ -8,20 +8,24 @@
   <Design.DataContext>
     <vm:ExportIdentityViewModel/>
   </Design.DataContext>
-  <Grid>
+  <Grid ShowGridLines="False">
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="Auto"/>
-    
+    <ColumnDefinition Width="100"/>
+    <ColumnDefinition Width="300"/>
   </Grid.ColumnDefinitions>
   <Grid.RowDefinitions>
     <RowDefinition />
+    <RowDefinition Height="200" />
     <RowDefinition />
     <RowDefinition />
-    <RowDefinition />
-    <RowDefinition />
-    <RowDefinition  />
-    <RowDefinition  />
+ 
   </Grid.RowDefinitions>
-  <Image Source="{Binding QRImage}" Stretch="Fill" Height="200" Width="200" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
+    <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
+    <TextBlock Margin="10" Text="{Binding Message}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
+    <Image Source="{Binding QRImage}" Stretch="Uniform" Width="200" Height="200" Grid.Row="1" Grid.ColumnSpan="2"/>
+    <Button Command="{Binding SaveToFile}" Grid.Row="2" Grid.ColumnSpan="2" Width="120" Grid.Column="0" HorizontalAlignment="Left" Margin="10">Save To File</Button>
+    <Button Command="{Binding CopyToClippboard}" Grid.Row="2" Grid.ColumnSpan="2" Width="120" Grid.Column="0" HorizontalAlignment="Right" Margin="10">Copy to Clippboard</Button>
+    <Button Command="{Binding Back}" Grid.Row="3" Grid.ColumnSpan="2" Width="120" Grid.Column="0" HorizontalAlignment="Left" Margin="10">Back</Button>
+    <Button Command="{Binding Done}" Grid.Row="3" Grid.ColumnSpan="2" Width="120" Grid.Column="0" HorizontalAlignment="Right" Margin="10">Done</Button>
   </Grid>
 </UserControl>

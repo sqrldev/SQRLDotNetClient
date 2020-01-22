@@ -1,0 +1,37 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
+             x:Class="SQRLDotNetClientUI.Views.ImportIdentityView">
+  <Design.DataContext>
+    <vm:ImportIdentityViewModel/>
+  </Design.DataContext>
+  <Grid ShowGridLines="False" Width="400">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="100" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      
+      <RowDefinition Height="Auto"/>
+      
+    </Grid.RowDefinitions>
+
+    <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
+    <TextBlock Margin="10" Text="{Binding Message}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
+    <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+      <TextBlock Margin="10,10,10,5" FontWeight="Bold" Text="Textual Identity" FontSize="12" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Bottom"/>
+      <TextBox Margin="10,0,10,10" Text="{Binding TextualIdentity}" Height="200" AcceptsReturn="True" TextWrapping="Wrap" />
+    </StackPanel>
+    <Button Name="btnImportFromFile" Command="{Binding ImportFile}" Grid.Row="2" Grid.Column="0" Height="25" Width="80">Import File...</Button>
+    <TextBlock Margin="10,10,10,5" FontWeight="Bold" Text="{Binding IdentityFile}"  FontSize="12" TextWrapping="Wrap" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" VerticalAlignment="Center"/>
+
+    <Button Margin="10" Command="{Binding ImportVerify}" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="1" Width="70" HorizontalAlignment="Left">Next</Button>
+    <Button Margin="10" Command="{Binding Cancel}" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="1" Width="70" HorizontalAlignment="Right">Cancel</Button>
+  </Grid>
+</UserControl>

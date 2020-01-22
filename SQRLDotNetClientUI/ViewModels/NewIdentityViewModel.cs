@@ -50,7 +50,7 @@ namespace SQRLDotNetClientUI.ViewModels
             if (this.Password.Equals(this.PasswordConfirm))
             {
 
-                SQRLIdentity newId = new SQRLIdentity();
+                SQRLIdentity newId = new SQRLIdentity(this.IdentityName);
                 byte[] iuk = this.sqrlInstance.CreateIUK();
                 var progress = new Progress<KeyValuePair<int, string>>(percent =>
                 {

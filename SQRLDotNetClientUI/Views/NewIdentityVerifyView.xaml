@@ -9,10 +9,10 @@
     <vm:NewIdentityVerifyViewModel/>
   </Design.DataContext>
   <StackPanel>
-    <Grid>
+    <Grid ShowGridLines="False">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="100"/>
-        <ColumnDefinition Width="275"/>
+        <ColumnDefinition Width="300"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition />
@@ -31,9 +31,23 @@
       <TextBox Margin="10" Text="{Binding RescueCode}" Grid.Row="2" Grid.Column="1"  />
       <TextBlock Margin="10" Text="Password:" Grid.Row="3" Grid.Column="0" />
       <TextBox Margin="10" Text="{Binding Password}" PasswordChar="*" Grid.Row="3" Grid.Column="1"/>
-
-      <ProgressBar Margin="10"  IsIndeterminate="False" Value="{Binding ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Height="20"/>
-      <Panel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,-10,10,10">
+      <Panel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="10">
+        <Grid ShowGridLines="False" >
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition />
+           </Grid.RowDefinitions>
+          <ProgressBar  IsIndeterminate="False" Value="{Binding Block2ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true"  Height="20"  MinWidth="10" Grid.Row="0" Grid.Column="1"/>
+          <ProgressBar  IsIndeterminate="False" Value="{Binding Block1ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true"  Height="20" MinWidth="10"  Grid.Row="0" Grid.Column="0"/>
+        
+        
+      </Grid>
+      </Panel>
+      <Panel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,2,10,10">
+        
         <Grid ShowGridLines="False">
           <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -48,8 +62,9 @@
           <TextBlock Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" TextAlignment="Right" >Decrypting Block 2</TextBlock>
         </Grid>
       </Panel>
-      <Button Margin="10" Command="{Binding GenerateNewIdentity}" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="1" Width="50" HorizontalAlignment="Left">Prev</Button>
-      <Button Margin="10" Command="{Binding VerifyRescueCode}" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="1" Width="50" HorizontalAlignment="Left">Next</Button>
+      <Button Margin="10" Command="{Binding VerifyRescueCode}" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="1" Width="70" HorizontalAlignment="Left">Next</Button>
+      <Button Margin="10" Command="{Binding GenerateNewIdentity}" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="1" Width="70" HorizontalAlignment="Right">Previous</Button>
+      
     </Grid>
   </StackPanel>
 </UserControl>

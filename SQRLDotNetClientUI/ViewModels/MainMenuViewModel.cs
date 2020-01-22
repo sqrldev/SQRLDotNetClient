@@ -22,6 +22,16 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new NewIdentityViewModel(this.sqrlInstance);
         }
+
+        public void ExportIdentity()
+        {
+            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ExportIdentityViewModel(this.sqrlInstance, this.currentIdentity);
+        }
+
+        public void ImportIdentity()
+        {
+            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ImportIdentityViewModel(this.sqrlInstance);
+        }
     }
 
    

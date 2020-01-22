@@ -14,6 +14,15 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
+    <AvaloniaResource Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
+    <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
+    <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Regular.ttf" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_light_128.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_light_16.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_light_256.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_light_32.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_light_64.png" />
     <AvaloniaResource Remove="Assets\SQRL_icon_normal.svg" />
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_128.png" />
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_16.png" />
@@ -25,11 +34,22 @@
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_64.png" />
     <AvaloniaResource Remove="Assets\VL.png" />
     <AvaloniaResource Remove="Views\ExportIdentityView.xaml" />
+    <AvaloniaResource Remove="Views\ImportIdentitySetupView.xaml" />
+    <AvaloniaResource Remove="Views\ImportIdentityView.xaml" />
     <AvaloniaResource Remove="Views\MainMenuView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityVerifyView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityView.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
+    <None Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
+    <None Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
+    <None Remove="Assets\Fonts\SpaceMono-Regular.ttf" />
+    <None Remove="Assets\SQRL_icon_light_128.png" />
+    <None Remove="Assets\SQRL_icon_light_16.png" />
+    <None Remove="Assets\SQRL_icon_light_256.png" />
+    <None Remove="Assets\SQRL_icon_light_32.png" />
+    <None Remove="Assets\SQRL_icon_light_64.png" />
     <None Remove="Assets\SQRL_icon_normal_128.png" />
     <None Remove="Assets\SQRL_icon_normal_16.png" />
     <None Remove="Assets\sqrl_icon_normal_256.ico" />
@@ -39,15 +59,26 @@
     <None Remove="Assets\SQRL_icon_normal_64.png" />
     <None Remove="Assets\VL.png" />
     <None Remove="Views\ExportIdentityView.xaml" />
+    <None Remove="Views\ImportIdentitySetupView.xaml" />
+    <None Remove="Views\ImportIdentityView.xaml" />
     <None Remove="Views\MainMenuView.xaml" />
     <None Remove="Views\NewIdentityVerifyView.xaml" />
     <None Remove="Views\NewIdentityView.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets\Fonts\SpaceMono-Bold.ttf" />
+    <EmbeddedResource Include="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
+    <EmbeddedResource Include="Assets\Fonts\SpaceMono-Italic.ttf" />
+    <EmbeddedResource Include="Assets\Fonts\SpaceMono-Regular.ttf" />
+    <Content Include="Assets\SQRL_icon_light_128.png" />
+    <Content Include="Assets\SQRL_icon_light_16.png" />
+    <EmbeddedResource Include="Assets\SQRL_icon_light_256.png" />
+    <EmbeddedResource Include="Assets\SQRL_icon_light_32.png" />
+    <Content Include="Assets\SQRL_icon_light_64.png" />
     <Content Include="Assets\SQRL_icon_normal_128.png" />
     <EmbeddedResource Include="Assets\SQRL_icon_normal_16.png" />
     <EmbeddedResource Include="Assets\SQRL_icon_normal_256.png" />
-    <Content Include="Assets\SQRL_icon_normal_32.png" />
+    <EmbeddedResource Include="Assets\SQRL_icon_normal_32.png" />
     <Content Include="Assets\SQRL_icon_normal_64.png" />
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +108,16 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\ExportIdentityView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ImportIdentityView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ImportIdentitySetupView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

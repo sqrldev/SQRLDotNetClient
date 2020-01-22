@@ -7,9 +7,12 @@ namespace SQRLUtilsLib
 {
     public class SQRLIdentity
     {
-        public SQRLIdentity() 
+        public string IdentityName { get; set; }
+
+        public SQRLIdentity(string name="") 
         {
             Blocks = new List<ISQRLBlock>();
+            this.IdentityName = name;
         }
 
         public const String SQRLHEADER = "sqrldata";
@@ -72,19 +75,24 @@ namespace SQRLUtilsLib
         /// <summary>
         /// Parses a SQRL identity from the given raw byte array 
         /// </summary>
-        public static SQRLIdentity FromByteArray(byte[] identityData)
+        public static SQRLIdentity FromByteArray(byte[] identityData, bool texttual =false)
         {
             SQRLIdentity id = new SQRLIdentity();
             bool isBase64 = false;
-
+            int skip = SQRLHEADER.Length;
             // Check header
-            string sqrlHeader = System.Text.Encoding.UTF8.GetString(identityData.Take(8).ToArray());
-            if (!sqrlHeader.Equals(SQRLHEADER, StringComparison.OrdinalIgnoreCase))
-                throw new IOException("Invalid File Exception, not a valid SQRL Identity File");
-            if (sqrlHeader.Equals(SQRLHEADER.ToUpper())) isBase64 = true;
+            if (!texttual)
+            {
+                string sqrlHeader = System.Text.Encoding.UTF8.GetString(identityData.Take(8).ToArray());
+                if (!sqrlHeader.Equals(SQRLHEADER, StringComparison.OrdinalIgnoreCase))
+                    throw new IOException("Invalid File Exception, not a valid SQRL Identity File");
+                if (sqrlHeader.Equals(SQRLHEADER.ToUpper())) isBase64 = true;
+            }
+            else
+                skip = 0;
 
             // Remove header
-            identityData = identityData.Skip(SQRLHEADER.Length).ToArray();
+            identityData = identityData.Skip(skip).ToArray();
 
             // If we're dealing with a base64url-encoded identity, 
             // decode it to binary first

@@ -1283,7 +1283,7 @@ namespace SQRLUtilsLib
             return new KeyValuePair<string, SQRLIdentity>(newRescueCode,newID);
         }
 
-        private void GenerateIdentityBlock3(byte[] oldIuk, SQRLIdentity oldIdentity, SQRLIdentity newID, byte[] oldImk, byte[] newImk)
+        public void GenerateIdentityBlock3(byte[] oldIuk, SQRLIdentity oldIdentity, SQRLIdentity newID, byte[] oldImk, byte[] newImk)
         {
 
             byte[] decryptedBlock3 = null;
