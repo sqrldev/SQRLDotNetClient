@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using SQRLDotNetClientUI.ViewModels;
 using SQRLDotNetClientUI.Views;
+using System;
 
 namespace SQRLDotNetClientUI
 {
@@ -17,7 +18,6 @@ namespace SQRLDotNetClientUI
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = new MainWindowViewModel(),

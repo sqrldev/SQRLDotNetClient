@@ -30,11 +30,26 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Button Name="btnNewIdentity" Command="{Binding OnNewIdentityClick}" Height="30" Width="100" Margin="10" Grid.Row="0" Grid.Column="0">New Identity</Button>
-      <Button Name="btnOtherButt2" Height="30" Width="100" Margin="10" Grid.Row="0" Grid.Column="1">Re-Key Identity</Button>
+      <Button Name="btnReKeyIdentity" Height="30" Width="100" Margin="10" Grid.Row="0" Grid.Column="1">Re-Key Identity</Button>
       <Button Name="btnImportIdentity" Command="{Binding ImportIdentity}" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="0">Import Identity</Button>
       <Button Name="btnExport" Command="{Binding ExportIdentity}" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="1">Export Identity</Button>
+      <Button Name="btnSwitchID" Command="{Binding SwitchIdentity}" Height="30" Width="100" Margin="10" Grid.Row="2" Grid.Column="1">Switch Identity</Button>
+      <Panel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
+        <Grid ShowGridLines="False">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+      <TextBlock FontSize="15" FontWeight="Bold" Text="Loaded Identity:" HorizontalAlignment="Right"  Grid.Row="0" Grid.Column="0" Margin="10" />
+      <TextBlock FontSize="15" Text="{Binding IdentityName}" Background="LightGreen" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" Margin="10"/>
+        </Grid>
+      </Panel>
     </Grid>
   </DockPanel>
 </UserControl>

@@ -1,0 +1,30 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
+             x:Class="SQRLDotNetClientUI.Views.AuthenticationView">
+  <Design.DataContext>
+    <vm:AuthenticationViewModel/>
+  </Design.DataContext>
+  <Grid ShowGridLines="False">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="100"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition />
+      <RowDefinition />
+      <RowDefinition />
+      <RowDefinition />
+
+    </Grid.RowDefinitions>
+    <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
+    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Text="{Binding SiteID}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
+    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Text="Password:" FontSize="15" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
+    <TextBox Text="{Binding Password}" HorizontalAlignment="Left" PasswordChar="*" Grid.Row="1" Grid.Column="1" Width="250" Height="30"/>
+    <Button Command="{Binding Cancel}" Grid.Row="3" Grid.Column="1" Width="100" Height="30" HorizontalAlignment="Left">Cancel</Button>
+    <Button Command="{Binding Login}" Grid.Row="3" Grid.Column="1" Width="100" Height="30" HorizontalAlignment="Right" Margin="10">OK</Button>
+  </Grid>
+</UserControl>
