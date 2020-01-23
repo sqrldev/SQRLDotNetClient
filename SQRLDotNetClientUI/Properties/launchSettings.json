@@ -1,7 +1,8 @@
 {
   "profiles": {
     "SQRLDotNetClientUI": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "sqrl://sqrloauth.com/login-sqrl?nut=NDQ1YmJiZjU4MGZiNGU4YmFjZTZhMTNlYzQ3MDhkNWM&can=aHR0cHM6Ly9zcXJsb2F1dGguY29t"
     }
   }
 }

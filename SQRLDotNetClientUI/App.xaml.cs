@@ -13,10 +13,8 @@ namespace SQRLDotNetClientUI
     {
         public override void Initialize()
         {
-            AvaloniaXamlLoader.Load(this);
-            Thread th = new Thread(StartNamePipe);
-            th.Start();
-
+            AvaloniaXamlLoader.Load(this);    
+          
         }
 
         public override void OnFrameworkInitializationCompleted()
@@ -32,13 +30,6 @@ namespace SQRLDotNetClientUI
 
             base.OnFrameworkInitializationCompleted();
         }
-
-        public void StartNamePipe()
-        {
-           
-                IPCServer nps = new IPCServer("127.0.0.1", 13000);
-                nps.StartServer();
-            
-        }
+       
     }
 }

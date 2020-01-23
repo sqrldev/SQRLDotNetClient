@@ -26,8 +26,6 @@ namespace SQRLDotNetClientUI.IPC
         }
         public void StartServer()
         {
-
-
             try
             {
                 while (true)
