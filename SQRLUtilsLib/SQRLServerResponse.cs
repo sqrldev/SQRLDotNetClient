@@ -56,6 +56,8 @@ namespace SQRLUtilsLib
 
         public string SUK { get; set; }
 
+        public string SIN { get; set; }
+
         public KeyValuePair<byte[],KeyPair> PriorMatchedKey { get; set; }
         public string AskMessage
         {
@@ -148,6 +150,10 @@ namespace SQRLUtilsLib
                 else if (key.Equals("suk", StringComparison.OrdinalIgnoreCase))
                 {
                     this.SUK = value;
+                }
+                else if (key.Equals("sin", StringComparison.OrdinalIgnoreCase))
+                {
+                    this.SIN = value;
                 }
             }
         }
