@@ -2,6 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:behaviors="clr-namespace:SQRLDotNetClientUI.Behaviors;assembly=SQRLDotNetClientUI"
              xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
              x:Class="SQRLDotNetClientUI.Views.AuthenticationView">
@@ -23,7 +25,11 @@
     <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
     <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Text="{Binding SiteID}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
     <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Text="Password:" FontSize="15" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
-    <TextBox Text="{Binding Password}" HorizontalAlignment="Left" PasswordChar="*" Grid.Row="1" Grid.Column="1" Width="250" Height="30"/>
+    <TextBox Text="{Binding Password}" HorizontalAlignment="Left" PasswordChar="*" Grid.Row="1" Grid.Column="1" Width="250" Height="30">
+      <i:Interaction.Behaviors>
+        <behaviors:FocusOnAttached />
+      </i:Interaction.Behaviors>
+      </TextBox>
     <Button Command="{Binding Cancel}" Grid.Row="3" Grid.Column="1" Width="100" Height="30" HorizontalAlignment="Left">Cancel</Button>
     <Button Command="{Binding Login}" Grid.Row="3" Grid.Column="1" Width="100" Height="30" HorizontalAlignment="Right" Margin="10">OK</Button>
   </Grid>

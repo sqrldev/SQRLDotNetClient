@@ -9,11 +9,16 @@ namespace SQRLDotNetClientUI.Views
         public MainMenuView()
         {
             this.InitializeComponent();
+            
         }
+
+      
 
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
         }
+
+
     }
 }

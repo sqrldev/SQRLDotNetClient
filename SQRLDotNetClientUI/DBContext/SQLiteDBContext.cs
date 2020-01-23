@@ -2,6 +2,8 @@
 using SQRLDotNetClientUI.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 
 namespace SQRLDotNetClientUI.DBContext
@@ -10,6 +12,12 @@ namespace SQRLDotNetClientUI.DBContext
     {
         public DbSet<UserData> UserData { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlite("Data Source=sqrl.db");
+        {
+            var directory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+            if (!File.Exists(Path.Combine(directory, "sqrl.db")))
+                directory = "";
+            Console.WriteLine($"{directory}: {File.Exists(Path.Combine(directory, "sqrl.db"))}");
+            options.UseSqlite($"Data Source={Path.Combine(directory,"sqrl.db")}");
+        }
     }
 }

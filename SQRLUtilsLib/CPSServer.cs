@@ -56,7 +56,7 @@ namespace SQRLUtilsLib
             try
             {
                 _listener = new HttpListener();
-                _listener.Prefixes.Add("http://*:" + this.Port.ToString() + "/");
+                _listener.Prefixes.Add("http://localhost:" + this.Port.ToString() + "/");
                 _listener.Start();
                 this.Running = true;
                 while (true)

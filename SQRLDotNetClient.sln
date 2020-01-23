@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLUtilLibTest", "SQRLUtil
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLDotNetClientUI", "SQRLDotNetClientUI\SQRLDotNetClientUI.csproj", "{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQRLIPCTestClient", "SQRLIPCTestClient\SQRLIPCTestClient.csproj", "{C8A66E27-ED37-49A9-9465-8EF761FD51AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8A66E27-ED37-49A9-9465-8EF761FD51AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8A66E27-ED37-49A9-9465-8EF761FD51AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8A66E27-ED37-49A9-9465-8EF761FD51AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8A66E27-ED37-49A9-9465-8EF761FD51AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

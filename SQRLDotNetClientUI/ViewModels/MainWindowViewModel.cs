@@ -34,8 +34,8 @@ namespace SQRLDotNetClientUI.ViewModels
         public MainWindowViewModel()
         {
             this.sqrlInstance = new SQRL(true);
-            var mainMnu= new MainMenuViewModel(this.sqrlInstance);
-            if (mainMnu.AuthVM != null)
+            var mainMnu = new MainMenuViewModel(this.sqrlInstance);
+            if (mainMnu != null && mainMnu.AuthVM != null)
                 Content = mainMnu.AuthVM;
             else
                 Content = mainMnu;
