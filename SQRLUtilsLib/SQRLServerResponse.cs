@@ -58,7 +58,7 @@ namespace SQRLUtilsLib
 
         public string SIN { get; set; }
 
-        public KeyValuePair<byte[],KeyPair> PriorMatchedKey { get; set; }
+        public KeyValuePair<byte[],Tuple<byte[], KeyPair>> PriorMatchedKey { get; set; }
         public string AskMessage
         {
             get

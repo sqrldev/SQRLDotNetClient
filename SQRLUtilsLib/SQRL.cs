@@ -785,12 +785,12 @@ namespace SQRLUtilsLib
         }
 
 
-        public Dictionary<byte[],Sodium.KeyPair> CreatePriorSiteKeys(List<byte[]> oldIUKs, Uri domain, String altID)
+        public Dictionary<byte[], Tuple<byte[],Sodium.KeyPair>> CreatePriorSiteKeys(List<byte[]> oldIUKs, Uri domain, String altID)
         {
-            Dictionary<byte[], Sodium.KeyPair> priorSiteKeys = new Dictionary<byte[], Sodium.KeyPair>();
+            Dictionary<byte[], Tuple<byte[],Sodium.KeyPair>> priorSiteKeys = new Dictionary<byte[], Tuple<byte[], Sodium.KeyPair>>();
             foreach(var oldIUK in oldIUKs)
             {
-                priorSiteKeys.Add(oldIUK,CreateSiteKey(domain, altID, CreateIMK(oldIUK)));
+                priorSiteKeys.Add(oldIUK,new Tuple<byte[], Sodium.KeyPair>(CreateSiteSeed(domain,altID,CreateIMK(oldIUK)), CreateSiteKey(domain, altID, CreateIMK(oldIUK))));
             }
             return priorSiteKeys;
         }
@@ -820,6 +820,23 @@ namespace SQRLUtilsLib
         public byte[] CreateIndexedSecret(Uri domain, String altID, byte[] imk, byte[] secretIndex, bool test = false)
         {
             byte[] siteSeed = CreateSiteSeed(domain, altID, imk, test);
+            byte[] key = EnHash(siteSeed);
+            byte[] indexedSecret = Sodium.SecretKeyAuth.SignHmacSha256(secretIndex, key);
+
+            return indexedSecret;
+        }
+
+        /// <summary>
+        /// Creates and returns the so called "Indexed Secret" (INS)
+        /// for the given, server-provided "Secret Index" using an existing site seed
+        /// </summary>
+        /// <param name="siteSeed"></param>
+        /// <param name="secretIndex"></param>
+        /// <param name="test"></param>
+        /// <returns></returns>
+        public byte[] CreateIndexedSecret(byte[] siteSeed, byte[] secretIndex, bool test = false)
+        {
+            
             byte[] key = EnHash(siteSeed);
             byte[] indexedSecret = Sodium.SecretKeyAuth.SignHmacSha256(secretIndex, key);
 
@@ -909,7 +926,7 @@ namespace SQRLUtilsLib
         /// <param name="count"></param>
         /// <returns></returns>
         //GenerateSQRLCommand(SQRLCommands command,Uri sqrlUri, KeyPair currentSiteKeyPair, string plainTextServer, StringBuilder additionalClientData=null, SQRLOptions opts = null,KeyPair priorKey=null, byte[] ursKey=null)
-        public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, string encodedServerMessage=null,int count = 0, Dictionary<byte[],KeyPair> priorSiteKeys=null)
+        public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, string encodedServerMessage=null,int count = 0, Dictionary<byte[],Tuple<byte[],KeyPair>> priorSiteKeys=null)
         {
             
             SQRLServerResponse serverResponse = null;
@@ -917,7 +934,7 @@ namespace SQRLUtilsLib
             {
                 encodedServerMessage = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(sqrl.OriginalString), Utilities.Base64Variant.UrlSafeNoPadding);
             }
-            serverResponse = GenerateSQRLCommand(SQRLCommands.query, sqrl, siteKP, encodedServerMessage, null, opts, priorSiteKeys?.First().Value);
+            serverResponse = GenerateSQRLCommand(SQRLCommands.query, sqrl, siteKP, encodedServerMessage, null, opts, priorSiteKeys?.First().Value.Item2);
             if(serverResponse.CommandFailed && serverResponse.TransientError && count<=3)
             {
                 serverResponse = GenerateQueryCommand(serverResponse.NewNutURL, siteKP,opts, serverResponse.FullServerRequest,++count, priorSiteKeys);
@@ -944,7 +961,7 @@ namespace SQRLUtilsLib
         /// <param name="ilk"></param>
         /// <param name="opts"></param>
         /// <returns></returns>
-        public SQRLServerResponse GenerateNewIdentCommand(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk, SQRLOptions opts = null)
+        public SQRLServerResponse GenerateNewIdentCommand(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk, SQRLOptions opts = null, StringBuilder sin=null)
         {
 
             SQRLServerResponse serverResponse = null;
@@ -952,12 +969,14 @@ namespace SQRLUtilsLib
             StringBuilder addClientData = new StringBuilder();
             addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
             addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            if (sin != null)
+                addClientData.Append(sin);
             serverResponse = GenerateSQRLCommand(SQRLCommands.ident, sqrl, siteKP, encodedServerMessage, addClientData, opts, null);
 
             return serverResponse;
         }
 
-        public SQRLServerResponse GenerateIdentCommandWithReplace(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk,byte[] ursKey, KeyPair priorKey, SQRLOptions opts = null)
+        public SQRLServerResponse GenerateIdentCommandWithReplace(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk,byte[] ursKey, KeyPair priorKey, SQRLOptions opts = null, StringBuilder sin=null)
         {
 
             SQRLServerResponse serverResponse = null;
@@ -965,6 +984,8 @@ namespace SQRLUtilsLib
             StringBuilder addClientData = new StringBuilder();
             addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
             addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            if (sin != null)
+                addClientData.Append(sin);
             serverResponse = GenerateSQRLCommand(SQRLCommands.ident, sqrl, siteKP, encodedServerMessage, addClientData, opts, priorKey, ursKey);
 
             return serverResponse;
