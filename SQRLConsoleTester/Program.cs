@@ -23,8 +23,8 @@ namespace SQRLConsoleTester
                 Console.WriteLine($"{percent.Value}: {percent.Key}%");
             });
 
-            //SQRLIdentity newId = SQRLIdentity.FromFile(Path.Combine(Directory.GetCurrentDirectory(), @"Spec-Vectors-Identity_2.sqrl"));
-            SQRLIdentity newId = SQRLIdentity.FromFile(Path.Combine(Directory.GetCurrentDirectory(), @"980591756918003626376697.sqrl"));
+            SQRLIdentity newId = SQRLIdentity.FromFile(Path.Combine(@"C:\Users\jose\Downloads\SQRL-Test-Identity-Resources\", @"Spec-Vectors-Identity.sqrl"));
+            //SQRLIdentity newId = SQRLIdentity.FromFile(Path.Combine(Directory.GetCurrentDirectory(), @"980591756918003626376697.sqrl"));
 
             SQRLOpts optsFlags = (sqrl.cps != null && sqrl.cps.Running ? SQRLOpts.SUK | SQRLOpts.CPS : SQRLOpts.SUK);
 
@@ -47,7 +47,7 @@ namespace SQRLConsoleTester
 
 
                         var siteKvp = sqrl.CreateSiteKey(requestURI, AltID, decryptedData.Item2);
-                        Dictionary<byte[],KeyPair> priorKvps = null;
+                        Dictionary<byte[],Tuple<byte[],KeyPair>> priorKvps = null;
                         if(newId.Block3!=null && newId.Block3.Edition>0)
                         {
                             byte[] decryptedBlock3 = sqrl.DecryptBlock3(decryptedData.Item2, newId, out bool allGood);
@@ -74,14 +74,23 @@ namespace SQRLConsoleTester
                         //SQRL.ZeroFillByteArray(ref decryptedData.Item2);
                         //decryptedData.Item2.ZeroFill();
                         var serverRespose = sqrl.GenerateQueryCommand(requestURI, siteKvp, opts,null,0, priorKvps);
+                        
                         if (!serverRespose.CommandFailed)
                         {
+                            
                             if (!serverRespose.CurrentIDMatch && !serverRespose.PreviousIDMatch)
                             {
+                                StringBuilder additionalData = null;
+                                if(!string.IsNullOrEmpty(serverRespose.SIN))
+                                {
+                                    additionalData = new StringBuilder();
+                                    byte[] ids = sqrl.CreateIndexedSecret(requestURI, AltID, decryptedData.Item2, Encoding.UTF8.GetBytes(serverRespose.SIN));
+                                    additionalData.AppendLineWindows($"ins={Sodium.Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
+                                }
                                 Console.WriteLine("The site doesn't recognize this ID, would you like to proceed and create one? (Y/N)");
                                 if (Console.ReadLine().StartsWith("Y", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    serverRespose = sqrl.GenerateNewIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3, opts);
+                                    serverRespose = sqrl.GenerateNewIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3, opts, additionalData);
                                 }
                             }
                             else if(serverRespose.PreviousIDMatch)
@@ -89,7 +98,17 @@ namespace SQRLConsoleTester
                                 
                                 byte[] ursKey = null;
                                 ursKey = sqrl.GetURSKey(serverRespose.PriorMatchedKey.Key, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-                                serverRespose = sqrl.GenerateIdentCommandWithReplace(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3,ursKey,serverRespose.PriorMatchedKey.Value,opts);
+                                StringBuilder additionalData = null;
+                                if (!string.IsNullOrEmpty(serverRespose.SIN))
+                                {
+                                    additionalData = new StringBuilder();
+                                    byte[] ids = sqrl.CreateIndexedSecret(requestURI, AltID, decryptedData.Item2, Encoding.UTF8.GetBytes(serverRespose.SIN));
+                                    additionalData.AppendLineWindows($"ins={Sodium.Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
+                                    byte[] pids = sqrl.CreateIndexedSecret(serverRespose.PriorMatchedKey.Value.Item1, Encoding.UTF8.GetBytes(serverRespose.SIN));
+                                    additionalData.AppendLineWindows($"pins={Sodium.Utilities.BinaryToBase64(pids, Utilities.Base64Variant.UrlSafeNoPadding)}");
+                                    
+                                }
+                                serverRespose = sqrl.GenerateIdentCommandWithReplace(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3,ursKey,serverRespose.PriorMatchedKey.Value.Item2,opts, additionalData);
                             }
                             else if (serverRespose.CurrentIDMatch)
                             {
