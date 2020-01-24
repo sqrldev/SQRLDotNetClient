@@ -59,16 +59,20 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
         }
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
+            return GetLocalizationValue(this.ResourceID);
+        }
+
+        public string GetLocalizationValue(string ResourceID)
+        {
             var currentCulture = CultureInfo.CurrentCulture;
-            if(Localization.ContainsKey(currentCulture.Name))
+            if (Localization.ContainsKey(currentCulture.Name))
             {
-                
+
                 return Localization[currentCulture.Name].Children()[ResourceID].First().ToString();
             }
             else
                 return Localization["default"].Children()[ResourceID].First().ToString();
         }
 
-     
     }
 }
