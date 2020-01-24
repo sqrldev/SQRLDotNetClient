@@ -34,12 +34,12 @@
         <behaviors:FocusOnAttached />
       </i:Interaction.Behaviors>
       </TextBox>
-    <ProgressBar  IsIndeterminate="False" Value="{Binding Block1Progress}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true"  Height="20"  MinWidth="10" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="10"/>
-    <Button Command="{Binding Cancel}" Grid.Row="3" Grid.Column="1" Width="100" Height="30" HorizontalAlignment="Left" >
-      <TextBlock Text="{loc:Localization BtnOK}"/>
-    </Button>
-    <Button Command="{Binding Login}" Grid.Row="3" Grid.Column="1" Width="100" Height="30" HorizontalAlignment="Right" Margin="10">
+    <ProgressBar  IsIndeterminate="False" Value="{Binding Block1Progress}" Maximum="{Binding MaxProgress}" Minimum="0" IsEnabled="true"  Height="20"  MinWidth="10" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="10"/>
+    <Button Command="{Binding Cancel}" Grid.Row="3" Grid.Column="0" Width="100" Height="30" HorizontalAlignment="Left" Margin="10" >
       <TextBlock Text="{loc:Localization BtnCancel}"/>
+    </Button>
+    <Button Command="{Binding Login}" Grid.Row="3" Grid.Column="1" Width="100" Height="30" HorizontalAlignment="Right" Margin="10" IsDefault="True">
+      <TextBlock Text="{loc:Localization BtnOK}"/>
     </Button>
   </Grid>
 </UserControl>
