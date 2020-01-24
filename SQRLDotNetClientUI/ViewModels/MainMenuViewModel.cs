@@ -22,6 +22,7 @@ namespace SQRLDotNetClientUI.ViewModels
         public String IdentityName { get => _IdentityName; set => this.RaiseAndSetIfChanged(ref _IdentityName, value); }
 
         public AuthenticationViewModel AuthVM { get; set; }
+   
         public MainMenuViewModel(SQRL sqrlInstance)
         {
             this.Title = "SQRL Client";
@@ -37,10 +38,13 @@ namespace SQRLDotNetClientUI.ViewModels
             string[] commandLine = Environment.CommandLine.Split(" ");
             if(commandLine.Length>1)
             {
-                AuthenticationViewModel authView = new AuthenticationViewModel(this.sqrlInstance, this.currentIdentity, new Uri(commandLine[1]));
-                AvaloniaLocator.Current.GetService<MainWindow>().Height = 200;
-                AvaloniaLocator.Current.GetService<MainWindow>().Width = 400;
-                AuthVM = authView;
+                if (Uri.TryCreate(commandLine[0], UriKind.Absolute, out Uri result))
+                {
+                    AuthenticationViewModel authView = new AuthenticationViewModel(this.sqrlInstance, this.currentIdentity, result);
+                    AvaloniaLocator.Current.GetService<MainWindow>().Height = 200;
+                    AvaloniaLocator.Current.GetService<MainWindow>().Width = 400;
+                    AuthVM = authView;
+                }
             }
         }
 

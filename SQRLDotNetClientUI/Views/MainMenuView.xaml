@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
+             xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
              x:Class="SQRLDotNetClientUI.Views.MainMenuView">
   <DockPanel>
@@ -15,7 +16,7 @@
       </Grid.RowDefinitions>
 
       <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
-      <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="Bold" Margin="10" Grid.Row="0" Grid.Column="0" FontFamily="resm:SQRLDotNetClientUI.Assets.Fonts.SpaceMono-Regular.ttf" >SQRL (Secure Quick Reliable Login) Client </TextBlock>
+      <TextBlock  Text="{loc:Localization SQRLTag}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="Bold" Margin="10" Grid.Row="0" Grid.Column="0" FontFamily="resm:SQRLDotNetClientUI.Assets.Fonts.SpaceMono-Regular.ttf" />
 
     </Grid>
     <Grid DockPanel.Dock="Bottom" ShowGridLines="False">
