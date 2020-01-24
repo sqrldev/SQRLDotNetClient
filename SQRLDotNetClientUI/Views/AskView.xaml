@@ -1,0 +1,44 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
+             xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
+             x:Class="SQRLDotNetClientUI.Views.AskView">
+
+  
+  <Design.DataContext>
+    <vm:AskViewModel/>
+  </Design.DataContext>
+  <DockPanel>
+    <Grid ShowGridLines="False" DockPanel.Dock="Top">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="100"/>
+        <ColumnDefinition Width="300"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition  />
+        <RowDefinition  />
+        <RowDefinition  />
+      </Grid.RowDefinitions>
+      <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
+      <TextBlock Margin="10" Text="{loc:Localization AskHeader}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center"/>
+
+      <TextBlock Margin="10" Text="{Binding AskMessage}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="15"/>
+      
+      <Button Margin="10" Command="{Binding Button1}" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="1" Width="70" HorizontalAlignment="Left">
+        <TextBlock Text="{Binding AskButton1}"/>
+      </Button>
+      <Button Margin="10" Command="{Binding Button2}" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="1" Width="70" HorizontalAlignment="Right">
+        <TextBlock Text="{Binding AskButton2}"/>
+      </Button>
+
+    </Grid>
+  </DockPanel>
+</UserControl>
