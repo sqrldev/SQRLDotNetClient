@@ -13,6 +13,29 @@ using System.Reflection;
 
 namespace SQRLDotNetClientUI.AvaloniaExtensions
 {
+    /// <summary>
+    /// This extension allows you to have strings in different languages based on localization culture on the current machine
+    /// This expects an Asset located in Assets/Localization/localization.json
+    /// 
+    /// The Format of the JSON in that file is as follows
+    ///
+    /*
+    {
+        "default":
+        [
+          {
+            "SQRLTag":"Secure Quick Reliable Login"
+          }
+        ],
+        "en-US":
+        [
+          {
+            "SQRLTag":"Secure Quick Reliable Login"
+          }
+        ]
+    } */
+    /// The extension will use the default node if the current specific culture isn't found in the file.
+    /// </summary>
     public class LocalizationExtension : MarkupExtension
     {
         string ResourceID { get; set; }
