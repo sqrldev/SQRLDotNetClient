@@ -36,10 +36,10 @@ namespace SQRLDotNetClientUI
                     {
                         hasHandle = true;
                     }
-                    
-                    
-                    BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+
                     th.Start();
+                    BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+                    
                 }
                 finally
                 {

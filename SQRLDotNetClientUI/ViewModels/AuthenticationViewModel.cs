@@ -23,6 +23,8 @@ namespace SQRLDotNetClientUI.ViewModels
         public string AltID { get; set; }
         public string Password { get; set; }
 
+        public bool AuthAction { get; set; }
+
         public string _siteID = "";
         public string SiteID { get { return $"{this.Site.Host}"; } set => this.RaiseAndSetIfChanged(ref _siteID, value); }
 

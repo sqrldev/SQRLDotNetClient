@@ -27,6 +27,9 @@
     },
     {
       "AskHeader": "Question from: {0}"
+    },
+    {
+      "AltIDLabel": "Alt ID"
     }
   ],
   "en-US": [
@@ -57,6 +60,9 @@
     },
     {
       "AskHeader": "Question from: {0}"
+    },
+    {
+      "AltIDLabel": "Alt ID"
     }
 
   ]
