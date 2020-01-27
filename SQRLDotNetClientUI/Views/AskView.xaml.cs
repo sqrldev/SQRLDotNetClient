@@ -1,16 +1,15 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using SQRLDotNetClientUI.ViewModels;
 
 namespace SQRLDotNetClientUI.Views
 {
-    public class AuthenticationView : UserControl
+    public class AskView : UserControl
     {
-        public AuthenticationView()
+        public AskView()
         {
             this.InitializeComponent();
-            
+   
         }
 
         private void InitializeComponent()
