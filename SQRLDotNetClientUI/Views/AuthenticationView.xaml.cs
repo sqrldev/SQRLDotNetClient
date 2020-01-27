@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using SQRLDotNetClientUI.ViewModels;
 
 namespace SQRLDotNetClientUI.Views
 {
@@ -9,6 +10,7 @@ namespace SQRLDotNetClientUI.Views
         public AuthenticationView()
         {
             this.InitializeComponent();
+            
         }
 
         private void InitializeComponent()

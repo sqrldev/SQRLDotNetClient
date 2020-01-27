@@ -79,7 +79,7 @@ namespace SQRLUtilsLib
                     {
                         buttons = new string[2];
                         buttons[0] = Encoding.UTF8.GetString(Sodium.Utilities.Base64ToBinary(this.Ask.Split('~')[1], string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-                        buttons[1] = Encoding.UTF8.GetString(Sodium.Utilities.Base64ToBinary(this.Ask.Split('~')[1], string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+                        buttons[1] = Encoding.UTF8.GetString(Sodium.Utilities.Base64ToBinary(this.Ask.Split('~')[2], string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
                     }
                     else if (askData.Length == 2)
                     {

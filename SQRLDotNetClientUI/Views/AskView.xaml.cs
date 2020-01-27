@@ -9,6 +9,7 @@ namespace SQRLDotNetClientUI.Views
         public AskView()
         {
             this.InitializeComponent();
+   
         }
 
         private void InitializeComponent()

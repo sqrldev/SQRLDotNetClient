@@ -15,8 +15,24 @@ using MessageBox.Avalonia.Enums;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
-    public class AuthenticationViewModel: ViewModelBase
+    public class AuthenticationViewModel : ViewModelBase
     {
+        public enum LoginAction
+        {
+            Login,
+            Disable,
+            Remove
+        };
+
+        private LoginAction action = LoginAction.Login;
+        public LoginAction Action
+        {
+            get => action; set
+            {
+                this.RaiseAndSetIfChanged(ref action, value);
+            }
+        }
+
         public Uri Site { get; set; }
         public SQRL sqrlInstance { get; set; }
         public SQRLIdentity Identity { get; set; }
@@ -50,7 +66,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public void Cancel()
         {
-            if(this.sqrlInstance.cps.PendingResponse)
+            if (this.sqrlInstance.cps.PendingResponse)
             {
                 this.sqrlInstance.cps.cpsBC.Add(this.sqrlInstance.cps.Can);
             }
@@ -67,7 +83,7 @@ namespace SQRLDotNetClientUI.ViewModels
             });
 
             var result = await this.sqrlInstance.DecryptBlock1(this.Identity, this.Password, progressBlock1);
-            if(result.Item1)
+            if (result.Item1)
             {
 
                 var siteKvp = sqrlInstance.CreateSiteKey(this.Site, this.AltID, result.Item2);
@@ -76,7 +92,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 priorKvps = GeneratePriorKeyInfo(result, priorKvps);
                 SQRLOptions sqrlOpts = new SQRLOptions(SQRLOptions.SQRLOpts.CPS | SQRLOptions.SQRLOpts.SUK);
                 var serverResponse = this.sqrlInstance.GenerateQueryCommand(this.Site, siteKvp, sqrlOpts, null, 0, priorKvps);
-                if(!serverResponse.CommandFailed)
+                if (!serverResponse.CommandFailed)
                 {
                     // New Account ask if they want to create one
 
@@ -84,7 +100,7 @@ namespace SQRLDotNetClientUI.ViewModels
                     {
                         serverResponse = await HandleNewAccount(result, siteKvp, sqrlOpts, serverResponse);
                     }
-                    else if(serverResponse.PreviousIDMatch)
+                    else if (serverResponse.PreviousIDMatch)
                     {
                         byte[] ursKey = null;
                         ursKey = this.sqrlInstance.GetURSKey(serverResponse.PriorMatchedKey.Key, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
@@ -100,7 +116,7 @@ namespace SQRLDotNetClientUI.ViewModels
                         }
                         serverResponse = this.sqrlInstance.GenerateIdentCommandWithReplace(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, result.Item3, ursKey, serverResponse.PriorMatchedKey.Value.Item2, sqrlOpts, additionalData);
                     }
-                    else if(serverResponse.CurrentIDMatch)
+                    else if (serverResponse.CurrentIDMatch)
                     {
                         int askResponse = 0;
                         if (serverResponse.HasAsk)
@@ -124,14 +140,56 @@ namespace SQRLDotNetClientUI.ViewModels
                             addClientData = new StringBuilder();
                             addClientData.AppendLineWindows($"btn={askResponse}");
                         }
+                        //Here
+                        switch (Action)
+                        {
+                            case LoginAction.Login:
+                                {
+                                    addClientData = GenerateSIN(result, serverResponse, addClientData);
+                                    serverResponse = this.sqrlInstance.GenerateSQRLCommand(SQRLCommands.ident, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
+                                    if (this.sqrlInstance.cps != null && this.sqrlInstance.cps.PendingResponse)
+                                    {
+                                        this.sqrlInstance.cps.cpsBC.Add(new Uri(serverResponse.SuccessUrl));
+                                    }
+                                    while (this.sqrlInstance.cps.PendingResponse)
+                                        ;
+                                    AvaloniaLocator.Current.GetService<MainWindow>().Close();
+                                }
+                                break;
+                            case LoginAction.Disable:
+                                {
+                                    var disableAccountAlert = string.Format(AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("DisableAccountAlert"), this.SiteID, Environment.NewLine);
+                                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"WARNING", $"{disableAccountAlert}", MessageBox.Avalonia.Enums.ButtonEnum.YesNo, MessageBox.Avalonia.Enums.Icon.Lock);
+                                    messageBoxStandardWindow.SetMessageStartupLocation(Avalonia.Controls.WindowStartupLocation.CenterOwner);
+                                    var btResult = await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                                    if (btResult == ButtonResult.Yes)
+                                    {
+                                        GenerateSIN(result, serverResponse, addClientData);
+                                        serverResponse = this.sqrlInstance.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
+                                        if (this.sqrlInstance.cps != null && this.sqrlInstance.cps.PendingResponse)
+                                        {
+                                            this.sqrlInstance.cps.cpsBC.Add(this.sqrlInstance.cps.Can);
+                                        }
+                                        while (this.sqrlInstance.cps.PendingResponse)
+                                            ;
+                                        AvaloniaLocator.Current.GetService<MainWindow>().Close();
+                                    }
+                                }
+                                break;
+                            case LoginAction.Remove:
+                                {
+
+                                }
+                                break;
+                        }
                     }
                 }
                 else
                 {
-                   var errorTitle= AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("ErrorTitleGeneric");
-                   var genericSqrlError = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("SQRLCommandFailedUnknown");
-                   var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"{errorTitle}", $"{genericSqrlError}", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
-                   await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                    var errorTitle = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("ErrorTitleGeneric");
+                    var genericSqrlError = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("SQRLCommandFailedUnknown");
+                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"{errorTitle}", $"{genericSqrlError}", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
+                    await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
                 }
             }
             else
@@ -142,6 +200,19 @@ namespace SQRLDotNetClientUI.ViewModels
                 await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
             }
 
+        }
+
+        private StringBuilder GenerateSIN(Tuple<bool, byte[], byte[]> result, SQRLServerResponse serverResponse, StringBuilder addClientData)
+        {
+            if (!string.IsNullOrEmpty(serverResponse.SIN))
+            {
+                if (addClientData == null)
+                    addClientData = new StringBuilder();
+                byte[] ids = this.sqrlInstance.CreateIndexedSecret(this.Site, AltID, result.Item2, Encoding.UTF8.GetBytes(serverResponse.SIN));
+                addClientData.AppendLineWindows($"ins={Sodium.Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
+            }
+
+            return addClientData;
         }
 
         private async System.Threading.Tasks.Task<SQRLServerResponse> HandleNewAccount(Tuple<bool, byte[], byte[]> result, KeyPair siteKvp, SQRLOptions sqrlOpts, SQRLServerResponse serverResponse)

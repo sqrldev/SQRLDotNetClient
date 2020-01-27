@@ -30,6 +30,9 @@
     },
     {
       "AltIDLabel": "Alt ID"
+    },
+    {
+      "DisableAccountAlert": "This will DISABLE all use of SQRL in the Given Site {0}, note that this operation is not easily reversed.{1}You will need your Rescue Code to enable SQRL in the future.{1}Would you like to continue?"
     }
   ],
   "en-US": [
@@ -63,6 +66,9 @@
     },
     {
       "AltIDLabel": "Alt ID"
+    },
+    {
+      "DisableAccountAlert": "This will DISABLE all use of SQRL in the Given Site {0}, note that this operation is not easily reversed.{1}You will need your Rescue Code to enable SQRL in the future.{1}Would you like to continue?"
     }
 
   ]
