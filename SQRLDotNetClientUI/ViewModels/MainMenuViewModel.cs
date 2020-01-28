@@ -41,10 +41,10 @@ namespace SQRLDotNetClientUI.ViewModels
             if(commandLine.Length>1)
             {
 
-               if (Uri.TryCreate(commandLine[0], UriKind.Absolute, out Uri result))
+               if (Uri.TryCreate(commandLine[1], UriKind.Absolute, out Uri result) && this.currentIdentity!=null)
                 {
                     AuthenticationViewModel authView = new AuthenticationViewModel(this.sqrlInstance, this.currentIdentity, result);
-                    AvaloniaLocator.Current.GetService<MainWindow>().Height = 200;
+                    AvaloniaLocator.Current.GetService<MainWindow>().Height = 300;
                     AvaloniaLocator.Current.GetService<MainWindow>().Width = 400;
                     AuthVM = authView;
                 }

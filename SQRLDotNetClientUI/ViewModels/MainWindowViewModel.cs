@@ -16,7 +16,7 @@ namespace SQRLDotNetClientUI.ViewModels
         public MainMenuViewModel MainMenu
         {
             get => mainMenu;
-            set {this.RaiseAndSetIfChanged(ref mainMenu, value); }
+            set { this.RaiseAndSetIfChanged(ref mainMenu, value); }
         }
 
         public ViewModelBase Content
@@ -30,7 +30,7 @@ namespace SQRLDotNetClientUI.ViewModels
             get => priorContent;
             set => this.RaiseAndSetIfChanged(ref priorContent, value);
         }
-        
+
         public MainWindowViewModel()
         {
             this.sqrlInstance = new SQRL(true);
@@ -41,6 +41,11 @@ namespace SQRLDotNetClientUI.ViewModels
                 Content = mainMnu;
 
             MainMenu = mainMnu;
+        }
+
+        public MainWindowViewModel(SQRL sqrlInstance)
+        {
+            this.sqrlInstance = sqrlInstance;
         }
     }
 }

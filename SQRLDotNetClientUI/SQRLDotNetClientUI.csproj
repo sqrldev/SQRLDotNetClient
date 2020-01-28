@@ -35,6 +35,7 @@
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_64.png" />
     <AvaloniaResource Remove="Assets\SQRL_InAction.gif" />
     <AvaloniaResource Remove="Assets\VL.png" />
+    <AvaloniaResource Remove="Views\AskView.xaml" />
     <AvaloniaResource Remove="Views\AuthenticationView.xaml" />
     <AvaloniaResource Remove="Views\ExportIdentityView.xaml" />
     <AvaloniaResource Remove="Views\ImportIdentitySetupView.xaml" />
@@ -62,6 +63,7 @@
     <None Remove="Assets\sqrl_icon_normal_48_icon.ico" />
     <None Remove="Assets\SQRL_icon_normal_64.png" />
     <None Remove="Assets\VL.png" />
+    <None Remove="Views\AskView.xaml" />
     <None Remove="Views\AuthenticationView.xaml" />
     <None Remove="Views\ExportIdentityView.xaml" />
     <None Remove="Views\ImportIdentitySetupView.xaml" />
@@ -146,10 +148,20 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Views\AskView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\SQRLUtilsLib\SQRLUtilsLib.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\sqrl_icon_normal_256.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\AskView.xaml.cs">
+      <DependentUpon>AskView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Update="sqrl.db">

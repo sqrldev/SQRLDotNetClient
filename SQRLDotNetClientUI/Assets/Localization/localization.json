@@ -1,14 +1,75 @@
 {
-    "default":
-    [
-      {
-        "SQRLTag":"Secure Quick Reliable Login"
-      }
-    ],
-    "en-US":
-    [
-      {
-        "SQRLTag":"Secure Quick Reliable Login"
-      }
-    ]
+  "default": [
+    {
+      "SQRLTag": "Secure Quick Reliable Login"
+    },
+    { "AuthMessage": "Authenticate To:" },
+    { "Password": "Password:" },
+    { "BtnOK": "OK" },
+    { "BtnCancel": "Cancel" },
+    {
+      "BadPasswordErrorTitle": "Error- Incorrect Password"
+    },
+    {
+      "BadPasswordError": "Incorrect Password entered, failed to decrypt block 1"
+    },
+    {
+      "SQRLCommandFailedUnknown": "Client Request to Server Command Failed, this shouldn't happen report it to developer"
+    },
+    {
+      "ErrorTitleGeneric": "Error"
+    },
+    {
+      "NewAccountQuestion": "The server at {0} did not recognize this Identity, would you like to proceed? This may cause the site to create a new account for this Identity"
+    },
+    {
+      "GenericQuestionTitle": "Question?"
+    },
+    {
+      "AskHeader": "Question from: {0}"
+    },
+    {
+      "AltIDLabel": "Alt ID"
+    },
+    {
+      "DisableAccountAlert": "This will DISABLE all use of SQRL in the Given Site {0}, note that this operation is not easily reversed.{1}You will need your Rescue Code to enable SQRL in the future.{1}Would you like to continue?"
+    }
+  ],
+  "en-US": [
+    {
+      "SQRLTag": "Secure Quick Reliable Login"
+    },
+    { "AuthMessage": "Authenticate To:" },
+    { "Password": "Password:" },
+    { "BtnOK": "OK" },
+    { "BtnCancel": "Cancel" },
+    {
+      "BadPasswordErrorTitle": "Error- Incorrect Password"
+    },
+    {
+      "BadPasswordError": "Incorrect Password entered, failed to decrypt block 1"
+    },
+    {
+      "SQRLCommandFailedUnknown": "Client Request to Server Command Failed, this shouldn't happen report it to developer"
+    },
+    {
+      "ErrorTitleGeneric": "Error"
+    },
+    {
+      "NewAccountQuestion": "The server at {0} did not recognize this Identity, would you like to proceed? This may cause the site to create a new account for this Identity"
+    },
+    {
+      "GenericQuestionTitle": "Question?"
+    },
+    {
+      "AskHeader": "Question from: {0}"
+    },
+    {
+      "AltIDLabel": "Alt ID"
+    },
+    {
+      "DisableAccountAlert": "This will DISABLE all use of SQRL in the Given Site {0}, note that this operation is not easily reversed.{1}You will need your Rescue Code to enable SQRL in the future.{1}Would you like to continue?"
+    }
+
+  ]
 }
