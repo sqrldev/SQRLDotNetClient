@@ -15,6 +15,8 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     public class MainMenuViewModel : ViewModelBase
     {
+        private string _siteUrl = "";
+        public string SiteUrl { get => _siteUrl; set => this.RaiseAndSetIfChanged(ref _siteUrl, value); }
         public SQRL sqrlInstance { get; set; }
         public SQRLIdentity currentIdentity { get; set; }
 
@@ -110,6 +112,21 @@ namespace SQRLDotNetClientUI.ViewModels
                         result.LastLoadedIdentity = file[0];
                         db.SaveChanges();
                     }
+                }
+            }
+        }
+
+        public void Login()
+        {
+            if(!string.IsNullOrEmpty(this.SiteUrl) && this.currentIdentity!=null)
+            {
+                if (Uri.TryCreate(this.SiteUrl, UriKind.Absolute, out Uri result))
+                {
+                    AuthenticationViewModel authView = new AuthenticationViewModel(this.sqrlInstance, this.currentIdentity, result);
+                    AvaloniaLocator.Current.GetService<MainWindow>().Height = 200;
+                    AvaloniaLocator.Current.GetService<MainWindow>().Width = 400;
+                    AuthVM = authView;
+                    ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = AuthVM;
                 }
             }
         }
