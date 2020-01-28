@@ -13,7 +13,7 @@ namespace SQRLDotNetClientUI.DBContext
         public DbSet<UserData> UserData { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            var directory = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+            var directory = Path.GetDirectoryName(AppContext.BaseDirectory);
             if (!File.Exists(Path.Combine(directory, "sqrl.db")))
                 directory = "";
             Console.WriteLine($"{directory}: {File.Exists(Path.Combine(directory, "sqrl.db"))}");
