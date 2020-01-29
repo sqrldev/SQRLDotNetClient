@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SQRLDotNetClientUI.ViewModels
-{
+{ 
     public class ImportIdentitySetupViewModel : ViewModelBase
     {
         public SQRL sqrlInstance { get; set; }
