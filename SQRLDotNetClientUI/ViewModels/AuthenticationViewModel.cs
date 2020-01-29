@@ -62,6 +62,7 @@ namespace SQRLDotNetClientUI.ViewModels
             this.Identity = identity;
             this.Site = site;
             this.SiteID = site.Host;
+            this.Title = "SQRL Client - Authentication";
         }
 
         public void Cancel()

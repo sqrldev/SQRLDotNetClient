@@ -8,7 +8,7 @@ using System.Text;
 
 public class ViewModelBase : ReactiveObject
 {
-    private string title;
+    private string title="";
     public string Title
     {
         get => this.title; 
