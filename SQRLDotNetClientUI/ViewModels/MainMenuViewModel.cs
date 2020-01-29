@@ -30,7 +30,7 @@ namespace SQRLDotNetClientUI.ViewModels
             this.Title = "SQRL Client";
             this.sqrlInstance = sqrlInstance;
             var userData = GetUserData();
-            if (userData != null && !string.IsNullOrEmpty(userData.LastLoadedIdentity))
+            if (userData != null && !string.IsNullOrEmpty(userData.LastLoadedIdentity) && File.Exists(userData.LastLoadedIdentity))
             {
                 this.currentIdentity = SQRLIdentity.FromFile(userData.LastLoadedIdentity);
                 this.currentIdentity.IdentityName = Path.GetFileNameWithoutExtension(userData.LastLoadedIdentity);
