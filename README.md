@@ -9,9 +9,41 @@ This project has 2 main parts a SQRL library and a SQRL Client below is informat
 
 An implementation of a full SQRL client along with a cross-platform UI using Avalonia
 
-TODO: Finish Writing it and Document it
+#### Installing Client on Linux (Desktop Environment is Required xdg-desktop)
 
-![SQRLClientDemo](/SQRLDotNetClientUI/Assets/SQRL_InAction.gif)
+```shell
+sudo apt-get install -y libgdiplus
+wget https://raw.githubusercontent.com/sqrldev/SQRLDotNetClient/master/Installers/Linux/SQRL.sh
+chmod a+x SQRL.sh
+./SQRL.sh
+```
+#### Installing Client on MacOSX
+
+###### Install Pre-Reqs
+
+```shell
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+brew install mono-libgdiplus
+```
+
+
+
+- Download File https://client.sqrloauth.com/osx-x64/SQRLHelper.app.tar.bz2
+- Double Click on the File this will expand it and will extract the SQRLHelper app
+- Double Click the SQRL Helper App to download the SQRL Client
+- This may take a few minutes to download and setup
+
+#### Install Client on Windows OS
+
+- Download Windows Client File https://client.sqrloauth.com/win-x64/SQRLDotNetClientUI.exe
+- Save the file in C:\SQRL\ folder
+- Download the Registry Edit File from: https://github.com/sqrldev/SQRLDotNetClient/blob/master/Installers/Windows/WindowsRegEx.reg
+- Run the downloaded file to register the sqrl schema. Not if your Client isn't in the C:\SQRL folder you'll have to adjust the script.
+
+![](/SQRLDotNetClientUI/Assets/SQRL_InAction.gif)
+
+
 
 ### SQRL Dot Net Core Library
 
