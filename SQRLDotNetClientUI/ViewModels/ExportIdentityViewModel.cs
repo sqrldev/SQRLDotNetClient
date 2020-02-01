@@ -42,7 +42,8 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public ExportIdentityViewModel()
         {
-            this.QRImage = new Avalonia.Media.Imaging.Bitmap(@"C:\Users\jose\AppData\Local\Temp\tmpC441.bmp");
+            this.QRImage = null;
+            this.Title = "SQRL Client - Export Identity";
         }
 
         public async void SaveToFile()

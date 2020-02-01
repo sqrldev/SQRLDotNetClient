@@ -1,8 +1,7 @@
 {
   "profiles": {
     "SQRLDotNetClientUI": {
-      "commandName": "Project",
-      "commandLineArgs": "sqrl://sqrlserver/sqrl?nut=Zg9Mn4rSFbUB"
+      "commandName": "Project"
     }
   }
 }

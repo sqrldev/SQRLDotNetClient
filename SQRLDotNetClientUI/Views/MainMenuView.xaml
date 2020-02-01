@@ -48,7 +48,7 @@
       </StackPanel>
       <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2">
       <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center">Site URL</TextBlock>
-      <TextBox Grid.Row="6" Grid.Column="1" Margin="10" Text="{Binding SiteUrl}" />
+        <loc:CopyPasteTextBox Grid.Row="6" Grid.Column="1" Margin="10" Text="{Binding SiteUrl}" />
         <Button Name="btnLogIn" Command="{Binding Login}" Height="30" Width="100" Margin="10" HorizontalAlignment="Left">Login</Button>
       </StackPanel>
       
