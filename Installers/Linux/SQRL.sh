@@ -55,11 +55,16 @@ fi
 
 # All being well, we run the installation.
 
-rm -r -f $HOME/SQRL/
-mkdir $HOME/SQRL/
+if ! [[ -d $HOME/SQRL/ ]]
+then
+	echo "Making SQRL Directory"
+	mkdir $HOME/SQRL/
+else
+	echo "SQRL Directory Found"
+fi	
 
-mv SQRLDotNetClientUI $HOME/SQRL/
-mv SQRL_icon_normal_32.png $HOME/SQRL/
+mv -f SQRLDotNetClientUI $HOME/SQRL/
+mv -f SQRL_icon_normal_32.png $HOME/SQRL/
 
 # There's some sort of delay between the SQRL
 # installation returning control to the script
