@@ -13,7 +13,9 @@ using System.Web;
 
 namespace SQRLUtilsLib
 {
-
+    /// <summary>
+    /// Represents all the available SQRL client commands.
+    /// </summary>
     public enum SQRLCommands
     {
         query,
@@ -25,8 +27,10 @@ namespace SQRLUtilsLib
 
     /// <summary>
     /// This library performs a lot of the crypto needed for a SQRL Client.
-    /// A lot of the code here was adapted from @AlexHouser's IdTool at https://github.com/sqrldev/IdTool
     /// </summary>
+    /// <remarks>
+    /// A lot of the code here was adapted from @AlexHauser's IdTool at https://github.com/sqrldev/IdTool
+    /// </remarks>
     public class SQRL
     {
         private static bool SodiumInitialized = false;
@@ -37,23 +41,22 @@ namespace SQRLUtilsLib
 
         public CPSServer cps=null;
 
-
+        /// <summary>
+        /// Creates a new instance of the SQRL library and optionally
+        /// starts the CPS server.
+        /// </summary>
+        /// <param name="startCPS">Set to true if the CPS server should be started, or false otherwise</param>
         public SQRL(bool startCPS=false)
         {
-            
-                SodiumInit();
+            SodiumInit();
 
             if (startCPS)
                 this.cps = new CPSServer();
-
         }
 
-
-
         /// <summary>
-        /// Creates a Random Identity Unlock Key
+        /// Creates a random Identity Unlock Key (IUK).
         /// </summary>
-        /// <returns></returns>
         public byte[] CreateIUK()
         {
             if (!SodiumInitialized)
@@ -63,9 +66,8 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Creates a 24 character random Rescue Code
+        /// Creates a 24 character random Rescue Code.
         /// </summary>
-        /// <returns></returns>
         public string CreateRescueCode()
         {
             if (!SodiumInitialized)
@@ -90,7 +92,13 @@ namespace SQRLUtilsLib
             return new String(tempBytes);
         }
 
-        public  byte[] GetURSKey(byte[] IUK, byte[] SUK)
+        /// <summary>
+        /// Creates an Unlock Request Signing Key (URSK) from the given
+        /// Identity Unlock Key (IUK) and Server Unlock Key (SUK).
+        /// </summary>
+        /// <param name="IUK">The identity's Identity Unlock Key (IUK)</param>
+        /// <param name="SUK">The Server Unlock Key (SUK)</param>
+        public byte[] GetURSKey(byte[] IUK, byte[] SUK)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -102,10 +110,10 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Creates an Identity Master Key derives from the Identity Unlock Key
+        /// Creates an Identity Master Key (IMK), derived from the given 
+        /// Identity Unlock Key (IUK).
         /// </summary>
-        /// <param name="iuk"></param>
-        /// <returns></returns>
+        /// <param name="iuk">The identity's Identity Unlock Key (IUK).</param>
         public byte[] CreateIMK(byte[] iuk)
         {
             if (!SodiumInitialized)
@@ -115,10 +123,10 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Creates an Identity Lock Key Derives from the Identity Unlock Key
+        /// Creates an Identity Lock Key (ILK), derived from the given
+        /// Identity Unlock Key (IUK).
         /// </summary>
         /// <param name="iuk"></param>
-        /// <returns></returns>
         public byte[] CreateILK(byte[] iuk)
         {
             if (!SodiumInitialized)
@@ -127,7 +135,9 @@ namespace SQRLUtilsLib
             return Sodium.ScalarMult.Base(iuk);
         }
 
-
+        /// <summary>
+        /// Generates a Random Lock Key (RLK).
+        /// </summary>
         public byte[] RandomLockKey()
         {
             if (!SodiumInitialized)
@@ -136,6 +146,11 @@ namespace SQRLUtilsLib
             return Sodium.SodiumCore.GetRandomBytes(32);
         }
 
+        /// <summary>
+        /// Creates a Server Unlock Key (SUK) / Verification Unlock Key (VUK) keypair,
+        /// derived from the given Identity Lock Key (ILK).
+        /// </summary>
+        /// <param name="ILK">The Identity Lock Key (ILK)</param>
         public KeyValuePair<byte[], byte[]> GetSukVuk(byte[] ILK)
         {
             if (!SodiumInitialized)
@@ -153,25 +168,24 @@ namespace SQRLUtilsLib
             return KeyValuePair.Create(SUK, VUK);
         }
 
-
+        /// <summary>
+        /// Initializes the "Libsodium" crypto library.
+        /// </summary>
         private void SodiumInit()
         {
             Sodium.SodiumCore.Init();
             SodiumInitialized = true;
         }
 
-
-
-
-
         /// <summary>
-        ///  EnHash Algorithm
-        ///  SHA256 is iterated 16 times with each
-        ///  successive output XORed to form a 1’s complement sum to produce the final result
+        /// Runs the given data trough the "EnHash" algorithm.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public  byte[] EnHash(byte[] data)
+        /// <remarks>
+        /// SHA256 is iterated 16 times with each successive output XORed to 
+        /// form a 1’s complement sum to produce the final result.
+        /// </remarks>
+        /// <param name="data">The input data to be EnHash'ed.</param>
+        public byte[] EnHash(byte[] data)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -197,14 +211,16 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Run Script Low Level API form Libsodium for a determined amount of time given a random Salt and N factor
+        /// Run the "Scrypt" memory hard key derivation function on the given 
+        /// password for a determined amount of time, using the given random 
+        /// salt and logNFactor.
         /// </summary>
-        /// <param name="password">Password to Hash</param>
-        /// <param name="randomSalt">Byte Array of Random Data (Salt)</param>
+        /// <param name="password">The password to hash</param>
+        /// <param name="randomSalt">Random data which is being used as salt for Scrypt</param>
         /// <param name="logNFactor">Log N Factor for Scrypt</param>
-        /// <param name="secondsToRun">Amount of time to Iterate</param>
-        /// <param name="count">Output of how many iterations the above Time Took</param>
-        /// <returns></returns>
+        /// <param name="secondsToRun">Amount of time to run Scrypt (determines iteration count)</param>
+        /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional)</param>
+        /// <param name="progressText">A string representing a text descrition for the progress indicator (optional)</param>
         public async Task<KeyValuePair<int, byte[]>> EnScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
             if (!SodiumInitialized)
@@ -257,13 +273,13 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Run Scrypt for a number count interations to recreate the Time Generated Value
+        /// Run the "Scrypt" memory hard key derivation function for a specified 
+        /// number of interations to recreate the time-generated value.
         /// </summary>
-        /// <param name="password">Password to Hash</param>
-        /// <param name="randomSalt">Byte array of Random Salt Values</param>
-        /// <param name="logNFactor">Log N Factor</param>
-        /// <param name="intCount">Number of Iterations (inclusive)</param>
-        /// <returns></returns>
+        /// <param name="password">The password to hash</param>
+        /// <param name="randomSalt">Random data which is being used as salt for Scrypt</param>
+        /// <param name="logNFactor">Log N Factor for Scrypt</param>
+        /// <param name="intCount">Number of Scrypt iterations (inclusive)</param>
         public async Task<byte[]> EnScryptCT(String password, byte[] randomSalt, int logNFactor, int intCount, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
             if (!SodiumInitialized)
@@ -312,12 +328,16 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Generates a SQRL Identity Block Array
+        /// Generates a copy of the given identity, and replaces its type 1 block
+        /// with a newly created block based on the given parameters. If no block
+        /// of type 1 is present in the given identity, it will be created.
+        /// Also, a new random initialization vector and scrypt random salt will be
+        /// created and used for the generation of the type 1 block.
         /// </summary>
-        /// <param name="iuk"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        public async Task<SQRLIdentity>  GenerateIdentityBlock1(byte[] iuk, String password, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress=null, int encTime=5)
+        /// <param name="iuk">The unencrypted Identity Unlock Key (IUK) for creating the block 1 keys (IMK/ILK)</param>
+        /// <param name="password">The password under which the new type 1 block will be encrypted</param>
+        /// <param name="progress">An obect implementing the IProgress interface for monitoring the operation's progress (optional)</param>
+        public async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] iuk, String password, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress=null, int encTime=5)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -364,7 +384,7 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Generates SQRL Identity Block 2 from unencrypted IUK
+        /// Generates SQRL Identity Block 2 from the given unencrypted IUK.
         /// </summary>
         /// <param name="iuk"></param>
         /// <param name="rescueCode"></param>
@@ -404,19 +424,23 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Converts input to byte array for various data types
+        /// Converts the given input data to a byte array. Supported types are:
+        /// <list type="bullet">
+        /// <item><description>sbyte</description></item>
+        /// <item><description>UInt16</description></item>
+        /// <item><description>UInt32</description></item>
+        /// <item><description>String</description></item>
+        /// <item><description>byte[]</description></item>
+        /// </list>
         /// </summary>
-        /// <param name="v"></param>
-        /// <returns></returns>
+        /// <param name="v">The object to turn into a byte array.</param>
+        /// <returns>Returns the input converted to a byte array for supported types
+        /// and <c>null</c> if the given type is not supported.</returns>
         private IEnumerable<byte> GetBytes(object v)
         {
             if (v.GetType() == typeof(UInt16))
             {
                 return BitConverter.GetBytes((UInt16)v);
-            }
-            else if (v.GetType() == typeof(sbyte))
-            {
-                return BitConverter.GetBytes((sbyte)v);
             }
             else if (v.GetType() == typeof(sbyte))
             {
@@ -438,13 +462,12 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// AESEncrypts a Message
+        /// Encrypts a given message using the AES-GCM Authenticated Encryption.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="additionalData"></param>
-        /// <param name="iv"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
+        /// <param name="message">The message to be encrypted</param>
+        /// <param name="additionalData">The additional data used for authenticating the encryption</param>
+        /// <param name="iv">The initialization vector for the AES-GCM encryption</param>
+        /// <param name="key">The key for the AES-GCM encryption</param>
         public byte[] AesGcmEncrypt(byte[] message, byte[] additionalData, byte[] iv, byte[] key)
         {
             if (!SodiumInitialized)
@@ -457,32 +480,42 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Formats a rescue code string for display adding a dash every 4th character
+        /// Formats a rescue code string for displaying it to the user by
+        /// adding a dash every 4th character.
+        /// 
+        /// <para>The resulting formatted rescue code should look something like this:</para>
+        /// <c>1234-5678-9012-3456-7890-1234</c>
+        /// 
         /// </summary>
-        /// <param name="rescueCode"></param>
-        /// <returns></returns>
+        /// <param name="rescueCode">The unformatted rescue code string</param>
         public static string FormatRescueCodeForDisplay(string rescueCode)
         {
             return Regex.Replace(rescueCode, ".{4}(?!$)", "$0-");
         }
 
-
+        /// <summary>
+        /// Cleans the given rescue code string from any formatting by
+        /// removing any dashes ("-") and spaces (" ").
+        /// </summary>
+        /// <param name="rescueCode">The formatted rescue code string to be cleaned</param>
         public static string CleanUpRescueCode(string rescueCode)
         {
             return rescueCode.Trim().Replace(" ", "").Replace("-", "");
         }
 
-
+        /// <summary>
+        /// Generates a base56-encoded "textual version" of the given identity.
+        /// </summary>
+        /// <param name="sqrlId">The identity to be encoded</param>
         public string GenerateTextualIdentityFromSqrlID(SQRLIdentity sqrlId)
         {
             return GenerateTextualIdentityBase56(sqrlId.Block2.ToByteArray().Concat(sqrlId.Block3.ToByteArray()).ToArray());
         }
 
         /// <summary>
-        /// Generates a Base56 Encoded Textual Identity from a byte array
+        /// Generates a base56-encoded "textual version" of the given identity bytes.
         /// </summary>
-        /// <param name="identity"></param>
-        /// <returns></returns>
+        /// <param name="identity">The raw byte data of the identity to be encoded</param>
         public string GenerateTextualIdentityBase56(byte[] identity)
         {
 
@@ -521,12 +554,10 @@ namespace SQRLUtilsLib
             return FormatTextualIdentity(TextID.ToArray());
         }
 
-
         /// <summary>
-        /// Generates a CheckSum character for a Base56 Encoded Identity Line
+        /// Generates a checksum character for a given base56-encoded textual identity line.
         /// </summary>
-        /// <param name="dataBytes"></param>
-        /// <returns></returns>
+        /// <param name="dataBytes">The bytes to create the checksum character from</param>
         public char GetBase56CheckSum(byte[] dataBytes)
         {
             if (!SodiumInitialized)
@@ -538,14 +569,19 @@ namespace SQRLUtilsLib
             return BASE56_ALPHABETH[(int)remainder];
         }
 
-
-
         /// <summary>
-        /// Formats the Textual Identity for Displays using a format of 
-        /// 20 characters per line and space separated quads
+        /// Formats the Textual Identity for display using a format of 
+        /// 20 characters per line and space separated quads.
+        /// <para>The output looks something like this:</para>
+        /// <c>KjpJ ZyVK 5Ypd D6sk DCs8<br></br>
+        /// vKh9 FDdP xUQD QHtZ Btua<br></br>
+        /// BW3F wGdV pLxk NsLT 9jrM<br></br>
+        /// WYJG cvZw q32D bdXF s5U9<br></br>
+        /// 96Fi V3j8 K5U5 F3DS 42gG<br></br>
+        /// cbTa w8Z</c>
+        /// 
         /// </summary>
-        /// <param name="textID"></param>
-        /// <returns></returns>
+        /// <param name="textID">The unformatted textual identity</param>
         public static string FormatTextualIdentity(char[] textID)
         {
             StringBuilder sb = new StringBuilder();
@@ -567,7 +603,14 @@ namespace SQRLUtilsLib
             return sb.ToString();
         }
 
-
+        /// <summary>
+        /// Creates a full SQRL identity from a base-56 encoded "textual version",
+        /// which only contains the block type 2 (and 3 if present).
+        /// </summary>
+        /// <param name="identityTxt">The base-56 encoded "textual version" of the identity</param>
+        /// <param name="rescueCode">The identity's rescue code</param>
+        /// <param name="newPassword">The new password for encrypting the identity's block 1 keys</param>
+        /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional)</param>
         public async Task<SQRLIdentity> DecodeSqrlIdentityFromText(string identityTxt, string rescueCode, string newPassword, Progress<KeyValuePair<int, string>> progress = null)
         {
             byte[] id = Base56DecodeIdentity(identityTxt, false);
@@ -589,11 +632,10 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Decodes the Textual Identity into a byte array
+        /// Decodes a base-56 encoded "textual identity" into a byte array.
         /// </summary>
-        /// <param name="identityStr"></param>
-        /// <param name="bypassCheck"></param>
-        /// <returns></returns>
+        /// <param name="identityStr">The base-56 encoded "textual version" of the identity</param>
+        /// <param name="bypassCheck">If set to <c>true</c>, the result of the verification of the textual identity will be ignored</param>
         public byte[] Base56DecodeIdentity(string identityStr, bool bypassCheck = false)
         {
             byte[] identity = null;
@@ -643,10 +685,10 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Verifies the encodeded 56 bit identity is encoded in a valid format.
+        /// Verifies the validity of a base56-encodeded identity.
         /// </summary>
-        /// <param name="identityStr"></param>
-        /// <returns></returns>
+        /// <param name="identityStr">The base-56 encoded "textual version" of the identity which should be checked</param>
+        /// <returns>Returns <c>true</c>if the verfification succeeds, and <c>false</c> otherwise.</returns>
         public bool VerifyEncodedIdentity(string identityStr)
         {
             //Remove White Space
@@ -680,13 +722,13 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        ///  //Decrypts SQRL Identity Block 1
+        /// Decrypts a SQRL identity's type 1 block and provides access to the unencrypted
+        /// Identity Master Key (IMK) and the Identity Lock Key (ILK).
         /// </summary>
-        /// <param name="identity"></param>
-        /// <param name="password"></param>
-        /// <param name="imk"></param>
-        /// <param name="ilk"></param>
-        /// <returns></returns>
+        /// <param name="identity">The identity containing the type 1 block to be decrypted</param>
+        /// <param name="password">The identity's password</param>
+        /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional)</param>
+        /// <returns>Returns a <c>Tuple</c> containing a <c>bool</c> representing the operation's success, the decrypted IMK and the decrypted ILK</returns>
         public async Task<Tuple<bool, byte[], byte[]>> DecryptBlock1(SQRLIdentity identity, string password, IProgress<KeyValuePair<int,string>> progress = null)
         {
             byte[] key = await EnScryptCT(password, identity.Block1.ScryptRandomSalt, (int)Math.Pow(2, identity.Block1.LogNFactor), (int)identity.Block1.IterationCount, progress, "Decrypting Block 1");
