@@ -780,12 +780,13 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Decrypts SQRL identity Block 2 (requires rescue code)
+        /// Decrypts a SQRL identity's type 2 block and provides access to the unencrypted
+        /// Identity Unlock Key (IUK).
         /// </summary>
-        /// <param name="identity"></param>
-        /// <param name="rescueCode"></param>
-        /// <param name="iuk"></param>
-        /// <returns></returns>
+        /// <param name="identity">The identity containing the type 2 block to be decrypted</param>
+        /// <param name="rescueCode">The identity's secret rescue code</param>
+        /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional)</param>
+        /// <returns>Returns a <c>Tuple</c> containing a <c>bool</c> representing the operation's success, the decrypted IUK and an optional error message</returns>
         public async Task<Tuple<bool,byte[], string>> DecryptBlock2(SQRLIdentity identity, string rescueCode, IProgress<KeyValuePair<int, string>> progress = null)
         {
             byte[] key = await EnScryptCT(rescueCode, identity.Block2.RandomSalt, (int)Math.Pow(2, identity.Block2.LogNFactor), (int)identity.Block2.IterationCount, progress,"Decrypting Block 2");
@@ -826,7 +827,15 @@ namespace SQRLUtilsLib
             return tupl;
         }
 
-
+        /// <summary>
+        /// Creates a site-specific ECDH public-private key pair for each of the provided previous Identity Unlock Keys (IUKs).
+        /// </summary>
+        /// <param name="oldIUKs">The list of previous Identity Unlock Keys (IUKs)</param>
+        /// <param name="domain">The domain for which to generate the key pairs</param>
+        /// <param name="altID">The "Alternate Id" that should be used for the keypair generation</param>
+        /// <returns>Returns a <c>Tuple</c> containing the PIUK as the first element and another <c>Tuple</c>
+        /// as the second element, which in turn contains the site seed as the first element as well as the 
+        /// actual ECDH public-private key pair as the second element</returns>
         public Dictionary<byte[], Tuple<byte[],Sodium.KeyPair>> CreatePriorSiteKeys(List<byte[]> oldIUKs, Uri domain, String altID)
         {
             Dictionary<byte[], Tuple<byte[],Sodium.KeyPair>> priorSiteKeys = new Dictionary<byte[], Tuple<byte[], Sodium.KeyPair>>();
@@ -838,15 +847,13 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Creates a Site KeyValuePair from the IMK Domain and AltID (if available)
-        /// 
+        /// Creates a site-specific ECDH public-private key pair for the given domain and altID (if available).
         /// </summary>
-        /// <param name="domain"></param>
-        /// <param name="altID"></param>
-        /// <param name="imk"></param>
-        /// <param name="test">This is specifically for the vextor tests since they don't use the x param (should be fixed)</param>
-        /// <returns></returns>
-        public  Sodium.KeyPair CreateSiteKey(Uri domain, String altID, byte[] imk, bool test = false)
+        /// <param name="domain">The domain for which to generate the key pair</param>
+        /// <param name="altID">The "Alternate Id" that should be used for the keypair generation</param>
+        /// <param name="imk">The identity's unencrypted Identity Master Key (IMK)</param>
+        /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed)</param>
+        public Sodium.KeyPair CreateSiteKey(Uri domain, String altID, byte[] imk, bool test = false)
         {
             byte[] siteSeed = CreateSiteSeed(domain, altID, imk, test);
             Sodium.KeyPair kp = Sodium.PublicKeyAuth.GenerateKeyPair(siteSeed);
@@ -855,10 +862,14 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Creates and returns the so called "Indexed Secret" (INS) 
-        /// for the given, server-provided "Secret Index" (SIN).
-        /// 
+        /// /// Creates and returns the so called "Indexed Secret" (INS) 
+        /// for the given, server-provided, "Secret Index" (SIN).
         /// </summary>
+        /// <param name="domain">The domain for which to generate the Indexed Secret</param>
+        /// <param name="altID">The "Alternate Id" that should be used</param>
+        /// <param name="imk">The identity's unencrypted Identity Master Key (IMK)</param>
+        /// <param name="secretIndex">The server-provided Secret Index (SIN)</param>
+        /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed)</param>
         public byte[] CreateIndexedSecret(Uri domain, String altID, byte[] imk, byte[] secretIndex, bool test = false)
         {
             byte[] siteSeed = CreateSiteSeed(domain, altID, imk, test);
@@ -870,12 +881,11 @@ namespace SQRLUtilsLib
 
         /// <summary>
         /// Creates and returns the so called "Indexed Secret" (INS)
-        /// for the given, server-provided "Secret Index" using an existing site seed
+        /// for the given, server-provided, "Secret Index" (SIN) using an existing site seed.
         /// </summary>
-        /// <param name="siteSeed"></param>
-        /// <param name="secretIndex"></param>
-        /// <param name="test"></param>
-        /// <returns></returns>
+        /// <param name="siteSeed">The precomputed site seed</param>
+        /// <param name="secretIndex">The server-provided Secret Index (SIN)</param>
+        /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed)</param>
         public byte[] CreateIndexedSecret(byte[] siteSeed, byte[] secretIndex, bool test = false)
         {
             
@@ -885,6 +895,16 @@ namespace SQRLUtilsLib
             return indexedSecret;
         }
 
+        /// <summary>
+        /// Creates a cryptographic seed from the given domain and altID (if available), which is
+        /// used for driving seeded cryptograhic functions such as <c>crypto_sign_seed_keypair()</c>.
+        /// In SQRL, this seed is used for creating site-specific key pairs as well as for creating
+        /// the so called "Indexed Secret" (INS) from a server-provided "Secret Index" (SIN).
+        /// </summary>
+        /// <param name="domain">The domain for which to generate the Indexed Secret</param>
+        /// <param name="altID">The "Alternate Id" that should be used</param>
+        /// <param name="imk">The identity's unencrypted Identity Master Key (IMK)</param>
+        /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed)</param>
         private byte[] CreateSiteSeed(Uri domain, String altID, byte[] imk, bool test = false)
         {
             if (!SodiumInitialized)
@@ -910,16 +930,16 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Generates an Ident Request to the server
+        /// Generates an <c>ident</c> request and posts it to the server.
         /// </summary>
-        /// <param name="sqrl">Server URI</param>
-        /// <param name="siteKP">Site Key Pair</param>
-        /// <param name="priorServerMessaage">Prior Server Message (base64)</param>
+        /// <param name="sqrl">The server URI</param>
+        /// <param name="siteKP">The precomputed site-specific ECDH key pair</param>
+        /// <param name="priorServerMessaage">The base64_url-encoded prior server message</param>
         /// <param name="opts">Options (SUK, CPS etc)</param>
         /// <param name="message"></param>
-        /// <param name="addClientData">Additional Client Data to Sendin VUK / SUK etc</param>
-        /// <returns></returns>
-        public  SQRLServerResponse GenerateIdentCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string[] opts, out string message, StringBuilder addClientData = null)
+        /// <param name="addClientData">Additional client data (e.g. VUK / SUK etc.)</param>
+        /// <returns>Returns a <c>SQRLServerResponse</c> object, representing the server's response details.</returns>
+        public SQRLServerResponse GenerateIdentCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string[] opts, out string message, StringBuilder addClientData = null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -955,19 +975,17 @@ namespace SQRLUtilsLib
             }
 
             return serverResponse;
-
-
         }
 
         /// <summary>
-        /// Generates a Quer command (repeats the command up to 3 times if there is a transient error)
+        /// Generates a <c>query</c> command and posts it to the server.
+        /// If a transient error occurs, the query is repeated up to 3 times.
         /// </summary>
-        /// <param name="sqrl"></param>
-        /// <param name="siteKP"></param>
+        /// <param name="sqrl">The server URI</param>
+        /// <param name="siteKP">The precomputed site-specific ECDH key pair</param>
         /// <param name="opts"></param>
         /// <param name="count"></param>
-        /// <returns></returns>
-        //GenerateSQRLCommand(SQRLCommands command,Uri sqrlUri, KeyPair currentSiteKeyPair, string plainTextServer, StringBuilder additionalClientData=null, SQRLOptions opts = null,KeyPair priorKey=null, byte[] ursKey=null)
+        /// <returns>Returns a <c>SQRLServerResponse</c> object, representing the server's response details.</returns>
         public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, string encodedServerMessage=null,int count = 0, Dictionary<byte[],Tuple<byte[],KeyPair>> priorSiteKeys=null)
         {
             
@@ -1005,7 +1023,6 @@ namespace SQRLUtilsLib
         /// <returns></returns>
         public SQRLServerResponse GenerateNewIdentCommand(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk, SQRLOptions opts = null, StringBuilder sin=null)
         {
-
             SQRLServerResponse serverResponse = null;
             var sukvuk = GetSukVuk(ilk);
             StringBuilder addClientData = new StringBuilder();
@@ -1346,6 +1363,14 @@ namespace SQRLUtilsLib
             return new KeyValuePair<string, SQRLIdentity>(newRescueCode,newID);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="oldIuk"></param>
+        /// <param name="oldIdentity"></param>
+        /// <param name="newID"></param>
+        /// <param name="oldImk"></param>
+        /// <param name="newImk"></param>
         public void GenerateIdentityBlock3(byte[] oldIuk, SQRLIdentity oldIdentity, SQRLIdentity newID, byte[] oldImk, byte[] newImk)
         {
 
@@ -1393,6 +1418,14 @@ namespace SQRLUtilsLib
             
         }
 
+        /// <summary>
+        /// Decrypts an identity's type 3 block using the provided Identity Master Key (IMK).
+        /// </summary>
+        /// <param name="ikm">The identity's unencrypted Identity Master Key (IMK)</param>
+        /// <param name="identity">The identity containing the type 3 block to be decrypted</param>
+        /// <param name="boolAllGood">Indicates whether the operation complented successfully</param>
+        /// <returns>Returns a contiguous block of all encrypted bytes from the identity's type 3 block, 
+        /// which includes all the PIUKs as well as the authentication tag</returns>
         public byte[] DecryptBlock3(byte[] ikm, SQRLIdentity identity, out bool boolAllGood)
         {
             List<byte> plainText = new List<byte>();
@@ -1416,11 +1449,10 @@ namespace SQRLUtilsLib
             return result;
         }
 
-
         /// <summary>
-        /// Zeroes out a byte array to remove our keys from memory
+        /// Zeroes out a byte array to remove our keys from memory.
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="key">The byte array to be zeroed out</param>
         public static void ZeroFillByteArray(ref byte[] key)
         {
             for (int i = 0; i < key.Length; i++)
@@ -1428,25 +1460,34 @@ namespace SQRLUtilsLib
                 key[i] = 0;
             }
         }
-
-
     }
-
-
 }
 
+/// <summary>
+/// This class provides extension methods for commonly used utility functions.
+/// </summary>
 public static class UtilClass
 {
+    /// <summary>
+    /// Clears whitespace such as spaces, tabs, newlines and the literal "\n" from the string.
+    /// </summary>
     public static string CleanUpString(this string s)
     {
         return s.Replace(" ", "").Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace("\\n", "");
     }
 
+    /// <summary>
+    /// Fills the byte array with Zeroes, overwriting the current contents.
+    /// </summary>
     public static void ZeroFill(this byte[] ary)
     {
         SQRLUtilsLib.SQRL.ZeroFillByteArray(ref ary);
     }
 
+    /// <summary>
+    /// Appends the given string s, followed by a windows-style line break ("CR LF").
+    /// </summary>
+    /// <param name="s">The string to be appended</param>
     public static StringBuilder AppendLineWindows(this StringBuilder sb, string s)
     {
         sb.Append(s);
