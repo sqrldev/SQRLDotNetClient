@@ -264,7 +264,7 @@ namespace SQRLUtilsLib
         /// <summary>
         /// The AES-GCM initialization vector / nonce.
         /// </summary>
-        public byte[] ScryptInitVector { get; set; }
+        public byte[] AesGcmInitVector { get; set; }
 
         public byte[] ScryptRandomSalt { get; set; }
 
@@ -290,7 +290,7 @@ namespace SQRLUtilsLib
         {
             if (blockData.Length != 125)
                 throw new Exception("Invalid Block 1, incorrect number of bytes");
-            this.ScryptInitVector = blockData.Skip(6).Take(12).ToArray();
+            this.AesGcmInitVector = blockData.Skip(6).Take(12).ToArray();
             this.ScryptRandomSalt = blockData.Skip(18).Take(16).ToArray();
             this.LogNFactor = blockData.Skip(34).Take(1).First();
             this.IterationCount = BitConverter.ToUInt32(blockData.Skip(35).Take(4).ToArray());
@@ -310,7 +310,7 @@ namespace SQRLUtilsLib
             byteAry.AddRange(BitConverter.GetBytes(Length));
             byteAry.AddRange(BitConverter.GetBytes(Type));
             byteAry.AddRange(BitConverter.GetBytes(InnerBlockLength));
-            byteAry.AddRange(ScryptInitVector);
+            byteAry.AddRange(AesGcmInitVector);
             byteAry.AddRange(ScryptRandomSalt);
             byteAry.Add(LogNFactor);
             byteAry.AddRange(BitConverter.GetBytes(IterationCount));
