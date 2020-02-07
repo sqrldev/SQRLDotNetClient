@@ -13,44 +13,71 @@ using System.Web;
 namespace SQRLUtilsLib
 {
     /// <summary>
-    /// This is a basic HTTP Server implemented to handle the CPS
-    /// requirements of SQRL
+    /// This is a basic HTTP server implemented to handle the 
+    /// "Client Provided Session" (CPS) requirements of SQRL.
     /// </summary>
+    /// <remarks>
+    /// For more information on SQRL's CPS system, please check out
+    /// the chapter "Introducing client provided session (CPS)" in
+    /// https://www.grc.com/sqrl/SQRL_Explained.pdf, starting on page 8.
+    /// </remarks>
     public class CPSServer
     {
         private Thread _serverThread;
         private HttpListener _listener;
         
         /// <summary>
-        /// Default SQRL CPS port do not change
+        /// Default SQRL CPS port, do not change.
         /// </summary>
         private int Port { get; } =25519;
 
+        /// <summary>
+        /// A blocking collection of URLs, used to handle redirection 
+        /// to cancellation or success URLs provided by the SQRL server.
+        /// </summary>
         public BlockingCollection<Uri> cpsBC;
+
+        /// <summary>
+        /// The "nut" nonce of the CPS request provided by the SQRL server.
+        /// </summary>
         public string Nut { get; set; }
+
+        /// <summary>
+        /// The cancellation URL provided by the SQRL server.
+        /// </summary>
         public Uri Can { get; set; }
 
+        /// <summary>
+        /// Indicates whether a response to this request is already pending.
+        /// </summary>
         public bool PendingResponse = false;
 
+        /// <summary>
+        /// Indicates whether the CPS HTTP server is running.
+        /// </summary>
         public bool Running = false;
 
         /// <summary>
-        /// Instanciates a CPS Http Server on the SQRL Default Port
+        /// Instanciates a CPS HTTP server on the SQRL default port.
         /// </summary>
         public CPSServer()
         {
             this.cpsBC = new BlockingCollection<Uri>();
             this.Initialize();
-
         }
 
+        /// <summary>
+        /// Initializes and starts the server thread.
+        /// </summary>
         private void Initialize()
         {
-            
             _serverThread = new Thread(this.Listen);
             _serverThread.Start();
         }
 
+        /// <summary>
+        /// Listens for incoming connections to the CPS HTTP server.
+        /// </summary>
         private void Listen()
         {
             try
@@ -80,9 +107,9 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Handles the Processing of any request received by the HTTP Server
+        /// Handles the processing of any request received by the HTTP server.
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The HTTP context which provides access to the request and response objects.</param>
         private void Process(HttpListenerContext context)
         {
             Console.WriteLine("Processing Request");
@@ -104,11 +131,10 @@ namespace SQRLUtilsLib
             }
         }
 
-
         /// <summary>
-        /// All Requests Processed by this Method are handled as a CPS Redirect Request
+        /// All requests processed by this method are handled as a CPS redirect request.
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The HTTP context which provides access to the request and response objects.</param>
         private void RespondWithCPS(HttpListenerContext context)
         {
             Console.WriteLine($"Got CPS Request");
@@ -142,19 +168,18 @@ namespace SQRLUtilsLib
                break;
             }
             Console.WriteLine($"Done with Request");
-
         }
 
         /// <summary>
-        /// Returns a clear 1x1 gif to the user that requested it.
+        /// Returns a clear 1x1 gif image to the user that requested it.
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The HTTP context which provides access to the request and response objects.</param>
         private void RespondWithGif(HttpListenerContext context)
         {
             try
             {
-                
                 var gif = GenerateGif();
+
                 //Adding permanent http response headers
                 context.Response.ContentType = "image/gif";
                 context.Response.ContentLength64 = gif.Length;
@@ -171,6 +196,9 @@ namespace SQRLUtilsLib
             }
         }
 
+        /// <summary>
+        /// Generate and return a clear 1x1 pixel gif image.
+        /// </summary>
         private byte[] GenerateGif()
         {
             //return empty gif
