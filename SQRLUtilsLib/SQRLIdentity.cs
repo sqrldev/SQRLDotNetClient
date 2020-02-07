@@ -255,7 +255,7 @@ namespace SQRLUtilsLib
         /// <summary>
         ///  Length in bytes of the unencrypted (plaintext) but authenticated data for this
         ///  block. This is the length of the so-called “additional authenticated data” (aad) 
-        ///  of the block's AESGCM cipher. The length specification spans from the first byte 
+        ///  of the block's AES-GCM cipher. The length specification spans from the first byte 
         ///  of the block (the first byte of the whole block's length specification) up to, 
         ///  but not including, the beginning of the block's encrypted data.
         /// </summary>
@@ -266,14 +266,36 @@ namespace SQRLUtilsLib
         /// </summary>
         public byte[] AesGcmInitVector { get; set; }
 
+        /// <summary>
+        /// The random salt for the scrypt memory-hard PBKDF.
+        /// This must never be reused with the same key!
+        /// </summary>
         public byte[] ScryptRandomSalt { get; set; }
 
+        /// <summary>
+        /// The memory consumption factor for the scrypt memory-hard PBKDF.
+        /// Defaults to 9.
+        /// </summary>
         public byte LogNFactor { get; set; } = 9;
 
+        /// <summary>
+        /// The time consumption factor for the scrypt memory-hard PBKDF.
+        /// </summary>
         public uint IterationCount { get; set; }
 
+        /// <summary>
+        /// A set of bitflags representing several user-configurable client options.
+        /// </summary>
+        /// <remarks>
+        /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 22 for further
+        /// information.
+        /// </remarks>
         public ushort OptionFlags { get; set; } = 499;
 
+        /// <summary>
+        /// The length of the so called "QuickPass", which consists of the first
+        /// x characters from the identity's full master password.
+        /// </summary>
         public byte HintLenght { get; set; } = 4;
 
         public byte PwdVerifySeconds { get; set; } = 5;
