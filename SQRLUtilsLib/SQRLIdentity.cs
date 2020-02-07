@@ -407,7 +407,7 @@ namespace SQRLUtilsLib
         /// <summary>
         /// The encrypted Identity Unlock Key (IUK).
         /// </summary>
-        public byte[] EncryptedIdentityLock { get; set; }
+        public byte[] EncryptedIUK { get; set; }
 
         public byte[] VerificationTag { get; set; }
 
@@ -418,7 +418,7 @@ namespace SQRLUtilsLib
             this.RandomSalt = blockData.Skip(4).Take(16).ToArray();
             this.LogNFactor = blockData.Skip(20).Take(1).First();
             this.IterationCount = BitConverter.ToUInt32(blockData.Skip(21).Take(4).ToArray());
-            this.EncryptedIdentityLock = blockData.Skip(25).Take(32).ToArray();
+            this.EncryptedIUK = blockData.Skip(25).Take(32).ToArray();
             this.VerificationTag = blockData.Skip(57).Take(16).ToArray();
         }
 
@@ -430,7 +430,7 @@ namespace SQRLUtilsLib
             byteAry.AddRange(RandomSalt);
             byteAry.Add(LogNFactor);
             byteAry.AddRange(BitConverter.GetBytes(IterationCount));
-            byteAry.AddRange(EncryptedIdentityLock);
+            byteAry.AddRange(EncryptedIUK);
             byteAry.AddRange(VerificationTag);
 
             return byteAry.ToArray();
