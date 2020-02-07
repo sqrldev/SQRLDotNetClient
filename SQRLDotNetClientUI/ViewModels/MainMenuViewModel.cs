@@ -116,6 +116,11 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
+        public void IdentitySettings()
+        {
+            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new IdentitySettingsViewModel(this.sqrlInstance, this.currentIdentity);
+        }
+
         public void Login()
         {
             if(!string.IsNullOrEmpty(this.SiteUrl) && this.currentIdentity!=null)
