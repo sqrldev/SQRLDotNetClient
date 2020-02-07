@@ -346,7 +346,7 @@ namespace SQRLUtilsLib
 
             var identityT = await Task.Run(() =>
              {
-                 identity.Block1.ScryptInitVector = initVector;
+                 identity.Block1.AesGcmInitVector = initVector;
                  identity.Block1.ScryptRandomSalt = randomSalt;
                  identity.Block1.IterationCount = (uint)key.Key;
 
@@ -354,7 +354,7 @@ namespace SQRLUtilsLib
                  plainText.AddRange(GetBytes(identity.Block1.Length));
                  plainText.AddRange(GetBytes(identity.Block1.Type));
                  plainText.AddRange(GetBytes(identity.Block1.InnerBlockLength));
-                 plainText.AddRange(GetBytes(identity.Block1.ScryptInitVector));
+                 plainText.AddRange(GetBytes(identity.Block1.AesGcmInitVector));
                  plainText.AddRange(GetBytes(identity.Block1.ScryptRandomSalt));
                  plainText.Add(identity.Block1.LogNFactor);
                  plainText.AddRange(GetBytes(identity.Block1.IterationCount));
@@ -730,7 +730,7 @@ namespace SQRLUtilsLib
             plainText.AddRange(GetBytes(identity.Block1.Length));
             plainText.AddRange(GetBytes(identity.Block1.Type));
             plainText.AddRange(GetBytes(identity.Block1.InnerBlockLength));
-            plainText.AddRange(GetBytes(identity.Block1.ScryptInitVector));
+            plainText.AddRange(GetBytes(identity.Block1.AesGcmInitVector));
             plainText.AddRange(GetBytes(identity.Block1.ScryptRandomSalt));
             plainText.Add(identity.Block1.LogNFactor);
             plainText.AddRange(GetBytes(identity.Block1.IterationCount));
@@ -745,7 +745,7 @@ namespace SQRLUtilsLib
                 byte[] result = null;
                 try
                 {
-                    result = Sodium.SecretAeadAes.Decrypt(encryptedKeys, identity.Block1.ScryptInitVector, key, plainText.ToArray());
+                    result = Sodium.SecretAeadAes.Decrypt(encryptedKeys, identity.Block1.AesGcmInitVector, key, plainText.ToArray());
                 }
                 catch(Exception ex)
                 {
