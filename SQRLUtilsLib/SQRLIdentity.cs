@@ -6,21 +6,22 @@ using System.Linq;
 namespace SQRLUtilsLib
 {
     /// <summary>
-    /// Represents a SQRL identity stored in the S4 format.
+    /// Represents a SQRL identity stored in SQRL's "S4" storage format.
     /// </summary>
     /// <remarks>
-    /// More information about SQRL's binary storage format can be found 
-    /// at https://www.grc.com/sqrl/SQRL_Cryptography.pdf
+    /// More information about SQRL's binary "S4" storage format can be found 
+    /// at https://www.grc.com/sqrl/SQRL_Cryptography.pdf starting on page 20.
     /// </remarks>
     public class SQRLIdentity
     {
         /// <summary>
-        /// The name of the identity.
+        /// The name of the identity. Defaults to an empty string.
         /// </summary>
         public string IdentityName { get; set; }
 
         /// <summary>
-        /// Creates a new <c>SQRLIdentity</c> object.
+        /// Creates a new <c>SQRLIdentity</c> object and optionally gives
+        /// it a <paramref name="name"/>.
         /// </summary>
         /// <param name="name">The name of the identity (optional).</param>
         public SQRLIdentity(string name="") 
@@ -35,7 +36,7 @@ namespace SQRLUtilsLib
         public const String SQRLHEADER = "sqrldata";
         
         /// <summary>
-        /// A list of blocks available in the identity.
+        /// A list of all blocks stored within the identity.
         /// </summary>
         public List<ISQRLBlock> Blocks { get; set; }
 
@@ -50,7 +51,9 @@ namespace SQRLUtilsLib
         public SQRLBlock2 Block2 { get { return (SQRLBlock2)GetBlock(2); } }
 
         /// <summary>
-        /// The identity's type 3 block (Encrypted previous identity unlock keys).
+        /// The identity's type 3 block (Encrypted previous identity unlock keys). 
+        /// Since SQRL identities only carry a type 3 block if they were rekeyed at 
+        /// least once, this may be <c>null</c>!
         /// </summary>
         public SQRLBlock3 Block3 { get { return (SQRLBlock3)GetBlock(3); } }
 
@@ -58,7 +61,7 @@ namespace SQRLUtilsLib
         /// Checks if a block of the given <paramref name="blockType"/> exists within the identity.
         /// Returns <c>true</c> if it does, or <c>false</c> otherwise.
         /// </summary>
-        /// <param name="blockType">The block type of the block to be checked.</param>
+        /// <param name="blockType">The type of the block to be checked.</param>
         public bool HasBlock(ushort blockType)
         {
             return (GetBlock(blockType) != null);
@@ -68,7 +71,7 @@ namespace SQRLUtilsLib
         /// Returns the block with the given <paramref name="blockType"/> if it 
         /// exists within the identity, or <c>null</c> otherwise.
         /// </summary>
-        /// <param name="blockType">The block type of the block to be fetched.</param>
+        /// <param name="blockType">The type of the block to be fetched.</param>
         public ISQRLBlock GetBlock(ushort blockType)
         {
             foreach (var block in Blocks) 
@@ -77,7 +80,7 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Returns the raw byte representation of the current identity
+        /// Returns the raw byte representation of the entire identity.
         /// </summary>
         public byte[] ToByteArray()
         {
@@ -409,6 +412,9 @@ namespace SQRLUtilsLib
         /// </summary>
         public byte[] EncryptedIUK { get; set; }
 
+        /// <summary>
+        /// The verification tag created by the AES-GCM authenticated encryption.
+        /// </summary>
         public byte[] VerificationTag { get; set; }
 
         public void FromByteArray(byte[] blockData)
@@ -450,16 +456,29 @@ namespace SQRLUtilsLib
         public ushort Length { get; set; } = 54;
         public ushort Type { get; } = 3;
 
+        /// <summary>
+        /// The count of all Previous Identity Unlock Keys (PIUKs).
+        /// </summary>
         public ushort Edition { get; set; } = 0;
 
+        /// <summary>
+        /// A list of all encrypted Previous Identity Unlock Keys (PIUKs).
+        /// </summary>
         public List<byte[]> EncryptedPrevIUKs { get; set; }
-        
+
+        /// <summary>
+        /// The verification tag created by the AES-GCM authenticated encryption.
+        /// </summary>
         public byte[] VerificationTag { get; set; }
-        
+
+        /// <summary>
+        /// Creates a new <c>SQRLBlock3</c> object.
+        /// </summary>
         public SQRLBlock3()
         {
             EncryptedPrevIUKs = new List<byte[]>();
         }
+
         public void FromByteArray(byte[] blockData)
         {
             if (blockData.Length != 54 && blockData.Length != 86 && blockData.Length != 118 && blockData.Length != 150)
