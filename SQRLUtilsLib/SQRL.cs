@@ -359,7 +359,7 @@ namespace SQRLUtilsLib
                  plainText.Add(identity.Block1.LogNFactor);
                  plainText.AddRange(GetBytes(identity.Block1.IterationCount));
                  plainText.AddRange(GetBytes(identity.Block1.OptionFlags));
-                 plainText.Add(identity.Block1.HintLenght);
+                 plainText.Add(identity.Block1.HintLength);
                  plainText.Add(identity.Block1.PwdVerifySeconds);
                  plainText.AddRange(GetBytes(identity.Block1.PwdTimeoutMins));
 
@@ -735,7 +735,7 @@ namespace SQRLUtilsLib
             plainText.Add(identity.Block1.LogNFactor);
             plainText.AddRange(GetBytes(identity.Block1.IterationCount));
             plainText.AddRange(GetBytes(identity.Block1.OptionFlags));
-            plainText.Add(identity.Block1.HintLenght);
+            plainText.Add(identity.Block1.HintLength);
             plainText.Add(identity.Block1.PwdVerifySeconds);
             plainText.AddRange(GetBytes(identity.Block1.PwdTimeoutMins));
 

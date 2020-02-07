@@ -296,7 +296,7 @@ namespace SQRLUtilsLib
         /// The length of the so called "QuickPass", which consists of the first
         /// x characters from the identity's full master password.
         /// </summary>
-        public byte HintLenght { get; set; } = 4;
+        public byte HintLength { get; set; } = 4;
 
         public byte PwdVerifySeconds { get; set; } = 5;
 
@@ -317,7 +317,7 @@ namespace SQRLUtilsLib
             this.LogNFactor = blockData.Skip(34).Take(1).First();
             this.IterationCount = BitConverter.ToUInt32(blockData.Skip(35).Take(4).ToArray());
             this.OptionFlags = BitConverter.ToUInt16(blockData.Skip(39).Take(2).ToArray());
-            this.HintLenght = blockData.Skip(41).Take(1).First();
+            this.HintLength = blockData.Skip(41).Take(1).First();
             this.PwdVerifySeconds = blockData.Skip(42).Take(1).First();
             this.PwdTimeoutMins = BitConverter.ToUInt16(blockData.Skip(43).Take(2).ToArray());
             this.EncryptedIMK = blockData.Skip(45).Take(32).ToArray();
@@ -337,7 +337,7 @@ namespace SQRLUtilsLib
             byteAry.Add(LogNFactor);
             byteAry.AddRange(BitConverter.GetBytes(IterationCount));
             byteAry.AddRange(BitConverter.GetBytes(OptionFlags));
-            byteAry.Add(HintLenght);
+            byteAry.Add(HintLength);
             byteAry.Add(PwdVerifySeconds);
             byteAry.AddRange(BitConverter.GetBytes(PwdTimeoutMins));
             byteAry.AddRange(EncryptedIMK);
