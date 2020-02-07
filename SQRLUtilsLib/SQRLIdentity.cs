@@ -247,6 +247,15 @@ namespace SQRLUtilsLib
         }
 
     }
+
+    /// <summary>
+    /// Represents a type 1 identity block (User access password authenticated & encrypted data) 
+    /// as specified in the SQRL's S4 identity storage format.
+    /// </summary>
+    /// <remarks>
+    /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 21 for further
+    /// information.
+    /// </remarks>
     public class SQRLBlock1 : ISQRLBlock
     {
         public ushort Length { get; } = 125;
@@ -298,14 +307,32 @@ namespace SQRLUtilsLib
         /// </summary>
         public byte HintLength { get; set; } = 4;
 
+        /// <summary>
+        /// Specifies the length of time in seconds SQRL's EnScrypt function will run 
+        /// in order to deeply hash the user's password to generate the Identity Master 
+        /// Key's (IMK) symmetric key.
+        /// </summary>
         public byte PwdVerifySeconds { get; set; } = 5;
 
+        /// <summary>
+        /// Specifies the length of time in seconds that the "QuickPass" is allowed to 
+        /// remain active before it is erased and the full password must be re-entered.
+        /// </summary>
         public ushort PwdTimeoutMins { get; set; } = 15;
 
+        /// <summary>
+        /// The encrypted Identity Master Key (IMK).
+        /// </summary>
         public byte[] EncryptedIMK { get; set; }
 
+        /// <summary>
+        /// The encrypted Identity Lock Key (ILK).
+        /// </summary>
         public byte[] EncryptedILK { get; set; }
 
+        /// <summary>
+        /// The verification tag created by the AES-GCM authenticated encryption.
+        /// </summary>
         public byte[] VerificationTag { get; set; }
 
         public void FromByteArray(byte[] blockData)
@@ -323,7 +350,6 @@ namespace SQRLUtilsLib
             this.EncryptedIMK = blockData.Skip(45).Take(32).ToArray();
             this.EncryptedILK = blockData.Skip(77).Take(32).ToArray();
             this.VerificationTag = blockData.Skip(109).Take(16).ToArray();
-
         }
 
         public byte[] ToByteArray()
@@ -348,17 +374,39 @@ namespace SQRLUtilsLib
         }
     }
 
+    /// <summary>
+    /// Represents a type 2 identity block (Rescue code encrypted data) 
+    /// as specified in the SQRL's S4 identity storage format.
+    /// </summary>
+    /// <remarks>
+    /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 23 for further
+    /// information.
+    /// </remarks>
     public class SQRLBlock2 : ISQRLBlock
     {
         public ushort Length { get; set; } = 73;
         public ushort Type { get; set; } = 2;
 
+        /// <summary>
+        /// The random salt for the scrypt memory-hard PBKDF.
+        /// This must never be reused with the same key!
+        /// </summary>
         public byte[] RandomSalt { get; set; }
 
+        /// <summary>
+        /// The memory consumption factor for the scrypt memory-hard PBKDF.
+        /// Defaults to 9.
+        /// </summary>
         public byte LogNFactor { get; set; } = 9;
 
+        /// <summary>
+        /// The time consumption factor for the scrypt memory-hard PBKDF.
+        /// </summary>
         public uint IterationCount { get; set; }
 
+        /// <summary>
+        /// The encrypted Identity Unlock Key (IUK).
+        /// </summary>
         public byte[] EncryptedIdentityLock { get; set; }
 
         public byte[] VerificationTag { get; set; }
@@ -389,6 +437,14 @@ namespace SQRLUtilsLib
         }
     }
 
+    /// <summary>
+    /// Represents a type 3 identity block (Encrypted previous identity unlock keys) 
+    /// as specified in the SQRL's S4 identity storage format.
+    /// </summary>
+    /// <remarks>
+    /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 23 for further
+    /// information.
+    /// </remarks>
     public class SQRLBlock3 : ISQRLBlock
     {
         public ushort Length { get; set; } = 54;
