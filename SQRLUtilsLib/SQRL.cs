@@ -1031,7 +1031,7 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// 
+        /// Generates an ident command and sends new SUK and VUK but signs it with the old URS, effectively replacing the old identity with a new rekeyed one.
         /// </summary>
         /// <param name="sqrl">The SQRL server URI.</param>
         /// <param name="siteKP">The site-specific ECDH public-private key pair.</param>
