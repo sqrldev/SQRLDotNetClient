@@ -409,7 +409,7 @@ namespace SQRLUtilsLib
                 plainText.AddRange(GetBytes(identity.Block2.IterationCount));
 
                 byte[] encryptedData = AesGcmEncrypt(iuk, plainText.ToArray(), initVector, key.Value); //Should be 80 bytes
-                identity.Block2.EncryptedIdentityLock = encryptedData.ToList().GetRange(0, 32).ToArray(); ;
+                identity.Block2.EncryptedIUK = encryptedData.ToList().GetRange(0, 32).ToArray(); ;
                 identity.Block2.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray();
                 return identity;
             });
@@ -796,7 +796,7 @@ namespace SQRLUtilsLib
                 plainText.AddRange(GetBytes(identity.Block2.IterationCount));
                 byte[] iuk = null;
                 byte[] initVector = new byte[12];
-                byte[] encryptedKeys = identity.Block2.EncryptedIdentityLock.Concat(identity.Block2.VerificationTag).ToArray();
+                byte[] encryptedKeys = identity.Block2.EncryptedIUK.Concat(identity.Block2.VerificationTag).ToArray();
                 byte[] result = null;
                 try
                 {
