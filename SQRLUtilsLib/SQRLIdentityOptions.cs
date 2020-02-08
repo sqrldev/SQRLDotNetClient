@@ -34,7 +34,7 @@ namespace SQRLUtilsLib
         public bool CheckForUpdates
         {
             get { return (FlagsValue & 0x0001) != 0; }
-            set { FlagsValue = (ushort)(FlagsValue | 0x0001); }
+            set { FlagsValue = value ? (ushort)(FlagsValue | 0x0001) : (ushort)(FlagsValue & 0xFFFE); }
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace SQRLUtilsLib
         public bool UpdateAutonomously
         {
             get { return (FlagsValue & 0x0002) != 0; }
-            set { FlagsValue = (ushort)(FlagsValue | 0x0002); }
+            set { FlagsValue = value ? (ushort)(FlagsValue | 0x0002) : (ushort)(FlagsValue & 0xFFFD); }
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace SQRLUtilsLib
         public bool RequestSQRLOnlyLogin
         {
             get { return (FlagsValue & 0x0004) != 0; }
-            set { FlagsValue = (ushort)(FlagsValue | 0x0004); }
+            set { FlagsValue = value ? (ushort)(FlagsValue | 0x0004) : (ushort)(FlagsValue & 0xFFFA); }
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace SQRLUtilsLib
         public bool RequestNoSQRLBypass
         {
             get { return (FlagsValue & 0x0008) != 0; }
-            set { FlagsValue = (ushort)(FlagsValue | 0x0008); }
+            set { FlagsValue = value ? (ushort)(FlagsValue | 0x0008) : (ushort)(FlagsValue & 0xFFF7); }
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace SQRLUtilsLib
         public bool EnableMITMAttackWarning
         {
             get { return (FlagsValue & 0x0010) != 0; }
-            set { FlagsValue = (ushort)(FlagsValue | 0x0010); }
+            set { FlagsValue = value ? (ushort)(FlagsValue | 0x0010) : (ushort)(FlagsValue & 0xFFEF); }
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace SQRLUtilsLib
         public bool ClearQuickPassOnSleep
         {
             get { return (FlagsValue & 0x0020) != 0; }
-            set { FlagsValue = (ushort)(FlagsValue | 0x0020); }
+            set { FlagsValue = value ? (ushort)(FlagsValue | 0x0020) : (ushort)(FlagsValue & 0xFFDF); }
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace SQRLUtilsLib
         public bool ClearQuickPassOnSwitchingUser
         {
             get { return (FlagsValue & 0x0040) != 0; }
-            set { FlagsValue = (ushort)(FlagsValue | 0x0040); }
+            set { FlagsValue = value ? (ushort)(FlagsValue | 0x0040) : (ushort)(FlagsValue & 0xFFAF); }
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace SQRLUtilsLib
         public bool ClearQuickPassOnIdle
         {
             get { return (FlagsValue & 0x0080) != 0; }
-            set { FlagsValue = (ushort)(FlagsValue | 0x0080); }
+            set { FlagsValue = value ? (ushort)(FlagsValue | 0x0080) : (ushort)(FlagsValue & 0xFF7F); }
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace SQRLUtilsLib
         public bool EnableNoCPSWarning
         {
             get { return (FlagsValue & 0x0100) != 0; }
-            set { FlagsValue = (ushort)(FlagsValue | 0x0100); }
+            set { FlagsValue = value ? (ushort)(FlagsValue | 0x0100) : (ushort)(FlagsValue & 0xFEFF); }
         }
     }
 }
