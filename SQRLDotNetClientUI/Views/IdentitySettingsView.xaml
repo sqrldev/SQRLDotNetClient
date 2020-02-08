@@ -57,8 +57,12 @@
       <CheckBox Margin="15,3,0,0" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.EnableNoCPSWarning}" IsEnabled="{Binding CanSave}">Warn of non-CPS authentication</CheckBox>
     </Grid>
 
-    <ProgressBar Margin="10" DockPanel.Dock="Bottom" IsIndeterminate="False" Value="{Binding ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true" Height="20"/>
+    <Grid DockPanel.Dock="Bottom" Height="25">
+      <ProgressBar Margin="10,0,10,0" IsIndeterminate="False" Value="{Binding ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true" Height="20"/>
+      <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding ProgressText}"/>
+    </Grid>
 
+    
     <DockPanel Margin="15" DockPanel.Dock="Bottom" LastChildFill="False">
       <Button Width="100" Height="30" DockPanel.Dock="Left" Command="{Binding Close}" IsEnabled="{Binding CanSave}">Cancel</Button>
       <Button Width="100" Height="30" DockPanel.Dock="Right" Command="{Binding Save}" IsEnabled="{Binding CanSave}">Save</Button>

@@ -18,10 +18,14 @@ namespace SQRLDotNetClientUI.ViewModels
         private bool _canSave = true;
         public bool CanSave { get => _canSave; set => this.RaiseAndSetIfChanged(ref _canSave, value); }
 
-        private int _ProgressPercentage = 0;
-        public int ProgressPercentage { get => _ProgressPercentage; set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); }
-        public int ProgressMax { get; set; } = 100;
-        public string GenerationStep { get; set; }
+        private double _ProgressPercentage = 0;
+        public double ProgressPercentage { get => _ProgressPercentage; set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); }
+
+        private double _progressMax = 0;
+        public double ProgressMax { get => _progressMax; set => this.RaiseAndSetIfChanged(ref _progressMax, value); }
+
+        private string _progressText = string.Empty;
+        public string ProgressText { get => _progressText; set => this.RaiseAndSetIfChanged(ref _progressText, value); }
 
         public IdentitySettingsViewModel() { }
 
@@ -54,10 +58,12 @@ namespace SQRLDotNetClientUI.ViewModels
 
             string password = "test12345678";
 
-            var progress = new Progress<KeyValuePair<int, string>>(percent =>
+            this.ProgressMax = (double)Identity.Block1.IterationCount;
+
+            var progress = new Progress<KeyValuePair<int, string>>(progress =>
             {
-                this.ProgressPercentage = (int)percent.Key / 2;
-                this.GenerationStep = percent.Value + percent.Key;
+                this.ProgressPercentage = (double)progress.Key;
+                this.ProgressText = progress.Value + progress.Key;
             });
 
             (bool ok, byte[] imk, byte[] ilk) = await SqrlInstance.DecryptBlock1(Identity, password, progress);
@@ -75,11 +81,13 @@ namespace SQRLDotNetClientUI.ViewModels
                 return;
             }
 
+            this.ProgressMax = (double)IdentityCopy.Block1.IterationCount;
+
             SQRLIdentity id = await SqrlInstance.GenerateIdentityBlock1(
                 imk, ilk, password, IdentityCopy, progress, IdentityCopy.Block1.PwdVerifySeconds);
 
             // Swap out the old type 1 block with the updated one
-            //TODO: We should probably make sure that this is an atomic operation
+            // TODO: We should probably make sure that this is an atomic operation
             Identity.Blocks.Remove(Identity.Block1);
             Identity.Blocks.Insert(0, id.Block1);
 
