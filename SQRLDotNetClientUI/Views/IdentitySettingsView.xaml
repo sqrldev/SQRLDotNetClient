@@ -38,28 +38,30 @@
 
       <!-- QuickPass and password options -->
       <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">QuickPass length (characters):</TextBlock>
-      <NumericUpDown Grid.Row="0" Grid.Column="1" Height="25" Margin="0,0,0,1" Padding="0" Value="{Binding IdentityCopy.Block1.HintLength}"></NumericUpDown>
+      <NumericUpDown Grid.Row="0" Grid.Column="1" Height="25" Margin="0,0,0,1" Padding="0" Value="{Binding IdentityCopy.Block1.HintLength}" IsEnabled="{Binding CanSave}"></NumericUpDown>
       <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">QuickPass timeout (minutes):</TextBlock>
-      <NumericUpDown Grid.Row="1" Grid.Column="1" Height="25" Margin="0,0,0,1" Padding="0" Value="{Binding IdentityCopy.Block1.PwdTimeoutMins}"></NumericUpDown>
+      <NumericUpDown Grid.Row="1" Grid.Column="1" Height="25" Margin="0,0,0,1" Padding="0" Value="{Binding IdentityCopy.Block1.PwdTimeoutMins}" IsEnabled="{Binding CanSave}"></NumericUpDown>
       <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Password verification time (seconds):</TextBlock>
-      <NumericUpDown Grid.Row="2" Grid.Column="1" Height="25" Margin="0,0,0,1" Padding="0" Value="{Binding IdentityCopy.Block1.PwdVerifySeconds}"></NumericUpDown>
+      <NumericUpDown Grid.Row="2" Grid.Column="1" Height="25" Margin="0,0,0,1" Padding="0" Value="{Binding IdentityCopy.Block1.PwdVerifySeconds}" IsEnabled="{Binding CanSave}"></NumericUpDown>
 
       <!-- Option flags -->
       <TextBlock Margin="0,10,0,0" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">Option flags:</TextBlock>
-      <CheckBox Margin="15,10,0,0" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.CheckForUpdates}">Check for updates</CheckBox>
-      <CheckBox Margin="15,3,0,0" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.UpdateAutonomously}">Update autonomously</CheckBox>
-      <CheckBox Margin="15,3,0,0" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.RequestSQRLOnlyLogin}">Request SQRL only login</CheckBox>
-      <CheckBox Margin="15,3,0,0" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.RequestNoSQRLBypass}">Request no SQRL bypass</CheckBox>
-      <CheckBox Margin="15,3,0,0" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.EnableMITMAttackWarning}">Warn of possible MITM attack</CheckBox>
-      <CheckBox Margin="15,3,0,0" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.ClearQuickPassOnSleep}">Clear QuickPass on sleep</CheckBox>
-      <CheckBox Margin="15,3,0,0" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.ClearQuickPassOnSwitchingUser}">Clear QuickPass when switching user</CheckBox>
-      <CheckBox Margin="15,3,0,0" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.ClearQuickPassOnIdle}">Clear QuickPass when idle</CheckBox>
-      <CheckBox Margin="15,3,0,0" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.EnableNoCPSWarning}">Warn of non-CPS authentication</CheckBox>
+      <CheckBox Margin="15,10,0,0" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.CheckForUpdates}" IsEnabled="{Binding CanSave}">Check for updates</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.UpdateAutonomously}" IsEnabled="{Binding CanSave}">Update autonomously</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.RequestSQRLOnlyLogin}" IsEnabled="{Binding CanSave}">Request SQRL only login</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.RequestNoSQRLBypass}" IsEnabled="{Binding CanSave}">Request no SQRL bypass</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.EnableMITMAttackWarning}" IsEnabled="{Binding CanSave}">Warn of possible MITM attack</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.ClearQuickPassOnSleep}" IsEnabled="{Binding CanSave}">Clear QuickPass on sleep</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.ClearQuickPassOnSwitchingUser}" IsEnabled="{Binding CanSave}">Clear QuickPass when switching user</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.ClearQuickPassOnIdle}" IsEnabled="{Binding CanSave}">Clear QuickPass when idle</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.EnableNoCPSWarning}" IsEnabled="{Binding CanSave}">Warn of non-CPS authentication</CheckBox>
     </Grid>
 
+    <ProgressBar Margin="10" DockPanel.Dock="Bottom" IsIndeterminate="False" Value="{Binding ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true" Height="20"/>
+
     <DockPanel Margin="15" DockPanel.Dock="Bottom" LastChildFill="False">
-      <Button Width="100" Height="30" DockPanel.Dock="Left" Command="{Binding Close}">Cancel</Button>
-      <Button Width="100" Height="30" DockPanel.Dock="Right" Command="{Binding Save}">Save</Button>
+      <Button Width="100" Height="30" DockPanel.Dock="Left" Command="{Binding Close}" IsEnabled="{Binding CanSave}">Cancel</Button>
+      <Button Width="100" Height="30" DockPanel.Dock="Right" Command="{Binding Save}" IsEnabled="{Binding CanSave}">Save</Button>
     </DockPanel>
 
   </DockPanel>
