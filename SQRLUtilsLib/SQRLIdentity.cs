@@ -302,7 +302,7 @@ namespace SQRLUtilsLib
         /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 22 for further
         /// information.
         /// </remarks>
-        public ushort OptionFlags { get; set; } = 499;
+        public SQRLIdentityOptions OptionFlags { get; } = new SQRLIdentityOptions();
 
         /// <summary>
         /// The length of the so called "QuickPass", which consists of the first
@@ -346,7 +346,7 @@ namespace SQRLUtilsLib
             this.ScryptRandomSalt = blockData.Skip(18).Take(16).ToArray();
             this.LogNFactor = blockData.Skip(34).Take(1).First();
             this.IterationCount = BitConverter.ToUInt32(blockData.Skip(35).Take(4).ToArray());
-            this.OptionFlags = BitConverter.ToUInt16(blockData.Skip(39).Take(2).ToArray());
+            this.OptionFlags.FlagsValue = BitConverter.ToUInt16(blockData.Skip(39).Take(2).ToArray());
             this.HintLength = blockData.Skip(41).Take(1).First();
             this.PwdVerifySeconds = blockData.Skip(42).Take(1).First();
             this.PwdTimeoutMins = BitConverter.ToUInt16(blockData.Skip(43).Take(2).ToArray());
@@ -365,7 +365,7 @@ namespace SQRLUtilsLib
             byteAry.AddRange(ScryptRandomSalt);
             byteAry.Add(LogNFactor);
             byteAry.AddRange(BitConverter.GetBytes(IterationCount));
-            byteAry.AddRange(BitConverter.GetBytes(OptionFlags));
+            byteAry.AddRange(BitConverter.GetBytes(OptionFlags.FlagsValue));
             byteAry.Add(HintLength);
             byteAry.Add(PwdVerifySeconds);
             byteAry.AddRange(BitConverter.GetBytes(PwdTimeoutMins));
