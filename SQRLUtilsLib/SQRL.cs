@@ -323,16 +323,37 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Generates a copy of the given identity, and replaces its type 1 block
-        /// with a newly created block based on the given parameters. If no block
-        /// of type 1 is present in the given identity, it will be created.
+        /// Generates a new type 1 block for the given identity based on the given parameters. 
+        /// If no block of type 1 is present in the given identity, it will be created. Otherwise,
+        /// it will be overwritten.
         /// Also, a new random initialization vector and scrypt random salt will be
         /// created and used for the generation of the type 1 block.
         /// </summary>
         /// <param name="iuk">The unencrypted Identity Unlock Key (IUK) for creating the block 1 keys (IMK/ILK).</param>
         /// <param name="password">The password under which the new type 1 block will be encrypted.</param>
+        /// <param name="identity">The identity for which to generate the type 1 block.</param>
         /// <param name="progress">An obect implementing the IProgress interface for monitoring the operation's progress (optional).</param>
         public async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] iuk, String password, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress=null, int encTime=5)
+        {
+            byte[] imk = CreateIMK(iuk);
+            byte[] ilk = CreateILK(iuk);
+
+            return await GenerateIdentityBlock1(imk, ilk, password, identity, progress, encTime);
+        }
+
+        /// <summary>
+        /// Generates a new type 1 block for the given identity based on the given parameters. 
+        /// If no block of type 1 is present in the given identity, it will be created. Otherwise,
+        /// it will be overwritten.
+        /// Also, a new random initialization vector and scrypt random salt will be
+        /// created and used for the generation of the type 1 block.
+        /// </summary>
+        /// <param name="imk">The unencrypted Identity Master Key (IMK).</param>
+        /// <param name="ilk">The unencrypted Identity Lock Key (ILK).</param>
+        /// <param name="password">The password under which the new type 1 block will be encrypted.</param>
+        /// <param name="identity">The identity for which to generate the type 1 block.</param>
+        /// <param name="progress">An obect implementing the IProgress interface for monitoring the operation's progress (optional).</param>
+        public async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] imk, byte[] ilk, string password, SQRLIdentity identity, IProgress<KeyValuePair<int, string>> progress, int encTime)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -342,37 +363,35 @@ namespace SQRLUtilsLib
 
             byte[] initVector = Sodium.SodiumCore.GetRandomBytes(12);
             byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
-            byte[] imk = CreateIMK(iuk);
-            byte[] ilk = CreateILK(iuk);
             var key = await EnScryptTime(password, randomSalt, (int)Math.Pow(2, 9), encTime, progress, "Generating Block 1");
 
             var identityT = await Task.Run(() =>
-             {
-                 identity.Block1.AesGcmInitVector = initVector;
-                 identity.Block1.ScryptRandomSalt = randomSalt;
-                 identity.Block1.IterationCount = (uint)key.Key;
+            {
+                identity.Block1.AesGcmInitVector = initVector;
+                identity.Block1.ScryptRandomSalt = randomSalt;
+                identity.Block1.IterationCount = (uint)key.Key;
 
-                 List<byte> plainText = new List<byte>();
-                 plainText.AddRange(GetBytes(identity.Block1.Length));
-                 plainText.AddRange(GetBytes(identity.Block1.Type));
-                 plainText.AddRange(GetBytes(identity.Block1.InnerBlockLength));
-                 plainText.AddRange(GetBytes(identity.Block1.AesGcmInitVector));
-                 plainText.AddRange(GetBytes(identity.Block1.ScryptRandomSalt));
-                 plainText.Add(identity.Block1.LogNFactor);
-                 plainText.AddRange(GetBytes(identity.Block1.IterationCount));
-                 plainText.AddRange(GetBytes(identity.Block1.OptionFlags.FlagsValue));
-                 plainText.Add(identity.Block1.HintLength);
-                 plainText.Add(identity.Block1.PwdVerifySeconds);
-                 plainText.AddRange(GetBytes(identity.Block1.PwdTimeoutMins));
+                List<byte> plainText = new List<byte>();
+                plainText.AddRange(GetBytes(identity.Block1.Length));
+                plainText.AddRange(GetBytes(identity.Block1.Type));
+                plainText.AddRange(GetBytes(identity.Block1.InnerBlockLength));
+                plainText.AddRange(GetBytes(identity.Block1.AesGcmInitVector));
+                plainText.AddRange(GetBytes(identity.Block1.ScryptRandomSalt));
+                plainText.Add(identity.Block1.LogNFactor);
+                plainText.AddRange(GetBytes(identity.Block1.IterationCount));
+                plainText.AddRange(GetBytes(identity.Block1.OptionFlags.FlagsValue));
+                plainText.Add(identity.Block1.HintLength);
+                plainText.Add(identity.Block1.PwdVerifySeconds);
+                plainText.AddRange(GetBytes(identity.Block1.PwdTimeoutMins));
 
-                 IEnumerable<byte> unencryptedKeys = imk.Concat(ilk);
+                IEnumerable<byte> unencryptedKeys = imk.Concat(ilk);
 
-                 byte[] encryptedData = AesGcmEncrypt(unencryptedKeys.ToArray(), plainText.ToArray(), initVector, key.Value); //Should be 80 bytes
-                 identity.Block1.EncryptedIMK = encryptedData.ToList().GetRange(0, 32).ToArray();
-                 identity.Block1.EncryptedILK = encryptedData.ToList().GetRange(32, 32).ToArray();
-                 identity.Block1.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray();
-                 return identity;
-             });
+                byte[] encryptedData = AesGcmEncrypt(unencryptedKeys.ToArray(), plainText.ToArray(), initVector, key.Value); //Should be 80 bytes
+                identity.Block1.EncryptedIMK = encryptedData.ToList().GetRange(0, 32).ToArray();
+                identity.Block1.EncryptedILK = encryptedData.ToList().GetRange(32, 32).ToArray();
+                identity.Block1.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray();
+                return identity;
+            });
 
             return identityT;
         }
@@ -1522,7 +1541,7 @@ public static class UtilClass
     }
 
     /// <summary>
-    /// Perform a deep Copy of the object.
+    /// Perform a deep copy of the object.
     /// </summary>
     /// <typeparam name="T">The type of object being copied.</typeparam>
     /// <param name="source">The object instance to copy.</param>
