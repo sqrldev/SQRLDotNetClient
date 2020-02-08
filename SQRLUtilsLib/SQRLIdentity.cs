@@ -12,6 +12,7 @@ namespace SQRLUtilsLib
     /// More information about SQRL's binary "S4" storage format can be found 
     /// at https://www.grc.com/sqrl/SQRL_Cryptography.pdf starting on page 20.
     /// </remarks>
+    [Serializable]
     public class SQRLIdentity
     {
         /// <summary>
@@ -218,6 +219,7 @@ namespace SQRLUtilsLib
     /// <summary>
     /// Represents an "unknown" SQRL identity block type.
     /// </summary>
+    [Serializable]
     public class SQRLBlock : ISQRLBlock
     {
         public ushort Length { get; set; }
@@ -259,6 +261,7 @@ namespace SQRLUtilsLib
     /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 21 for further
     /// information.
     /// </remarks>
+    [Serializable]
     public class SQRLBlock1 : ISQRLBlock
     {
         public ushort Length { get; } = 125;
@@ -385,6 +388,7 @@ namespace SQRLUtilsLib
     /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 23 for further
     /// information.
     /// </remarks>
+    [Serializable]
     public class SQRLBlock2 : ISQRLBlock
     {
         public ushort Length { get; set; } = 73;
@@ -451,6 +455,7 @@ namespace SQRLUtilsLib
     /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 23 for further
     /// information.
     /// </remarks>
+    [Serializable]
     public class SQRLBlock3 : ISQRLBlock
     {
         public ushort Length { get; set; } = 54;

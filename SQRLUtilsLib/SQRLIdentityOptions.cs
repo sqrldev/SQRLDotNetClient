@@ -8,6 +8,7 @@ namespace SQRLUtilsLib
     /// Represents the 16 binary "option flags" of a SQRL
     /// type 1 identity block.
     /// </summary>
+    [Serializable]
     public class SQRLIdentityOptions
     {
         /// <summary>
