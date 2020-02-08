@@ -11,6 +11,7 @@ namespace SQRLDotNetClientUI.ViewModels
     {
         public SQRL sqrlInstance { get; set; }
         public SQRLIdentity Identity { get; set; }
+        public SQRLIdentity IdentityCopy { get; set; }
 
         public IdentitySettingsViewModel() { }
 
@@ -19,6 +20,7 @@ namespace SQRLDotNetClientUI.ViewModels
             this.Title = "SQRL Client - Identity Settings";
             this.sqrlInstance = sqrlInstance;
             this.Identity = identity;
+            this.IdentityCopy = identity.Clone();
 
             if (identity != null) this.Title += " (" + identity.IdentityName + ")";
         }
