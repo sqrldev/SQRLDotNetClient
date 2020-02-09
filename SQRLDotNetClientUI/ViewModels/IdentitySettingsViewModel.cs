@@ -21,8 +21,7 @@ namespace SQRLDotNetClientUI.ViewModels
         private double _ProgressPercentage = 0;
         public double ProgressPercentage { get => _ProgressPercentage; set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); }
 
-        private double _progressMax = 0;
-        public double ProgressMax { get => _progressMax; set => this.RaiseAndSetIfChanged(ref _progressMax, value); }
+        public double ProgressMax { get; set; } = 100;
 
         private string _progressText = string.Empty;
         public string ProgressText { get => _progressText; set => this.RaiseAndSetIfChanged(ref _progressText, value); }
@@ -58,8 +57,6 @@ namespace SQRLDotNetClientUI.ViewModels
 
             string password = "test12345678";
 
-            this.ProgressMax = (double)Identity.Block1.IterationCount;
-
             var progress = new Progress<KeyValuePair<int, string>>(progress =>
             {
                 this.ProgressPercentage = (double)progress.Key;
@@ -80,8 +77,6 @@ namespace SQRLDotNetClientUI.ViewModels
                 CanSave = true;
                 return;
             }
-
-            this.ProgressMax = (double)IdentityCopy.Block1.IterationCount;
 
             SQRLIdentity id = await SqrlInstance.GenerateIdentityBlock1(
                 imk, ilk, password, IdentityCopy, progress, IdentityCopy.Block1.PwdVerifySeconds);
