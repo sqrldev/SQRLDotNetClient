@@ -1,0 +1,17 @@
+{
+  "default": [
+    {
+      "SQRLTag": "Secure Quick Reliable Login",
+      "InstallerGreeting": "Welcome to the SQRL (Secure Quick Reliable Login) Client Installer.\r\n\r\nIn a nutshell, SQRL is an Authentication Protocol which allows you to log in to Websites and Services which support it without using a standard username and password.\r\n\r\nInstead, SQRL relies on state-of-the-art cryptography to accomplish a much more secure, and much more convenient way of authenticating.\r\n\r\nThere is a lot of fancy math involved and the technology has been proven, suffice it to say that with SQRL you can login to any site with the push of a button and you will not have to know your username or password for any of it.\r\n\r\nSQRL takes care of it all in a convenient yet extremely secure package. To learn more about SQRL please visit: https://sqrl.grc.com/pages/what_is_sqrl/",
+      "DetectedPlatform":  "Detected Platform:"
+    }
+  ],
+  "en-US": [
+    {
+      "SQRLTag": "Secure Quick Reliable Login",
+      "InstallerGreeting": "Welcome to the SQRL (Secure Quick Reliable Login) Client Installer.\r\n\r\nIn a nutshell, SQRL is an Authentication Protocol which allows you to log in to Websites and Services which support it without using a standard username and password.\r\n\r\nInstead, SQRL relies on state-of-the-art cryptography to accomplish a much more secure, and much more convenient way of authenticating.\r\n\r\nThere is a lot of fancy math involved and the technology has been proven, suffice it to say that with SQRL you can login to any site with the push of a button and you will not have to know your username or password for any of it.\r\n\r\nSQRL takes care of it all in a convenient yet extremely secure package. To learn more about SQRL please visit: https://sqrl.grc.com/pages/what_is_sqrl/",
+      "DetectedPlatform": "Detected Platform:"
+    }
+
+  ]
+}
