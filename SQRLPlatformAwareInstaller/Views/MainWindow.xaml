@@ -3,15 +3,19 @@
         xmlns:vm="clr-namespace:SQRLPlatformAwareInstaller.ViewModels;assembly=SQRLPlatformAwareInstaller"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
         x:Class="SQRLPlatformAwareInstaller.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="SQRLPlatformAwareInstaller">
+        Icon="resm:SQRLPlatformAwareInstaller.Assets.sqrl_icon_normal_48_icon.ico"
+         Title="{Binding Content.Title}"
+        Content="{Binding Content}"
+         Width="600"
+         Height="450"
+         MaxWidth="600"
+         MaxHeight="450"
+        >
+  <Design.DataContext>
+    <vm:MainWindowViewModel/>
+  </Design.DataContext>
 
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
-
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
 </Window>

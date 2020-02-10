@@ -1,14 +1,21 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using SQRLPlatformAwareInstaller.AvaloniaExtensions;
 
 namespace SQRLPlatformAwareInstaller.Views
 {
     public class MainWindow : Window
     {
+        public LocalizationExtension LocalizationService { get; }
         public MainWindow()
         {
             InitializeComponent();
+            if (AvaloniaLocator.Current.GetService<MainWindow>() == null)
+            {
+                AvaloniaLocator.CurrentMutable.Bind<MainWindow>().ToConstant(this);
+            }
+            this.LocalizationService = new LocalizationExtension();
 #if DEBUG
             this.AttachDevTools();
 #endif

@@ -7,5 +7,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 {
     public class ViewModelBase : ReactiveObject
     {
+        private string title = "";
+        public string Title
+        {
+            get => this.title;
+            set { this.RaiseAndSetIfChanged(ref title, value); }
+        }
     }
 }
