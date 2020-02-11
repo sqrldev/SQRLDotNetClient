@@ -18,7 +18,20 @@ namespace SQRLDotNetClientUI.ViewModels
         private string _siteUrl = "";
         public string SiteUrl { get => _siteUrl; set => this.RaiseAndSetIfChanged(ref _siteUrl, value); }
         public SQRL sqrlInstance { get; set; }
-        public SQRLIdentity currentIdentity { get; set; }
+
+        private SQRLIdentity _currentIdentity;
+        public SQRLIdentity CurrentIdentity 
+        { 
+            get => _currentIdentity;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _currentIdentity, value);
+                this.CurrentIdentityLoaded = (value != null);
+            }
+        }
+
+        private bool _currentIdentityLoaded = false;
+        public bool CurrentIdentityLoaded { get => _currentIdentityLoaded; set => this.RaiseAndSetIfChanged(ref _currentIdentityLoaded, value); }
 
         public String _IdentityName = "";
         public String IdentityName { get => _IdentityName; set => this.RaiseAndSetIfChanged(ref _IdentityName, value); }
@@ -32,18 +45,18 @@ namespace SQRLDotNetClientUI.ViewModels
             var userData = GetUserData();
             if (userData != null && !string.IsNullOrEmpty(userData.LastLoadedIdentity) && File.Exists(userData.LastLoadedIdentity))
             {
-                this.currentIdentity = SQRLIdentity.FromFile(userData.LastLoadedIdentity);
-                this.currentIdentity.IdentityName = Path.GetFileNameWithoutExtension(userData.LastLoadedIdentity);
-                this.IdentityName = this.currentIdentity.IdentityName;
+                this.CurrentIdentity = SQRLIdentity.FromFile(userData.LastLoadedIdentity);
+                this.CurrentIdentity.IdentityName = Path.GetFileNameWithoutExtension(userData.LastLoadedIdentity);
+                this.IdentityName = this.CurrentIdentity.IdentityName;
             }
 
             string[] commandLine = Environment.CommandLine.Split(" ");
             if(commandLine.Length>1)
             {
 
-               if (Uri.TryCreate(commandLine[1], UriKind.Absolute, out Uri result) && this.currentIdentity!=null)
+               if (Uri.TryCreate(commandLine[1], UriKind.Absolute, out Uri result) && this.CurrentIdentity!=null)
                 {
-                    AuthenticationViewModel authView = new AuthenticationViewModel(this.sqrlInstance, this.currentIdentity, result);
+                    AuthenticationViewModel authView = new AuthenticationViewModel(this.sqrlInstance, this.CurrentIdentity, result);
                     AvaloniaLocator.Current.GetService<MainWindow>().Height = 300;
                     AvaloniaLocator.Current.GetService<MainWindow>().Width = 400;
                     AuthVM = authView;
@@ -82,7 +95,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public void ExportIdentity()
         {
-            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ExportIdentityViewModel(this.sqrlInstance, this.currentIdentity);
+            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ExportIdentityViewModel(this.sqrlInstance, this.CurrentIdentity);
         }
 
         public void ImportIdentity()
@@ -100,9 +113,9 @@ namespace SQRLDotNetClientUI.ViewModels
             var file = await ofd.ShowAsync(AvaloniaLocator.Current.GetService<MainWindow>());
             if (file != null && file.Length > 0)
             {
-                this.currentIdentity = SQRLIdentity.FromFile(file[0]);
-                this.currentIdentity.IdentityName = Path.GetFileNameWithoutExtension(file[0]);
-                this.IdentityName = this.currentIdentity.IdentityName;
+                this.CurrentIdentity = SQRLIdentity.FromFile(file[0]);
+                this.CurrentIdentity.IdentityName = Path.GetFileNameWithoutExtension(file[0]);
+                this.IdentityName = this.CurrentIdentity.IdentityName;
                 UserData result = null;
                 using (var db = new SQLiteDBContext())
                 {
@@ -119,16 +132,16 @@ namespace SQRLDotNetClientUI.ViewModels
         public void IdentitySettings()
         {
             ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
-                new IdentitySettingsViewModel(this.sqrlInstance, this.currentIdentity);
+                new IdentitySettingsViewModel(this.sqrlInstance, this.CurrentIdentity);
         }
 
         public void Login()
         {
-            if(!string.IsNullOrEmpty(this.SiteUrl) && this.currentIdentity!=null)
+            if(!string.IsNullOrEmpty(this.SiteUrl) && this.CurrentIdentity!=null)
             {
                 if (Uri.TryCreate(this.SiteUrl, UriKind.Absolute, out Uri result))
                 {
-                    AuthenticationViewModel authView = new AuthenticationViewModel(this.sqrlInstance, this.currentIdentity, result);
+                    AuthenticationViewModel authView = new AuthenticationViewModel(this.sqrlInstance, this.CurrentIdentity, result);
                     AvaloniaLocator.Current.GetService<MainWindow>().Height = 300;
                     AvaloniaLocator.Current.GetService<MainWindow>().Width = 400;
                     AuthVM = authView;

@@ -83,7 +83,7 @@ namespace SQRLDotNetClientUI.ViewModels
                     byte[] imk = this.sqrlInstance.CreateIMK(block2Data.Item2);
                     this.sqrlInstance.GenerateIdentityBlock3(block2Data.Item2, this.Identity, newId, imk, imk); 
                 }
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu.currentIdentity = newId;
+                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu.CurrentIdentity = newId;
                 ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
             }
             else
