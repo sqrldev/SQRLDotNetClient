@@ -35,10 +35,11 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Button Name="btnNewIdentity" Command="{Binding OnNewIdentityClick}" Height="30" Width="100" Margin="10" Grid.Row="0" Grid.Column="0">New Identity</Button>
-      <Button Name="btnReKeyIdentity" Height="30" Width="100" Margin="10" Grid.Row="0" Grid.Column="1">Re-Key Identity</Button>
+            <Button Name="btnReKeyIdentity" Height="30" Width="100" Margin="10" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}">Re-Key Identity</Button>
       <Button Name="btnImportIdentity" Command="{Binding ImportIdentity}" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="0">Import Identity</Button>
-      <Button Name="btnExport" Command="{Binding ExportIdentity}" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="1">Export Identity</Button>
+            <Button Name="btnExport" Command="{Binding ExportIdentity}" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}">Export Identity</Button>
       <Button Name="btnSwitchID" Command="{Binding SwitchIdentity}" Height="30" Width="100" Margin="10" Grid.Row="2" Grid.Column="1">Switch Identity</Button>
+            <Button Name="btnIdentitySettings" Command="{Binding IdentitySettings}" Height="30" Width="100" Margin="10" Grid.Row="2" Grid.Column="0" IsEnabled="{Binding CurrentIdentityLoaded}">Identity Settings</Button>
       <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
       
       <TextBlock FontSize="15" FontWeight="Bold" Text="Loaded Identity:" HorizontalAlignment="Left" Margin="10" />

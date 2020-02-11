@@ -1,0 +1,73 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
+             xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
+             x:Class="SQRLDotNetClientUI.Views.IdentitySettingsView">
+
+  <!-- Data binding source -->
+  <Design.DataContext>
+    <vm:IdentitySettingsViewModel/>
+  </Design.DataContext>
+
+  <!-- Layout start -->
+  <DockPanel Margin="15" LastChildFill="False">
+
+    <Grid ShowGridLines="False" DockPanel.Dock="Top">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="250"/>
+        <ColumnDefinition Width="100"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+      </Grid.RowDefinitions>
+
+      <!-- QuickPass and password options -->
+      <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">QuickPass length (characters):</TextBlock>
+      <NumericUpDown Grid.Row="0" Grid.Column="1" Height="25" Margin="0,0,0,1" Padding="0" Value="{Binding IdentityCopy.Block1.HintLength}" IsEnabled="{Binding CanSave}"></NumericUpDown>
+      <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">QuickPass timeout (minutes):</TextBlock>
+      <NumericUpDown Grid.Row="1" Grid.Column="1" Height="25" Margin="0,0,0,1" Padding="0" Value="{Binding IdentityCopy.Block1.PwdTimeoutMins}" IsEnabled="{Binding CanSave}"></NumericUpDown>
+      <TextBlock Grid.Row="2" Grid.Column="0" VerticalAlignment="Center">Password verification time (seconds):</TextBlock>
+      <NumericUpDown Grid.Row="2" Grid.Column="1" Height="25" Margin="0,0,0,1" Padding="0" Value="{Binding IdentityCopy.Block1.PwdVerifySeconds}" IsEnabled="{Binding CanSave}"></NumericUpDown>
+
+      <!-- Option flags -->
+      <TextBlock Margin="0,10,0,0" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">Option flags:</TextBlock>
+      <CheckBox Margin="15,10,0,0" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.CheckForUpdates}" IsEnabled="{Binding CanSave}">Check for updates</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.UpdateAutonomously}" IsEnabled="{Binding CanSave}">Update autonomously</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.RequestSQRLOnlyLogin}" IsEnabled="{Binding CanSave}">Request SQRL only login</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.RequestNoSQRLBypass}" IsEnabled="{Binding CanSave}">Request no SQRL bypass</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.EnableMITMAttackWarning}" IsEnabled="{Binding CanSave}">Warn of possible MITM attack</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.ClearQuickPassOnSleep}" IsEnabled="{Binding CanSave}">Clear QuickPass on sleep</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.ClearQuickPassOnSwitchingUser}" IsEnabled="{Binding CanSave}">Clear QuickPass when switching user</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.ClearQuickPassOnIdle}" IsEnabled="{Binding CanSave}">Clear QuickPass when idle</CheckBox>
+      <CheckBox Margin="15,3,0,0" Grid.Row="12" Grid.Column="0" Grid.ColumnSpan="2" IsChecked="{Binding IdentityCopy.Block1.OptionFlags.EnableNoCPSWarning}" IsEnabled="{Binding CanSave}">Warn of non-CPS authentication</CheckBox>
+    </Grid>
+
+    <Grid DockPanel.Dock="Bottom" Height="25">
+      <ProgressBar Margin="10,0,10,0" IsIndeterminate="False" Value="{Binding ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true" Height="20"/>
+      <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding ProgressText}"/>
+    </Grid>
+
+    
+    <DockPanel Margin="15" DockPanel.Dock="Bottom" LastChildFill="False">
+      <Button Width="100" Height="30" DockPanel.Dock="Left" Command="{Binding Close}" IsEnabled="{Binding CanSave}">Cancel</Button>
+      <Button Width="100" Height="30" DockPanel.Dock="Right" Command="{Binding Save}" IsEnabled="{Binding CanSave}">Save</Button>
+    </DockPanel>
+
+  </DockPanel>
+  
+</UserControl>

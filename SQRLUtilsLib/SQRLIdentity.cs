@@ -12,12 +12,19 @@ namespace SQRLUtilsLib
     /// More information about SQRL's binary "S4" storage format can be found 
     /// at https://www.grc.com/sqrl/SQRL_Cryptography.pdf starting on page 20.
     /// </remarks>
+    [Serializable]
     public class SQRLIdentity
     {
         /// <summary>
         /// The name of the identity. Defaults to an empty string.
         /// </summary>
         public string IdentityName { get; set; }
+
+        /// <summary>
+        /// The full file path, including file name, of the identity file
+        /// representing this identity. Defaults to an empty string.
+        /// </summary>
+        public string FileName { get; set; }
 
         /// <summary>
         /// Creates a new <c>SQRLIdentity</c> object and optionally gives
@@ -218,6 +225,7 @@ namespace SQRLUtilsLib
     /// <summary>
     /// Represents an "unknown" SQRL identity block type.
     /// </summary>
+    [Serializable]
     public class SQRLBlock : ISQRLBlock
     {
         public ushort Length { get; set; }
@@ -259,6 +267,7 @@ namespace SQRLUtilsLib
     /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 21 for further
     /// information.
     /// </remarks>
+    [Serializable]
     public class SQRLBlock1 : ISQRLBlock
     {
         public ushort Length { get; } = 125;
@@ -302,7 +311,7 @@ namespace SQRLUtilsLib
         /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 22 for further
         /// information.
         /// </remarks>
-        public ushort OptionFlags { get; set; } = 499;
+        public SQRLIdentityOptions OptionFlags { get; } = new SQRLIdentityOptions();
 
         /// <summary>
         /// The length of the so called "QuickPass", which consists of the first
@@ -346,7 +355,7 @@ namespace SQRLUtilsLib
             this.ScryptRandomSalt = blockData.Skip(18).Take(16).ToArray();
             this.LogNFactor = blockData.Skip(34).Take(1).First();
             this.IterationCount = BitConverter.ToUInt32(blockData.Skip(35).Take(4).ToArray());
-            this.OptionFlags = BitConverter.ToUInt16(blockData.Skip(39).Take(2).ToArray());
+            this.OptionFlags.FlagsValue = BitConverter.ToUInt16(blockData.Skip(39).Take(2).ToArray());
             this.HintLength = blockData.Skip(41).Take(1).First();
             this.PwdVerifySeconds = blockData.Skip(42).Take(1).First();
             this.PwdTimeoutMins = BitConverter.ToUInt16(blockData.Skip(43).Take(2).ToArray());
@@ -365,7 +374,7 @@ namespace SQRLUtilsLib
             byteAry.AddRange(ScryptRandomSalt);
             byteAry.Add(LogNFactor);
             byteAry.AddRange(BitConverter.GetBytes(IterationCount));
-            byteAry.AddRange(BitConverter.GetBytes(OptionFlags));
+            byteAry.AddRange(BitConverter.GetBytes(OptionFlags.FlagsValue));
             byteAry.Add(HintLength);
             byteAry.Add(PwdVerifySeconds);
             byteAry.AddRange(BitConverter.GetBytes(PwdTimeoutMins));
@@ -385,6 +394,7 @@ namespace SQRLUtilsLib
     /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 23 for further
     /// information.
     /// </remarks>
+    [Serializable]
     public class SQRLBlock2 : ISQRLBlock
     {
         public ushort Length { get; set; } = 73;
@@ -451,6 +461,7 @@ namespace SQRLUtilsLib
     /// Check https://www.grc.com/sqrl/SQRL_Cryptography.pdf on page 23 for further
     /// information.
     /// </remarks>
+    [Serializable]
     public class SQRLBlock3 : ISQRLBlock
     {
         public ushort Length { get; set; } = 54;
