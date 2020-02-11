@@ -4,7 +4,9 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using ReactiveUI;
 using System;
+using System.ComponentModel;
 
 namespace SQRLDotNetClientUI.Views
 {
@@ -20,11 +22,17 @@ namespace SQRLDotNetClientUI.Views
             _txtSecret = this.FindControl<TextBox>("txtSecret");
             _btnOK = this.FindControl<Button>("btnOK");
 
-
             _txtSecret.KeyUp += _txtSecret_KeyUp;
+            _btnOK.Click += _btnOK_Click;
+
 #if DEBUG
             this.AttachDevTools();
 #endif
+        }
+
+        private void _btnOK_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close(_txtSecret.Text);
         }
 
         private void _txtSecret_KeyUp(object sender, KeyEventArgs e)
@@ -33,10 +41,11 @@ namespace SQRLDotNetClientUI.Views
 
             RoutedEventArgs click = new RoutedEventArgs
             {
+                Source = _txtSecret,
                 RoutedEvent = Button.ClickEvent
             };
 
-            this.RaiseEvent(click);
+            _btnOK.RaiseEvent(click);
             e.Handled = true;
         }
 
