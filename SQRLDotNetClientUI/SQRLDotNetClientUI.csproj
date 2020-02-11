@@ -41,7 +41,7 @@
     <AvaloniaResource Remove="Views\IdentitySettingsView.xaml" />
     <AvaloniaResource Remove="Views\ImportIdentitySetupView.xaml" />
     <AvaloniaResource Remove="Views\ImportIdentityView.xaml" />
-    <AvaloniaResource Remove="Views\InputSecretDialog.xaml" />
+    <AvaloniaResource Remove="Views\InputSecretDialogView.xaml" />
     <AvaloniaResource Remove="Views\MainMenuView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityVerifyView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityView.xaml" />
@@ -71,7 +71,7 @@
     <None Remove="Views\IdentitySettingsView.xaml" />
     <None Remove="Views\ImportIdentitySetupView.xaml" />
     <None Remove="Views\ImportIdentityView.xaml" />
-    <None Remove="Views\InputSecretDialog.xaml" />
+    <None Remove="Views\InputSecretDialogView.xaml" />
     <None Remove="Views\MainMenuView.xaml" />
     <None Remove="Views\NewIdentityVerifyView.xaml" />
     <None Remove="Views\NewIdentityView.xaml" />
@@ -162,7 +162,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Views\InputSecretDialog.xaml">
+    <EmbeddedResource Include="Views\InputSecretDialogView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

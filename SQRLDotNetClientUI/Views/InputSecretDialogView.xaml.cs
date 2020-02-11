@@ -8,13 +8,13 @@ using System;
 
 namespace SQRLDotNetClientUI.Views
 {
-    public class InputSecretDialog : Window
+    public class InputSecretDialogView : Window
     {
 
         private TextBox _txtSecret = null;
         private Button _btnOK = null;
 
-        public InputSecretDialog()
+        public InputSecretDialogView()
         {
             this.InitializeComponent();
             _txtSecret = this.FindControl<TextBox>("txtSecret");
