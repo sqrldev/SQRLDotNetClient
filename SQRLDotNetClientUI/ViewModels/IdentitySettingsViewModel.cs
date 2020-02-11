@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using ReactiveUI;
 using SQRLDotNetClientUI.Views;
@@ -57,6 +58,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
             
             InputSecretDialogView passwordDlg = new InputSecretDialogView();
+            passwordDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             string password = await passwordDlg.ShowDialog<string>(AvaloniaLocator.Current.GetService<MainWindow>());
 
             if (password == null)
@@ -75,12 +77,12 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (!ok)
             {
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                var msgBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
                     $"Error", $"The identity could not be decrypted using the given password! Please try again!", 
                     MessageBox.Avalonia.Enums.ButtonEnum.Ok, 
                     MessageBox.Avalonia.Enums.Icon.Error);
 
-                await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                await msgBox.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
 
                 ProgressText = "";
                 ProgressPercentage = 0;
