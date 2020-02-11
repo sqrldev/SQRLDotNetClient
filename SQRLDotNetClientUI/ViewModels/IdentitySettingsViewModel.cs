@@ -1,12 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using ReactiveUI;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -57,9 +55,10 @@ namespace SQRLDotNetClientUI.ViewModels
             }
 
             
-            InputSecretDialogView passwordDlg = new InputSecretDialogView();
+            InputSecretDialogView passwordDlg = new InputSecretDialogView(SecretType.Password);
             passwordDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            string password = await passwordDlg.ShowDialog<string>(AvaloniaLocator.Current.GetService<MainWindow>());
+            string password = await passwordDlg.ShowDialog<string>(
+                AvaloniaLocator.Current.GetService<MainWindow>());
 
             if (password == null)
             {
