@@ -97,6 +97,9 @@ namespace SQRLDotNetClientUI.ViewModels
             Identity.Blocks.Remove(Identity.Block1);
             Identity.Blocks.Insert(0, id.Block1);
 
+            // Finally, save the identity back to file
+            Identity.WriteToFile(Identity.FileName);
+
             CanSave = true;
             Close();
         }

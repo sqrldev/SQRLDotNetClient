@@ -47,6 +47,7 @@ namespace SQRLDotNetClientUI.ViewModels
             {
                 this.CurrentIdentity = SQRLIdentity.FromFile(userData.LastLoadedIdentity);
                 this.CurrentIdentity.IdentityName = Path.GetFileNameWithoutExtension(userData.LastLoadedIdentity);
+                this.CurrentIdentity.FileName = userData.LastLoadedIdentity;
                 this.IdentityName = this.CurrentIdentity.IdentityName;
             }
 
