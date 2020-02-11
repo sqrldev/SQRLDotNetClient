@@ -21,6 +21,12 @@ namespace SQRLUtilsLib
         public string IdentityName { get; set; }
 
         /// <summary>
+        /// The full file path, including file name, of the identity file
+        /// representing this identity. Defaults to an empty string.
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
         /// Creates a new <c>SQRLIdentity</c> object and optionally gives
         /// it a <paramref name="name"/>.
         /// </summary>
