@@ -113,16 +113,7 @@ namespace SQRLDotNetClientUI.ViewModels
             if (Identity.Block1.HintLength != IdentityCopy.Block1.HintLength) return true;
             if (Identity.Block1.PwdTimeoutMins != IdentityCopy.Block1.PwdTimeoutMins) return true;
             if (Identity.Block1.PwdVerifySeconds != IdentityCopy.Block1.PwdVerifySeconds) return true;
-
-            if (Identity.Block1.OptionFlags.CheckForUpdates != IdentityCopy.Block1.OptionFlags.CheckForUpdates) return true;
-            if (Identity.Block1.OptionFlags.ClearQuickPassOnIdle != IdentityCopy.Block1.OptionFlags.ClearQuickPassOnIdle) return true;
-            if (Identity.Block1.OptionFlags.ClearQuickPassOnSleep != IdentityCopy.Block1.OptionFlags.ClearQuickPassOnSleep) return true;
-            if (Identity.Block1.OptionFlags.ClearQuickPassOnSwitchingUser != IdentityCopy.Block1.OptionFlags.ClearQuickPassOnSwitchingUser) return true;
-            if (Identity.Block1.OptionFlags.EnableMITMAttackWarning != IdentityCopy.Block1.OptionFlags.EnableMITMAttackWarning) return true;
-            if (Identity.Block1.OptionFlags.EnableNoCPSWarning != IdentityCopy.Block1.OptionFlags.EnableNoCPSWarning) return true;
-            if (Identity.Block1.OptionFlags.RequestNoSQRLBypass != IdentityCopy.Block1.OptionFlags.RequestNoSQRLBypass) return true;
-            if (Identity.Block1.OptionFlags.RequestSQRLOnlyLogin != IdentityCopy.Block1.OptionFlags.RequestSQRLOnlyLogin) return true;
-            if (Identity.Block1.OptionFlags.UpdateAutonomously != IdentityCopy.Block1.OptionFlags.UpdateAutonomously) return true;
+            if (Identity.Block1.OptionFlags.FlagsValue != IdentityCopy.Block1.OptionFlags.FlagsValue) return true;
 
             return false;
         }
