@@ -56,6 +56,8 @@ namespace SQRLDotNetClientUI.ViewModels
             }
 
             string password = "test12345678";
+            InputSecretDialog passwordDlg = new InputSecretDialog();
+            await passwordDlg.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
 
             var progress = new Progress<KeyValuePair<int, string>>(progress =>
             {
