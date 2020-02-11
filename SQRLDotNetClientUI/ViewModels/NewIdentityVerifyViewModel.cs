@@ -80,7 +80,7 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             else
             {
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu.currentIdentity = this.Identity;
+                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu.CurrentIdentity = this.Identity;
                 ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ExportIdentityViewModel(this.SQRLInstance, this.Identity);
             }
         }
