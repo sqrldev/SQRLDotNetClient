@@ -66,10 +66,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 return;
             }
 
-            var progress = new Progress<KeyValuePair<int, string>>(progress =>
+            var progress = new Progress<KeyValuePair<int, string>>(p =>
             {
-                this.ProgressPercentage = (double)progress.Key;
-                this.ProgressText = progress.Value + progress.Key;
+                this.ProgressPercentage = (double)p.Key;
+                this.ProgressText = p.Value + p.Key;
             });
 
             (bool ok, byte[] imk, byte[] ilk) = await SqrlInstance.DecryptBlock1(Identity, password, progress);
