@@ -11,6 +11,7 @@ using SQRLPlatformAwareInstaller.Views;
 using Avalonia;
 using Microsoft.Win32;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -72,7 +73,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             }
         }
 
-        private string _installStatus;
+        private string _installStatus="Installing...";
         public string InstallStatus { get { return this._installStatus; }
         set
             {
@@ -116,14 +117,14 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
                 case "MacOSX":
                     {
-                        this.DownloadSize = Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("linux")).First().size / 1024M) / 1024M,2);
-                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("linux")).First().browser_download_url;
+                        this.DownloadSize = Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("linux64")).First().size / 1024M) / 1024M,2);
+                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("linux64")).First().browser_download_url;
                     }
                     break;
                 case "Linux":
                     {
-                        this.DownloadSize=Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("osx")).First().size / 1024M ) / 1024M,2);
-                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("osx")).First().browser_download_url;
+                        this.DownloadSize=Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("osx64")).First().size / 1024M ) / 1024M,2);
+                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("osx64")).First().browser_download_url;
                     }
                     break;
                 case "WINDOWS":
@@ -208,6 +209,30 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                     key.SetValue("", $"\"{(Executable)}\" \"%1\"", RegistryValueKind.String);
                     this.DownloadPercentage += 20;
                 }
+
+            });
+
+            //Create Desktop Shortcut
+            await Task.Run(() =>
+            {
+                StringBuilder sb = new StringBuilder();
+
+                sb.AppendLine($"$SourceFileLocation = \"{this.Executable}\"; ");
+                sb.AppendLine($"$ShortcutLocation = \"{(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"SQRL Dot Net Client.lnk"))}\"; ");
+                sb.AppendLine("$WScriptShell = New-Object -ComObject WScript.Shell; ");
+                sb.AppendLine($"$Shortcut = $WScriptShell.CreateShortcut($ShortcutLocation); ");
+                sb.AppendLine($"$Shortcut.TargetPath = $SourceFileLocation; ");
+                sb.AppendLine($"$Shortcut.IconLocation  = \"{this.Executable}\"; ");
+                sb.AppendLine($"$Shortcut.WorkingDirectory  = \"{Path.GetDirectoryName(this.Executable)}\"; ");
+                sb.AppendLine($"$Shortcut.Save(); ");
+                var tempFile = Path.GetTempFileName().Replace(".tmp",".ps1");
+                File.WriteAllText(tempFile, sb.ToString());
+                Process process = new Process();
+                process.StartInfo.UseShellExecute = true;
+                process.StartInfo.FileName = "powershell";
+                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                process.StartInfo.Arguments = $"-File {tempFile}";
+                process.Start();
             });
         }
 
