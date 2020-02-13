@@ -54,5 +54,16 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             }
             set { this.RaiseAndSetIfChanged(ref _platformImg, value); }
         }
+
+        public void Next()
+        {
+            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new VersionSelectorViewModel(this.Platform);
+        }
+
+        public void Cancel()
+        {
+            
+        }
+
     }
 }
