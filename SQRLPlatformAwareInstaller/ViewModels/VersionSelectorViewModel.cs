@@ -44,7 +44,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             {
                 CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
             };
-            this.wc.Headers.Add("Authorization", $"token 3ded31a731e31ae03a9645ec5e484d685f7aca40 ");
+            
             this.wc.Headers.Add("User-Agent", "SQRL-Intaller");
             this.Releases = (Newtonsoft.Json.JsonConvert.DeserializeObject<List<GithubRelease>>(wc.DownloadString("https://api.github.com/repos/sqrldev/SQRLDotNetClient/releases"))).ToArray();
             this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
