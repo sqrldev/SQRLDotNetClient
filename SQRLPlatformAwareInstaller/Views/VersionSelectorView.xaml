@@ -30,8 +30,8 @@
     
     <TextBlock Grid.Row="1" Margin="10" Grid.Column="0" FontWeight="Bold">Select Version to Install:</TextBlock>
     <DropDown Width="300" HorizontalAlignment="Left" Margin="10" Grid.Row="1" Grid.Column="1" Items="{Binding Releases}" SelectedItem="{Binding SelectedRelease}"/>
-    <TextBlock Grid.Row="2" Margin="10" Grid.Column="0" FontWeight="Bold" TextWrapping="Wrap">Description:</TextBlock>
-    <TextBlock Grid.Row="2" Margin="10" Grid.Column="1"  Text="{Binding SelectedRelease.body}" TextWrapping="Wrap"/>
+    <TextBlock Grid.Row="2" Margin="10" Grid.Column="0" FontWeight="Bold" TextWrapping="Wrap" >Description:</TextBlock>
+    <TextBox Grid.Row="2" Margin="10" Grid.Column="1"  Text="{Binding SelectedRelease.body}" MaxHeight="80" AcceptsReturn="True" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
 
 
     <TextBlock Grid.Row="3" Margin="10" Grid.Column="0" FontWeight="Bold">Production Ready:</TextBlock>

@@ -20,14 +20,14 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
   <Image Margin="10" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Source="resm:SQRLPlatformAwareInstaller.Assets.SQRL_icon_normal_32.png" Stretch="None" HorizontalAlignment="Left"/>
   <TextBlock Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="10" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0" Text="{Binding Greeting}"/>
     <TextBlock Grid.Column="0" Margin="10" FontWeight="Bold" Grid.Row="2" Text="{loc:Localization DetectedPlatform}"/>
     <Image Grid.Row="2" Grid.Column="1" Source="{Binding PlatformImg}" Stretch="None" HorizontalAlignment="Left" ToolTip.Tip="{Binding Platform}" />
-    <Button Grid.Row="3" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10" Command="{Binding Next}">Next</Button>
-    <Button Grid.Row="3" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10">Cancel</Button>
+    <Button VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10" Command="{Binding Next}">Next</Button>
+    <Button VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10">Cancel</Button>
   </Grid>
 
 </UserControl>
