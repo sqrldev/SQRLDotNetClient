@@ -62,7 +62,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
         public void Cancel()
         {
-            
+            Environment.Exit(0);
         }
 
     }
