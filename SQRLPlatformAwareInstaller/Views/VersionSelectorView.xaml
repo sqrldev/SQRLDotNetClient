@@ -10,21 +10,50 @@
     <vm:VersionSelectorViewModel/>
   </Design.DataContext>
 
-  <Grid>
+  <Grid >
     <Grid.ColumnDefinitions>
       <ColumnDefinition  Width="Auto"/>
-      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="300" />
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
     <Image Margin="10" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Source="resm:SQRLPlatformAwareInstaller.Assets.SQRL_icon_normal_32.png" Stretch="None" HorizontalAlignment="Left"/>
+    
     <TextBlock Grid.Row="1" Margin="10" Grid.Column="0" FontWeight="Bold">Select Version to Install:</TextBlock>
-    <DropDown Margin="10" Grid.Row="1" Grid.Column="1" Items="{Binding Releases}" SelectedItem="{Binding SelectedRelease}"/>
-    <Button Grid.Row="3" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10">Next</Button>
-    <Button Grid.Row="3" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10">Cancel</Button>
+    <DropDown Width="300" HorizontalAlignment="Left" Margin="10" Grid.Row="1" Grid.Column="1" Items="{Binding Releases}" SelectedItem="{Binding SelectedRelease}"/>
+    <TextBlock Grid.Row="2" Margin="10" Grid.Column="0" FontWeight="Bold" TextWrapping="Wrap">Description:</TextBlock>
+    <TextBlock Grid.Row="2" Margin="10" Grid.Column="1"  Text="{Binding SelectedRelease.body}" TextWrapping="Wrap"/>
+
+
+    <TextBlock Grid.Row="3" Margin="10" Grid.Column="0" FontWeight="Bold">Production Ready:</TextBlock>
+    <TextBlock Grid.Row="3" Margin="10" Grid.Column="1"  Text="{Binding !SelectedRelease.prerelease}" TextWrapping="Wrap"/>
+
+    <TextBlock Grid.Row="4" Margin="10" Grid.Column="0" FontWeight="Bold">Released Date:</TextBlock>
+    <TextBlock Grid.Row="4" Margin="10" Grid.Column="1"  Text="{Binding SelectedRelease.published_at}" TextWrapping="Wrap"/>
+
+    <TextBlock Grid.Row="5" Margin="10" Grid.Column="0" FontWeight="Bold">Size:</TextBlock>
+    <StackPanel Margin="10" Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+    <TextBlock  Text="{Binding DownloadSize}" TextWrapping="Wrap"/>
+    <TextBlock  TextWrapping="Wrap">MB</TextBlock>
+    </StackPanel>
+    <StackPanel Orientation="Horizontal" Margin="10" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2">
+      <Button Command="{Binding FolderPicker}" Margin="0,0,10,0" >Install Path...</Button>
+      <TextBox Width="500" Text="{Binding InstallationPath}" IsReadOnly="True"/>
+    </StackPanel>
+    <StackPanel Margin="10" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
+      <TextBlock Text="{Binding InstallStatus}" FontWeight="Bold" />
+      <ProgressBar Margin="0,10,0,0"  Value="{Binding DownloadPercentage}" Maximum="100" />
+    </StackPanel>
+    <Button Grid.Row="8" Height="25" VerticalAlignment="Bottom" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10" Command="{Binding DownloadInstall}">Next</Button>
+    <Button Grid.Row="8" Height="25" VerticalAlignment="Bottom" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10" Command="{Binding Cancel}">Cancel</Button>
   </Grid>
 </UserControl>

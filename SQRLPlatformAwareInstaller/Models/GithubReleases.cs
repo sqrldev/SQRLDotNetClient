@@ -5,11 +5,6 @@ using System.Text;
 namespace SQRLPlatformAwareInstaller.Models
 {
 
-    public class GithubReleases
-    {
-        public GithubRelease[] Releases { get; set; }
-    }
-
     public class GithubRelease
     {
         public string url { get; set; }
