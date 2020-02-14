@@ -165,7 +165,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                     break;
                 case "Linux":
                     {
-                        ;
+                        InstallinLinux(downloadedFileName);
                     }
                     break;
                 case "WINDOWS":
@@ -175,6 +175,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                     }
                     break;
             }
+        }
+
+        private void InstallinLinux(string downloadedFileName)
+        {
+            throw new NotImplementedException();
         }
 
         private async void InstallinWindodows(string downloadedFileName)
@@ -216,7 +221,6 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             await Task.Run(() =>
             {
                 StringBuilder sb = new StringBuilder();
-
                 sb.AppendLine($"$SourceFileLocation = \"{this.Executable}\"; ");
                 sb.AppendLine($"$ShortcutLocation = \"{(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),"SQRL Dot Net Client.lnk"))}\"; ");
                 sb.AppendLine("$WScriptShell = New-Object -ComObject WScript.Shell; ");
@@ -227,12 +231,15 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 sb.AppendLine($"$Shortcut.Save(); ");
                 var tempFile = Path.GetTempFileName().Replace(".tmp",".ps1");
                 File.WriteAllText(tempFile, sb.ToString());
+
+
                 Process process = new Process();
                 process.StartInfo.UseShellExecute = true;
                 process.StartInfo.FileName = "powershell";
                 process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 process.StartInfo.Arguments = $"-File {tempFile}";
                 process.Start();
+
             });
         }
 
