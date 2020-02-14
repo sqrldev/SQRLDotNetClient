@@ -12,12 +12,15 @@ using Avalonia;
 using Microsoft.Win32;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using ToolBox.Bridge;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
     public class VersionSelectorViewModel : ViewModelBase
     {
 
+        public static IBridgeSystem _bridgeSystem { get; set; }
+        public static ShellConfigurator _shell { get; set; }
         private string platform;
         private WebClient wc;
         private string Executable = "";
@@ -177,9 +180,25 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             }
         }
 
-        private void InstallinLinux(string downloadedFileName)
+        private async void InstallinLinux(string downloadedFileName)
         {
-            throw new NotImplementedException();
+            this.InstallStatus ="Installing...";
+            Executable = Path.Combine(this.InstallationPath, "SQRLDotNetClient");
+            await Task.Run(() =>
+            {
+                if (!Directory.Exists(this.InstallationPath))
+                {
+                    Directory.CreateDirectory(this.InstallationPath);
+                }
+                this.DownloadPercentage = 20;
+                File.Move(downloadedFileName, Executable, true);
+                this.DownloadPercentage += 20;
+            });
+
+            _bridgeSystem = BridgeSystem.Bash;
+            _shell = new ShellConfigurator(_bridgeSystem);
+            _shell.Term($"chmod a+x {Executable}",Output.Hidden);
+
         }
 
         private async void InstallinWindodows(string downloadedFileName)
