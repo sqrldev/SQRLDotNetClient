@@ -44,6 +44,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private void InitObj(string platform ="WINDOWS")
         {
             this.Title = "SQRL Client Installer - Version Selector";
+            this.platform = platform;
             this.wc = new WebClient
             {
                 CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
@@ -52,7 +53,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             this.wc.Headers.Add("User-Agent", "SQRL-Intaller");
             this.Releases = (Newtonsoft.Json.JsonConvert.DeserializeObject<List<GithubRelease>>(wc.DownloadString("https://api.github.com/repos/sqrldev/SQRLDotNetClient/releases"))).ToArray();
             this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
-            this.platform = platform;
+            
             PathByPlatForm(this.platform);
         }
 
@@ -120,14 +121,15 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
                 case "MacOSX":
                     {
-                        this.DownloadSize = Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("linux64")).First().size / 1024M) / 1024M,2);
-                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("linux64")).First().browser_download_url;
+                        this.DownloadSize=Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("osx64")).First().size / 1024M ) / 1024M,2);
+                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("osx64")).First().browser_download_url;
                     }
                     break;
                 case "Linux":
                     {
-                        this.DownloadSize=Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("osx64")).First().size / 1024M ) / 1024M,2);
-                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("osx64")).First().browser_download_url;
+                        this.DownloadSize = Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("linux64")).First().size / 1024M) / 1024M,2);
+                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("linux64")).First().browser_download_url;
+                        
                     }
                     break;
                 case "WINDOWS":
@@ -192,12 +194,31 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 }
                 this.DownloadPercentage = 20;
                 File.Move(downloadedFileName, Executable, true);
+            
                 this.DownloadPercentage += 20;
             });
 
             _bridgeSystem = BridgeSystem.Bash;
             _shell = new ShellConfigurator(_bridgeSystem);
-            _shell.Term($"chmod a+x {Executable}",Output.Hidden);
+            
+            wc.DownloadFile(@"https://github.com/sqrldev/SQRLDotNetClient/raw/master/SQRLDotNetClientUI/Assets/SQRL_icon_normal_64.png",Path.Combine(this.InstallationPath,"SQRL.png"));
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"[Desktop Entry]");
+            sb.AppendLine("Name=SQRL");
+            sb.AppendLine("Type=Application");
+            sb.AppendLine($"Icon={(Path.Combine(this.InstallationPath,"SQRL.png"))}");
+            sb.AppendLine($"Exec={Executable} %u");
+            sb.AppendLine("Categories=Internet");
+            sb.AppendLine("Terminal=false");
+            sb.AppendLine("MimeType=x-scheme-handler/sqrl");
+            File.WriteAllText(Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop"), sb.ToString());
+            _shell.Term($"chmod -R 755 {this.InstallationPath}", Output.Internal);
+            _shell.Term($"chmod a+x {Executable}",Output.Internal);
+            _shell.Term($"chmod +x {Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop")}",Output.Internal);
+            _shell.Term($"xdg-desktop-menu install {Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop")}",Output.Internal);
+            _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop",Output.Internal);
+            _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl",Output.Internal);
+            _shell.Term($"update-desktop-database ~/.local/share/applications/",Output.Internal);
 
         }
 
