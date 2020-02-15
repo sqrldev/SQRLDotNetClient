@@ -338,7 +338,7 @@ namespace SQRLUtilsLib
             if (!identity.HasBlock(0))
                 identity.Blocks.Add(new SQRLBlock0());
 
-            var siteKeyPair = CreateSiteKey(new Uri(""), "", imk);
+            var siteKeyPair = CreateSiteKey(null, "", imk);
             identity.Block0.Identifier = siteKeyPair.PublicKey;
                        
             return identity;
@@ -891,7 +891,8 @@ namespace SQRLUtilsLib
         /// <summary>
         /// Creates a site-specific ECDH public-private key pair for the given domain and altID (if available).
         /// </summary>
-        /// <param name="domain">The domain for which to generate the key pair.</param>
+        /// <param name="domain">The domain for which to generate the key pair.
+        /// Can be null tp produce a key pair for an empty domain.</param>
         /// <param name="altID">The "Alternate Id" that should be used for the keypair generation.</param>
         /// <param name="imk">The identity's unencrypted Identity Master Key (IMK).</param>
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
@@ -942,22 +943,28 @@ namespace SQRLUtilsLib
         /// In SQRL, this seed is used for creating site-specific key pairs as well as for creating
         /// the so called "Indexed Secret" (INS) from a server-provided "Secret Index" (SIN).
         /// </summary>
-        /// <param name="domain">The domain for which to generate the Indexed Secret.</param>
+        /// <param name="domain">The domain for which to generate the Indexed Secret.
+        /// Can be null tp produce the seed for an empty domain.</param>
         /// <param name="altID">The "Alternate Id" that should be used.</param>
         /// <param name="imk">The identity's unencrypted Identity Master Key (IMK).</param>
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
         private byte[] CreateSiteSeed(Uri domain, String altID, byte[] imk, bool test = false)
         {
+            byte[] domainBytes = { };
+
             if (!SodiumInitialized)
                 SodiumInit();
-
-            byte[] domainBytes = Encoding.UTF8.GetBytes(domain.DnsSafeHost + (test ? (domain.LocalPath.Equals("/") ? "" : domain.LocalPath) : ""));
-
-            var nvC = HttpUtility.ParseQueryString(domain.Query);
-            if (nvC["x"] != null)
+            
+            if (domain != null)
             {
-                string extended = domain.LocalPath.Substring(0, int.Parse(nvC["x"]));
-                domainBytes = domainBytes.Concat(Encoding.UTF8.GetBytes(extended)).ToArray();
+                domainBytes = Encoding.UTF8.GetBytes(domain.DnsSafeHost + (test ? (domain.LocalPath.Equals("/") ? "" : domain.LocalPath) : ""));
+
+                var nvC = HttpUtility.ParseQueryString(domain.Query);
+                if (nvC["x"] != null)
+                {
+                    string extended = domain.LocalPath.Substring(0, int.Parse(nvC["x"]));
+                    domainBytes = domainBytes.Concat(Encoding.UTF8.GetBytes(extended)).ToArray();
+                }
             }
 
             if (!string.IsNullOrEmpty(altID))
