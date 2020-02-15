@@ -333,6 +333,7 @@ namespace SQRLUtilsLib
         /// <param name="password">The password under which the new type 1 block will be encrypted.</param>
         /// <param name="identity">The identity for which to generate the type 1 block.</param>
         /// <param name="progress">An obect implementing the IProgress interface for monitoring the operation's progress (optional).</param>
+        /// <param name="encTime">The time in seconds to run the EnScrypt PBKDF on <paramref name="password"/>. Defaults to 5 seconds.</param>
         public async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] iuk, String password, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress=null, int encTime=5)
         {
             byte[] imk = CreateIMK(iuk);
@@ -353,7 +354,8 @@ namespace SQRLUtilsLib
         /// <param name="password">The password under which the new type 1 block will be encrypted.</param>
         /// <param name="identity">The identity for which to generate the type 1 block.</param>
         /// <param name="progress">An obect implementing the IProgress interface for monitoring the operation's progress (optional).</param>
-        public async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] imk, byte[] ilk, string password, SQRLIdentity identity, IProgress<KeyValuePair<int, string>> progress, int encTime)
+        /// <param name="encTime">The time in seconds to run the EnScrypt PBKDF on <paramref name="password"/>. Defaults to 5 seconds.</param>
+        public async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] imk, byte[] ilk, string password, SQRLIdentity identity, IProgress<KeyValuePair<int, string>> progress=null, int encTime=5)
         {
             if (!SodiumInitialized)
                 SodiumInit();
