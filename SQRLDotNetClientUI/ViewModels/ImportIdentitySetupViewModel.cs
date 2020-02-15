@@ -69,19 +69,21 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.Block2DecryptProgressPercentage = ((int)percent.Key);
             });
 
-            var block2Data = await this.sqrlInstance.DecryptBlock2(this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressDecryptBlock2);
-            if (block2Data.Item1)
-            {
+            (bool ok, byte[] iuk, string errorMsg) = await this.sqrlInstance.DecryptBlock2(
+                this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressDecryptBlock2);
 
+            if (ok)
+            {
                 SQRLIdentity newId = new SQRLIdentity();
-                var block1 = this.sqrlInstance.GenerateIdentityBlock1(block2Data.Item2, this.NewPassword, newId, progressBlock1);
-                var block2 = this.sqrlInstance.GenerateIdentityBlock2(block2Data.Item2, this.RescueCode, newId, progressBlock2);
+                byte[] imk = this.sqrlInstance.CreateIMK(iuk);
+                var block0 = this.sqrlInstance.GenerateIdentityBlock0(imk, newId);
+                var block1 = this.sqrlInstance.GenerateIdentityBlock1(iuk, this.NewPassword, newId, progressBlock1);
+                var block2 = this.sqrlInstance.GenerateIdentityBlock2(iuk, this.RescueCode, newId, progressBlock2);
                 await Task.WhenAll(block1, block2);
                 newId = block2.Result;
                 if (this.Identity.Block3 != null)
                 {
-                    byte[] imk = this.sqrlInstance.CreateIMK(block2Data.Item2);
-                    this.sqrlInstance.GenerateIdentityBlock3(block2Data.Item2, this.Identity, newId, imk, imk); 
+                    this.sqrlInstance.GenerateIdentityBlock3(iuk, this.Identity, newId, imk, imk); 
                 }
                 ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu.CurrentIdentity = newId;
                 ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
