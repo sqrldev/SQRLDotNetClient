@@ -323,6 +323,28 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
+        /// Generates a new type 0 block for the given <paramref name="imk"/> and places 
+        /// it into the given <paramref name="identity"/>. If no block of type 0 is present 
+        /// in the given identity, it will be created. Otherwise, it will be overwritten.
+        /// </summary>
+        /// <param name="imk">The unencrypted Identity Master Key (IMK).</param>
+        /// <param name="identity">The identity for which to generate the type 0 block.</param>
+        /// <returns></returns>
+        public SQRLIdentity GenerateIdentityBlock0(byte[] imk, SQRLIdentity identity)
+        {
+            if (identity == null)
+                throw new ArgumentException("A valid identity must be provided!");
+
+            if (!identity.HasBlock(0))
+                identity.Blocks.Add(new SQRLBlock0());
+
+            var siteKeyPair = CreateSiteKey(new Uri(""), "", imk);
+            identity.Block0.Identifier = siteKeyPair.PublicKey;
+                       
+            return identity;
+        }
+
+        /// <summary>
         /// Generates a new type 1 block for the given identity based on the given parameters. 
         /// If no block of type 1 is present in the given identity, it will be created. Otherwise,
         /// it will be overwritten.
