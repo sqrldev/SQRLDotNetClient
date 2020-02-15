@@ -48,6 +48,11 @@ namespace SQRLUtilsLib
         public List<ISQRLBlock> Blocks { get; set; }
 
         /// <summary>
+        /// The identity's type 0 block (Identity identifier).
+        /// </summary>
+        public SQRLBlock0 Block0 { get { return (SQRLBlock0)GetBlock(0); } }
+
+        /// <summary>
         /// The identity's type 1 block (User access password authenticated & encrypted data).
         /// </summary>
         public SQRLBlock1 Block1 { get { return (SQRLBlock1)GetBlock(1); } }
@@ -257,6 +262,39 @@ namespace SQRLUtilsLib
             return byteAry.ToArray();
         }
 
+    }
+
+    /// <summary>
+    /// Represents a custom type 0 identity block containing an
+    /// identity identifier.
+    /// </summary>
+    [Serializable]
+    public class SQRLBlock0 : ISQRLBlock
+    {
+        public ushort Length { get; } = 36;
+        public ushort Type { get; } = 0;
+
+        /// <summary>
+        /// The identity identifier, which was created by calculating the IDK
+        /// of the identity for an empty string domain string.
+        /// </summary>
+        public byte[] Identifier { get; set; }
+
+        public void FromByteArray(byte[] blockData)
+        {
+            if (blockData.Length != 36)
+                throw new Exception("Invalid Block 0, incorrect number of bytes");
+            this.Identifier = blockData.Skip(4).Take(32).ToArray();
+        }
+
+        public byte[] ToByteArray()
+        {
+            List<byte> byteAry = new List<byte>();
+            byteAry.AddRange(BitConverter.GetBytes(Length));
+            byteAry.AddRange(BitConverter.GetBytes(Type));
+            byteAry.AddRange(this.Identifier);
+            return byteAry.ToArray();
+        }
     }
 
     /// <summary>
