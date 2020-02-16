@@ -1,15 +1,13 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
-using SQRLDotNetClientUI.DBContext;
+using SQRLDotNetClientUI.DB.DBContext;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Linq;
-using SQRLDotNetClientUI.Models;
+using SQRLDotNetClientUI.DB.Models;
 
 namespace SQRLDotNetClientUI.ViewModels
 {

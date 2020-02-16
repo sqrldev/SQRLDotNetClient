@@ -1,4 +1,5 @@
-﻿using SQRLDotNetClientUI.DBContext;
+﻿using SQRLDotNetClientUI.DB.DBContext;
+using SQRLDotNetClientUI.DB.Models;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
