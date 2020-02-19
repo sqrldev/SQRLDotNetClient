@@ -1600,4 +1600,12 @@ public static class UtilClass
             return (T)formatter.Deserialize(stream);
         }
     }
+
+    /// <summary>
+    /// Converts a byte array to its hexadecimal string representation.
+    /// </summary>
+    public static string ToHex(this byte[] ba)
+    {
+        return BitConverter.ToString(ba).Replace("-", "");
+    }
 }
