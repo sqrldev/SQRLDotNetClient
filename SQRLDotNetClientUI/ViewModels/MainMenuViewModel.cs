@@ -8,11 +8,14 @@ using System;
 using System.IO;
 using System.Linq;
 using SQRLDotNetClientUI.DB.Models;
+using SQRLDotNetClientUI.Models;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
     public class MainMenuViewModel : ViewModelBase
     {
+        private IdentityManager _identityManager = IdentityManager.Instance;
+
         private string _siteUrl = "";
         public string SiteUrl { get => _siteUrl; set => this.RaiseAndSetIfChanged(ref _siteUrl, value); }
         public SQRL sqrlInstance { get; set; }
@@ -40,6 +43,10 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             this.Title = "SQRL Client";
             this.sqrlInstance = sqrlInstance;
+
+            this.CurrentIdentity = _identityManager.CurrentIdentity;
+            this.IdentityName = this.CurrentIdentity?.IdentityName;
+            /*
             var userData = GetUserData();
             if (userData != null && !string.IsNullOrEmpty(userData.LastLoadedIdentity) && File.Exists(userData.LastLoadedIdentity))
             {
@@ -48,6 +55,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.CurrentIdentity.FileName = userData.LastLoadedIdentity;
                 this.IdentityName = this.CurrentIdentity.IdentityName;
             }
+            */
 
             string[] commandLine = Environment.CommandLine.Split(" ");
             if(commandLine.Length>1)
@@ -61,25 +69,6 @@ namespace SQRLDotNetClientUI.ViewModels
                     AuthVM = authView;
                 }
             }
-        }
-
-        private UserData GetUserData()
-        {
-            UserData result = null;
-            using (var db = new SQRLDBContext())
-            {
-                result = db.UserData.FirstOrDefault();
-                if (result == null)
-                {
-                    UserData ud = new UserData();
-                    ud.LastLoadedIdentity = string.Empty;
-                    db.UserData.Add(ud);
-                    db.SaveChanges();
-                    result = ud;
-                }
-
-            }
-            return result;
         }
 
         public MainMenuViewModel()

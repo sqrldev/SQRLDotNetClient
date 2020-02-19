@@ -1,5 +1,7 @@
 ﻿using Avalonia;
 using ReactiveUI;
+using SQRLDotNetClientUI.DB.Models;
+using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
@@ -11,10 +13,12 @@ namespace SQRLDotNetClientUI.ViewModels
 { 
     public class ImportIdentitySetupViewModel : ViewModelBase
     {
+        private IdentityManager _identityManager = IdentityManager.Instance;
+
         public SQRL sqrlInstance { get; set; }
         public SQRLIdentity Identity { get; set; }
-        
-        public string IdentityName { get; set; }
+
+        public string IdentityName { get; set; } = "";
         public string Message { get; } = "Enter your New Password below, along with the Rescue Code for the imported identity";
         public string RescueCode { get; set; }
         public string NewPassword { get; set; }
@@ -83,6 +87,11 @@ namespace SQRLDotNetClientUI.ViewModels
                 {
                     this.sqrlInstance.GenerateIdentityBlock3(iuk, this.Identity, newId, imk, imk); 
                 }
+                newId.IdentityName = this.IdentityName;
+
+                _identityManager.ImportIdentity(newId, true);
+
+
                 ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu.CurrentIdentity = newId;
                 ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
             }
