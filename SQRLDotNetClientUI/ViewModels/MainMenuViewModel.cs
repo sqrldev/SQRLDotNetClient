@@ -66,7 +66,7 @@ namespace SQRLDotNetClientUI.ViewModels
         private UserData GetUserData()
         {
             UserData result = null;
-            using (var db = new SQLiteDBContext())
+            using (var db = new SQRLDBContext())
             {
                 result = db.UserData.FirstOrDefault();
                 if (result == null)
@@ -116,7 +116,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.CurrentIdentity.IdentityName = Path.GetFileNameWithoutExtension(file[0]);
                 this.IdentityName = this.CurrentIdentity.IdentityName;
                 UserData result = null;
-                using (var db = new SQLiteDBContext())
+                using (var db = new SQRLDBContext())
                 {
                     result = db.UserData.FirstOrDefault();
                     if (result != null)

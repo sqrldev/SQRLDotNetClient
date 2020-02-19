@@ -5,7 +5,7 @@ using System.IO;
 
 namespace SQRLDotNetClientUI.DB.DBContext
 {
-    public class SQLiteDBContext: DbContext
+    public class SQRLDBContext: DbContext
     {
         /// <summary>
         /// Used for saving user state like last loaded identity etc. 
@@ -13,7 +13,7 @@ namespace SQRLDotNetClientUI.DB.DBContext
         public DbSet<UserData> UserData { get; set; }
 
         /// <summary>
-        /// the list of imported identities.
+        /// The list of imported identities.
         /// </summary>
         public DbSet<Identity> Identities { get; set; }
 

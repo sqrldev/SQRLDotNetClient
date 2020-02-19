@@ -45,12 +45,10 @@ namespace SQRLDotNetClientUI.ViewModels
             this.Identity = identity;
         }
 
-
         public void Previous()
         {
             ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
         }
-
 
         public async void VerifyAndImportIdentity()
         {

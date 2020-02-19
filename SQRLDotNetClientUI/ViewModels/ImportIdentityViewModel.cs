@@ -69,7 +69,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 try
                 {
                     byte[] identityBytes = this.sqrlInstance.Base56DecodeIdentity(this.TextualIdentity);
-                    identity = SQRLIdentity.FromByteArray(identityBytes,true);
+                    identity = SQRLIdentity.FromByteArray(identityBytes, true);
                 }
                 catch (Exception ex)
                 {

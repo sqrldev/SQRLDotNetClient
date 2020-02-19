@@ -15,7 +15,7 @@ namespace SQRLDotNetClientUI.Models
     public sealed class IdentityManager
     {
         private static readonly Lazy<IdentityManager> _instance = new Lazy<IdentityManager>(() => new IdentityManager());
-        private SQLiteDBContext _db;
+        private SQRLDBContext _db;
 
         /// <summary>
         /// The constructor is private because <c>IdentityManager</c> 
@@ -24,7 +24,7 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         private IdentityManager() 
         {
-            _db = new SQLiteDBContext();
+            _db = new SQRLDBContext();
         }
 
         /// <summary>
