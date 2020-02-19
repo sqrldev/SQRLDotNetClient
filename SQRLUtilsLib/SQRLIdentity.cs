@@ -271,20 +271,30 @@ namespace SQRLUtilsLib
     [Serializable]
     public class SQRLBlock0 : ISQRLBlock
     {
-        public ushort Length { get; } = 36;
+        public ushort Length { get; } = 68;
         public ushort Type { get; } = 0;
 
         /// <summary>
-        /// The identity identifier, which was created by calculating the IDK
-        /// of the identity for an empty string domain string.
+        /// The genesis identifier is established upon initial identity creation by 
+        /// calculating the IDK for the identity for an empty domain string.
+        /// The genesis identifier will not change during the whole identity lifecycle,
+        /// staying unchanged even when the identity gets rekeyed.
         /// </summary>
-        public byte[] Identifier { get; set; }
+        public byte[] GenesisIdentifier { get; set; }
+
+        /// <summary>
+        /// The unique identifier is established upon initial identity creation 
+        /// and gets updated on each edition change (when the identity gets rekeyed).
+        /// It is created by simply generating 256 bits of random data.
+        /// </summary>
+        public byte[] UniqueIdentifier { get; set; }
 
         public void FromByteArray(byte[] blockData)
         {
-            if (blockData.Length != 36)
+            if (blockData.Length != 68)
                 throw new Exception("Invalid Block 0, incorrect number of bytes");
-            this.Identifier = blockData.Skip(4).Take(32).ToArray();
+            this.GenesisIdentifier = blockData.Skip(4).Take(32).ToArray();
+            this.GenesisIdentifier = blockData.Skip(36).Take(32).ToArray();
         }
 
         public byte[] ToByteArray()
@@ -292,7 +302,8 @@ namespace SQRLUtilsLib
             List<byte> byteAry = new List<byte>();
             byteAry.AddRange(BitConverter.GetBytes(Length));
             byteAry.AddRange(BitConverter.GetBytes(Type));
-            byteAry.AddRange(this.Identifier);
+            byteAry.AddRange(this.GenesisIdentifier);
+            byteAry.AddRange(this.UniqueIdentifier);
             return byteAry.ToArray();
         }
     }

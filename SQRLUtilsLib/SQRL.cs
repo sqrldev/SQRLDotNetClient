@@ -339,7 +339,8 @@ namespace SQRLUtilsLib
                 identity.Blocks.Add(new SQRLBlock0());
 
             var siteKeyPair = CreateSiteKey(null, "", imk);
-            identity.Block0.Identifier = siteKeyPair.PublicKey;
+            identity.Block0.GenesisIdentifier = siteKeyPair.PublicKey;
+            identity.Block0.UniqueIdentifier = SodiumCore.GetRandomBytes(32);
                        
             return identity;
         }
