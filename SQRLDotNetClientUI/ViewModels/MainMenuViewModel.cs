@@ -46,16 +46,8 @@ namespace SQRLDotNetClientUI.ViewModels
 
             this.CurrentIdentity = _identityManager.CurrentIdentity;
             this.IdentityName = this.CurrentIdentity?.IdentityName;
-            /*
-            var userData = GetUserData();
-            if (userData != null && !string.IsNullOrEmpty(userData.LastLoadedIdentity) && File.Exists(userData.LastLoadedIdentity))
-            {
-                this.CurrentIdentity = SQRLIdentity.FromFile(userData.LastLoadedIdentity);
-                this.CurrentIdentity.IdentityName = Path.GetFileNameWithoutExtension(userData.LastLoadedIdentity);
-                this.CurrentIdentity.FileName = userData.LastLoadedIdentity;
-                this.IdentityName = this.CurrentIdentity.IdentityName;
-            }
-            */
+
+            _identityManager.IdentityChanged += OnIdentityChanged;
 
             string[] commandLine = Environment.CommandLine.Split(" ");
             if(commandLine.Length>1)
@@ -69,6 +61,12 @@ namespace SQRLDotNetClientUI.ViewModels
                     AuthVM = authView;
                 }
             }
+        }
+
+        private void OnIdentityChanged(object sender, IdentityChangedEventArgs e)
+        {
+            this.IdentityName = e.IdentityName;
+            this.CurrentIdentity = _identityManager.CurrentIdentity;
         }
 
         public MainMenuViewModel()
@@ -93,6 +91,11 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void SwitchIdentity()
         {
+            SelectIdentityDialogView selectIdentityDialog = new SelectIdentityDialogView();
+            selectIdentityDialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            await selectIdentityDialog.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+
+            /*
             OpenFileDialog ofd = new OpenFileDialog();
             FileDialogFilter fdf = new FileDialogFilter();
             fdf.Name = "SQRL Identity";
@@ -115,12 +118,13 @@ namespace SQRLDotNetClientUI.ViewModels
                     }
                 }
             }
+            */
         }
 
         public void IdentitySettings()
         {
             ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
-                new IdentitySettingsViewModel(this.sqrlInstance, this.CurrentIdentity);
+                new IdentitySettingsViewModel(this.sqrlInstance);
         }
 
         public void Login()
