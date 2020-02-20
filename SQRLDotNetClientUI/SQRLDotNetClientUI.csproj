@@ -45,6 +45,7 @@
     <AvaloniaResource Remove="Views\MainMenuView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityVerifyView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityView.xaml" />
+    <AvaloniaResource Remove="Views\SelectIdentityDialogView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
@@ -75,6 +76,7 @@
     <None Remove="Views\MainMenuView.xaml" />
     <None Remove="Views\NewIdentityVerifyView.xaml" />
     <None Remove="Views\NewIdentityView.xaml" />
+    <None Remove="Views\SelectIdentityDialogView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Fonts\SpaceMono-Bold.ttf" />
@@ -183,6 +185,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\SelectIdentityDialogView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Update="sqrl.db">
