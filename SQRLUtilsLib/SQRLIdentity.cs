@@ -92,7 +92,8 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Returns the raw byte representation of the entire identity.
+        /// Returns the raw byte representation of the entire identity,
+        /// including the plaintext "sqrldata" SQRL header.
         /// </summary>
         public byte[] ToByteArray()
         {
@@ -168,6 +169,12 @@ namespace SQRLUtilsLib
 
                 switch (blockType)
                 {
+                    case 0:
+                        SQRLBlock0 block0 = new SQRLBlock0();
+                        block0.FromByteArray(identityData.Skip(i).Take(blockLength).ToArray());
+                        id.Blocks.Add(block0);
+                        break;
+
                     case 1:
                         SQRLBlock1 block1 = new SQRLBlock1();
                         block1.FromByteArray(identityData.Skip(i).Take(blockLength).ToArray());
@@ -265,8 +272,7 @@ namespace SQRLUtilsLib
     }
 
     /// <summary>
-    /// Represents a custom type 0 identity block containing an
-    /// identity identifier.
+    /// Represents a custom type 0 identity block containing identity identifiers.
     /// </summary>
     [Serializable]
     public class SQRLBlock0 : ISQRLBlock
