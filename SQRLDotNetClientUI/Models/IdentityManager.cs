@@ -61,7 +61,7 @@ namespace SQRLDotNetClientUI.Models
         /// the currently active identity.
         /// </summary>
         /// <param name="uniqueId">The unique id of the identity to be set active.</param>
-        public void ChangeCurrentIdentity(string uniqueId)
+        public void SetCurrentIdentity(string uniqueId)
         {
             if (_currentIdentity?.UniqueId == uniqueId) return;
 
@@ -73,6 +73,19 @@ namespace SQRLDotNetClientUI.Models
             _db.SaveChanges();
 
             IdentityChanged?.Invoke(this, new IdentityChangedEventArgs(id.Name, id.UniqueId));
+        }
+
+        /// <summary>
+        /// Writes changes made to the given <paramref name="identity"/> back to the database.
+        /// </summary>
+        /// <param name="identity">The changed identity which should be updated in the database.</param>
+        public void UpdateIdentity(SQRLIdentity identity)
+        {
+            Identity id = GetIdentityInternal(identity.Block0?.UniqueIdentifier.ToHex());
+            if (id == null) throw new ArgumentException("This identity does not exist!", nameof(identity));
+
+            id.DataBytes = SerializeIdentity(identity);
+            _db.SaveChanges();
         }
 
         /// <summary>
@@ -99,7 +112,7 @@ namespace SQRLDotNetClientUI.Models
 
             if (setAsCurrentIdentity)
             {
-                ChangeCurrentIdentity(newIdRec.UniqueId);
+                SetCurrentIdentity(newIdRec.UniqueId);
             }
         }
 
