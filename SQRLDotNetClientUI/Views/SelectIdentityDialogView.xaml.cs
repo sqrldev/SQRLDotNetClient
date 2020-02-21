@@ -34,6 +34,7 @@ namespace SQRLDotNetClientUI.Views
         private void PopulateUI()
         {
             var currentId = _identityManager.CurrentIdentity;
+            var currentIdUniqueId = _identityManager.CurrentIdentityUniqueId;
             var ids = _identityManager.GetIdentities();
 
             Controls content = _stackPnlMain.Children;
@@ -51,7 +52,7 @@ namespace SQRLDotNetClientUI.Views
                     Tag = id
                 };
 
-                if (currentId.Block0.UniqueIdentifier.ToHex() == uniqueId)
+                if (currentIdUniqueId == uniqueId)
                     rb.IsChecked = true;
 
                 rb.Click += OnIdentitySelected;
