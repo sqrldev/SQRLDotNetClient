@@ -87,9 +87,12 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void SwitchIdentity()
         {
-            SelectIdentityDialogView selectIdentityDialog = new SelectIdentityDialogView();
-            selectIdentityDialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-            await selectIdentityDialog.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+            if (_identityManager.IdentityCount > 1)
+            {
+                SelectIdentityDialogView selectIdentityDialog = new SelectIdentityDialogView();
+                selectIdentityDialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                await selectIdentityDialog.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+            }
         }
 
         public async void DeleteIdentity()
