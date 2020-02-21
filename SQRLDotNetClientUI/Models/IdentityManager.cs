@@ -69,6 +69,17 @@ namespace SQRLDotNetClientUI.Models
         }
 
         /// <summary>
+        /// Returns the count of identities currently stored in the database
+        /// </summary>
+        public int IdentityCount
+        {
+            get
+            {
+                return _db.Identities.Count();
+            }
+        }
+
+        /// <summary>
         /// Tries setting the identity with the given <paramref name="uniqueId"/> as
         /// the currently active identity. If the currently selected identity should
         /// be unspecified, just pass <c>null</c> for the <paramref name="uniqueId"/>.
