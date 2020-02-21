@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using ReactiveUI;
+using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
@@ -11,6 +12,8 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     public class NewIdentityVerifyViewModel: ViewModelBase
     {
+        private IdentityManager _identityManager = IdentityManager.Instance;
+
         public NewIdentityVerifyViewModel()
         {
 
@@ -71,17 +74,32 @@ namespace SQRLDotNetClientUI.ViewModels
             {
                 msg += $"Invalid Rescue Code{Environment.NewLine}";
             }
+
             if (!string.IsNullOrEmpty(msg))
             {
                 var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"Error", $"{msg}", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
-                
-
                 await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
             }
             else
             {
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu.CurrentIdentity = this.Identity;
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ExportIdentityViewModel(this.SQRLInstance, this.Identity);
+                try
+                {
+                    _identityManager.ImportIdentity(this.Identity, true);
+                }
+                catch (InvalidOperationException e)
+                {
+                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    $"Error", e.Message,
+                    MessageBox.Avalonia.Enums.ButtonEnum.Ok,
+                    MessageBox.Avalonia.Enums.Icon.Error);
+
+                    await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                }
+                finally
+                {
+                    ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
+                        new ExportIdentityViewModel(this.SQRLInstance);
+                }
             }
         }
     }

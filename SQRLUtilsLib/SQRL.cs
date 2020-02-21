@@ -323,6 +323,29 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
+        /// Generates a new type 0 block for the given <paramref name="imk"/> and places 
+        /// it into the given <paramref name="identity"/>. If no block of type 0 is present 
+        /// in the given identity, it will be created. Otherwise, it will be overwritten.
+        /// </summary>
+        /// <param name="imk">The unencrypted Identity Master Key (IMK).</param>
+        /// <param name="identity">The identity for which to generate the type 0 block.</param>
+        /// <returns></returns>
+        public SQRLIdentity GenerateIdentityBlock0(byte[] imk, SQRLIdentity identity)
+        {
+            if (identity == null)
+                throw new ArgumentException("A valid identity must be provided!");
+
+            if (!identity.HasBlock(0))
+                identity.Blocks.Add(new SQRLBlock0());
+
+            var siteKeyPair = CreateSiteKey(null, "", imk);
+            identity.Block0.GenesisIdentifier = siteKeyPair.PublicKey;
+            identity.Block0.UniqueIdentifier = SodiumCore.GetRandomBytes(32);
+                       
+            return identity;
+        }
+
+        /// <summary>
         /// Generates a new type 1 block for the given identity based on the given parameters. 
         /// If no block of type 1 is present in the given identity, it will be created. Otherwise,
         /// it will be overwritten.
@@ -333,6 +356,7 @@ namespace SQRLUtilsLib
         /// <param name="password">The password under which the new type 1 block will be encrypted.</param>
         /// <param name="identity">The identity for which to generate the type 1 block.</param>
         /// <param name="progress">An obect implementing the IProgress interface for monitoring the operation's progress (optional).</param>
+        /// <param name="encTime">The time in seconds to run the EnScrypt PBKDF on <paramref name="password"/>. Defaults to 5 seconds.</param>
         public async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] iuk, String password, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress=null, int encTime=5)
         {
             byte[] imk = CreateIMK(iuk);
@@ -353,7 +377,8 @@ namespace SQRLUtilsLib
         /// <param name="password">The password under which the new type 1 block will be encrypted.</param>
         /// <param name="identity">The identity for which to generate the type 1 block.</param>
         /// <param name="progress">An obect implementing the IProgress interface for monitoring the operation's progress (optional).</param>
-        public async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] imk, byte[] ilk, string password, SQRLIdentity identity, IProgress<KeyValuePair<int, string>> progress, int encTime)
+        /// <param name="encTime">The time in seconds to run the EnScrypt PBKDF on <paramref name="password"/>. Defaults to 5 seconds.</param>
+        public async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] imk, byte[] ilk, string password, SQRLIdentity identity, IProgress<KeyValuePair<int, string>> progress=null, int encTime=5)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -867,7 +892,8 @@ namespace SQRLUtilsLib
         /// <summary>
         /// Creates a site-specific ECDH public-private key pair for the given domain and altID (if available).
         /// </summary>
-        /// <param name="domain">The domain for which to generate the key pair.</param>
+        /// <param name="domain">The domain for which to generate the key pair.
+        /// Can be null tp produce a key pair for an empty domain.</param>
         /// <param name="altID">The "Alternate Id" that should be used for the keypair generation.</param>
         /// <param name="imk">The identity's unencrypted Identity Master Key (IMK).</param>
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
@@ -918,22 +944,28 @@ namespace SQRLUtilsLib
         /// In SQRL, this seed is used for creating site-specific key pairs as well as for creating
         /// the so called "Indexed Secret" (INS) from a server-provided "Secret Index" (SIN).
         /// </summary>
-        /// <param name="domain">The domain for which to generate the Indexed Secret.</param>
+        /// <param name="domain">The domain for which to generate the Indexed Secret.
+        /// Can be null tp produce the seed for an empty domain.</param>
         /// <param name="altID">The "Alternate Id" that should be used.</param>
         /// <param name="imk">The identity's unencrypted Identity Master Key (IMK).</param>
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
         private byte[] CreateSiteSeed(Uri domain, String altID, byte[] imk, bool test = false)
         {
+            byte[] domainBytes = { };
+
             if (!SodiumInitialized)
                 SodiumInit();
-
-            byte[] domainBytes = Encoding.UTF8.GetBytes(domain.DnsSafeHost + (test ? (domain.LocalPath.Equals("/") ? "" : domain.LocalPath) : ""));
-
-            var nvC = HttpUtility.ParseQueryString(domain.Query);
-            if (nvC["x"] != null)
+            
+            if (domain != null)
             {
-                string extended = domain.LocalPath.Substring(0, int.Parse(nvC["x"]));
-                domainBytes = domainBytes.Concat(Encoding.UTF8.GetBytes(extended)).ToArray();
+                domainBytes = Encoding.UTF8.GetBytes(domain.DnsSafeHost + (test ? (domain.LocalPath.Equals("/") ? "" : domain.LocalPath) : ""));
+
+                var nvC = HttpUtility.ParseQueryString(domain.Query);
+                if (nvC["x"] != null)
+                {
+                    string extended = domain.LocalPath.Substring(0, int.Parse(nvC["x"]));
+                    domainBytes = domainBytes.Concat(Encoding.UTF8.GetBytes(extended)).ToArray();
+                }
             }
 
             if (!string.IsNullOrEmpty(altID))
@@ -1567,5 +1599,13 @@ public static class UtilClass
             stream.Seek(0, SeekOrigin.Begin);
             return (T)formatter.Deserialize(stream);
         }
+    }
+
+    /// <summary>
+    /// Converts a byte array to its hexadecimal string representation.
+    /// </summary>
+    public static string ToHex(this byte[] ba)
+    {
+        return BitConverter.ToString(ba).Replace("-", "");
     }
 }

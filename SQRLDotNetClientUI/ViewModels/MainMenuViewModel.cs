@@ -1,20 +1,17 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
-using SQRLDotNetClientUI.DBContext;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Linq;
 using SQRLDotNetClientUI.Models;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
     public class MainMenuViewModel : ViewModelBase
     {
+        private IdentityManager _identityManager = IdentityManager.Instance;
+
         private string _siteUrl = "";
         public string SiteUrl { get => _siteUrl; set => this.RaiseAndSetIfChanged(ref _siteUrl, value); }
         public SQRL sqrlInstance { get; set; }
@@ -42,14 +39,11 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             this.Title = "SQRL Client";
             this.sqrlInstance = sqrlInstance;
-            var userData = GetUserData();
-            if (userData != null && !string.IsNullOrEmpty(userData.LastLoadedIdentity) && File.Exists(userData.LastLoadedIdentity))
-            {
-                this.CurrentIdentity = SQRLIdentity.FromFile(userData.LastLoadedIdentity);
-                this.CurrentIdentity.IdentityName = Path.GetFileNameWithoutExtension(userData.LastLoadedIdentity);
-                this.CurrentIdentity.FileName = userData.LastLoadedIdentity;
-                this.IdentityName = this.CurrentIdentity.IdentityName;
-            }
+
+            this.CurrentIdentity = _identityManager.CurrentIdentity;
+            this.IdentityName = this.CurrentIdentity?.IdentityName;
+
+            _identityManager.IdentityChanged += OnIdentityChanged;
 
             string[] commandLine = Environment.CommandLine.Split(" ");
             if(commandLine.Length>1)
@@ -65,23 +59,10 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
-        private UserData GetUserData()
+        private void OnIdentityChanged(object sender, IdentityChangedEventArgs e)
         {
-            UserData result = null;
-            using (var db = new SQLiteDBContext())
-            {
-                result = db.UserData.FirstOrDefault();
-                if (result == null)
-                {
-                    UserData ud = new UserData();
-                    ud.LastLoadedIdentity = string.Empty;
-                    db.UserData.Add(ud);
-                    db.SaveChanges();
-                    result = ud;
-                }
-
-            }
-            return result;
+            this.IdentityName = e.IdentityName;
+            this.CurrentIdentity = _identityManager.CurrentIdentity;
         }
 
         public MainMenuViewModel()
@@ -96,7 +77,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public void ExportIdentity()
         {
-            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ExportIdentityViewModel(this.sqrlInstance, this.CurrentIdentity);
+            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ExportIdentityViewModel(this.sqrlInstance);
         }
 
         public void ImportIdentity()
@@ -106,34 +87,40 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void SwitchIdentity()
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            FileDialogFilter fdf = new FileDialogFilter();
-            fdf.Name = "SQRL Identity";
-            fdf.Extensions.Add("sqrl");
-            ofd.Filters.Add(fdf);
-            var file = await ofd.ShowAsync(AvaloniaLocator.Current.GetService<MainWindow>());
-            if (file != null && file.Length > 0)
+            if (_identityManager.IdentityCount > 1)
             {
-                this.CurrentIdentity = SQRLIdentity.FromFile(file[0]);
-                this.CurrentIdentity.IdentityName = Path.GetFileNameWithoutExtension(file[0]);
-                this.IdentityName = this.CurrentIdentity.IdentityName;
-                UserData result = null;
-                using (var db = new SQLiteDBContext())
-                {
-                    result = db.UserData.FirstOrDefault();
-                    if (result != null)
-                    {
-                        result.LastLoadedIdentity = file[0];
-                        db.SaveChanges();
-                    }
-                }
+                SelectIdentityDialogView selectIdentityDialog = new SelectIdentityDialogView();
+                selectIdentityDialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                await selectIdentityDialog.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+            }
+        }
+
+        public async void DeleteIdentity()
+        {
+            var msgBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    $"Delete identity", 
+                    $"Do you really want to delete the identity \"" + this.IdentityName + "\"?" + Environment.NewLine +
+                    $"This cannot be undone!",
+                    MessageBox.Avalonia.Enums.ButtonEnum.YesNo,
+                    MessageBox.Avalonia.Enums.Icon.Warning);
+
+            var result = await msgBox.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+
+            if (result == MessageBox.Avalonia.Enums.ButtonResult.Yes)
+            {
+                _identityManager.DeleteCurrentIdentity();
             }
         }
 
         public void IdentitySettings()
         {
             ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
-                new IdentitySettingsViewModel(this.sqrlInstance, this.CurrentIdentity);
+                new IdentitySettingsViewModel(this.sqrlInstance);
+        }
+
+        public void Exit()
+        {
+            AvaloniaLocator.Current.GetService<MainWindow>().Close();
         }
 
         public void Login()

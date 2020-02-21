@@ -29,13 +29,13 @@
       <TextBlock Margin="10" Text="{Binding Message}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
 
       <TextBlock Margin="10" Text="Identity Name:" Grid.Row="1" Grid.Column="0" />
-      <loc:CopyPasteTextBox Margin="10" Text="{Binding IdentityName}" PasswordChar="*" Grid.Row="1" Grid.Column="1"/>
+      <loc:CopyPasteTextBox Margin="10" Text="{Binding IdentityName}" Grid.Row="1" Grid.Column="1"/>
       
       <TextBlock Margin="10" Text="New Password:" Grid.Row="2" Grid.Column="0" />
       <loc:CopyPasteTextBox Margin="10" Text="{Binding NewPassword}" PasswordChar="*" Grid.Row="2" Grid.Column="1"/>
 
       <TextBlock Margin="10" Text="Password Again:" Grid.Row="3" Grid.Column="0" />
-      <loc:CopyPasteTextBox Margin="10" Text="{Binding NewPassword}" PasswordChar="*" Grid.Row="3" Grid.Column="1"/>
+      <loc:CopyPasteTextBox Margin="10" Text="{Binding NewPasswordVerify}" PasswordChar="*" Grid.Row="3" Grid.Column="1"/>
       
       <TextBlock Margin="10" Text="Rescue Code:" Grid.Row="4" Grid.Column="0"/>
       <loc:CopyPasteTextBox Margin="10" Text="{Binding RescueCode}" Grid.Row="4" Grid.Column="1"  />

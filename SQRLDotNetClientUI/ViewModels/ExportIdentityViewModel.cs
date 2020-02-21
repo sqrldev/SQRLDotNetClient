@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Platform;
 using QRCoder;
 using ReactiveUI;
+using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
@@ -14,17 +15,19 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     public class ExportIdentityViewModel: ViewModelBase
     {
+        private IdentityManager _identityManager = IdentityManager.Instance;
+
         public string Message { get; } = "To export your identity, either scan the QR Code with your Other Client, Save it to a File or Copy it to your clippboard";
-        SQRL sqrlInstance { get; }
-        SQRLIdentity Identity { get; }
+        public SQRL sqrlInstance { get; }
+        public SQRLIdentity Identity { get; }
 
         private Avalonia.Media.Imaging.Bitmap _qrImg;
         Avalonia.Media.Imaging.Bitmap QRImage { get { return _qrImg; } set { this.RaiseAndSetIfChanged(ref _qrImg, value); } }
 
-        public ExportIdentityViewModel(SQRL sqrlInstance, SQRLIdentity identity)
+        public ExportIdentityViewModel(SQRL sqrlInstance)
         {
             this.sqrlInstance = sqrlInstance;
-            this.Identity = identity;
+            this.Identity = _identityManager.CurrentIdentity;
             this.Title = "SQRL Client - Export Identity";
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(this.Identity.ToByteArray(), QRCodeGenerator.ECCLevel.H);
@@ -37,7 +40,6 @@ namespace SQRLDotNetClientUI.ViewModels
             bitMap.Save(temp);
             
             this.QRImage = new Avalonia.Media.Imaging.Bitmap(temp);
-
         }
 
         public ExportIdentityViewModel()

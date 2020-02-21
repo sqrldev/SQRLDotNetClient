@@ -1,16 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SQRLDotNetClientUI.Models;
+using SQRLDotNetClientUI.DB.Models;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Text;
 
-namespace SQRLDotNetClientUI.DBContext
+namespace SQRLDotNetClientUI.DB.DBContext
 {
-    public class SQLiteDBContext: DbContext
+    public class SQRLDBContext: DbContext
     {
+        /// <summary>
+        /// Used for saving user state like last loaded identity etc. 
+        /// </summary>
         public DbSet<UserData> UserData { get; set; }
+
+        /// <summary>
+        /// The list of imported identities.
+        /// </summary>
+        public DbSet<Identity> Identities { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             var directory = Path.GetDirectoryName(AppContext.BaseDirectory);

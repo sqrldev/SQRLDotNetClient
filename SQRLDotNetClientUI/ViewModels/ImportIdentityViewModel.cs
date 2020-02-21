@@ -14,8 +14,6 @@ namespace SQRLDotNetClientUI.ViewModels
         private string _textualIdentity = "";
         public string TextualIdentity { get => _textualIdentity; set { this.RaiseAndSetIfChanged(ref _textualIdentity, value); } }
 
-        
-
         private string _identityFile="N/A";
         public string IdentityFile { get => _identityFile; set {  this.RaiseAndSetIfChanged(ref _identityFile, value); } }
 
@@ -58,7 +56,8 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public void Cancel()
         {
-            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).PriorContent;
+            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
+                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).PriorContent;
         }
 
         public  async void ImportVerify()
@@ -69,15 +68,20 @@ namespace SQRLDotNetClientUI.ViewModels
                 try
                 {
                     byte[] identityBytes = this.sqrlInstance.Base56DecodeIdentity(this.TextualIdentity);
-                    identity = SQRLIdentity.FromByteArray(identityBytes,true);
+                    bool noHeader = !SQRLIdentity.HasHeader(identityBytes);
+                    identity = SQRLIdentity.FromByteArray(identityBytes, noHeader);
                 }
                 catch (Exception ex)
                 {
-                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"Error", $"Error Importing Textual Identity: {ex.Message}", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
+                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        $"Error", $"Error Importing Textual Identity: {ex.Message}", 
+                        MessageBox.Avalonia.Enums.ButtonEnum.Ok, 
+                        MessageBox.Avalonia.Enums.Icon.Error);
+
                     await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
                 }
             }
-            else if(!string.IsNullOrEmpty(this.IdentityFile))
+            else if (!string.IsNullOrEmpty(this.IdentityFile))
             {
                 try
                 {
@@ -85,16 +89,20 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"Error", $"Error Importing Identity: {ex.Message}", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
+                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                        $"Error", $"Error Importing Identity: {ex.Message}", 
+                        MessageBox.Avalonia.Enums.ButtonEnum.Ok, 
+                        MessageBox.Avalonia.Enums.Icon.Error);
+
                     await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
                 }
             }
-            if(identity!=null)
+
+            if (identity != null)
             {
-                
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ImportIdentitySetupViewModel(this.sqrlInstance, identity);
-            }
-                
+                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
+                    new ImportIdentitySetupViewModel(this.sqrlInstance, identity);
+            }   
         }
     }
 }

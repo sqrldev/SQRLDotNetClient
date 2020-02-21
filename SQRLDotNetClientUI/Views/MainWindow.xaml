@@ -14,12 +14,10 @@
         Width="400"
         MinWidth="400" 
         MinHeight="450"
-        >
+        WindowStartupLocation="CenterScreen">
     
   <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
-
-    
 
 </Window>

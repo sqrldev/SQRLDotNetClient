@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
+using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
@@ -10,6 +11,7 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     class IdentitySettingsViewModel : ViewModelBase
     {
+        private IdentityManager _identityManager = IdentityManager.Instance;
         public SQRL SqrlInstance { get; set; }
         public SQRLIdentity Identity { get; set; }
         public SQRLIdentity IdentityCopy { get; set; }
@@ -27,14 +29,14 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public IdentitySettingsViewModel() { }
 
-        public IdentitySettingsViewModel(SQRL sqrlInstance, SQRLIdentity identity)
+        public IdentitySettingsViewModel(SQRL sqrlInstance)
         {
             this.Title = "SQRL Client - Identity Settings";
             this.SqrlInstance = sqrlInstance;
-            this.Identity = identity;
-            this.IdentityCopy = identity.Clone();
+            this.Identity = _identityManager.CurrentIdentity;
+            this.IdentityCopy = this.Identity.Clone();
 
-            if (identity != null) this.Title += " (" + identity.IdentityName + ")";
+            if (this.Identity != null) this.Title += " (" + this.Identity.IdentityName + ")";
         }
 
         public void Close()
@@ -97,8 +99,8 @@ namespace SQRLDotNetClientUI.ViewModels
             Identity.Blocks.Remove(Identity.Block1);
             Identity.Blocks.Insert(0, id.Block1);
 
-            // Finally, save the identity back to file
-            Identity.WriteToFile(Identity.FileName);
+            // Finally, update the identity in the db
+            _identityManager.UpdateIdentity(Identity);
 
             CanSave = true;
             Close();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace SQRLUtilsLib
 {
@@ -48,6 +49,11 @@ namespace SQRLUtilsLib
         public List<ISQRLBlock> Blocks { get; set; }
 
         /// <summary>
+        /// The identity's type 0 block (Identity identifier).
+        /// </summary>
+        public SQRLBlock0 Block0 { get { return (SQRLBlock0)GetBlock(0); } }
+
+        /// <summary>
         /// The identity's type 1 block (User access password authenticated & encrypted data).
         /// </summary>
         public SQRLBlock1 Block1 { get { return (SQRLBlock1)GetBlock(1); } }
@@ -87,7 +93,8 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Returns the raw byte representation of the entire identity.
+        /// Returns the raw byte representation of the entire identity,
+        /// including the plaintext "sqrldata" SQRL header.
         /// </summary>
         public byte[] ToByteArray()
         {
@@ -163,6 +170,12 @@ namespace SQRLUtilsLib
 
                 switch (blockType)
                 {
+                    case 0:
+                        SQRLBlock0 block0 = new SQRLBlock0();
+                        block0.FromByteArray(identityData.Skip(i).Take(blockLength).ToArray());
+                        id.Blocks.Add(block0);
+                        break;
+
                     case 1:
                         SQRLBlock1 block1 = new SQRLBlock1();
                         block1.FromByteArray(identityData.Skip(i).Take(blockLength).ToArray());
@@ -192,6 +205,21 @@ namespace SQRLUtilsLib
             }
 
             return id;
+        }
+
+        /// <summary>
+        /// Returns <c>true</c> if the identity bytes passed in <paramref name="identityBytes"/>
+        /// contain the "sqrldata" SQRL file header, or <c>false</c> otherwise.
+        /// </summary>
+        /// <param name="identityBytes">The raw identity data bytes.</param>
+        /// <returns></returns>
+        public static bool HasHeader(byte[] identityBytes)
+        {
+            if (identityBytes.Length < SQRLHEADER.Length) return false;
+            string header = Encoding.UTF8.GetString(identityBytes.Take(SQRLHEADER.Length).ToArray());
+
+            if (header == SQRLHEADER || header == SQRLHEADER.ToUpper()) return true;
+            else return false;
         }
     }
 
@@ -257,6 +285,49 @@ namespace SQRLUtilsLib
             return byteAry.ToArray();
         }
 
+    }
+
+    /// <summary>
+    /// Represents a custom type 0 identity block containing identity identifiers.
+    /// </summary>
+    [Serializable]
+    public class SQRLBlock0 : ISQRLBlock
+    {
+        public ushort Length { get; } = 68;
+        public ushort Type { get; } = 0;
+
+        /// <summary>
+        /// The genesis identifier is established upon initial identity creation by 
+        /// calculating the IDK for the identity for an empty domain string.
+        /// The genesis identifier will not change during the whole identity lifecycle,
+        /// staying unchanged even when the identity gets rekeyed.
+        /// </summary>
+        public byte[] GenesisIdentifier { get; set; }
+
+        /// <summary>
+        /// The unique identifier is established upon initial identity creation 
+        /// and gets updated on each edition change (when the identity gets rekeyed).
+        /// It is created by simply generating 256 bits of random data.
+        /// </summary>
+        public byte[] UniqueIdentifier { get; set; }
+
+        public void FromByteArray(byte[] blockData)
+        {
+            if (blockData.Length != 68)
+                throw new Exception("Invalid Block 0, incorrect number of bytes");
+            this.GenesisIdentifier = blockData.Skip(4).Take(32).ToArray();
+            this.UniqueIdentifier = blockData.Skip(36).Take(32).ToArray();
+        }
+
+        public byte[] ToByteArray()
+        {
+            List<byte> byteAry = new List<byte>();
+            byteAry.AddRange(BitConverter.GetBytes(Length));
+            byteAry.AddRange(BitConverter.GetBytes(Type));
+            byteAry.AddRange(this.GenesisIdentifier);
+            byteAry.AddRange(this.UniqueIdentifier);
+            return byteAry.ToArray();
+        }
     }
 
     /// <summary>

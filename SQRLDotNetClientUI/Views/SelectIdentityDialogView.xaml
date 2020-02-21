@@ -1,0 +1,27 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+        x:Class="SQRLDotNetClientUI.Views.SelectIdentityDialogView"
+        Icon="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico"
+        Title="Select identity"
+        Width="400"
+        Height="450"
+        CanResize="False">
+  
+  <!-- Layout start -->
+    <StackPanel Margin="20" Orientation="Vertical">
+      <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="20" HorizontalAlignment="Center" Margin="10"></Image>
+      <TextBlock Name="lblMessage" TextAlignment="Center" Margin="0,0,10,0">Select an identity:</TextBlock>
+      <ScrollViewer Width="350" Height="300" VerticalScrollBarVisibility="Auto">
+        <StackPanel Name="stackPnlMain" Margin="20" Orientation="Vertical">
+          <RadioButton Margin="20,10,20,10">Identity 1</RadioButton>
+          <RadioButton Margin="20,10,20,10">Identity 2</RadioButton>
+          <RadioButton Margin="20,10,20,10">Identity 3</RadioButton>
+          <RadioButton Margin="20,10,20,10">Identity 4</RadioButton>
+        </StackPanel>
+      </ScrollViewer>
+    </StackPanel>
+
+</Window>

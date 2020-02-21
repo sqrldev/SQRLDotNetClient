@@ -45,6 +45,7 @@
     <AvaloniaResource Remove="Views\MainMenuView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityVerifyView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityView.xaml" />
+    <AvaloniaResource Remove="Views\SelectIdentityDialogView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
@@ -75,6 +76,7 @@
     <None Remove="Views\MainMenuView.xaml" />
     <None Remove="Views\NewIdentityVerifyView.xaml" />
     <None Remove="Views\NewIdentityView.xaml" />
+    <None Remove="Views\SelectIdentityDialogView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Fonts\SpaceMono-Bold.ttf" />
@@ -103,6 +105,10 @@
     <PackageReference Include="Avalonia.Xaml.Interactions.Custom" Version="0.9.2" />
     <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.9.2" />
     <PackageReference Include="MessageBox.Avalonia" Version="0.9.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.1">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1">
       <PrivateAssets>all</PrivateAssets>
@@ -176,6 +182,14 @@
     <Compile Update="Views\AskView.xaml.cs">
       <DependentUpon>AskView.xaml</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\SelectIdentityDialogView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Update="sqrl.db">

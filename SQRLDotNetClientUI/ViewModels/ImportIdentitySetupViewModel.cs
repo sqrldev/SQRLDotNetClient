@@ -1,5 +1,7 @@
 ﻿using Avalonia;
 using ReactiveUI;
+using SQRLDotNetClientUI.DB.Models;
+using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
@@ -11,10 +13,12 @@ namespace SQRLDotNetClientUI.ViewModels
 { 
     public class ImportIdentitySetupViewModel : ViewModelBase
     {
+        private IdentityManager _identityManager = IdentityManager.Instance;
+
         public SQRL sqrlInstance { get; set; }
         public SQRLIdentity Identity { get; set; }
-        
-        public string IdentityName { get; set; }
+
+        public string IdentityName { get; set; } = "";
         public string Message { get; } = "Enter your New Password below, along with the Rescue Code for the imported identity";
         public string RescueCode { get; set; }
         public string NewPassword { get; set; }
@@ -38,19 +42,17 @@ namespace SQRLDotNetClientUI.ViewModels
         {
 
         }
-        public ImportIdentitySetupViewModel(SQRL sqrlInstance = null, SQRLIdentity identity = null)
+        public ImportIdentitySetupViewModel(SQRL sqrlInstance, SQRLIdentity identity)
         {
             this.Title = "SQRL Client - Import Identity Setup";
             this.sqrlInstance = sqrlInstance;
             this.Identity = identity;
         }
 
-
         public void Previous()
         {
             ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
         }
-
 
         public async void VerifyAndImportIdentity()
         {
@@ -69,31 +71,54 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.Block2DecryptProgressPercentage = ((int)percent.Key);
             });
 
-            var block2Data = await this.sqrlInstance.DecryptBlock2(this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressDecryptBlock2);
-            if (block2Data.Item1)
-            {
+            (bool ok, byte[] iuk, string errorMsg) = await this.sqrlInstance.DecryptBlock2(
+                this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressDecryptBlock2);
 
+            if (ok)
+            {
                 SQRLIdentity newId = new SQRLIdentity();
-                var block1 = this.sqrlInstance.GenerateIdentityBlock1(block2Data.Item2, this.NewPassword, newId, progressBlock1);
-                var block2 = this.sqrlInstance.GenerateIdentityBlock2(block2Data.Item2, this.RescueCode, newId, progressBlock2);
+                byte[] imk = this.sqrlInstance.CreateIMK(iuk);
+
+                if (this.Identity.HasBlock(0)) newId.Blocks.Add(this.Identity.Block0);
+                else this.sqrlInstance.GenerateIdentityBlock0(imk, newId);
+                var block1 = this.sqrlInstance.GenerateIdentityBlock1(iuk, this.NewPassword, newId, progressBlock1);
+                var block2 = this.sqrlInstance.GenerateIdentityBlock2(iuk, this.RescueCode, newId, progressBlock2);
                 await Task.WhenAll(block1, block2);
                 newId = block2.Result;
                 if (this.Identity.Block3 != null)
                 {
-                    byte[] imk = this.sqrlInstance.CreateIMK(block2Data.Item2);
-                    this.sqrlInstance.GenerateIdentityBlock3(block2Data.Item2, this.Identity, newId, imk, imk); 
+                    this.sqrlInstance.GenerateIdentityBlock3(iuk, this.Identity, newId, imk, imk); 
                 }
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu.CurrentIdentity = newId;
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
+                newId.IdentityName = this.IdentityName;
+
+                try
+                {
+                    _identityManager.ImportIdentity(newId, true);
+                }
+                catch (InvalidOperationException e)
+                {
+                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    $"Error", e.Message,
+                    MessageBox.Avalonia.Enums.ButtonEnum.Ok,
+                    MessageBox.Avalonia.Enums.Icon.Error);
+
+                    await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                }
+                finally
+                {
+                    ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content =
+                    ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
+                }
             }
             else
             {
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"Error", $"Invalid Rescue Code!", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
-
+                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    $"Error", $"Invalid Rescue Code!", 
+                    MessageBox.Avalonia.Enums.ButtonEnum.Ok, 
+                    MessageBox.Avalonia.Enums.Icon.Error);
 
                 await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
             }
-
         }
     }
 }
