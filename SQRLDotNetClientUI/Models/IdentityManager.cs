@@ -19,7 +19,8 @@ namespace SQRLDotNetClientUI.Models
     {
         private static readonly Lazy<IdentityManager> _instance = new Lazy<IdentityManager>(() => new IdentityManager());
         private SQRLDBContext _db;
-        private Identity _currentIdentity;
+        private Identity _currentIdentityDB = null;
+        private SQRLIdentity _currentIdentity = null;
 
         /// <summary>
         /// The constructor is private because <c>IdentityManager</c> 
@@ -29,7 +30,8 @@ namespace SQRLDotNetClientUI.Models
         private IdentityManager()
         {
             _db = new SQRLDBContext();
-            _currentIdentity = GetIdentityInternal(GetUserData().LastLoadedIdentity);
+            _currentIdentityDB = GetIdentityInternal(GetUserData().LastLoadedIdentity);
+            if (_currentIdentityDB != null) _currentIdentity = DeserializeIdentity(_currentIdentityDB.DataBytes);
         }
 
         /// <summary>
@@ -51,8 +53,18 @@ namespace SQRLDotNetClientUI.Models
         {
             get
             {
-                if (_currentIdentity == null) return null;
-                return DeserializeIdentity(_currentIdentity.DataBytes);
+                return _currentIdentity;
+            }
+        }
+
+        /// <summary>
+        /// Returns the currently active identity.
+        /// </summary>
+        public string CurrentIdentityUniqueId
+        {
+            get
+            {
+                return _currentIdentityDB?.UniqueId;
             }
         }
 
@@ -63,16 +75,22 @@ namespace SQRLDotNetClientUI.Models
         /// <param name="uniqueId">The unique id of the identity to be set active.</param>
         public void SetCurrentIdentity(string uniqueId)
         {
-            if (_currentIdentity?.UniqueId == uniqueId) return;
+            if (_currentIdentityDB?.UniqueId == uniqueId) return;
 
+            // Fetch the identity from the database
             Identity id = GetIdentityInternal(uniqueId);
             if (id == null) throw new ArgumentException("No matching identity found!", nameof(uniqueId));
 
-            _currentIdentity = id;
+            // Set it as currently active identity
+            _currentIdentityDB = id;
+            _currentIdentity = DeserializeIdentity(_currentIdentityDB.DataBytes);
+
+            // Save the last active identity unique id in the database
             GetUserData().LastLoadedIdentity = id.UniqueId;
             _db.SaveChanges();
 
-            IdentityChanged?.Invoke(this, new IdentityChangedEventArgs(id.Name, id.UniqueId));
+            // And finally fire the IdentityChanged event
+            IdentityChanged?.Invoke(this, new IdentityChangedEventArgs(_currentIdentity, id.Name, id.UniqueId));
         }
 
         /// <summary>
@@ -85,6 +103,15 @@ namespace SQRLDotNetClientUI.Models
             if (id == null) throw new ArgumentException("This identity does not exist!", nameof(identity));
 
             id.DataBytes = SerializeIdentity(identity);
+            _db.SaveChanges();
+        }
+
+        /// <summary>
+        /// Writes changes made to the currently active <c>SQRLIdentity</c> back to the database.
+        /// </summary>
+        public void UpdateCurrentIdentity()
+        {
+            _currentIdentityDB.DataBytes = SerializeIdentity(_currentIdentity);
             _db.SaveChanges();
         }
 
@@ -212,13 +239,15 @@ namespace SQRLDotNetClientUI.Models
 
     public class IdentityChangedEventArgs : EventArgs
     {
+        public SQRLIdentity Identity { get; }
         public string IdentityName { get; }
         public string IdentityUniqueId { get; }
 
-        public IdentityChangedEventArgs(string identityName, string identityUniqueId)
+        public IdentityChangedEventArgs(SQRLIdentity identity, string identityName, string identityUniqueId)
         {
-            IdentityName = identityName;
-            IdentityUniqueId = identityUniqueId;
+            this.Identity = identity;
+            this.IdentityName = identityName;
+            this.IdentityUniqueId = identityUniqueId;
         }
     }
 }
