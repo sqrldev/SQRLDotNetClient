@@ -78,7 +78,9 @@ namespace SQRLDotNetClientUI.ViewModels
             {
                 SQRLIdentity newId = new SQRLIdentity();
                 byte[] imk = this.sqrlInstance.CreateIMK(iuk);
-                var block0 = this.sqrlInstance.GenerateIdentityBlock0(imk, newId);
+
+                if (this.Identity.HasBlock(0)) newId.Blocks.Add(this.Identity.Block0);
+                else this.sqrlInstance.GenerateIdentityBlock0(imk, newId);
                 var block1 = this.sqrlInstance.GenerateIdentityBlock1(iuk, this.NewPassword, newId, progressBlock1);
                 var block2 = this.sqrlInstance.GenerateIdentityBlock2(iuk, this.RescueCode, newId, progressBlock2);
                 await Task.WhenAll(block1, block2);
@@ -89,10 +91,24 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 newId.IdentityName = this.IdentityName;
 
-                _identityManager.ImportIdentity(newId, true);
+                try
+                {
+                    _identityManager.ImportIdentity(newId, true);
+                }
+                catch (InvalidOperationException e)
+                {
+                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    $"Error", e.Message,
+                    MessageBox.Avalonia.Enums.ButtonEnum.Ok,
+                    MessageBox.Avalonia.Enums.Icon.Error);
 
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
+                    await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                }
+                finally
+                {
+                    ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content =
                     ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
+                }
             }
             else
             {

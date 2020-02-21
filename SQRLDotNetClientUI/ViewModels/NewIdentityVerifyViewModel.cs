@@ -82,8 +82,24 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             else
             {
-                _identityManager.ImportIdentity(this.Identity, true);
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ExportIdentityViewModel(this.SQRLInstance);
+                try
+                {
+                    _identityManager.ImportIdentity(this.Identity, true);
+                }
+                catch (InvalidOperationException e)
+                {
+                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    $"Error", e.Message,
+                    MessageBox.Avalonia.Enums.ButtonEnum.Ok,
+                    MessageBox.Avalonia.Enums.Icon.Error);
+
+                    await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                }
+                finally
+                {
+                    ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
+                        new ExportIdentityViewModel(this.SQRLInstance);
+                }
             }
         }
     }

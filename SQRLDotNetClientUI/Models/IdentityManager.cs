@@ -156,6 +156,16 @@ namespace SQRLDotNetClientUI.Models
         /// set as the currently active identity after adding it to the database.</param>
         public void ImportIdentity(SQRLIdentity identity, bool setAsCurrentIdentity = true)
         {
+            if (identity.Block0 == null)
+            {
+                throw new InvalidOperationException("The identity does not contain a type 0 block!");
+            }
+
+            if (HasIdentity(identity.Block0.UniqueIdentifier.ToHex()))
+            {
+                throw new InvalidOperationException("The identity already exists in the database!");
+            }
+
             Identity newIdRec = new Identity();
             newIdRec.Name = identity.IdentityName;
             newIdRec.UniqueId = identity.Block0.UniqueIdentifier.ToHex();
@@ -174,6 +184,16 @@ namespace SQRLDotNetClientUI.Models
             {
                 SetCurrentIdentity(newIdRec.UniqueId);
             }
+        }
+
+        /// <summary>
+        /// Checks if a <c>SQRLIdentity</c> with the given <paramref name="uniqueId"/>
+        /// is already present in the database.
+        /// </summary>
+        /// <param name="uniqueId">The unique id of the identity to check for.</param>
+        public bool HasIdentity(string uniqueId)
+        {
+            return _db.Identities.Where(x => x.UniqueId == uniqueId).Count() > 0;
         }
 
         /// <summary>
