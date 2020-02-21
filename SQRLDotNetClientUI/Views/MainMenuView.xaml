@@ -22,6 +22,8 @@
         <Separator/>
         <MenuItem Header="_Switch Identity" Command="{Binding SwitchIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
         <Separator/>
+        <MenuItem Header="_Delete Identity" Command="{Binding DeleteIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
+        <Separator/>
         <MenuItem Header="_Rekey Identity" Command="{Binding RekeyIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
         <Separator/>
         <MenuItem Header="Identity _Settings" Command="{Binding IdentitySettings}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
@@ -67,8 +69,14 @@
 
       <!-- Loaded identity -->
       <StackPanel Margin="20,15,20,10" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-        <TextBlock FontSize="15" FontWeight="Bold" Text="Loaded Identity:" HorizontalAlignment="Left" Margin="10" />
-        <TextBlock FontSize="15" Text="{Binding IdentityName}" Background="LightGreen" HorizontalAlignment="Left" Margin="10" Width="205"/>
+        <TextBlock Margin="30,10,10,10" FontSize="15" FontWeight="Bold" Text="Loaded Identity:" HorizontalAlignment="Left" />
+        <Button Name="btnSwitchID" Command="{Binding SwitchIdentity}">
+          <Button.Template>
+            <ControlTemplate>
+              <TextBlock Foreground="Blue" FontSize="15" Text="{Binding IdentityName}" HorizontalAlignment="Left" Margin="10" Width="205">Identity Name</TextBlock>
+            </ControlTemplate>
+          </Button.Template>
+        </Button>
       </StackPanel>
 
       <!-- Action buttons -->
@@ -76,7 +84,7 @@
       <Button Name="btnReKeyIdentity" Command="{Binding RekeyIdentity}" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}">Re-Key Identity</Button>
       <Button Name="btnImportIdentity" Command="{Binding ImportIdentity}" Height="30" Width="100" Margin="10" Grid.Row="2" Grid.Column="0">Import Identity</Button>
       <Button Name="btnExport" Command="{Binding ExportIdentity}" Height="30" Width="100" Margin="10" Grid.Row="2" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}">Export Identity</Button>
-      <Button Name="btnSwitchID" Command="{Binding SwitchIdentity}" Height="30" Width="100" Margin="10" Grid.Row="3" Grid.Column="1">Switch Identity</Button>
+      <Button Name="btnDeleteIdentity" Command="{Binding DeleteIdentity}" Height="30" Width="100" Margin="10" Grid.Row="3" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}">Delete Identity</Button>
       <Button Name="btnIdentitySettings" Command="{Binding IdentitySettings}" Height="30" Width="100" Margin="10" Grid.Row="3" Grid.Column="0" IsEnabled="{Binding CurrentIdentityLoaded}">Identity Settings</Button>
       
       <!-- Login form (hidden) -->

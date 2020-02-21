@@ -90,31 +90,23 @@ namespace SQRLDotNetClientUI.ViewModels
             SelectIdentityDialogView selectIdentityDialog = new SelectIdentityDialogView();
             selectIdentityDialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             await selectIdentityDialog.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+        }
 
-            /*
-            OpenFileDialog ofd = new OpenFileDialog();
-            FileDialogFilter fdf = new FileDialogFilter();
-            fdf.Name = "SQRL Identity";
-            fdf.Extensions.Add("sqrl");
-            ofd.Filters.Add(fdf);
-            var file = await ofd.ShowAsync(AvaloniaLocator.Current.GetService<MainWindow>());
-            if (file != null && file.Length > 0)
+        public async void DeleteIdentity()
+        {
+            var msgBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    $"Delete identity", 
+                    $"Do you really want to delete the identity \"" + this.IdentityName + "\"?" + Environment.NewLine +
+                    $"This cannot be undone!",
+                    MessageBox.Avalonia.Enums.ButtonEnum.YesNo,
+                    MessageBox.Avalonia.Enums.Icon.Warning);
+
+            var result = await msgBox.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+
+            if (result == MessageBox.Avalonia.Enums.ButtonResult.Yes)
             {
-                this.CurrentIdentity = SQRLIdentity.FromFile(file[0]);
-                this.CurrentIdentity.IdentityName = Path.GetFileNameWithoutExtension(file[0]);
-                this.IdentityName = this.CurrentIdentity.IdentityName;
-                UserData result = null;
-                using (var db = new SQRLDBContext())
-                {
-                    result = db.UserData.FirstOrDefault();
-                    if (result != null)
-                    {
-                        result.LastLoadedIdentity = file[0];
-                        db.SaveChanges();
-                    }
-                }
+                _identityManager.DeleteCurrentIdentity();
             }
-            */
         }
 
         public void IdentitySettings()

@@ -116,6 +116,18 @@ namespace SQRLDotNetClientUI.Models
         }
 
         /// <summary>
+        /// Deletes the currently active <c>SQRLIdentity</c> from the database.
+        /// </summary>
+        public void DeleteCurrentIdentity()
+        {
+            _db.Identities.Remove(_currentIdentityDB);
+            _db.SaveChanges();
+
+            Identity id = _db.Identities.First();
+            if (id != null) SetCurrentIdentity(id.UniqueId);
+        }
+
+        /// <summary>
         /// Imports a SQRL identity and stores it in the database.
         /// </summary>
         /// <param name="identity">The <c>SQRLIdentity</c> to be imported.</param>
