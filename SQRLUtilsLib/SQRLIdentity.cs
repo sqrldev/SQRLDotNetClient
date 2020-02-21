@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace SQRLUtilsLib
 {
@@ -204,6 +205,21 @@ namespace SQRLUtilsLib
             }
 
             return id;
+        }
+
+        /// <summary>
+        /// Returns <c>true</c> if the identity bytes passed in <paramref name="identityBytes"/>
+        /// contain the "sqrldata" SQRL file header, or <c>false</c> otherwise.
+        /// </summary>
+        /// <param name="identityBytes">The raw identity data bytes.</param>
+        /// <returns></returns>
+        public static bool HasHeader(byte[] identityBytes)
+        {
+            if (identityBytes.Length < SQRLHEADER.Length) return false;
+            string header = Encoding.UTF8.GetString(identityBytes.Take(SQRLHEADER.Length).ToArray());
+
+            if (header == SQRLHEADER || header == SQRLHEADER.ToUpper()) return true;
+            else return false;
         }
     }
 
