@@ -4,21 +4,51 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
              xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="SQRLDotNetClientUI.Views.MainMenuView">
+  
+  <!-- Start layout -->
+
+  <!-- Main menu -->
   <DockPanel>
-    <Grid DockPanel.Dock="Top"  Background="AliceBlue" ShowGridLines="True">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition />
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition />
-      </Grid.RowDefinitions>
+    <Menu DockPanel.Dock="Top" Margin="0,5,0,0">
+      <MenuItem Header="_File">
+        <MenuItem Header="_Exit" Command="{Binding Exit}"/>
+      </MenuItem>
+      <MenuItem Header="_Identity">
+        <MenuItem Header="_New Identity" Command="{Binding OnNewIdentityClick}"/>
+        <MenuItem Header="_Import Identity" Command="{Binding ImportIdentity}"/>
+        <MenuItem Header="_Export Identity" Command="{Binding ExportIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
+        <Separator/>
+        <MenuItem Header="_Switch Identity" Command="{Binding SwitchIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
+        <Separator/>
+        <MenuItem Header="_Rekey Identity" Command="{Binding RekeyIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
+        <Separator/>
+        <MenuItem Header="Identity _Settings" Command="{Binding IdentitySettings}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
+      </MenuItem>
+      <MenuItem Header="_Help">
+        <MenuItem Header="_About"/>
+      </MenuItem>
+    </Menu>
 
-      <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
-      <TextBlock  Text="{loc:Localization SQRLTag}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12" FontWeight="Bold" Margin="10" Grid.Row="0" Grid.Column="0" FontFamily="resm:SQRLDotNetClientUI.Assets.Fonts.SpaceMono-Regular.ttf" />
+    <!-- Whitespace between menu and banner -->
+    <Panel DockPanel.Dock="Top" Height="15" />
+    
+    <!-- Header banner -->
+    <Border DockPanel.Dock="Top" BorderBrush="LightBlue" BorderThickness="0,1,0,1">
+      <Grid Background="AliceBlue" ShowGridLines="True">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition />
+        </Grid.RowDefinitions>
+        <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Margin="50,20,10,20" Height="40" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0"></Image>
+        <TextBlock Text="{loc:Localization SQRLTag}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="10" Grid.Row="0" Grid.Column="0" FontFamily="resm:SQRLDotNetClientUI.Assets.Fonts.SpaceMono-Regular.ttf" />
+      </Grid>
+    </Border>
 
-    </Grid>
+    <!-- Button layout grid -->
     <Grid DockPanel.Dock="Bottom" ShowGridLines="False">
       <Grid.ColumnDefinitions>
         <ColumnDefinition />
@@ -34,20 +64,23 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <Button Name="btnNewIdentity" Command="{Binding OnNewIdentityClick}" Height="30" Width="100" Margin="10" Grid.Row="0" Grid.Column="0">New Identity</Button>
-            <Button Name="btnReKeyIdentity" Height="30" Width="100" Margin="10" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}">Re-Key Identity</Button>
-      <Button Name="btnImportIdentity" Command="{Binding ImportIdentity}" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="0">Import Identity</Button>
-            <Button Name="btnExport" Command="{Binding ExportIdentity}" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}">Export Identity</Button>
-      <Button Name="btnSwitchID" Command="{Binding SwitchIdentity}" Height="30" Width="100" Margin="10" Grid.Row="2" Grid.Column="1">Switch Identity</Button>
-            <Button Name="btnIdentitySettings" Command="{Binding IdentitySettings}" Height="30" Width="100" Margin="10" Grid.Row="2" Grid.Column="0" IsEnabled="{Binding CurrentIdentityLoaded}">Identity Settings</Button>
-      <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-      
-      <TextBlock FontSize="15" FontWeight="Bold" Text="Loaded Identity:" HorizontalAlignment="Left" Margin="10" />
-      <TextBlock FontSize="15" Text="{Binding IdentityName}" Background="LightGreen" HorizontalAlignment="Left" Margin="10" Width="205"/>
-      
-        
+
+      <!-- Loaded identity -->
+      <StackPanel Margin="20,15,20,10" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+        <TextBlock FontSize="15" FontWeight="Bold" Text="Loaded Identity:" HorizontalAlignment="Left" Margin="10" />
+        <TextBlock FontSize="15" Text="{Binding IdentityName}" Background="LightGreen" HorizontalAlignment="Left" Margin="10" Width="205"/>
       </StackPanel>
-      <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2">
+
+      <!-- Action buttons -->
+      <Button Name="btnNewIdentity" Command="{Binding OnNewIdentityClick}" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="0">New Identity</Button>
+      <Button Name="btnReKeyIdentity" Command="{Binding RekeyIdentity}" Height="30" Width="100" Margin="10" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}">Re-Key Identity</Button>
+      <Button Name="btnImportIdentity" Command="{Binding ImportIdentity}" Height="30" Width="100" Margin="10" Grid.Row="2" Grid.Column="0">Import Identity</Button>
+      <Button Name="btnExport" Command="{Binding ExportIdentity}" Height="30" Width="100" Margin="10" Grid.Row="2" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}">Export Identity</Button>
+      <Button Name="btnSwitchID" Command="{Binding SwitchIdentity}" Height="30" Width="100" Margin="10" Grid.Row="3" Grid.Column="1">Switch Identity</Button>
+      <Button Name="btnIdentitySettings" Command="{Binding IdentitySettings}" Height="30" Width="100" Margin="10" Grid.Row="3" Grid.Column="0" IsEnabled="{Binding CurrentIdentityLoaded}">Identity Settings</Button>
+      
+      <!-- Login form (hidden) -->
+      <StackPanel Margin="20,15,20,10" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" IsVisible="False">
       <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center">Site URL</TextBlock>
         <loc:CopyPasteTextBox Grid.Row="6" Grid.Column="1" Margin="10" Text="{Binding SiteUrl}" />
         <Button Name="btnLogIn" Command="{Binding Login}" Height="30" Width="100" Margin="10" HorizontalAlignment="Left">Login</Button>

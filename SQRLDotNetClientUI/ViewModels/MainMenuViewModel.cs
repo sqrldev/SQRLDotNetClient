@@ -1,13 +1,9 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
-using SQRLDotNetClientUI.DB.DBContext;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
-using System.IO;
-using System.Linq;
-using SQRLDotNetClientUI.DB.Models;
 using SQRLDotNetClientUI.Models;
 
 namespace SQRLDotNetClientUI.ViewModels
@@ -81,7 +77,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public void ExportIdentity()
         {
-            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ExportIdentityViewModel(this.sqrlInstance, this.CurrentIdentity);
+            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = new ExportIdentityViewModel(this.sqrlInstance);
         }
 
         public void ImportIdentity()
@@ -125,6 +121,11 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
                 new IdentitySettingsViewModel(this.sqrlInstance);
+        }
+
+        public void Exit()
+        {
+            AvaloniaLocator.Current.GetService<MainWindow>().Close();
         }
 
         public void Login()
