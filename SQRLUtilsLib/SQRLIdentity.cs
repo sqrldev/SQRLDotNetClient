@@ -316,7 +316,7 @@ namespace SQRLUtilsLib
             if (blockData.Length != 68)
                 throw new Exception("Invalid Block 0, incorrect number of bytes");
             this.GenesisIdentifier = blockData.Skip(4).Take(32).ToArray();
-            this.GenesisIdentifier = blockData.Skip(36).Take(32).ToArray();
+            this.UniqueIdentifier = blockData.Skip(36).Take(32).ToArray();
         }
 
         public byte[] ToByteArray()
