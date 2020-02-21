@@ -42,7 +42,7 @@ namespace SQRLDotNetClientUI.ViewModels
         {
 
         }
-        public ImportIdentitySetupViewModel(SQRL sqrlInstance = null, SQRLIdentity identity = null)
+        public ImportIdentitySetupViewModel(SQRL sqrlInstance, SQRLIdentity identity)
         {
             this.Title = "SQRL Client - Import Identity Setup";
             this.sqrlInstance = sqrlInstance;
@@ -91,18 +91,18 @@ namespace SQRLDotNetClientUI.ViewModels
 
                 _identityManager.ImportIdentity(newId, true);
 
-
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu.CurrentIdentity = newId;
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
+                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
+                    ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
             }
             else
             {
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"Error", $"Invalid Rescue Code!", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
-
+                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                    $"Error", $"Invalid Rescue Code!", 
+                    MessageBox.Avalonia.Enums.ButtonEnum.Ok, 
+                    MessageBox.Avalonia.Enums.Icon.Error);
 
                 await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
             }
-
         }
     }
 }

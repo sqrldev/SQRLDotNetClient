@@ -69,28 +69,42 @@ namespace SQRLDotNetClientUI.Models
         }
 
         /// <summary>
-        /// Tries to set the identity with the given <paramref name="uniqueId"/> as
-        /// the currently active identity.
+        /// Tries setting the identity with the given <paramref name="uniqueId"/> as
+        /// the currently active identity. If the currently selected identity should
+        /// be unspecified, just pass <c>null</c> for the <paramref name="uniqueId"/>.
         /// </summary>
         /// <param name="uniqueId">The unique id of the identity to be set active.</param>
         public void SetCurrentIdentity(string uniqueId)
         {
             if (_currentIdentityDB?.UniqueId == uniqueId) return;
 
-            // Fetch the identity from the database
-            Identity id = GetIdentityInternal(uniqueId);
-            if (id == null) throw new ArgumentException("No matching identity found!", nameof(uniqueId));
+            Identity id = null;
 
-            // Set it as currently active identity
-            _currentIdentityDB = id;
-            _currentIdentity = DeserializeIdentity(_currentIdentityDB.DataBytes);
+            if (uniqueId != null)
+            {
+                // Fetch the identity from the database
+                id = GetIdentityInternal(uniqueId);
+                if (id == null) throw new ArgumentException("No matching identity found!", nameof(uniqueId));
 
-            // Save the last active identity unique id in the database
-            GetUserData().LastLoadedIdentity = id.UniqueId;
-            _db.SaveChanges();
+                // Set it as currently active identity
+                _currentIdentityDB = id;
+                _currentIdentity = DeserializeIdentity(_currentIdentityDB.DataBytes);
+
+                // Save the last active identity unique id in the database
+                GetUserData().LastLoadedIdentity = id.UniqueId;
+                _db.SaveChanges();
+            }
+            else
+            {
+                _currentIdentityDB = null;
+                _currentIdentity = null;
+            }
 
             // And finally fire the IdentityChanged event
-            IdentityChanged?.Invoke(this, new IdentityChangedEventArgs(_currentIdentity, id.Name, id.UniqueId));
+            IdentityChanged?.Invoke(this, new IdentityChangedEventArgs(
+                _currentIdentity,
+                (id != null) ? id.Name : "",
+                (id != null) ? id.UniqueId : ""));
         }
 
         /// <summary>
@@ -123,8 +137,15 @@ namespace SQRLDotNetClientUI.Models
             _db.Identities.Remove(_currentIdentityDB);
             _db.SaveChanges();
 
-            Identity id = _db.Identities.First();
-            if (id != null) SetCurrentIdentity(id.UniqueId);
+            if (_db.Identities.Count() >= 1)
+            {
+                Identity id = _db.Identities.First();
+                SetCurrentIdentity(id.UniqueId);
+            }
+            else
+            {
+                SetCurrentIdentity(null);
+            }
         }
 
         /// <summary>
