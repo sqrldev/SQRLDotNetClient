@@ -52,12 +52,17 @@ namespace SQRLDotNetClientUI.ViewModels
 
                 SQRLIdentity newId = new SQRLIdentity(this.IdentityName);
                 byte[] iuk = this.sqrlInstance.CreateIUK();
+                byte[] imk = this.sqrlInstance.CreateIMK(iuk);
+
                 var progress = new Progress<KeyValuePair<int, string>>(percent =>
                 {
                     this.ProgressPercentage = (int)percent.Key / 2;
                     this.GenerationStep = percent.Value + percent.Key;
                 });
+
+                newId = this.sqrlInstance.GenerateIdentityBlock0(imk, newId);
                 newId = await this.sqrlInstance.GenerateIdentityBlock1(iuk, this.Password, newId, progress);
+
                 if (newId.Block1 != null)
                 {
                     progress = new Progress<KeyValuePair<int, string>>(percent =>
