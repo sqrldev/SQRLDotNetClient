@@ -14,7 +14,8 @@ using System.Reflection;
 namespace SQRLDotNetClientUI.AvaloniaExtensions
 {
     /// <summary>
-    /// This extension allows you to have strings in different languages based on localization culture on the current machine
+    /// This extension allows you to have strings in different languages based on
+    /// localization culture on the current machine
     /// This expects an Asset located in Assets/Localization/localization.json
     /// 
     /// The Format of the JSON in that file is as follows
@@ -34,7 +35,8 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
           }
         ]
     } */
-    /// The extension will use the default node if the current specific culture isn't found in the file.
+    /// The extension will use the default node if the current specific culture 
+    /// isn't found in the file.
     /// </summary>
     public class LocalizationExtension : MarkupExtension
     {
@@ -47,7 +49,8 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
         {
             Assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
             var assy = Assembly.GetExecutingAssembly().GetName();
-            Localization = (JObject)JsonConvert.DeserializeObject(new StreamReader(Assets.Open(new Uri($"resm:{assy.Name}.Assets.Localization.localization.json"))).ReadToEnd());
+            Localization = (JObject)JsonConvert.DeserializeObject(new StreamReader(
+                Assets.Open(new Uri($"resm:{assy.Name}.Assets.Localization.localization.json"))).ReadToEnd());
         }
 
         public LocalizationExtension(string resourceID)
@@ -55,7 +58,8 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
             this.ResourceID = resourceID;
             Assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
             var assy = Assembly.GetExecutingAssembly().GetName();
-            Localization =(JObject) JsonConvert.DeserializeObject(new StreamReader(Assets.Open(new Uri($"resm:{assy.Name}.Assets.Localization.localization.json"))).ReadToEnd());
+            Localization =(JObject) JsonConvert.DeserializeObject(new StreamReader(
+                Assets.Open(new Uri($"resm:{assy.Name}.Assets.Localization.localization.json"))).ReadToEnd());
         }
         public override object ProvideValue(IServiceProvider serviceProvider)
         {

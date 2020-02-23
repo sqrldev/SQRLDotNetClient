@@ -37,7 +37,7 @@
       </Grid.RowDefinitions>
 
       <!-- QuickPass and password options -->
-      <TextBlock Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">QuickPass length (characters):</TextBlock>
+      <TextBlock Text="{loc:Localization QuickPassLengthLabel}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"></TextBlock>
       <NumericUpDown Grid.Row="0" Grid.Column="1" Height="25" Margin="0,0,0,1" Padding="0" Value="{Binding IdentityCopy.Block1.HintLength}" IsEnabled="{Binding CanSave}"></NumericUpDown>
       <TextBlock Grid.Row="1" Grid.Column="0" VerticalAlignment="Center">QuickPass timeout (minutes):</TextBlock>
       <NumericUpDown Grid.Row="1" Grid.Column="1" Height="25" Margin="0,0,0,1" Padding="0" Value="{Binding IdentityCopy.Block1.PwdTimeoutMins}" IsEnabled="{Binding CanSave}"></NumericUpDown>

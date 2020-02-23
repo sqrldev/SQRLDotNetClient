@@ -11,10 +11,11 @@
     { "ErrorTitleGeneric": "Error" },
     { "NewAccountQuestion": "The server at {0} did not recognize this Identity, would you like to proceed? This may cause the site to create a new account for this Identity" },
     { "GenericQuestionTitle": "Question?" },
-    { "AskHeader": "Question from: {0}"  },
+    { "AskHeader": "Question from: {0}" },
     { "AltIDLabel": "Alt ID" },
     { "DisableAccountAlert": "This will DISABLE all use of SQRL in the Given Site {0}, note that this operation is not easily reversed.{1}You will need your Rescue Code to enable SQRL in the future.{1}Would you like to continue?" },
-    { "SelectIdentityLabel": "Select an identity:" }
+    { "SelectIdentityLabel": "Select an identity:" },
+    { "QuickPassLengthLabel": "QuickPass length (characters):" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -30,6 +31,26 @@
     { "GenericQuestionTitle": "Question?" },
     { "AskHeader": "Question from: {0}" },
     { "AltIDLabel": "Alt ID" },
-    { "DisableAccountAlert": "This will DISABLE all use of SQRL in the Given Site {0}, note that this operation is not easily reversed.{1}You will need your Rescue Code to enable SQRL in the future.{1}Would you like to continue?" }
+    { "DisableAccountAlert": "This will DISABLE all use of SQRL in the Given Site {0}, note that this operation is not easily reversed.{1}You will need your Rescue Code to enable SQRL in the future.{1}Would you like to continue?" },
+    { "SelectIdentityLabel": "Select an identity:" },
+    { "QuickPassLengthLabel": "QuickPass length (characters):" }
+  ],
+  "de-DE": [
+    { "SQRLTag": "Secure Quick Reliable Login" },
+    { "AuthMessage": "Anmelden bei:" },
+    { "Password": "Passwort:" },
+    { "BtnOK": "OK" },
+    { "BtnCancel": "Abbrechen" },
+    { "BadPasswordErrorTitle": "Fehler - falsches Passwort" },
+    { "BadPasswordError": "Das eingegebene Password ist falsch, Entschlüsselung von Block 1 fehlgeschlagen!" },
+    { "SQRLCommandFailedUnknown": "Client Request to Server Command Failed, this shouldn't happen report it to developer" },
+    { "ErrorTitleGeneric": "Fehler" },
+    { "NewAccountQuestion": "Der Server auf {0} hat diese Identität nicht erkannt. Möchten Sie trotzdem fortfahren? Dies könnte bedeuten, dass der Server einen neuen Account für diese Identität erstellt." },
+    { "GenericQuestionTitle": "Frage" },
+    { "AskHeader": "Frage von: {0}" },
+    { "AltIDLabel": "Alt-ID" },
+    { "DisableAccountAlert": "Dieser Vorgang deaktiviert die Anmeldung mittels SQRL auf {0} vollständig. Bitte bedenken Sie, dass dieser Vorgang nicht ohne weiteres rückgängig gemacht werden kann.{1}Sie benötigen Ihren Rettungsschlüssel (\"rescue code\"), um SQRL später wieder zu aktivieren.{1}Möchten Sie fortfahren?" },
+    { "SelectIdentityLabel": "Wählen Sie eine Identität:" },
+    { "QuickPassLengthLabel": "QuickPass-Länge (Zeichen):" }
   ]
 }
