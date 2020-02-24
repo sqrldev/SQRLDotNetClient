@@ -1,23 +1,24 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform;
+using MessageBox.Avalonia;
+using MessageBox.Avalonia.Enums;
 using QRCoder;
 using ReactiveUI;
+using SQRLDotNetClientUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
-using System.Collections.Generic;
-
-using System.Text;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
     public class ExportIdentityViewModel: ViewModelBase
     {
         private IdentityManager _identityManager = IdentityManager.Instance;
+        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
+        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
 
-        public string Message { get; } = "To export your identity, either scan the QR Code with your Other Client, Save it to a File or Copy it to your clippboard";
         public SQRL sqrlInstance { get; }
         public SQRLIdentity Identity { get; }
 
@@ -26,9 +27,9 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public ExportIdentityViewModel(SQRL sqrlInstance)
         {
+            Init();
             this.sqrlInstance = sqrlInstance;
             this.Identity = _identityManager.CurrentIdentity;
-            this.Title = "SQRL Client - Export Identity";
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(this.Identity.ToByteArray(), QRCodeGenerator.ECCLevel.H);
             QRCode qrCode = new QRCode(qrCodeData);
@@ -44,23 +45,32 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public ExportIdentityViewModel()
         {
+            Init();
+        }
+
+        private void Init()
+        {
             this.QRImage = null;
-            this.Title = "SQRL Client - Export Identity";
+            this.Title = _loc.GetLocalizationValue("ExportIdentityWindowTitle");
         }
 
         public async void SaveToFile()
         {
             SaveFileDialog ofd = new SaveFileDialog();
 
-            ofd.Title = "Select a location and name to save your Identity";
+            ofd.Title = _loc.GetLocalizationValue("SaveIdentityDialogTitle");
             ofd.InitialFileName = $"{(string.IsNullOrEmpty(this.Identity.IdentityName)?"Identity":this.Identity.IdentityName)}.sqrl";
-            var file = await ofd.ShowAsync(AvaloniaLocator.Current.GetService<MainWindow>());
+            var file = await ofd.ShowAsync(_mainWindow);
             if(!string.IsNullOrEmpty(file))
             {
                 this.Identity.WriteToFile(file);
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"Done", $"Identity has been exported to the selectd file: {file}", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Success);
+                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                    _loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"), 
+                    string.Format(_loc.GetLocalizationValue("IdentityExportedMessageBoxText"), file), 
+                    ButtonEnum.Ok, 
+                    Icon.Success);
 
-                await messageBoxStandardWindow.Show();
+                await messageBoxStandardWindow.ShowDialog(_mainWindow);
             }
             else
             {
@@ -68,23 +78,30 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
-        public async void CopyToClippboard()
+        public async void CopyToClipboard()
         {
             string identity = this.sqrlInstance.GenerateTextualIdentityBase56(this.Identity.ToByteArray());
-            await Avalonia.Application.Current.Clipboard.SetTextAsync(identity);
-            var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"Done", $"Your identity has been copied to the Operating System's Clipboard, you may now paste it into a different client to import it. (You will need your rescue code!)", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Success);
+            await Application.Current.Clipboard.SetTextAsync(identity);
 
-            await messageBoxStandardWindow.Show();
+            var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                _loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
+                _loc.GetLocalizationValue("IdentityCopiedToClipboardMessageBoxText"), 
+                ButtonEnum.Ok, 
+                Icon.Success);
+
+            await messageBoxStandardWindow.ShowDialog(_mainWindow);
         }
 
         public void Back()
         {
-            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).PriorContent;
+            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
+                ((MainWindowViewModel)_mainWindow.DataContext).PriorContent;
         }
 
         public void Done()
         {
-            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
+            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
+                ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
         }
     }
 }
