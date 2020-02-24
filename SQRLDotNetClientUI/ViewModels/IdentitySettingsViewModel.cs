@@ -13,7 +13,7 @@ namespace SQRLDotNetClientUI.ViewModels
     class IdentitySettingsViewModel : ViewModelBase
     {
         private IdentityManager _identityManager = IdentityManager.Instance;
-        private LocalizationExtension loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
+        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
         public SQRL SqrlInstance { get; set; }
         public SQRLIdentity Identity { get; set; }
         public SQRLIdentity IdentityCopy { get; set; }
@@ -33,7 +33,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public IdentitySettingsViewModel(SQRL sqrlInstance)
         {
-            this.Title = loc.GetLocalizationValue("IdentitySettingsDialogTitle");
+            this.Title = _loc.GetLocalizationValue("IdentitySettingsDialogTitle");
             this.SqrlInstance = sqrlInstance;
             this.Identity = _identityManager.CurrentIdentity;
             this.IdentityCopy = this.Identity.Clone();
@@ -81,8 +81,8 @@ namespace SQRLDotNetClientUI.ViewModels
             if (!ok)
             {
                 var msgBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                    loc.GetLocalizationValue("ErrorTitleGeneric"),
-                    loc.GetLocalizationValue("BadPasswordError"),
+                    _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    _loc.GetLocalizationValue("BadPasswordError"),
                     MessageBox.Avalonia.Enums.ButtonEnum.Ok, 
                     MessageBox.Avalonia.Enums.Icon.Error);
 
