@@ -15,7 +15,11 @@
     { "AltIDLabel": "Alt ID" },
     { "DisableAccountAlert": "This will DISABLE all use of SQRL in the Given Site {0}, note that this operation is not easily reversed.{1}You will need your Rescue Code to enable SQRL in the future.{1}Would you like to continue?" },
     { "SelectIdentityLabel": "Select an identity:" },
-    { "QuickPassLengthLabel": "QuickPass length (characters):" }
+    { "SelectIdentityTitle": "Select identity" },
+    { "QuickPassLengthLabel": "QuickPass length (characters):" },
+    { "QuickPassTimeoutLabel": "QuickPass timeout (minutes):" },
+    { "PasswordVerificationTimeLabel": "Password verification time (seconds):" }
+
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -33,7 +37,10 @@
     { "AltIDLabel": "Alt ID" },
     { "DisableAccountAlert": "This will DISABLE all use of SQRL in the Given Site {0}, note that this operation is not easily reversed.{1}You will need your Rescue Code to enable SQRL in the future.{1}Would you like to continue?" },
     { "SelectIdentityLabel": "Select an identity:" },
-    { "QuickPassLengthLabel": "QuickPass length (characters):" }
+    { "SelectIdentityTitle": "Select identity" },
+    { "QuickPassLengthLabel": "QuickPass length (characters):" },
+    { "QuickPassTimeoutLabel": "QuickPass timeout (minutes):" },
+    { "PasswordVerificationTimeLabel": "Password verification time (seconds):" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -51,6 +58,9 @@
     { "AltIDLabel": "Alt-ID" },
     { "DisableAccountAlert": "Dieser Vorgang deaktiviert die Anmeldung mittels SQRL auf {0} vollständig. Bitte bedenken Sie, dass dieser Vorgang nicht ohne weiteres rückgängig gemacht werden kann.{1}Sie benötigen Ihren Rettungsschlüssel (\"rescue code\"), um SQRL später wieder zu aktivieren.{1}Möchten Sie fortfahren?" },
     { "SelectIdentityLabel": "Wählen Sie eine Identität:" },
-    { "QuickPassLengthLabel": "QuickPass-Länge (Zeichen):" }
+    { "SelectIdentityTitle": "Identität wählen" },
+    { "QuickPassLengthLabel": "QuickPass-Länge (Zeichen):" },
+    { "QuickPassTimeoutLabel": "QuickPass-Timeout (Minuten):" },
+    { "PasswordVerificationTimeLabel": "Passwort-Verifizierung (Sekunden):" }
   ]
 }
