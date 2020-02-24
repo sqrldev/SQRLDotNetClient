@@ -59,7 +59,17 @@
     { "DisableRadioButtonText": "Disable" },
     { "AskWindowTitle": "SQRL Client - Ask Protocol Question" },
     { "AuthenticationWindowTitle": "SQRL Client - Authentication" },
-    { "WarningMessageBoxTitle": "Warning" }
+    { "WarningMessageBoxTitle": "Warning" },
+    { "ExportIdentityMessage": "To export your identity, either scan the QR code with your other client, save it to a file or copy it to your clipboard." },
+    { "BtnSaveToFile": "Save to file" },
+    { "BtnCopyToClipboard": "Copy to clipboard" },
+    { "BtnBack": "Back" },
+    { "BtnDone": "Done" },
+    { "ExportIdentityWindowTitle": "SQRL Client - Export Identity" },
+    { "SaveIdentityDialogTitle": "Select a location and name to save your identity" },
+    { "IdentityExportedMessageBoxTitle": "Export successful" },
+    { "IdentityExportedMessageBoxText": "The identity has been exported to the selectd file: {0}" },
+    { "IdentityCopiedToClipboardMessageBoxText": "Your identity has been copied to the operating system's clipboard.\nYou may now paste it into a different client to import it.\n(You will need your rescue code!)" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -120,7 +130,17 @@
     { "DisableRadioButtonText": "Disable" },
     { "AskWindowTitle": "SQRL Client - Ask Protocol Question" },
     { "AuthenticationWindowTitle": "SQRL Client - Authentication" },
-    { "WarningMessageBoxTitle": "Warning" }
+    { "WarningMessageBoxTitle": "Warning" },
+    { "ExportIdentityMessage": "To export your identity, either scan the QR code with your other client, save it to a file or copy it to your clipboard." },
+    { "BtnSaveToFile": "Save to file" },
+    { "BtnCopyToClipboard": "Copy to clipboard" },
+    { "BtnBack": "Back" },
+    { "BtnDone": "Done" },
+    { "ExportIdentityWindowTitle": "SQRL Client - Export Identity" },
+    { "SaveIdentityDialogTitle": "Select a location and name to save your identity" },
+    { "IdentityExportedMessageBoxTitle": "Export successful" },
+    { "IdentityExportedMessageBoxText": "The identity has been exported to the selectd file: {0}" },
+    { "IdentityCopiedToClipboardMessageBoxText": "Your identity has been copied to the operating system's clipboard.\nYou may now paste it into a different client to import it.\n(You will need your rescue code!)" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -181,6 +201,16 @@
     { "DisableRadioButtonText": "Deaktivieren" },
     { "AskWindowTitle": "SQRL Client - Frage" },
     { "AuthenticationWindowTitle": "SQRL Client - Anmeldung" },
-    { "WarningMessageBoxTitle": "Warnung" }
+    { "WarningMessageBoxTitle": "Warnung" },
+    { "ExportIdentityMessage": "Um Ihre Identität zu exportieren, scannen Sie den QR-Code mit einem anderen Client, speichern Sie sie als Datei oder kopieren Sie sie in die Zwischenablage." },
+    { "BtnSaveToFile": "Als Datei speichern" },
+    { "BtnCopyToClipboard": "In Zwischeablage kopieren" },
+    { "BtnBack": "Zurück" },
+    { "BtnDone": "Fertig" },
+    { "ExportIdentityWindowTitle": "SQRL Client - Identität exportieren" },
+    { "SaveIdentityDialogTitle": "Wählen Sie einen Speicherort und Namen für Ihre Identität" },
+    { "IdentityExportedMessageBoxTitle": "Export erfolgreich" },
+    { "IdentityExportedMessageBoxText": "Die Identität wurde in folgende Datei exportiert: {0}" },
+    { "IdentityCopiedToClipboardMessageBoxText": "Ihre Identität wurde in die Zwischenablage kopiert.\nSie können sie nun in einem anderen Client einfügen, um sie zu importieren.\nDazu benötigen Sie den Rettungsschlüssel (\"rescue code\")!" }
   ]
 }
