@@ -12,8 +12,8 @@
   <!-- Main menu -->
   <DockPanel>
     <Menu DockPanel.Dock="Top" Margin="0,5,0,0">
-      <MenuItem Header="_File">
-        <MenuItem Header="_Exit" Command="{Binding Exit}"/>
+      <MenuItem Header="{loc:Localization FileMenuItemHeader}">
+        <MenuItem Header="{loc:Localization ExitMenuItemHeader}" Command="{Binding Exit}"/>
       </MenuItem>
       <MenuItem Header="_Identity">
         <MenuItem Header="_New Identity" Command="{Binding OnNewIdentityClick}"/>

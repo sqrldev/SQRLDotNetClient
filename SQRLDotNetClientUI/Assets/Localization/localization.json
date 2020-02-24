@@ -33,8 +33,9 @@
     { "IdentitySettingsDialogTitle": "Identity Settings" },
     { "MainWindowTitle": "SQRL Client" },
     { "DeleteIdentityMessageBoxTitle": "Delete identity" },
-    { "DeleteIdentityMessageBoxText": "Do you really want to delete the identity \"{0}\"?{1}This cannot be undone!" }
-   
+    { "DeleteIdentityMessageBoxText": "Do you really want to delete the identity \"{0}\"?{1}This cannot be undone!" },
+    { "FileMenuItemHeader": "_File" },
+    { "ExitMenuItemHeader": "_Exit" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -70,7 +71,9 @@
     { "IdentitySettingsDialogTitle": "Identity Settings" },
     { "MainWindowTitle": "SQRL Client" },
     { "DeleteIdentityMessageBoxTitle": "Delete identity" },
-    { "DeleteIdentityMessageBoxText": "Do you really want to delete the identity \"{0}\"?{1}This cannot be undone!" }
+    { "DeleteIdentityMessageBoxText": "Do you really want to delete the identity \"{0}\"?{1}This cannot be undone!" },
+    { "FileMenuItemHeader": "_File" },
+    { "ExitMenuItemHeader": "_Exit" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -106,6 +109,8 @@
     { "IdentitySettingsDialogTitle": "Identitäts-Einstellungen" },
     { "MainWindowTitle": "SQRL Client" },
     { "DeleteIdentityMessageBoxTitle": "Identität löschen" },
-    { "DeleteIdentityMessageBoxText": "Wollen Sie die Identität \"{0}\" wirklich löschen?{1}Diese Aktion kann nicht rückgängig gemacht werden!" }
+    { "DeleteIdentityMessageBoxText": "Wollen Sie die Identität \"{0}\" wirklich löschen?{1}Diese Aktion kann nicht rückgängig gemacht werden!" },
+    { "FileMenuItemHeader": "_Datei" },
+    { "ExitMenuItemHeader": "_Beenden" }
   ]
 }
