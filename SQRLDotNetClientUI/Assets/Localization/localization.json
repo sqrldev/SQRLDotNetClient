@@ -54,7 +54,12 @@
     { "BtnSwitchIdentity": "Switch Identity" },
     { "BtnDeleteIdentity": "Delete Identity" },
     { "BtnRekeyIdentity": "Rekey Identity" },
-    { "BtnIdentitySettings": "Identity Settings" }
+    { "BtnIdentitySettings": "Identity Settings" },
+    { "LoginRadioButtonText": "Login" },
+    { "DisableRadioButtonText": "Disable" },
+    { "AskWindowTitle": "SQRL Client - Ask Protocol Question" },
+    { "AuthenticationWindowTitle": "SQRL Client - Authentication" },
+    { "WarningMessageBoxTitle": "Warning" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -110,7 +115,12 @@
     { "BtnSwitchIdentity": "Switch Identity" },
     { "BtnDeleteIdentity": "Delete Identity" },
     { "BtnRekeyIdentity": "Rekey Identity" },
-    { "BtnIdentitySettings": "Identity Settings" }
+    { "BtnIdentitySettings": "Identity Settings" },
+    { "LoginRadioButtonText": "Login" },
+    { "DisableRadioButtonText": "Disable" },
+    { "AskWindowTitle": "SQRL Client - Ask Protocol Question" },
+    { "AuthenticationWindowTitle": "SQRL Client - Authentication" },
+    { "WarningMessageBoxTitle": "Warning" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -166,6 +176,11 @@
     { "BtnSwitchIdentity": "Identität wechseln" },
     { "BtnDeleteIdentity": "Identität löschen" },
     { "BtnRekeyIdentity": "Identität \"rekeyen\"" },
-    { "BtnIdentitySettings": "Identitäts-Einstellungen" }
+    { "BtnIdentitySettings": "Identitäts-Einstellungen" },
+    { "LoginRadioButtonText": "Anmelden" },
+    { "DisableRadioButtonText": "Deaktivieren" },
+    { "AskWindowTitle": "SQRL Client - Frage" },
+    { "AuthenticationWindowTitle": "SQRL Client - Anmeldung" },
+    { "WarningMessageBoxTitle": "Warnung" }
   ]
 }

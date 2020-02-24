@@ -12,11 +12,16 @@ using MessageBox.Avalonia.Views;
 using SQRLDotNetClientUI.Utils;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
+using SQRLDotNetClientUI.AvaloniaExtensions;
+using MessageBox.Avalonia;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
     public class AuthenticationViewModel : ViewModelBase
     {
+        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
+        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
+
         public enum LoginAction
         {
             Login,
@@ -52,17 +57,22 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public AuthenticationViewModel()
         {
-            this.Title = "SQRL Client - Authentication";
+            Init();
             this.Site = new Uri("https://google.com");
         }
 
         public AuthenticationViewModel(SQRL sqrlInstance, SQRLIdentity identity, Uri site)
         {
+            Init();
             this.sqrlInstance = sqrlInstance;
             this.Identity = identity;
             this.Site = site;
             this.SiteID = site.Host;
-            this.Title = "SQRL Client - Authentication";
+        }
+
+        private void Init()
+        {
+            this.Title = _loc.GetLocalizationValue("AuthenticationWindowTitle");
         }
 
         public void Cancel()
@@ -132,7 +142,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                 CurrentWindow = w
                             };
                             mwTemp.Content = avm;
-                            askResponse = await w.ShowDialog<int>(AvaloniaLocator.Current.GetService<MainWindow>());
+                            askResponse = await w.ShowDialog<int>(_mainWindow);
                         }
 
                         StringBuilder addClientData = null;
@@ -154,15 +164,20 @@ namespace SQRLDotNetClientUI.ViewModels
                                     }
                                     while (this.sqrlInstance.cps.PendingResponse)
                                         ;
-                                    AvaloniaLocator.Current.GetService<MainWindow>().Close();
+                                    _mainWindow.Close();
                                 }
                                 break;
                             case LoginAction.Disable:
                                 {
-                                    var disableAccountAlert = string.Format(AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("DisableAccountAlert"), this.SiteID, Environment.NewLine);
-                                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"WARNING", $"{disableAccountAlert}", MessageBox.Avalonia.Enums.ButtonEnum.YesNo, MessageBox.Avalonia.Enums.Icon.Lock);
+                                    var disableAccountAlert = string.Format(_loc.GetLocalizationValue("DisableAccountAlert"), this.SiteID, Environment.NewLine);
+                                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                                        _loc.GetLocalizationValue("WarningMessageBoxTitle").ToUpper(), 
+                                        $"{disableAccountAlert}", 
+                                        ButtonEnum.YesNo, 
+                                        Icon.Lock);
                                     messageBoxStandardWindow.SetMessageStartupLocation(Avalonia.Controls.WindowStartupLocation.CenterOwner);
-                                    var btResult = await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                                    var btResult = await messageBoxStandardWindow.ShowDialog(_mainWindow);
+
                                     if (btResult == ButtonResult.Yes)
                                     {
                                         GenerateSIN(result, serverResponse, addClientData);
@@ -173,7 +188,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                         }
                                         while (this.sqrlInstance.cps.PendingResponse)
                                             ;
-                                        AvaloniaLocator.Current.GetService<MainWindow>().Close();
+                                        _mainWindow.Close();
                                     }
                                 }
                                 break;
@@ -187,18 +202,22 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 else
                 {
-                    var errorTitle = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("ErrorTitleGeneric");
-                    var genericSqrlError = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("SQRLCommandFailedUnknown");
-                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"{errorTitle}", $"{genericSqrlError}", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
-                    await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                        _loc.GetLocalizationValue("ErrorTitleGeneric"), 
+                        _loc.GetLocalizationValue("SQRLCommandFailedUnknown"), 
+                        ButtonEnum.Ok, 
+                        Icon.Error);
+                    await messageBoxStandardWindow.ShowDialog(_mainWindow);
                 }
             }
             else
             {
-                string badPasswordErrorTitle = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("BadPasswordErrorTitle");
-                string badPasswordError = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("BadPasswordError");
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"{badPasswordErrorTitle}", $"{badPasswordError}", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
-                await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                    _loc.GetLocalizationValue("BadPasswordErrorTitle"),
+                    _loc.GetLocalizationValue("BadPasswordError"),
+                    ButtonEnum.Ok, 
+                    Icon.Error);
+                await messageBoxStandardWindow.ShowDialog(_mainWindow);
             }
 
         }
@@ -218,16 +237,19 @@ namespace SQRLDotNetClientUI.ViewModels
 
         private async System.Threading.Tasks.Task<SQRLServerResponse> HandleNewAccount(Tuple<bool, byte[], byte[]> result, KeyPair siteKvp, SQRLOptions sqrlOpts, SQRLServerResponse serverResponse)
         {
-            string newAccountQuestion = string.Format(AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("NewAccountQuestion"), this.SiteID);
-            string genericQuestionTitle = string.Format(AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("GenericQuestionTitle"), this.SiteID);
+            string newAccountQuestion = string.Format(_loc.GetLocalizationValue("NewAccountQuestion"), this.SiteID);
+            string genericQuestionTitle = string.Format(_loc.GetLocalizationValue("GenericQuestionTitle"), this.SiteID);
 
-            var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"{genericQuestionTitle}", $"{newAccountQuestion}", MessageBox.Avalonia.Enums.ButtonEnum.YesNo, MessageBox.Avalonia.Enums.Icon.Plus);
+            var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                $"{genericQuestionTitle}", 
+                $"{newAccountQuestion}", 
+                ButtonEnum.YesNo, 
+                Icon.Plus);
 
             messageBoxStandardWindow.SetMessageStartupLocation(Avalonia.Controls.WindowStartupLocation.CenterOwner);
+            var btnRsult = await messageBoxStandardWindow.ShowDialog(_mainWindow);
 
-
-            var btnRsult = await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
-            if (btnRsult == MessageBox.Avalonia.Enums.ButtonResult.Yes)
+            if (btnRsult == ButtonResult.Yes)
             {
                 StringBuilder additionalData = null;
                 if (!string.IsNullOrEmpty(serverResponse.SIN))
@@ -245,7 +267,7 @@ namespace SQRLDotNetClientUI.ViewModels
                     }
                     while (this.sqrlInstance.cps.PendingResponse)
                         ;
-                    AvaloniaLocator.Current.GetService<MainWindow>().Close();
+                    _mainWindow.Close();
                 }
             }
             else
@@ -256,7 +278,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 while (this.sqrlInstance.cps.PendingResponse)
                     ;
-                AvaloniaLocator.Current.GetService<MainWindow>().Close();
+                _mainWindow.Close();
             }
 
             return serverResponse;
