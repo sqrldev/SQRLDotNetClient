@@ -15,8 +15,7 @@ namespace SQRLDotNetClientUI.ViewModels
     {
         private IdentityManager _identityManager = IdentityManager.Instance;
         private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
-        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
-        private MainWindowViewModel _mainWindowVM = null;
+        private MainWindow _mainWindow = null;
 
         private string _siteUrl = "";
         public string SiteUrl { get => _siteUrl; set => this.RaiseAndSetIfChanged(ref _siteUrl, value); }
@@ -41,14 +40,10 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public AuthenticationViewModel AuthVM { get; set; }
    
-        public MainMenuViewModel(SQRL sqrlInstance) : base()
+        public MainMenuViewModel(SQRL sqrlInstance)
         {
             this.sqrlInstance = sqrlInstance;
-
-            this.CurrentIdentity = _identityManager.CurrentIdentity;
-            this.IdentityName = this.CurrentIdentity?.IdentityName;
-
-            _identityManager.IdentityChanged += OnIdentityChanged;
+            Init();
 
             string[] commandLine = Environment.CommandLine.Split(" ");
             if(commandLine.Length>1)
@@ -66,7 +61,18 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public MainMenuViewModel()
         {
+            Init();
+        }
+
+        private void Init()
+        {
+            _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
+
             this.Title = _loc.GetLocalizationValue("MainWindowTitle");
+            this.CurrentIdentity = _identityManager.CurrentIdentity;
+            this.IdentityName = this.CurrentIdentity?.IdentityName;
+
+            _identityManager.IdentityChanged += OnIdentityChanged;
         }
 
         private void OnIdentityChanged(object sender, IdentityChangedEventArgs e)
@@ -77,17 +83,20 @@ namespace SQRLDotNetClientUI.ViewModels
         
         public void OnNewIdentityClick()
         {
-            _mainWindowVM.Content = new NewIdentityViewModel(this.sqrlInstance);
+            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
+                new NewIdentityViewModel(this.sqrlInstance);
         }
 
         public void ExportIdentity()
         {
-            _mainWindowVM.Content = new ExportIdentityViewModel(this.sqrlInstance);
+            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
+                new ExportIdentityViewModel(this.sqrlInstance);
         }
 
         public void ImportIdentity()
         {
-            _mainWindowVM.Content = new ImportIdentityViewModel(this.sqrlInstance);
+            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
+                new ImportIdentityViewModel(this.sqrlInstance);
         }
 
         public async void SwitchIdentity()
@@ -102,8 +111,8 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public void IdentitySettings()
         {
-            _mainWindowVM = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext);
-            _mainWindowVM.Content = new IdentitySettingsViewModel(this.sqrlInstance);
+            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
+                new IdentitySettingsViewModel(this.sqrlInstance);
         }
 
         public void Exit()
@@ -137,7 +146,7 @@ namespace SQRLDotNetClientUI.ViewModels
                     _mainWindow.Height = 300;
                     _mainWindow.Width = 400;
                     this.AuthVM = authView;
-                    _mainWindowVM.Content = AuthVM;
+                    ((MainWindowViewModel)_mainWindow.DataContext).Content = AuthVM;
                 }
             }
         }
