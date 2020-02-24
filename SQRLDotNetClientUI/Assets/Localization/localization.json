@@ -30,7 +30,11 @@
     { "ClearQuickPassWhenSwitchingUser": "Clear QuickPass when switching user" },
     { "ClearQuickPassWhenIdle": "Clear QuickPass when idle" },
     { "WarnOfNonCPSAuth": "Warn of non-CPS authentication" },
-    { "IdentitySettingsDialogTitle": "Identity Settings" }
+    { "IdentitySettingsDialogTitle": "Identity Settings" },
+    { "MainWindowTitle": "SQRL Client" },
+    { "DeleteIdentityMessageBoxTitle": "Delete identity" },
+    { "DeleteIdentityMessageBoxText": "Do you really want to delete the identity \"{0}\"?{1}This cannot be undone!" }
+   
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -63,7 +67,10 @@
     { "ClearQuickPassWhenSwitchingUser": "Clear QuickPass when switching user" },
     { "ClearQuickPassWhenIdle": "Clear QuickPass when idle" },
     { "WarnOfNonCPSAuth": "Warn of non-CPS authentication" },
-    { "IdentitySettingsDialogTitle": "Identity Settings" }
+    { "IdentitySettingsDialogTitle": "Identity Settings" },
+    { "MainWindowTitle": "SQRL Client" },
+    { "DeleteIdentityMessageBoxTitle": "Delete identity" },
+    { "DeleteIdentityMessageBoxText": "Do you really want to delete the identity \"{0}\"?{1}This cannot be undone!" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -96,6 +103,9 @@
     { "ClearQuickPassWhenSwitchingUser": "QuickPass bei Userwechsel löschen" },
     { "ClearQuickPassWhenIdle": "QuickPass bei Leerlauf löschen" },
     { "WarnOfNonCPSAuth": "Warnen, falls CPS-Anmeldung nicht verfügbar" },
-    { "IdentitySettingsDialogTitle": "Identitäts-Einstellungen" }
+    { "IdentitySettingsDialogTitle": "Identitäts-Einstellungen" },
+    { "MainWindowTitle": "SQRL Client" },
+    { "DeleteIdentityMessageBoxTitle": "Identität löschen" },
+    { "DeleteIdentityMessageBoxText": "Wollen Sie die Identität \"{0}\" wirklich löschen?{1}Diese Aktion kann nicht rückgängig gemacht werden!" }
   ]
 }
