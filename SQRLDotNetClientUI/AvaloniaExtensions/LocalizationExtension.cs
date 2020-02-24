@@ -47,36 +47,59 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
 
         public LocalizationExtension()
         {
+            GetLocalization();
+        }
+
+        public LocalizationExtension(string resourceID) : base()
+        {
+            GetLocalization();
+            this.ResourceID = resourceID;
+        }
+
+        public override object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return GetLocalizationValue(this.ResourceID);
+        }
+
+        public string GetLocalizationValue(string resourceID)
+        {
+            var currentCulture = CultureInfo.CurrentCulture;
+            if (Localization.ContainsKey(currentCulture.Name))
+            {
+                try
+                {
+                    return ResolveFormatting(
+                        Localization[currentCulture.Name].Children()[resourceID].First().ToString());
+                }
+                catch { }
+            }
+
+            try
+            {
+                return ResolveFormatting(
+                    Localization["default"].Children()[resourceID].First().ToString());
+            }
+            catch 
+            {
+                return "Missing translation: " + resourceID;
+            }
+            
+        }
+
+        private void GetLocalization()
+        {
             Assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
             var assy = Assembly.GetExecutingAssembly().GetName();
             Localization = (JObject)JsonConvert.DeserializeObject(new StreamReader(
                 Assets.Open(new Uri($"resm:{assy.Name}.Assets.Localization.localization.json"))).ReadToEnd());
         }
 
-        public LocalizationExtension(string resourceID)
+        private string ResolveFormatting(string input)
         {
-            this.ResourceID = resourceID;
-            Assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            var assy = Assembly.GetExecutingAssembly().GetName();
-            Localization =(JObject) JsonConvert.DeserializeObject(new StreamReader(
-                Assets.Open(new Uri($"resm:{assy.Name}.Assets.Localization.localization.json"))).ReadToEnd());
+            return input
+                .Replace("\\r\\n", Environment.NewLine)
+                .Replace("\\n", Environment.NewLine)
+                .Replace("\\t", "\t");
         }
-        public override object ProvideValue(IServiceProvider serviceProvider)
-        {
-            return GetLocalizationValue(this.ResourceID);
-        }
-
-        public string GetLocalizationValue(string ResourceID)
-        {
-            var currentCulture = CultureInfo.CurrentCulture;
-            if (Localization.ContainsKey(currentCulture.Name))
-            {
-
-                return Localization[currentCulture.Name].Children()[ResourceID].First().ToString();
-            }
-            else
-                return Localization["default"].Children()[ResourceID].First().ToString();
-        }
-
     }
 }
