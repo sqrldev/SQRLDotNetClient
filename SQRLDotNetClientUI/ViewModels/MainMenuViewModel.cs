@@ -16,7 +16,7 @@ namespace SQRLDotNetClientUI.ViewModels
         private IdentityManager _identityManager = IdentityManager.Instance;
         private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
         private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
-        private MainWindowViewModel _mainWindowVM = (MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext;
+        private MainWindowViewModel _mainWindowVM = null;
 
         private string _siteUrl = "";
         public string SiteUrl { get => _siteUrl; set => this.RaiseAndSetIfChanged(ref _siteUrl, value); }
@@ -102,6 +102,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public void IdentitySettings()
         {
+            _mainWindowVM = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext);
             _mainWindowVM.Content = new IdentitySettingsViewModel(this.sqrlInstance);
         }
 
@@ -109,7 +110,6 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             _mainWindow.Close();
         }
-
 
         public async void DeleteIdentity()
         {
