@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
         x:Class="SQRLDotNetClientUI.Views.SelectIdentityDialogView"
         Icon="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico"
-        Title="Select identity"
+        Title="{loc:Localization SelectIdentityTitle}"
         Width="400"
         Height="450"
         CanResize="False">
@@ -14,7 +14,7 @@
   <!-- Layout start -->
     <StackPanel Margin="20" Orientation="Vertical">
       <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="20" HorizontalAlignment="Center" Margin="10"></Image>
-      <TextBlock Name="lblMessage" Text="{loc:Localization SelectIdentityLabel}" TextAlignment="Center" Margin="0,0,10,0"></TextBlock>
+      <TextBlock Name="lblMessage" Text="{loc:Localization SelectIdentityLabel}" TextAlignment="Center" Margin="0,0,10,0" />
       <ScrollViewer Width="350" Height="300" VerticalScrollBarVisibility="Auto">
         <StackPanel Name="stackPnlMain" Margin="20" Orientation="Vertical">
           <RadioButton Margin="20,10,20,10">Identity 1</RadioButton>
