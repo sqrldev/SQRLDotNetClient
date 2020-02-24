@@ -1,14 +1,15 @@
-﻿using ReactiveUI;
+﻿using Avalonia;
+using ReactiveUI;
+using SQRLDotNetClientUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
     public class AskViewModel: ViewModelBase
     {
+        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
 
         public Uri Site { get; set; }
         public SQRL sqrlInstance { get; set; }
@@ -37,18 +38,23 @@ namespace SQRLDotNetClientUI.ViewModels
         public int ButtonValue { get; set; }
         public AskViewModel()
         {
-            this.Title = "SQRL Client - Ask Protocol Question";
+            Init();
         }
 
         public AskViewModel(SQRL sqrlinstance, SQRLIdentity identity, SQRLServerResponse serverResponse)
         {
-            this.Title = "SQRL Client - Ask Protocol Question";
+            Init();
             this.sqrlInstance = sqrlInstance;
             this.Identity = identity;
             this.serverResponse = serverResponse;
             this.AskMessage = serverResponse.AskMessage;
             this.AskButton1 = serverResponse.GetAskButtons[0];
             this.AskButton2 = serverResponse.GetAskButtons.Length>1? serverResponse.GetAskButtons[1]:string.Empty;
+        }
+
+        private void Init()
+        {
+            this.Title = _loc.GetLocalizationValue("AskWindowTitle");
         }
 
         public void Button1()
