@@ -80,7 +80,15 @@
     { "EncryptingBlock2Label": "Encrypting Block 2" },
     { "BtnNext": "Next" },
     { "InvalidRescueCodeMessage": "Invalid rescue code!" },
-    { "ImportIdentitySetupWindowTitle": "SQRL Client - Import Identity Setup" }
+    { "ImportIdentitySetupWindowTitle": "SQRL Client - Import Identity Setup" },
+    { "ImportIdentityMessage": "Paste your Textual Identity below, or select an Identity File to Import" },
+    { "TextualIdentityLabel": "Textual identity:" },
+    { "BtnImportFile": "Import file" },
+    { "ImportIdentityWindowTitle": "SQRL Client - Import Identity" },
+    { "FileDialogFilterName": "SQRL Identity" },
+    { "ImportOpenFileDialogTitle": "Select the SQRL identity file to import" },
+    { "TextualImportErrorMessage": "Error importing textual identity:\n{0}" },
+    { "FileImportErrorMessage": "Error importing identity file:\n{0}" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -162,7 +170,15 @@
     { "EncryptingBlock2Label": "Encrypting Block 2" },
     { "BtnNext": "Next" },
     { "InvalidRescueCodeMessage": "Invalid rescue code!" },
-    { "ImportIdentitySetupWindowTitle": "SQRL Client - Import Identity Setup" }
+    { "ImportIdentitySetupWindowTitle": "SQRL Client - Import Identity Setup" },
+    { "ImportIdentityMessage": "Paste your Textual Identity below, or select an Identity File to Import" },
+    { "TextualIdentityLabel": "Textual identity:" },
+    { "BtnImportFile": "Import file" },
+    { "ImportIdentityWindowTitle": "SQRL Client - Import Identity" },
+    { "FileDialogFilterName": "SQRL Identity" },
+    { "ImportOpenFileDialogTitle": "Select the SQRL identity file to import" },
+    { "TextualImportErrorMessage": "Error importing textual identity:\n{0}" },
+    { "FileImportErrorMessage": "Error importing identity file:\n{0}" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -244,6 +260,14 @@
     { "EncryptingBlock2Label": "Verschlüssle Block 2" },
     { "BtnNext": "Weiter" },
     { "InvalidRescueCodeMessage": "Ungültiger Rettungscode (\"rescue code\")!" },
-    { "ImportIdentitySetupWindowTitle": "SQRL Client - Identitäts-Import-Setup" }
+    { "ImportIdentitySetupWindowTitle": "SQRL Client - Identitäts-Import-Setup" },
+    { "ImportIdentityMessage": "Fügen Sie die Textversion der Identität ein oder wählen Sie eine Datei für den Import aus." },
+    { "TextualIdentityLabel": "Textversion der Identität:" },
+    { "BtnImportFile": "Datei importieren" },
+    { "ImportIdentityWindowTitle": "SQRL Client - Identität importieren" },
+    { "FileDialogFilterName": "SQRL-Identität" },
+    { "ImportOpenFileDialogTitle": "Wählen Sie die SQRL Identitäts-Datei für den Import aus" },
+    { "TextualImportErrorMessage": "Fehler beim Import der Identitäts-Textversion:\n{0}" },
+    { "FileImportErrorMessage": "Fehler beim Import der Identitäts-Datei:\n{0}" }
   ]
 }
