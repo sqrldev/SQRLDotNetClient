@@ -6,6 +6,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform;
 using ReactiveUI;
+using SQRLDotNetClientUI.AvaloniaExtensions;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -17,7 +18,8 @@ namespace SQRLDotNetClientUI.Views
     /// </summary>
     public class InputSecretDialogView : Window
     {
-
+        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
+        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
         private TextBox _txtSecret = null;
         private Button _btnOK = null;
         private TextBlock _lblMessage = null;
@@ -49,12 +51,12 @@ namespace SQRLDotNetClientUI.Views
             switch (secretType)
             {
                 case SecretType.Password:
-                    _lblMessage.Text = "Please enter the identity master password:";
+                    _lblMessage.Text = _loc.GetLocalizationValue("EnterPasswordMessage");
                     _txtSecret.PasswordChar = '*';
                     break;
 
                 case SecretType.RescueCode:
-                    _lblMessage.Text = "Please enter the identity's secret rescue code:";
+                    _lblMessage.Text = _loc.GetLocalizationValue("EnterRescueCodeMessage");
                     break;
 
                 default:
