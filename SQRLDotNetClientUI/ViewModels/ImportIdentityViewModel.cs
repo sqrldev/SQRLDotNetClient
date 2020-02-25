@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using Avalonia;
 using Avalonia.Controls;
+using MessageBox.Avalonia;
+using MessageBox.Avalonia.Enums;
 using ReactiveUI;
+using SQRLDotNetClientUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 
@@ -11,43 +14,58 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     public class ImportIdentityViewModel: ViewModelBase
     {
+        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
+        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
+        
         private string _textualIdentity = "";
-        public string TextualIdentity { get => _textualIdentity; set { this.RaiseAndSetIfChanged(ref _textualIdentity, value); } }
+        public string TextualIdentity 
+        { 
+            get => _textualIdentity; 
+            set { this.RaiseAndSetIfChanged(ref _textualIdentity, value); } 
+        }
 
         private string _identityFile="N/A";
-        public string IdentityFile { get => _identityFile; set {  this.RaiseAndSetIfChanged(ref _identityFile, value); } }
+        public string IdentityFile 
+        {
+            get => _identityFile; 
+            set { this.RaiseAndSetIfChanged(ref _identityFile, value); } 
+        }
 
         public SQRL sqrlInstance { get; set; }
 
         public SQRLIdentity sqrlIdentity { get; set; }
 
         public string IdentityName { get; set; }
-
-        public String Message { get; } = "Paste your Textual Identity below, or select an Identity File to Import";
-
         
         public ImportIdentityViewModel()
         {
-            this.Title = "SQRL Client - Import Identity";
+            Init();
         }
 
         public ImportIdentityViewModel(SQRL sqrlInstance)
         {
-            this.Title = "SQRL Client - Import Identity";
+            Init();
             this.sqrlInstance = sqrlInstance;
+        }
+
+        private void Init()
+        {
+            this.Title = _loc.GetLocalizationValue("ImportIdentityWindowTitle");
         }
 
         public async void ImportFile()
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.AllowMultiple = false;
             FileDialogFilter fdf = new FileDialogFilter();
             fdf.Extensions.Add("sqrl");
+            fdf.Name = _loc.GetLocalizationValue("FileDialogFilterName");
 
-            fdf.Name = "SQRL Identity";
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.AllowMultiple = false;
             ofd.Filters.Add(fdf);
-            ofd.Title = "Please select your SQRL Identity File to Import";
-            var file = await ofd.ShowAsync(AvaloniaLocator.Current.GetService<MainWindow>());
+            ofd.Title = _loc.GetLocalizationValue("ImportOpenFileDialogTitle");
+
+            var file = await ofd.ShowAsync(_mainWindow);
+
             if(file.Length>0)
             {
                 this.IdentityFile = file[0];
@@ -56,8 +74,8 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public void Cancel()
         {
-            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).PriorContent;
+            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
+                ((MainWindowViewModel)_mainWindow.DataContext).PriorContent;
         }
 
         public  async void ImportVerify()
@@ -73,12 +91,13 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                        $"Error", $"Error Importing Textual Identity: {ex.Message}", 
-                        MessageBox.Avalonia.Enums.ButtonEnum.Ok, 
-                        MessageBox.Avalonia.Enums.Icon.Error);
+                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                        string.Format(_loc.GetLocalizationValue("TextualImportErrorMessage"), ex.Message), 
+                        ButtonEnum.Ok, 
+                        Icon.Error);
 
-                    await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                    await messageBoxStandardWindow.ShowDialog(_mainWindow);
                 }
             }
             else if (!string.IsNullOrEmpty(this.IdentityFile))
@@ -89,18 +108,19 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                        $"Error", $"Error Importing Identity: {ex.Message}", 
-                        MessageBox.Avalonia.Enums.ButtonEnum.Ok, 
-                        MessageBox.Avalonia.Enums.Icon.Error);
+                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                        string.Format(_loc.GetLocalizationValue("FileImportErrorMessage"), ex.Message),
+                        ButtonEnum.Ok, 
+                        Icon.Error);
 
-                    await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                    await messageBoxStandardWindow.ShowDialog(_mainWindow);
                 }
             }
 
             if (identity != null)
             {
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
+                ((MainWindowViewModel)_mainWindow.DataContext).Content = 
                     new ImportIdentitySetupViewModel(this.sqrlInstance, identity);
             }   
         }
