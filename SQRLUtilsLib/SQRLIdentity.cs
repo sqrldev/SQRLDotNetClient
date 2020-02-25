@@ -215,6 +215,8 @@ namespace SQRLUtilsLib
         /// <returns></returns>
         public static bool HasHeader(byte[] identityBytes)
         {
+            if (identityBytes == null) return false;
+
             if (identityBytes.Length < SQRLHEADER.Length) return false;
             string header = Encoding.UTF8.GetString(identityBytes.Take(SQRLHEADER.Length).ToArray());
 
