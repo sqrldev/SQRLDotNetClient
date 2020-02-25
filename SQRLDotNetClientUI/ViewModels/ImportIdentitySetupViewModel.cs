@@ -1,5 +1,8 @@
 ﻿using Avalonia;
+using MessageBox.Avalonia;
+using MessageBox.Avalonia.Enums;
 using ReactiveUI;
+using SQRLDotNetClientUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.DB.Models;
 using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
@@ -14,12 +17,12 @@ namespace SQRLDotNetClientUI.ViewModels
     public class ImportIdentitySetupViewModel : ViewModelBase
     {
         private IdentityManager _identityManager = IdentityManager.Instance;
+        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
+        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
 
         public SQRL sqrlInstance { get; set; }
         public SQRLIdentity Identity { get; set; }
-
         public string IdentityName { get; set; } = "";
-        public string Message { get; } = "Enter your New Password below, along with the Rescue Code for the imported identity";
         public string RescueCode { get; set; }
         public string NewPassword { get; set; }
         public string NewPasswordVerify { get; set; }
@@ -30,28 +33,52 @@ namespace SQRLDotNetClientUI.ViewModels
 
         private int _Block2DecryptProgressPercentage = 0;
 
-        public int Block1ProgressPercentage { get => _ProgressPercentage; set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); }
+        public int Block1ProgressPercentage 
+        { 
+            get => _ProgressPercentage; 
+            set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); 
+        }
 
-        public int Block2ProgressPercentage { get => _ProgressPercentage2; set => this.RaiseAndSetIfChanged(ref _ProgressPercentage2, value); }
+        public int Block2ProgressPercentage 
+        { 
+            get => _ProgressPercentage2; 
+            set => this.RaiseAndSetIfChanged(ref _ProgressPercentage2, value); 
+        }
 
-        public int Block2DecryptProgressPercentage { get => _Block2DecryptProgressPercentage; set => this.RaiseAndSetIfChanged(ref _Block2DecryptProgressPercentage, value); }
+        public int Block2DecryptProgressPercentage 
+        { 
+            get => _Block2DecryptProgressPercentage; 
+            set => this.RaiseAndSetIfChanged(ref _Block2DecryptProgressPercentage, value); 
+        }
 
         public int ProgressMax { get; set; } = 100;
 
         public ImportIdentitySetupViewModel()
         {
-
+            Init();
         }
         public ImportIdentitySetupViewModel(SQRL sqrlInstance, SQRLIdentity identity)
         {
-            this.Title = "SQRL Client - Import Identity Setup";
+            Init();
             this.sqrlInstance = sqrlInstance;
             this.Identity = identity;
         }
 
+        private void Init()
+        {
+            this.Title = _loc.GetLocalizationValue("ImportIdentitySetupWindowTitle");
+        }
+
         public void Previous()
         {
-            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
+            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
+                ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
+        }
+
+        public void Cancel()
+        {
+            ((MainWindowViewModel)_mainWindow.DataContext).Content =
+                ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
         }
 
         public async void VerifyAndImportIdentity()
@@ -84,6 +111,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 var block1 = this.sqrlInstance.GenerateIdentityBlock1(iuk, this.NewPassword, newId, progressBlock1);
                 var block2 = this.sqrlInstance.GenerateIdentityBlock2(iuk, this.RescueCode, newId, progressBlock2);
                 await Task.WhenAll(block1, block2);
+
                 newId = block2.Result;
                 if (this.Identity.Block3 != null)
                 {
@@ -97,27 +125,29 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (InvalidOperationException e)
                 {
-                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                    $"Error", e.Message,
-                    MessageBox.Avalonia.Enums.ButtonEnum.Ok,
-                    MessageBox.Avalonia.Enums.Icon.Error);
+                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                    _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    e.Message,
+                    ButtonEnum.Ok,
+                    Icon.Error);
 
-                    await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                    await messageBoxStandardWindow.ShowDialog(_mainWindow);
                 }
                 finally
                 {
-                    ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content =
-                    ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
+                    ((MainWindowViewModel)_mainWindow.DataContext).Content =
+                    ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
                 }
             }
             else
             {
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                    $"Error", $"Invalid Rescue Code!", 
-                    MessageBox.Avalonia.Enums.ButtonEnum.Ok, 
-                    MessageBox.Avalonia.Enums.Icon.Error);
+                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                    _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    _loc.GetLocalizationValue("InvalidRescueCodeMessage"), 
+                    ButtonEnum.Ok, 
+                    Icon.Error);
 
-                await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                await messageBoxStandardWindow.ShowDialog(_mainWindow);
             }
         }
     }
