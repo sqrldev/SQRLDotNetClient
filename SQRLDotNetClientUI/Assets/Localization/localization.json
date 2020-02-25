@@ -95,7 +95,10 @@
     { "EnterRescueCodeMessage": "Please enter the identity's secret rescue code:" },
     { "NewIdentityVerifyWindowTitle": "SQRL Client - Verify New Identity" },
     { "NewIdentityVerifyMessage": "Re-enter your rescue code from the last screen, we will use it to verify and decrypt your identity." },
-    { "PasswordLabel": "Password:" }
+    { "PasswordLabel": "Password:" },
+    { "NewIdentityWindowTitle": "SQRL Client - New Identity" },
+    { "NewIdentityMessage": "To generate a new identity you need to save the rescue code shown below and enter a password. You REALLY need to save and store the rescue code in a save place, it will be required later!" },
+    { "PasswordsDontMatchErrorMessage": "The entered passwords don't match!\nPlease try again." }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -192,7 +195,10 @@
     { "EnterRescueCodeMessage": "Please enter the identity's secret rescue code:" },
     { "NewIdentityVerifyWindowTitle": "SQRL Client - Verify New Identity" },
     { "NewIdentityVerifyMessage": "Re-enter your rescue code from the last screen, we will use it to verify and decrypt your identity." },
-    { "PasswordLabel": "Password:" }
+    { "PasswordLabel": "Password:" },
+    { "NewIdentityWindowTitle": "SQRL Client - New Identity" },
+    { "NewIdentityMessage": "To generate a new identity you need to save the rescue code shown below and enter a password. You REALLY need to save and store the rescue code in a save place, it will be required later!" },
+    { "PasswordsDontMatchErrorMessage": "The entered passwords don't match!\nPlease try again." }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -289,6 +295,9 @@
     { "EnterRescueCodeMessage": "Rettungscode (\"rescue code\") der Identität eingeben:" },
     { "NewIdentityVerifyWindowTitle": "SQRL Client - Neue Identität verifizieren" },
     { "NewIdentityVerifyMessage": "Geben Sie den Rettungscode (\"rescue code\") vom vorherigen Bildschirm erneut ein, um damit die Identität zu verifzieren." },
-    { "PasswordLabel": "Passwort:" }
+    { "PasswordLabel": "Passwort:" },
+    { "NewIdentityWindowTitle": "SQRL Client - Neue Identität" },
+    { "NewIdentityMessage": "Um eine neue Identität zu erstellen, notieren Sie den angezeigten Rettungscode und vergeben Sie ein Passwort. Speichern bzw. verwahren Sie den Rettungscode unbedingt an einem sicheren Ort, Sie werden ihn später noch benötigen!" },
+    { "PasswordsDontMatchErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein!\nBitte versuchen Sie es erneut." }
   ]
 }
