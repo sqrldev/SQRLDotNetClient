@@ -540,7 +540,8 @@ namespace SQRLUtilsLib
         /// <param name="rescueCode">The formatted rescue code string to be cleaned.</param>
         public static string CleanUpRescueCode(string rescueCode)
         {
-            return rescueCode.Trim().Replace(" ", "").Replace("-", "");
+            if (!string.IsNullOrEmpty(rescueCode)) return rescueCode.Trim().Replace(" ", "").Replace("-", "");
+            else return string.Empty;
         }
 
         /// <summary>
