@@ -7,21 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Reflection;
-using MessageBox.Avalonia.Views;
 using SQRLDotNetClientUI.Utils;
-using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Enums;
-using SQRLDotNetClientUI.AvaloniaExtensions;
 using MessageBox.Avalonia;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
     public class AuthenticationViewModel : ViewModelBase
     {
-        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
-        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
-
         public enum LoginAction
         {
             Login,

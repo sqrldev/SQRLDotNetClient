@@ -1,22 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Avalonia;
 using Avalonia.Controls;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
-using SQRLDotNetClientUI.AvaloniaExtensions;
-using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
     public class ImportIdentityViewModel: ViewModelBase
-    {
-        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
-        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
-        
+    {       
         private string _textualIdentity = "";
         public string TextualIdentity 
         { 

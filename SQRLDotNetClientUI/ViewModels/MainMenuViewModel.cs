@@ -1,11 +1,9 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using ReactiveUI;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using SQRLDotNetClientUI.Models;
-using SQRLDotNetClientUI.AvaloniaExtensions;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
 
@@ -14,8 +12,6 @@ namespace SQRLDotNetClientUI.ViewModels
     public class MainMenuViewModel : ViewModelBase
     {
         private IdentityManager _identityManager = IdentityManager.Instance;
-        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
-        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
 
         private string _siteUrl = "";
         public string SiteUrl 

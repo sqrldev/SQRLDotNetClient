@@ -1,6 +1,4 @@
-﻿using Avalonia;
-using ReactiveUI;
-using SQRLDotNetClientUI.AvaloniaExtensions;
+﻿using ReactiveUI;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
@@ -9,8 +7,6 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     public class AskViewModel: ViewModelBase
     {
-        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
-
         public Uri Site { get; set; }
         public SQRL sqrlInstance { get; set; }
         public SQRLIdentity Identity { get; set; }
