@@ -69,7 +69,18 @@
     { "SaveIdentityDialogTitle": "Select a location and name to save your identity" },
     { "IdentityExportedMessageBoxTitle": "Export successful" },
     { "IdentityExportedMessageBoxText": "The identity has been exported to the selectd file: {0}" },
-    { "IdentityCopiedToClipboardMessageBoxText": "Your identity has been copied to the operating system's clipboard.\nYou may now paste it into a different client to import it.\n(You will need your rescue code!)" }
+    { "IdentityCopiedToClipboardMessageBoxText": "Your identity has been copied to the operating system's clipboard.\nYou may now paste it into a different client to import it.\n(You will need your rescue code!)" },
+    { "IdentityNameLabel": "Identity name:" },
+    { "NewPasswordLabel": "New password:" },
+    { "RetypePasswordLabel": "Retype password:" },
+    { "RescueCodeLabel": "Rescue Code:" },
+    { "ImportSetupMessage": "Enter your new password below, along with the rescue code for the imported identity" },
+    { "DecryptingBlock2Label": "Decrypting Block 2" },
+    { "EncryptingBlock1Label": "Encrypting Block 1" },
+    { "EncryptingBlock2Label": "Encrypting Block 2" },
+    { "BtnNext": "Next" },
+    { "InvalidRescueCodeMessage": "Invalid rescue code!" },
+    { "ImportIdentitySetupWindowTitle": "SQRL Client - Import Identity Setup" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -140,7 +151,18 @@
     { "SaveIdentityDialogTitle": "Select a location and name to save your identity" },
     { "IdentityExportedMessageBoxTitle": "Export successful" },
     { "IdentityExportedMessageBoxText": "The identity has been exported to the selectd file: {0}" },
-    { "IdentityCopiedToClipboardMessageBoxText": "Your identity has been copied to the operating system's clipboard.\nYou may now paste it into a different client to import it.\n(You will need your rescue code!)" }
+    { "IdentityCopiedToClipboardMessageBoxText": "Your identity has been copied to the operating system's clipboard.\nYou may now paste it into a different client to import it.\n(You will need your rescue code!)" },
+    { "IdentityNameLabel": "Identity name:" },
+    { "NewPasswordLabel": "New password:" },
+    { "RetypePasswordLabel": "Retype password:" },
+    { "RescueCodeLabel": "Rescue Code:" },
+    { "ImportSetupMessage": "Enter your new password below, along with the rescue code for the imported identity" },
+    { "DecryptingBlock2Label": "Decrypting Block 2" },
+    { "EncryptingBlock1Label": "Encrypting Block 1" },
+    { "EncryptingBlock2Label": "Encrypting Block 2" },
+    { "BtnNext": "Next" },
+    { "InvalidRescueCodeMessage": "Invalid rescue code!" },
+    { "ImportIdentitySetupWindowTitle": "SQRL Client - Import Identity Setup" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -211,6 +233,17 @@
     { "SaveIdentityDialogTitle": "Wählen Sie einen Speicherort und Namen für Ihre Identität" },
     { "IdentityExportedMessageBoxTitle": "Export erfolgreich" },
     { "IdentityExportedMessageBoxText": "Die Identität wurde in folgende Datei exportiert: {0}" },
-    { "IdentityCopiedToClipboardMessageBoxText": "Ihre Identität wurde in die Zwischenablage kopiert.\nSie können sie nun in einem anderen Client einfügen, um sie zu importieren.\nDazu benötigen Sie den Rettungsschlüssel (\"rescue code\")!" }
+    { "IdentityCopiedToClipboardMessageBoxText": "Ihre Identität wurde in die Zwischenablage kopiert.\nSie können sie nun in einem anderen Client einfügen, um sie zu importieren.\nDazu benötigen Sie den Rettungsschlüssel (\"rescue code\")!" },
+    { "IdentityNameLabel": "Name der Identität:" },
+    { "NewPasswordLabel": "Neues Passwort:" },
+    { "RetypePasswordLabel": "Passw. wiederholen:" },
+    { "RescueCodeLabel": "Rescue Code:" },
+    { "ImportSetupMessage": "Geben Sie ihr Passwort und Ihren Rettungscode (\"rescue code\") für die importierte Identität ein." },
+    { "DecryptingBlock2Label": "Entschlüssle Block 2" },
+    { "EncryptingBlock1Label": "Verschlüssle Block 1" },
+    { "EncryptingBlock2Label": "Verschlüssle Block 2" },
+    { "BtnNext": "Weiter" },
+    { "InvalidRescueCodeMessage": "Ungültiger Rettungscode (\"rescue code\")!" },
+    { "ImportIdentitySetupWindowTitle": "SQRL Client - Identitäts-Import-Setup" }
   ]
 }
