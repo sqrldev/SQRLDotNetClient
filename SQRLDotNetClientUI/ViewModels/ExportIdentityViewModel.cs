@@ -5,9 +5,7 @@ using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
 using QRCoder;
 using ReactiveUI;
-using SQRLDotNetClientUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.Models;
-using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 
@@ -16,8 +14,6 @@ namespace SQRLDotNetClientUI.ViewModels
     public class ExportIdentityViewModel: ViewModelBase
     {
         private IdentityManager _identityManager = IdentityManager.Instance;
-        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
-        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
 
         public SQRL sqrlInstance { get; }
         public SQRLIdentity Identity { get; }

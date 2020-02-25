@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
-using SQRLDotNetClientUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
@@ -13,7 +12,6 @@ namespace SQRLDotNetClientUI.ViewModels
     class IdentitySettingsViewModel : ViewModelBase
     {
         private IdentityManager _identityManager = IdentityManager.Instance;
-        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
         public SQRL SqrlInstance { get; set; }
         public SQRLIdentity Identity { get; set; }
         public SQRLIdentity IdentityCopy { get; set; }

@@ -1,21 +1,14 @@
-﻿using Avalonia;
-using MessageBox.Avalonia;
+﻿using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
-using SQRLDotNetClientUI.AvaloniaExtensions;
-using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
     public class NewIdentityViewModel: ViewModelBase
     {
-        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
-        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
-
         public SQRL SqrlInstance { get; }
 
         public NewIdentityViewModel()

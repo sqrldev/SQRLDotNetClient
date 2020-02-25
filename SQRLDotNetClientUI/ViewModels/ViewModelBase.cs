@@ -1,13 +1,13 @@
 using Avalonia;
 using ReactiveUI;
+using SQRLDotNetClientUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.Views;
-using SQRLUtilsLib;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 public class ViewModelBase : ReactiveObject
 {
+    protected MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
+    protected LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
+
     private string title="";
     public string Title
     {

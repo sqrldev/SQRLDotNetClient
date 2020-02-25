@@ -1,14 +1,10 @@
-﻿using Avalonia;
-using MessageBox.Avalonia;
+﻿using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
 using ReactiveUI;
-using SQRLDotNetClientUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.Models;
-using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SQRLDotNetClientUI.ViewModels
@@ -16,9 +12,7 @@ namespace SQRLDotNetClientUI.ViewModels
     public class NewIdentityVerifyViewModel: ViewModelBase
     {
         private IdentityManager _identityManager = IdentityManager.Instance;
-        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
-        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
-
+        
         public NewIdentityVerifyViewModel()
         {
             Init();
