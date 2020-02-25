@@ -75,10 +75,12 @@
     { "RetypePasswordLabel": "Retype password:" },
     { "RescueCodeLabel": "Rescue Code:" },
     { "ImportSetupMessage": "Enter your new password below, along with the rescue code for the imported identity" },
+    { "DecryptingBlock1Label": "Decrypting Block 1" },
     { "DecryptingBlock2Label": "Decrypting Block 2" },
     { "EncryptingBlock1Label": "Encrypting Block 1" },
     { "EncryptingBlock2Label": "Encrypting Block 2" },
     { "BtnNext": "Next" },
+    { "InvalidPasswordMessage": "Invalid password!" },
     { "InvalidRescueCodeMessage": "Invalid rescue code!" },
     { "ImportIdentitySetupWindowTitle": "SQRL Client - Import Identity Setup" },
     { "ImportIdentityMessage": "Paste your Textual Identity below, or select an Identity File to Import" },
@@ -90,7 +92,10 @@
     { "TextualImportErrorMessage": "Error importing textual identity:\n{0}" },
     { "FileImportErrorMessage": "Error importing identity file:\n{0}" },
     { "EnterIdentityPasswordMessage": "Please enter the identity master password:" },
-    { "EnterRescueCodeMessage": "Please enter the identity's secret rescue code:" }
+    { "EnterRescueCodeMessage": "Please enter the identity's secret rescue code:" },
+    { "NewIdentityVerifyWindowTitle": "SQRL Client - Verify New Identity" },
+    { "NewIdentityVerifyMessage": "Re-enter your rescue code from the last screen, we will use it to verify and decrypt your identity." },
+    { "PasswordLabel": "Password:" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -167,10 +172,12 @@
     { "RetypePasswordLabel": "Retype password:" },
     { "RescueCodeLabel": "Rescue Code:" },
     { "ImportSetupMessage": "Enter your new password below, along with the rescue code for the imported identity" },
+    { "DecryptingBlock1Label": "Decrypting Block 1" },
     { "DecryptingBlock2Label": "Decrypting Block 2" },
     { "EncryptingBlock1Label": "Encrypting Block 1" },
     { "EncryptingBlock2Label": "Encrypting Block 2" },
     { "BtnNext": "Next" },
+    { "InvalidPasswordMessage": "Invalid password!" },
     { "InvalidRescueCodeMessage": "Invalid rescue code!" },
     { "ImportIdentitySetupWindowTitle": "SQRL Client - Import Identity Setup" },
     { "ImportIdentityMessage": "Paste your Textual Identity below, or select an Identity File to Import" },
@@ -182,7 +189,10 @@
     { "TextualImportErrorMessage": "Error importing textual identity:\n{0}" },
     { "FileImportErrorMessage": "Error importing identity file:\n{0}" },
     { "EnterIdentityPasswordMessage": "Please enter the identity master password:" },
-    { "EnterRescueCodeMessage": "Please enter the identity's secret rescue code:" }
+    { "EnterRescueCodeMessage": "Please enter the identity's secret rescue code:" },
+    { "NewIdentityVerifyWindowTitle": "SQRL Client - Verify New Identity" },
+    { "NewIdentityVerifyMessage": "Re-enter your rescue code from the last screen, we will use it to verify and decrypt your identity." },
+    { "PasswordLabel": "Password:" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -257,12 +267,14 @@
     { "IdentityNameLabel": "Name der Identität:" },
     { "NewPasswordLabel": "Neues Passwort:" },
     { "RetypePasswordLabel": "Passw. wiederholen:" },
-    { "RescueCodeLabel": "Rescue Code:" },
+    { "RescueCodeLabel": "Rettungscode:" },
     { "ImportSetupMessage": "Geben Sie ihr Passwort und Ihren Rettungscode (\"rescue code\") für die importierte Identität ein." },
+    { "DecryptingBlock1Label": "Entschlüssle Block 1" },
     { "DecryptingBlock2Label": "Entschlüssle Block 2" },
     { "EncryptingBlock1Label": "Verschlüssle Block 1" },
     { "EncryptingBlock2Label": "Verschlüssle Block 2" },
     { "BtnNext": "Weiter" },
+    { "InvalidPasswordMessage": "Ungültiges Passwort!" },
     { "InvalidRescueCodeMessage": "Ungültiger Rettungscode (\"rescue code\")!" },
     { "ImportIdentitySetupWindowTitle": "SQRL Client - Identitäts-Import-Setup" },
     { "ImportIdentityMessage": "Fügen Sie die Textversion der Identität ein oder wählen Sie eine Datei für den Import aus." },
@@ -274,6 +286,9 @@
     { "TextualImportErrorMessage": "Fehler beim Import der Identitäts-Textversion:\n{0}" },
     { "FileImportErrorMessage": "Fehler beim Import der Identitäts-Datei:\n{0}" },
     { "EnterPasswordMessage": "Identitäts-Master-Passwort eingeben:" },
-    { "EnterRescueCodeMessage": "Rettungscode (\"rescue code\") der Identität eingeben:" }
+    { "EnterRescueCodeMessage": "Rettungscode (\"rescue code\") der Identität eingeben:" },
+    { "NewIdentityVerifyWindowTitle": "SQRL Client - Neue Identität verifizieren" },
+    { "NewIdentityVerifyMessage": "Geben Sie den Rettungscode (\"rescue code\") vom vorherigen Bildschirm erneut ein, um damit die Identität zu verifzieren." },
+    { "PasswordLabel": "Passwort:" }
   ]
 }

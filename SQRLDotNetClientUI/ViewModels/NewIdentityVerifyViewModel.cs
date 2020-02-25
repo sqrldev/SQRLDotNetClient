@@ -1,5 +1,8 @@
 ﻿using Avalonia;
+using MessageBox.Avalonia;
+using MessageBox.Avalonia.Enums;
 using ReactiveUI;
+using SQRLDotNetClientUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
@@ -13,17 +16,24 @@ namespace SQRLDotNetClientUI.ViewModels
     public class NewIdentityVerifyViewModel: ViewModelBase
     {
         private IdentityManager _identityManager = IdentityManager.Instance;
+        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
+        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
 
         public NewIdentityVerifyViewModel()
         {
-
+            Init();
         }
 
         public NewIdentityVerifyViewModel(SQRL sqrlInstance, SQRLIdentity identity)
         {
+            Init();
             this.SQRLInstance = sqrlInstance;
             this.Identity = identity;
-            this.Title = "SQRL Client - New Identity Verify";
+        }
+
+        private void Init()
+        {
+            this.Title = _loc.GetLocalizationValue("NewIdentityVerifyWindowTitle");
         }
 
         public string RescueCode { get; set; }
@@ -32,9 +42,17 @@ namespace SQRLDotNetClientUI.ViewModels
 
         private int _ProgressPercentage2 = 0;
 
-        public int Block1ProgressPercentage { get => _ProgressPercentage; set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); }
+        public int Block1ProgressPercentage 
+        { 
+            get => _ProgressPercentage; 
+            set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); 
+        }
 
-        public int Block2ProgressPercentage { get => _ProgressPercentage2; set => this.RaiseAndSetIfChanged(ref _ProgressPercentage2, value); }
+        public int Block2ProgressPercentage 
+        { 
+            get => _ProgressPercentage2; 
+            set => this.RaiseAndSetIfChanged(ref _ProgressPercentage2, value); 
+        }
         public int ProgressMax { get; set; } = 100;
 
         public string Password { get; set; }
@@ -42,13 +60,11 @@ namespace SQRLDotNetClientUI.ViewModels
 
         private SQRL SQRLInstance { get; }
 
-        private string Message { get; } = "Re-Enter your Rescue Code from the last screen, we will use it to verify and decrypt your identity";
-
         public void GenerateNewIdentity()
         {
-            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).PriorContent;
+            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
+                ((MainWindowViewModel)_mainWindow.DataContext).PriorContent;
         }
-
 
         public async void VerifyRescueCode()
         {
@@ -65,20 +81,20 @@ namespace SQRLDotNetClientUI.ViewModels
             var data = SQRLInstance.DecryptBlock1(this.Identity, this.Password, progressBlock1);
             var dataBlock2 = SQRLInstance.DecryptBlock2(this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressBlock2);
             await Task.WhenAll(data, dataBlock2);
+
             string msg = "";
-            if (!data.Result.Item1)
-            {
-                msg = $"Invalid Password{Environment.NewLine}";
-            }
-            if (!dataBlock2.Result.Item1)
-            {
-                msg += $"Invalid Rescue Code{Environment.NewLine}";
-            }
+            if (!data.Result.Item1) msg = _loc.GetLocalizationValue("InvalidPasswordMessage") + Environment.NewLine;
+            if (!dataBlock2.Result.Item1) msg = _loc.GetLocalizationValue("InvalidRescueCodeMessage") + Environment.NewLine;
 
             if (!string.IsNullOrEmpty(msg))
             {
-                var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow($"Error", $"{msg}", MessageBox.Avalonia.Enums.ButtonEnum.Ok, MessageBox.Avalonia.Enums.Icon.Error);
-                await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                    _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    $"{msg}", 
+                    ButtonEnum.Ok, 
+                    Icon.Error);
+
+                await messageBoxStandardWindow.ShowDialog(_mainWindow);
             }
             else
             {
@@ -88,16 +104,17 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (InvalidOperationException e)
                 {
-                    var messageBoxStandardWindow = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                    $"Error", e.Message,
-                    MessageBox.Avalonia.Enums.ButtonEnum.Ok,
-                    MessageBox.Avalonia.Enums.Icon.Error);
+                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                    _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    e.Message,
+                    ButtonEnum.Ok,
+                    Icon.Error);
 
-                    await messageBoxStandardWindow.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                    await messageBoxStandardWindow.ShowDialog(_mainWindow);
                 }
                 finally
                 {
-                    ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = 
+                    ((MainWindowViewModel)_mainWindow.DataContext).Content = 
                         new ExportIdentityViewModel(this.SQRLInstance);
                 }
             }
