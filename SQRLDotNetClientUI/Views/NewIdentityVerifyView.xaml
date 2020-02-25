@@ -6,9 +6,11 @@
              xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
              x:Class="SQRLDotNetClientUI.Views.NewIdentityVerifyView">
+  
   <Design.DataContext>
     <vm:NewIdentityVerifyViewModel/>
   </Design.DataContext>
+  
   <StackPanel>
     <Grid ShowGridLines="False">
       <Grid.ColumnDefinitions>
@@ -25,13 +27,17 @@
         <RowDefinition  />
         <RowDefinition  />
       </Grid.RowDefinitions>
-      <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
-      <TextBlock Margin="10" Text="{Binding Message}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
+      
+      <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Right" 
+             VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
+      <TextBlock Margin="10" Text="{loc:Localization NewIdentityVerifyMessage}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
 
-      <TextBlock Margin="10" Text="Rescue Code:" Grid.Row="2" Grid.Column="0"/>
+      <TextBlock Margin="10" Text="{loc:Localization RescueCodeLabel}" Grid.Row="2" Grid.Column="0"/>
       <loc:CopyPasteTextBox Margin="10" Text="{Binding RescueCode}" Grid.Row="2" Grid.Column="1"  />
-      <TextBlock Margin="10" Text="Password:" Grid.Row="3" Grid.Column="0" />
+      
+      <TextBlock Margin="10" Text="{loc:Localization PasswordLabel}" Grid.Row="3" Grid.Column="0" />
       <loc:CopyPasteTextBox Margin="10" Text="{Binding Password}" PasswordChar="*" Grid.Row="3" Grid.Column="1"/>
+      
       <Panel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="10">
         <Grid ShowGridLines="False" >
           <Grid.ColumnDefinitions>
@@ -41,11 +47,9 @@
           <Grid.RowDefinitions>
             <RowDefinition />
            </Grid.RowDefinitions>
-          <ProgressBar  IsIndeterminate="False" Value="{Binding Block2ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true"  Height="20"  MinWidth="10" Grid.Row="0" Grid.Column="1"/>
-          <ProgressBar  IsIndeterminate="False" Value="{Binding Block1ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true"  Height="20" MinWidth="10"  Grid.Row="0" Grid.Column="0"/>
-        
-        
-      </Grid>
+          <ProgressBar IsIndeterminate="False" Value="{Binding Block2ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true"  Height="20"  MinWidth="10" Grid.Row="0" Grid.Column="1"/>
+          <ProgressBar IsIndeterminate="False" Value="{Binding Block1ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true"  Height="20" MinWidth="10"  Grid.Row="0" Grid.Column="0"/>
+        </Grid>
       </Panel>
       <Panel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,2,10,10">
         
@@ -58,13 +62,16 @@
           <Grid.RowDefinitions>
             <RowDefinition />
           </Grid.RowDefinitions>
-          <TextBlock Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right">Decrypting Block 1</TextBlock>
+          
+          <TextBlock Text="{loc:Localization DecryptingBlock1Label}" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" />
           <Image Grid.Row="0" Grid.Column="1" Source="resm:SQRLDotNetClientUI.Assets.VL.png" Height="25" Stretch="Uniform"/>
-          <TextBlock Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" TextAlignment="Right" >Decrypting Block 2</TextBlock>
+          <TextBlock Text="{loc:Localization DecryptingBlock2Label}" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" TextAlignment="Right" />
+          
         </Grid>
       </Panel>
-      <Button Margin="10" Command="{Binding VerifyRescueCode}" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="1" Width="70" HorizontalAlignment="Left">Next</Button>
-      <Button Margin="10" Command="{Binding GenerateNewIdentity}" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="1" Width="70" HorizontalAlignment="Right">Previous</Button>
+      
+      <Button Content="{loc:Localization BtnNext}" Margin="10" Command="{Binding VerifyRescueCode}" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="1" Width="70" HorizontalAlignment="Left" />
+      <Button Content="{loc:Localization BtnBack}" Margin="10" Command="{Binding GenerateNewIdentity}" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="1" Width="70" HorizontalAlignment="Right" />
       
     </Grid>
   </StackPanel>
