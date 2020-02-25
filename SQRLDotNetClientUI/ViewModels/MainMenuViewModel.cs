@@ -15,10 +15,15 @@ namespace SQRLDotNetClientUI.ViewModels
     {
         private IdentityManager _identityManager = IdentityManager.Instance;
         private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
-        private MainWindow _mainWindow = null;
+        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
 
         private string _siteUrl = "";
-        public string SiteUrl { get => _siteUrl; set => this.RaiseAndSetIfChanged(ref _siteUrl, value); }
+        public string SiteUrl 
+        { 
+            get => _siteUrl; 
+            set => this.RaiseAndSetIfChanged(ref _siteUrl, value); 
+        }
+
         public SQRL sqrlInstance { get; set; }
 
         private SQRLIdentity _currentIdentity;
@@ -33,10 +38,18 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         private bool _currentIdentityLoaded = false;
-        public bool CurrentIdentityLoaded { get => _currentIdentityLoaded; set => this.RaiseAndSetIfChanged(ref _currentIdentityLoaded, value); }
+        public bool CurrentIdentityLoaded 
+        { 
+            get => _currentIdentityLoaded; 
+            set => this.RaiseAndSetIfChanged(ref _currentIdentityLoaded, value); 
+        }
 
         public String _IdentityName = "";
-        public String IdentityName { get => _IdentityName; set => this.RaiseAndSetIfChanged(ref _IdentityName, value); }
+        public String IdentityName 
+        { 
+            get => _IdentityName; 
+            set => this.RaiseAndSetIfChanged(ref _IdentityName, value); 
+        }
 
         public AuthenticationViewModel AuthVM { get; set; }
    
@@ -66,8 +79,6 @@ namespace SQRLDotNetClientUI.ViewModels
 
         private void Init()
         {
-            _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
-
             this.Title = _loc.GetLocalizationValue("MainWindowTitle");
             this.CurrentIdentity = _identityManager.CurrentIdentity;
             this.IdentityName = this.CurrentIdentity?.IdentityName;
