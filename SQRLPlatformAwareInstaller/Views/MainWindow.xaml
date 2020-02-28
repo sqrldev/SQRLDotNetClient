@@ -3,15 +3,15 @@
         xmlns:vm="clr-namespace:SQRLPlatformAwareInstaller.ViewModels;assembly=SQRLPlatformAwareInstaller"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="525"
         x:Class="SQRLPlatformAwareInstaller.Views.MainWindow"
         Icon="resm:SQRLPlatformAwareInstaller.Assets.sqrl_icon_normal_48_icon.ico"
          Title="{Binding Content.Title}"
         Content="{Binding Content}"
          Width="600"
-         Height="450"
+         Height="525"
          MaxWidth="600"
-         MaxHeight="450"
+         MaxHeight="525"
         >
   <Design.DataContext>
     <vm:MainWindowViewModel/>

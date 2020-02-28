@@ -26,6 +26,9 @@ namespace SQRLPlatformAwareInstaller
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = new MainWindowViewModel(),
+                    Width = 600,
+                    Height = 525
+
                 };
             }
 

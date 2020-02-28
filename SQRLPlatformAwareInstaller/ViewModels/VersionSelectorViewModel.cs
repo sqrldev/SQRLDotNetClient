@@ -17,6 +17,7 @@ using System.Reflection;
 using System.IO.Compression;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
+using Avalonia.Threading;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -35,6 +36,10 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private string DownloadUrl = "";
 
         private string _InstallationPath;
+
+        private string _warning="";
+        
+        public string Warning { get { return this._warning; } set { this.RaiseAndSetIfChanged(ref this._warning, value); } }
         public string InstallationPath { get { return this._InstallationPath; } set { this.RaiseAndSetIfChanged(ref this._InstallationPath, value); } }
         public VersionSelectorViewModel(string platform)
         {
@@ -55,11 +60,18 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             };
             
             this.wc.Headers.Add("User-Agent", "SQRL-Intaller");
-            
+            this.wc.Headers.Add("Authorization", "token 2e2b0ef369e461e1a49a071de825deda20bb627e ");
             this.Releases = (Newtonsoft.Json.JsonConvert.DeserializeObject<List<GithubRelease>>(wc.DownloadString("https://api.github.com/repos/sqrldev/SQRLDotNetClient/releases"))).ToArray();
             this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
             
             PathByPlatForm(this.platform);
+            if(this.platform=="WINDOWS")
+            {
+                if(Registry.ClassesRoot.OpenSubKey(@"sqrl") != null)
+                {
+                    Warning = "WARNING: Exising SQRL Schema Registration Found, if you proceed you will OVERWRITE your existing SQRL installation";
+                }
+            }
         }
 
         private void PathByPlatForm(string platform)
@@ -263,45 +275,30 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, Path.GetFileName(Assembly.GetExecutingAssembly().Location)), true);
                 this.DownloadPercentage += 20;
             });
-            await Task.Run(() =>
+           
+            bool cont = true;
+        
+            if (cont)
             {
-                bool cont = true;
-                if (Registry.ClassesRoot.OpenSubKey(@"sqrl") != null)
+                using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl"))
                 {
-                    var msgBox = MessageBoxManager.GetMessageBoxStandardWindow(
-                      "Found Existing SQRL Protocol",
-                      string.Format("Found an existing SQRL Protocol Registered, if you continue this will be overwritten.{0}Would you like to continue?", Environment.NewLine),
-                      ButtonEnum.YesNo,
-                      Icon.Warning);
-
-                    var result = msgBox.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
-
-                    if (result.Result == ButtonResult.No)
-                    {
-                        cont = false;
-                    }
+                    key.SetValue(string.Empty, "URL:SQRL Protocol");
+                    key.SetValue("URL Protocol", $"", RegistryValueKind.String);
+                    this.DownloadPercentage += 20;
                 }
-                if (cont)
+                using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\DefaultIcon"))
                 {
-                    using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl"))
-                    {
-                        key.SetValue(string.Empty, "URL:SQRL Protocol");
-                        key.SetValue("URL Protocol", $"", RegistryValueKind.String);
-                        this.DownloadPercentage += 20;
-                    }
-                    using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\DefaultIcon"))
-                    {
-                        key.SetValue("", $"{(Executable)},1", RegistryValueKind.String);
-                        this.DownloadPercentage += 20;
-                    }
-                    using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\shell\open\command"))
-                    {
-                        key.SetValue("", $"\"{(Executable)}\" \"%1\"", RegistryValueKind.String);
-                        this.DownloadPercentage += 20;
-                    }
+                    key.SetValue("", $"{(Executable)},1", RegistryValueKind.String);
+                    this.DownloadPercentage += 20;
                 }
+                using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\shell\open\command"))
+                {
+                    key.SetValue("", $"\"{(Executable)}\" \"%1\"", RegistryValueKind.String);
+                    this.DownloadPercentage += 20;
+                }
+            }
 
-            });
+  
 
             //Create Desktop Shortcut
             await Task.Run(() =>

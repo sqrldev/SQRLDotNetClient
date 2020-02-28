@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="525"
              xmlns:vm="clr-namespace:SQRLPlatformAwareInstaller.ViewModels;assembly=SQRLPlatformAwareInstaller"
              xmlns:loc="clr-namespace:SQRLPlatformAwareInstaller.AvaloniaExtensions;assembly=SQRLPlatformAwareInstaller"
              x:Class="SQRLPlatformAwareInstaller.Views.VersionSelectorView">
@@ -17,6 +17,7 @@
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="Auto"/>
@@ -50,7 +51,8 @@
       <TextBlock Text="{Binding InstallStatus}" FontWeight="Bold" />
       <ProgressBar Margin="0,10,0,0"  Value="{Binding DownloadPercentage}" Maximum="100" />
     </StackPanel>
-    <Button Grid.Row="8" Height="25" VerticalAlignment="Bottom" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10" Command="{Binding DownloadInstall}">Next</Button>
-    <Button Grid.Row="8" Height="25" VerticalAlignment="Bottom" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10" Command="{Binding Cancel}">Cancel</Button>
+    <TextBlock FontWeight="Bold"  Margin="10" HorizontalAlignment="Left" Width="580" MaxWidth="580" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Warning}" TextWrapping="Wrap"/>
+    <Button Grid.Row="9" Height="25" VerticalAlignment="Bottom" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10" Command="{Binding DownloadInstall}">Next</Button>
+    <Button Grid.Row="9" Height="25" VerticalAlignment="Bottom" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10" Command="{Binding Cancel}">Cancel</Button>
   </Grid>
 </UserControl>
