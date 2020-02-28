@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using ToolBox.Bridge;
 using System.Reflection;
+using System.IO.Compression;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -185,7 +186,15 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
         private void InstallinMac(string downloadedFileName)
         {
-            throw new NotImplementedException();
+            string fileName = Path.GetTempFileName().Replace(".tmp", ".zip");
+            wc.DownloadFile("https://github.com/sqrldev/SQRLDotNetClient/raw/PlatformInstaller/Installers/MacOsX/SQRL.app.zip", fileName);
+            ZipFile.ExtractToDirectory(fileName, this.InstallationPath,true);
+            Executable = Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", "SQRLDotNetClientUI");
+            this.DownloadPercentage = 20;
+            File.Move(downloadedFileName, Executable, true);
+            File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Assembly.GetExecutingAssembly().Location)), true);
+            this.DownloadPercentage += 20;
+
         }
 
         private async void InstallinLinux(string downloadedFileName)
