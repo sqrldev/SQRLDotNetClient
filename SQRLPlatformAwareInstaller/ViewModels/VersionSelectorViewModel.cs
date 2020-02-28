@@ -13,6 +13,7 @@ using Microsoft.Win32;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using ToolBox.Bridge;
+using System.Reflection;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -165,7 +166,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             {
                 case "MacOSX":
                     {
-                        ;
+                        InstallinMac(downloadedFileName);
                     }
                     break;
                 case "Linux":
@@ -182,8 +183,14 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             }
         }
 
+        private void InstallinMac(string downloadedFileName)
+        {
+            throw new NotImplementedException();
+        }
+
         private async void InstallinLinux(string downloadedFileName)
         {
+            
             this.InstallStatus ="Installing...";
             Executable = Path.Combine(this.InstallationPath, "SQRLDotNetClient");
             await Task.Run(() =>
@@ -194,7 +201,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 }
                 this.DownloadPercentage = 20;
                 File.Move(downloadedFileName, Executable, true);
-            
+                File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, Path.GetFileName(Assembly.GetExecutingAssembly().Location)),true);
                 this.DownloadPercentage += 20;
             });
 
@@ -234,6 +241,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 }
                 this.DownloadPercentage = 20;
                 File.Move(downloadedFileName, Executable, true);
+                File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, Path.GetFileName(Assembly.GetExecutingAssembly().Location)), true);
                 this.DownloadPercentage += 20;
             });
             await Task.Run(() =>
