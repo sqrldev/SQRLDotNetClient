@@ -10,18 +10,15 @@ using System.Threading.Tasks;
 namespace SQRLDotNetClientUI.ViewModels
 {
     public class NewIdentityVerifyViewModel: ViewModelBase
-    {
-        private IdentityManager _identityManager = IdentityManager.Instance;
-        
+    {       
         public NewIdentityVerifyViewModel()
         {
             Init();
         }
 
-        public NewIdentityVerifyViewModel(SQRL sqrlInstance, SQRLIdentity identity)
+        public NewIdentityVerifyViewModel(SQRLIdentity identity)
         {
             Init();
-            this.SQRLInstance = sqrlInstance;
             this.Identity = identity;
         }
 
@@ -52,8 +49,6 @@ namespace SQRLDotNetClientUI.ViewModels
         public string Password { get; set; }
         public SQRLIdentity Identity { get; set; }
 
-        private SQRL SQRLInstance { get; }
-
         public void GenerateNewIdentity()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
@@ -72,8 +67,8 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.Block2ProgressPercentage = ((int)percent.Key);
             });
 
-            var data = SQRLInstance.DecryptBlock1(this.Identity, this.Password, progressBlock1);
-            var dataBlock2 = SQRLInstance.DecryptBlock2(this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressBlock2);
+            var data = SQRL.DecryptBlock1(this.Identity, this.Password, progressBlock1);
+            var dataBlock2 = SQRL.DecryptBlock2(this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressBlock2);
             await Task.WhenAll(data, dataBlock2);
 
             string msg = "";
@@ -109,7 +104,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 finally
                 {
                     ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                        new ExportIdentityViewModel(this.SQRLInstance);
+                        new ExportIdentityViewModel();
                 }
             }
         }
