@@ -11,16 +11,12 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     public class MainMenuViewModel : ViewModelBase
     {
-        private IdentityManager _identityManager = IdentityManager.Instance;
-
         private string _siteUrl = "";
         public string SiteUrl 
         { 
             get => _siteUrl; 
             set => this.RaiseAndSetIfChanged(ref _siteUrl, value); 
         }
-
-        public SQRL sqrlInstance { get; set; }
 
         private SQRLIdentity _currentIdentity;
         public SQRLIdentity CurrentIdentity 
@@ -49,10 +45,13 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public AuthenticationViewModel AuthVM { get; set; }
    
-        public MainMenuViewModel(SQRL sqrlInstance)
+        public MainMenuViewModel()
         {
-            this.sqrlInstance = sqrlInstance;
-            Init();
+            this.Title = _loc.GetLocalizationValue("MainWindowTitle");
+            this.CurrentIdentity = _identityManager.CurrentIdentity;
+            this.IdentityName = this.CurrentIdentity?.IdentityName;
+
+            _identityManager.IdentityChanged += OnIdentityChanged;
 
             string[] commandLine = Environment.CommandLine.Split(" ");
             if(commandLine.Length>1)
@@ -60,26 +59,12 @@ namespace SQRLDotNetClientUI.ViewModels
 
                if (Uri.TryCreate(commandLine[1], UriKind.Absolute, out Uri result) && this.CurrentIdentity!=null)
                 {
-                    AuthenticationViewModel authView = new AuthenticationViewModel(this.sqrlInstance, this.CurrentIdentity, result);
+                    AuthenticationViewModel authView = new AuthenticationViewModel(result);
                     _mainWindow.Height = 300;
                     _mainWindow.Width = 400;
                     AuthVM = authView;
                 }
             }
-        }
-
-        public MainMenuViewModel()
-        {
-            Init();
-        }
-
-        private void Init()
-        {
-            this.Title = _loc.GetLocalizationValue("MainWindowTitle");
-            this.CurrentIdentity = _identityManager.CurrentIdentity;
-            this.IdentityName = this.CurrentIdentity?.IdentityName;
-
-            _identityManager.IdentityChanged += OnIdentityChanged;
         }
 
         private void OnIdentityChanged(object sender, IdentityChangedEventArgs e)
@@ -91,19 +76,19 @@ namespace SQRLDotNetClientUI.ViewModels
         public void OnNewIdentityClick()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                new NewIdentityViewModel(this.sqrlInstance);
+                new NewIdentityViewModel();
         }
 
         public void ExportIdentity()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                new ExportIdentityViewModel(this.sqrlInstance);
+                new ExportIdentityViewModel();
         }
 
         public void ImportIdentity()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                new ImportIdentityViewModel(this.sqrlInstance);
+                new ImportIdentityViewModel();
         }
 
         public async void SwitchIdentity()
@@ -119,7 +104,7 @@ namespace SQRLDotNetClientUI.ViewModels
         public void IdentitySettings()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                new IdentitySettingsViewModel(this.sqrlInstance);
+                new IdentitySettingsViewModel();
         }
 
         public void Exit()
@@ -149,7 +134,7 @@ namespace SQRLDotNetClientUI.ViewModels
             {
                 if (Uri.TryCreate(this.SiteUrl, UriKind.Absolute, out Uri result))
                 {
-                    AuthenticationViewModel authView = new AuthenticationViewModel(this.sqrlInstance, this.CurrentIdentity, result);
+                    AuthenticationViewModel authView = new AuthenticationViewModel(result);
                     _mainWindow.Height = 300;
                     _mainWindow.Width = 400;
                     this.AuthVM = authView;
