@@ -65,6 +65,10 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             {
 
                 case "MacOSX":
+                {
+                    this.InstallationPath = Path.Combine("/Applications/");
+                }
+                break;
                 case "Linux":
                     {
                         this.InstallationPath = Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.None), "SQRL");
@@ -194,7 +198,10 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             File.Move(downloadedFileName, Executable, true);
             File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Assembly.GetExecutingAssembly().Location)), true);
             this.DownloadPercentage += 20;
-
+                 _bridgeSystem = BridgeSystem.Bash;
+            _shell = new ShellConfigurator(_bridgeSystem);
+            
+            _shell.Term($"chmod a+x {Executable}",Output.Internal);
         }
 
         private async void InstallinLinux(string downloadedFileName)
@@ -316,7 +323,16 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             var result = await ofd.ShowAsync(AvaloniaLocator.Current.GetService<MainWindow>());
             if(!string.IsNullOrEmpty(result))
             {
-                this.InstallationPath = Path.Combine(result, "SQRL");
+                  switch (this.platform)
+                    {
+
+                        case "MacOSX":
+                            this.InstallationPath = Path.Combine(result);
+                        break;
+                        default:
+                            this.InstallationPath = Path.Combine(result, "SQRL");
+                        break;
+                    }
             }
         }
 

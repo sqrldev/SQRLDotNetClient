@@ -13,8 +13,8 @@ namespace SQRLPlatformAwareInstaller
        
         public override void Initialize()
         {
-            if (!Utils.IsAdmin())
-                throw new System.Exception("This app must be run as an Administrator in Windows or Sudo/Root in Linux or Mac");
+            /*if (!Utils.IsAdmin())
+                throw new System.Exception("This app must be run as an Administrator in Windows or Sudo/Root in Linux or Mac");*/
             AvaloniaXamlLoader.Load(this);
         }
 

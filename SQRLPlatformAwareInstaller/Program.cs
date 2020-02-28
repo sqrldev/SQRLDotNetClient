@@ -18,6 +18,7 @@ namespace SQRLPlatformAwareInstaller
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .With(new AvaloniaNativePlatformOptions {UseGpu = false})
                 .LogToDebug()
                 .UseReactiveUI();
     }
