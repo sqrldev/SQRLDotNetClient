@@ -3,7 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using SQRLPlatformAwareInstaller.ViewModels;
 using SQRLPlatformAwareInstaller.Views;
-
+using System.Runtime.InteropServices;
 
 namespace SQRLPlatformAwareInstaller
 {
@@ -13,9 +13,10 @@ namespace SQRLPlatformAwareInstaller
        
         public override void Initialize()
         {
-            /*if (!Utils.IsAdmin())
-                throw new System.Exception("This app must be run as an Administrator in Windows or Sudo/Root in Linux or Mac");*/
-            AvaloniaXamlLoader.Load(this);
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                if (!Utils.IsAdmin())
+                    throw new System.Exception("This app must be run as an Administrator in Windows or Sudo/Root in Linux");
+                AvaloniaXamlLoader.Load(this);
         }
 
         public override void OnFrameworkInitializationCompleted()

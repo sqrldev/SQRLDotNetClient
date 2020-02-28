@@ -15,6 +15,8 @@ using System.Diagnostics;
 using ToolBox.Bridge;
 using System.Reflection;
 using System.IO.Compression;
+using MessageBox.Avalonia;
+using MessageBox.Avalonia.Enums;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -53,6 +55,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             };
             
             this.wc.Headers.Add("User-Agent", "SQRL-Intaller");
+            this.wc.Headers.Add("Authorization", "token 5696d78e969eb501da64544e073605817d66f48d");
             this.Releases = (Newtonsoft.Json.JsonConvert.DeserializeObject<List<GithubRelease>>(wc.DownloadString("https://api.github.com/repos/sqrldev/SQRLDotNetClient/releases"))).ToArray();
             this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
             
@@ -262,21 +265,40 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             });
             await Task.Run(() =>
             {
-                using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl"))
+                bool cont = true;
+                if (Registry.ClassesRoot.OpenSubKey(@"sqrl") != null)
                 {
-                    key.SetValue(string.Empty, "URL:SQRL Protocol");
-                    key.SetValue("URL Protocol", $"", RegistryValueKind.String);
-                    this.DownloadPercentage += 20;
+                    var msgBox = MessageBoxManager.GetMessageBoxStandardWindow(
+                      "Found Existing SQRL Protocol",
+                      string.Format("Found an existing SQRL Protocol Registered, if you continue this will be overwritten.{0}Would you like to continue?", Environment.NewLine),
+                      ButtonEnum.YesNo,
+                      Icon.Warning);
+
+                    var result = msgBox.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+
+                    if (result.Result == ButtonResult.No)
+                    {
+                        cont = false;
+                    }
                 }
-                using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\DefaultIcon"))
+                if (cont)
                 {
-                    key.SetValue("", $"{(Executable)},1", RegistryValueKind.String);
-                    this.DownloadPercentage += 20;
-                }
-                using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\shell\open\command"))
-                {
-                    key.SetValue("", $"\"{(Executable)}\" \"%1\"", RegistryValueKind.String);
-                    this.DownloadPercentage += 20;
+                    using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl"))
+                    {
+                        key.SetValue(string.Empty, "URL:SQRL Protocol");
+                        key.SetValue("URL Protocol", $"", RegistryValueKind.String);
+                        this.DownloadPercentage += 20;
+                    }
+                    using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\DefaultIcon"))
+                    {
+                        key.SetValue("", $"{(Executable)},1", RegistryValueKind.String);
+                        this.DownloadPercentage += 20;
+                    }
+                    using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\shell\open\command"))
+                    {
+                        key.SetValue("", $"\"{(Executable)}\" \"%1\"", RegistryValueKind.String);
+                        this.DownloadPercentage += 20;
+                    }
                 }
 
             });
