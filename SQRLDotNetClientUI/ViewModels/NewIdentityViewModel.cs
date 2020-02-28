@@ -9,22 +9,10 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     public class NewIdentityViewModel: ViewModelBase
     {
-        public SQRL SqrlInstance { get; }
-
         public NewIdentityViewModel()
         {
-            Init();
-        }
-        public NewIdentityViewModel(SQRL sqrlInstance)
-        {
-            Init();
-            this.SqrlInstance = sqrlInstance;
-            this.rescueCode = SQRLUtilsLib.SQRL.FormatRescueCodeForDisplay(sqrlInstance.CreateRescueCode());
-        }
-
-        private void Init()
-        {
             this.Title = _loc.GetLocalizationValue("NewIdentityWindowTitle");
+            this.rescueCode = SQRL.FormatRescueCodeForDisplay(SQRL.CreateRescueCode());
         }
 
         private string rescueCode;
@@ -56,8 +44,8 @@ namespace SQRLDotNetClientUI.ViewModels
             {
 
                 SQRLIdentity newId = new SQRLIdentity(this.IdentityName);
-                byte[] iuk = this.SqrlInstance.CreateIUK();
-                byte[] imk = this.SqrlInstance.CreateIMK(iuk);
+                byte[] iuk = SQRL.CreateIUK();
+                byte[] imk = SQRL.CreateIMK(iuk);
 
                 var progress = new Progress<KeyValuePair<int, string>>(percent =>
                 {
@@ -65,8 +53,8 @@ namespace SQRLDotNetClientUI.ViewModels
                     this.GenerationStep = percent.Value + percent.Key;
                 });
 
-                newId = this.SqrlInstance.GenerateIdentityBlock0(imk, newId);
-                newId = await this.SqrlInstance.GenerateIdentityBlock1(iuk, this.Password, newId, progress);
+                newId = SQRL.GenerateIdentityBlock0(imk, newId);
+                newId = await SQRL.GenerateIdentityBlock1(iuk, this.Password, newId, progress);
 
                 if (newId.Block1 != null)
                 {
@@ -75,12 +63,12 @@ namespace SQRLDotNetClientUI.ViewModels
                         this.ProgressPercentage = 50 + (int)(percent.Key / 2);
                         this.GenerationStep = percent.Value + percent.Key;
                     });
-                    newId = await this.SqrlInstance.GenerateIdentityBlock2(iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progress);
+                    newId = await SQRL.GenerateIdentityBlock2(iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progress);
                     if (newId.Block2 != null)
                     {
                         this.Identity = newId;
                         ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                            new NewIdentityVerifyViewModel(this.SqrlInstance, newId);
+                            new NewIdentityVerifyViewModel(newId);
                     }
                 }
             }
