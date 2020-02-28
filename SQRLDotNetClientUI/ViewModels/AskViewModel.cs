@@ -8,9 +8,6 @@ namespace SQRLDotNetClientUI.ViewModels
     public class AskViewModel: ViewModelBase
     {
         public Uri Site { get; set; }
-        public SQRL sqrlInstance { get; set; }
-        public SQRLIdentity Identity { get; set; }
-
         public SQRLServerResponse serverResponse { get; set; }
 
         public String AskMessage { get; set; } = "Hey, are you sure you want to do the thing and what not?";
@@ -37,11 +34,9 @@ namespace SQRLDotNetClientUI.ViewModels
             Init();
         }
 
-        public AskViewModel(SQRL sqrlinstance, SQRLIdentity identity, SQRLServerResponse serverResponse)
+        public AskViewModel(SQRLServerResponse serverResponse)
         {
             Init();
-            this.sqrlInstance = sqrlInstance;
-            this.Identity = identity;
             this.serverResponse = serverResponse;
             this.AskMessage = serverResponse.AskMessage;
             this.AskButton1 = serverResponse.GetAskButtons[0];
