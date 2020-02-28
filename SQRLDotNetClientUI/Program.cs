@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Threading;
 using Avalonia;
@@ -90,6 +91,7 @@ namespace SQRLDotNetClientUI
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .With(new AvaloniaNativePlatformOptions { UseGpu = !RuntimeInformation.IsOSPlatform(OSPlatform.OSX) })
                 .LogToDebug()
                 .UseReactiveUI();
     }
