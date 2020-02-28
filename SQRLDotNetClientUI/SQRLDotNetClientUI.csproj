@@ -5,6 +5,10 @@
     <ApplicationIcon>Assets\sqrl_icon_normal_256.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+      <TrimmerRootAssembly Include="mscorlib" />
+	  <TrimmerRootAssembly Include="System.Net.WebClient" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="**\*.xaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
