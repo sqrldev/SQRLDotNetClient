@@ -1,10 +1,12 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using MonoMac.AppKit;
 using SQRLDotNetClientUI.IPC;
 using SQRLDotNetClientUI.ViewModels;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace SQRLDotNetClientUI
@@ -13,8 +15,8 @@ namespace SQRLDotNetClientUI
     {
         public override void Initialize()
         {
-            AvaloniaXamlLoader.Load(this);    
-          
+            AvaloniaXamlLoader.Load(this);
+
         }
 
         public override void OnFrameworkInitializationCompleted()
@@ -25,11 +27,19 @@ namespace SQRLDotNetClientUI
                 {
                     DataContext = new MainWindowViewModel(),
                 };
-                
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    NSApplication.Init();
+                    NSApplication.SharedApplication.Delegate = new Utils.AppDelegate((MainWindow)desktop.MainWindow);
+                }
+
             }
+
+            
 
             base.OnFrameworkInitializationCompleted();
         }
-       
+
     }
 }
