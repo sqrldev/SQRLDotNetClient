@@ -28,6 +28,7 @@ namespace SQRLDotNetClientUI
                     DataContext = new MainWindowViewModel(),
                 };
 
+                // If this is running on a Mac we need a special event handler for URL schema Invokation
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
                     NSApplication.Init();
