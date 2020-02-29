@@ -1,0 +1,137 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\sqrl_icon_normal_256.ico</ApplicationIcon>
+
+  </PropertyGroup>
+    <ItemGroup>
+      <TrimmerRootAssembly Include="mscorlib" />
+	  <TrimmerRootAssembly Include="System.Net.WebClient" />
+    <TrimmerRootAssembly Include="ToolBox" />
+    <TrimmerRootAssembly Include="dein.ToolBox" />
+    
+    
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="**\*.xaml.cs">
+      <DependentUpon>%(Filename)</DependentUpon>
+    </Compile>
+    <AvaloniaResource Include="**\*.xaml">
+      <SubType>Designer</SubType>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
+    <AvaloniaResource Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
+    <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
+    <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Regular.ttf" />
+    <AvaloniaResource Remove="Assets\linux.png" />
+    <AvaloniaResource Remove="Assets\Localization\localization.json" />
+    <AvaloniaResource Remove="Assets\mac.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_light_128.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_light_16.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_light_256.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_light_32.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_light_64.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal.svg" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal_128.png" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal_16.png" />
+    <AvaloniaResource Remove="Assets\sqrl_icon_normal_256.ico" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal_256.png" />
+    <AvaloniaResource Remove="Assets\sqrl_icon_normal_256_32_icon.ico" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal_32.png" />
+    <AvaloniaResource Remove="Assets\sqrl_icon_normal_48_icon.ico" />
+    <AvaloniaResource Remove="Assets\SQRL_icon_normal_64.png" />
+    <AvaloniaResource Remove="Assets\SQRL_InAction.gif" />
+    <AvaloniaResource Remove="Assets\unknown.png" />
+    <AvaloniaResource Remove="Assets\VL.png" />
+    <AvaloniaResource Remove="Assets\windows.png" />
+    <AvaloniaResource Remove="Views\InstallationCompleteView.xaml" />
+    <AvaloniaResource Remove="Views\MainInstalView.xaml" />
+    <AvaloniaResource Remove="Views\VersionSelectorView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
+    <None Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
+    <None Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
+    <None Remove="Assets\Fonts\SpaceMono-Regular.ttf" />
+    <None Remove="Assets\linux.png" />
+    <None Remove="Assets\Localization\localization.json" />
+    <None Remove="Assets\mac.png" />
+    <None Remove="Assets\SQRL_icon_light_128.png" />
+    <None Remove="Assets\SQRL_icon_light_16.png" />
+    <None Remove="Assets\SQRL_icon_light_256.png" />
+    <None Remove="Assets\SQRL_icon_light_32.png" />
+    <None Remove="Assets\SQRL_icon_light_64.png" />
+    <None Remove="Assets\SQRL_icon_normal_128.png" />
+    <None Remove="Assets\SQRL_icon_normal_16.png" />
+    <None Remove="Assets\sqrl_icon_normal_256.ico" />
+    <None Remove="Assets\SQRL_icon_normal_256.png" />
+    <None Remove="Assets\SQRL_icon_normal_32.png" />
+    <None Remove="Assets\sqrl_icon_normal_48_icon.ico" />
+    <None Remove="Assets\SQRL_icon_normal_64.png" />
+    <None Remove="Assets\unknown.png" />
+    <None Remove="Assets\VL.png" />
+    <None Remove="Assets\windows.png" />
+    <None Remove="Views\InstallationCompleteView.xaml" />
+    <None Remove="Views\MainInstalView.xaml" />
+    <None Remove="Views\VersionSelectorView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\unknown.png" />
+    <EmbeddedResource Include="Assets\linux.png" />
+    <EmbeddedResource Include="Assets\mac.png" />
+    <EmbeddedResource Include="Assets\windows.png" />
+    <Content Include="Assets\SQRL_icon_light_128.png" />
+    <Content Include="Assets\SQRL_icon_light_16.png" />
+    <Content Include="Assets\SQRL_icon_light_64.png" />
+    <Content Include="Assets\SQRL_icon_normal_128.png" />
+    <Content Include="Assets\SQRL_icon_normal_64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Fonts\SpaceMono-Bold.ttf" />
+    <EmbeddedResource Include="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
+    <EmbeddedResource Include="Assets\Fonts\SpaceMono-Italic.ttf" />
+    <EmbeddedResource Include="Assets\Fonts\SpaceMono-Regular.ttf" />
+    <EmbeddedResource Include="Assets\Localization\localization.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Assets\SQRL_icon_light_256.png" />
+    <EmbeddedResource Include="Assets\SQRL_icon_light_32.png" />
+    <EmbeddedResource Include="Assets\SQRL_icon_normal_16.png" />
+    <EmbeddedResource Include="Assets\SQRL_icon_normal_256.png" />
+    <EmbeddedResource Include="Assets\SQRL_icon_normal_32.png" />
+    <EmbeddedResource Include="Assets\sqrl_icon_normal_48_icon.ico" />
+    <EmbeddedResource Include="Assets\VL.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.9.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.9.3" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.3" />
+    <PackageReference Include="dein.ToolBox" Version="1.5.4" />
+    <PackageReference Include="MessageBox.Avalonia" Version="0.9.0" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\MainInstalView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\VersionSelectorView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\InstallationCompleteView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\sqrl_icon_normal_256.ico" />
+  </ItemGroup>
+</Project>

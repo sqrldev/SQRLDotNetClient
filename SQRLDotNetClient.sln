@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLDotNetClientUI", "SQRLD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLIPCTestClient", "SQRLIPCTestClient\SQRLIPCTestClient.csproj", "{C8A66E27-ED37-49A9-9465-8EF761FD51AD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQRLPlatformAwareInstaller", "SQRLPlatformAwareInstaller\SQRLPlatformAwareInstaller.csproj", "{6FC399D8-72A5-4517-8DE6-1B4D8B335997}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{C8A66E27-ED37-49A9-9465-8EF761FD51AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8A66E27-ED37-49A9-9465-8EF761FD51AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8A66E27-ED37-49A9-9465-8EF761FD51AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FC399D8-72A5-4517-8DE6-1B4D8B335997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FC399D8-72A5-4517-8DE6-1B4D8B335997}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FC399D8-72A5-4517-8DE6-1B4D8B335997}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FC399D8-72A5-4517-8DE6-1B4D8B335997}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
