@@ -19,7 +19,7 @@ using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
 using Avalonia.Threading;
 
-namespace SQRLPlatformAwareInstaller.ViewModels
+namespace SQRLPlatformAwareInstaller.ViewModels 
 {
     public class VersionSelectorViewModel : ViewModelBase
     {
