@@ -45,8 +45,17 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public ImportIdentitySetupViewModel()
         {
+            Init();
+        }
+        public ImportIdentitySetupViewModel(SQRLIdentity identity)
+        {
+            Init();
+            this.Identity = identity;
+        }
+
+        private void Init()
+        {
             this.Title = _loc.GetLocalizationValue("ImportIdentitySetupWindowTitle");
-            this.Identity = _identityManager.CurrentIdentity;
         }
 
         public void Previous()

@@ -96,7 +96,7 @@ namespace SQRLDotNetClientUI.ViewModels
             if (identity != null)
             {
                 ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                    new ImportIdentitySetupViewModel();
+                    new ImportIdentitySetupViewModel(identity);
             }   
         }
     }
