@@ -23,20 +23,32 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public ExportIdentityViewModel(SQRL sqrlInstance)
         {
-            Init();
-            this.sqrlInstance = sqrlInstance;
-            this.Identity = _identityManager.CurrentIdentity;
-            QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(this.Identity.ToByteArray(), QRCodeGenerator.ECCLevel.H);
-            QRCode qrCode = new QRCode(qrCodeData);
-            var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            var bpm = new System.Drawing.Bitmap(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_32.png")));
-            var bitMap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, bpm,15,1);
-            
-            var temp = System.IO.Path.GetTempFileName();
-            bitMap.Save(temp);
-            
-            this.QRImage = new Avalonia.Media.Imaging.Bitmap(temp);
+            try
+            {
+                
+                Init();
+                this.sqrlInstance = sqrlInstance;
+                this.Identity = _identityManager.CurrentIdentity;
+                
+                QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(this.Identity.ToByteArray(), QRCodeGenerator.ECCLevel.H);
+                
+                QRCode qrCode = new QRCode(qrCodeData);
+                var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+                
+                var bpm = new System.Drawing.Bitmap(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_32.png")));
+                var bitMap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, bpm,15,1);
+                
+                var temp = System.IO.Path.GetTempFileName();
+                bitMap.Save(temp);
+                
+                this.QRImage = new Avalonia.Media.Imaging.Bitmap(temp);
+                
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         public ExportIdentityViewModel()

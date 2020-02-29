@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Threading;
 using Avalonia;
@@ -14,7 +15,7 @@ namespace SQRLDotNetClientUI
     {
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-        // yet and stuff might break.
+        // yet and stuff might break. 
         public static void Main(string[] args)
         {
             Thread th = new Thread(StartNamePipe);
@@ -90,6 +91,7 @@ namespace SQRLDotNetClientUI
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .With(new AvaloniaNativePlatformOptions { UseGpu = !RuntimeInformation.IsOSPlatform(OSPlatform.OSX) })
                 .LogToDebug()
                 .UseReactiveUI();
     }
