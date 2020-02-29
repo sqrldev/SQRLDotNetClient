@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -18,6 +19,7 @@ namespace SQRLDotNetClientUI
         {
             Thread th = new Thread(StartNamePipe);
             const string mutexId = @"Global\{{83cfa3fa-72bd-4903-9b9d-ba90f7f6ba7f}}";
+           // Console.WriteLine(Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
             using (var mutex = new Mutex(false, mutexId, out bool created))
             {
                 bool hasHandle = false;
