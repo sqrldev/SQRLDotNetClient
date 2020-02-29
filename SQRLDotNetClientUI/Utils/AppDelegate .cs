@@ -66,7 +66,7 @@ namespace SQRLDotNetClientUI.Utils
                         //If there is a Loaded Identity then Invoke the Authentication Dialog
                         if(mmvm.CurrentIdentity !=null)
                         {
-                            mmvm.AuthVM = new AuthenticationViewModel(mmvm.sqrlInstance, mmvm.CurrentIdentity, new Uri(innerDesc.StringValue));
+                            mmvm.AuthVM = new AuthenticationViewModel(new Uri(innerDesc.StringValue));
                             mwvm.PriorContent = mwvm.Content;
                             mwvm.Content = mmvm.AuthVM;
                         }
