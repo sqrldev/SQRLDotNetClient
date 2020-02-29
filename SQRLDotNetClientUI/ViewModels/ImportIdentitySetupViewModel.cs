@@ -11,9 +11,6 @@ namespace SQRLDotNetClientUI.ViewModels
 { 
     public class ImportIdentitySetupViewModel : ViewModelBase
     {
-        private IdentityManager _identityManager = IdentityManager.Instance;
-
-        public SQRL sqrlInstance { get; set; }
         public SQRLIdentity Identity { get; set; }
         public string IdentityName { get; set; } = "";
         public string RescueCode { get; set; }
@@ -50,10 +47,9 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             Init();
         }
-        public ImportIdentitySetupViewModel(SQRL sqrlInstance, SQRLIdentity identity)
+        public ImportIdentitySetupViewModel(SQRLIdentity identity)
         {
             Init();
-            this.sqrlInstance = sqrlInstance;
             this.Identity = identity;
         }
 
@@ -91,24 +87,24 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.Block2DecryptProgressPercentage = ((int)percent.Key);
             });
 
-            (bool ok, byte[] iuk, string errorMsg) = await this.sqrlInstance.DecryptBlock2(
+            (bool ok, byte[] iuk, string errorMsg) = await SQRL.DecryptBlock2(
                 this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressDecryptBlock2);
 
             if (ok)
             {
                 SQRLIdentity newId = new SQRLIdentity();
-                byte[] imk = this.sqrlInstance.CreateIMK(iuk);
+                byte[] imk = SQRL.CreateIMK(iuk);
 
                 if (this.Identity.HasBlock(0)) newId.Blocks.Add(this.Identity.Block0);
-                else this.sqrlInstance.GenerateIdentityBlock0(imk, newId);
-                var block1 = this.sqrlInstance.GenerateIdentityBlock1(iuk, this.NewPassword, newId, progressBlock1);
-                var block2 = this.sqrlInstance.GenerateIdentityBlock2(iuk, this.RescueCode, newId, progressBlock2);
+                else SQRL.GenerateIdentityBlock0(imk, newId);
+                var block1 = SQRL.GenerateIdentityBlock1(iuk, this.NewPassword, newId, progressBlock1);
+                var block2 = SQRL.GenerateIdentityBlock2(iuk, this.RescueCode, newId, progressBlock2);
                 await Task.WhenAll(block1, block2);
 
                 newId = block2.Result;
                 if (this.Identity.Block3 != null)
                 {
-                    this.sqrlInstance.GenerateIdentityBlock3(iuk, this.Identity, newId, imk, imk); 
+                    SQRL.GenerateIdentityBlock3(iuk, this.Identity, newId, imk, imk); 
                 }
                 newId.IdentityName = this.IdentityName;
 

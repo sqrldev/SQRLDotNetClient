@@ -35,9 +35,10 @@ namespace SQRLUtilsLib
     /// </remarks>
     public class SQRL
     {
+        private static Lazy<SQRL> _instance = null;
         private static bool SodiumInitialized = false;
 
-        private readonly char[] BASE56_ALPHABETH = { '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+        private static readonly char[] BASE56_ALPHABETH = { '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
         private const int ENCODING_BASE = 56;
         private const int CLIENT_VERSION = 1;
 
@@ -45,10 +46,11 @@ namespace SQRLUtilsLib
 
         /// <summary>
         /// Creates a new instance of the SQRL library and optionally
-        /// starts the CPS server.
+        /// starts the CPS server. This constructor is private, please use
+        /// <c>SQRL.GetInstance()</c> to obtain a <c>SQRL</c> instance.
         /// </summary>
         /// <param name="startCPS">Set to true if the CPS server should be started, or false otherwise.</param>
-        public SQRL(bool startCPS=false)
+        private SQRL(bool startCPS=false)
         {
             SodiumInit();
 
@@ -57,9 +59,26 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
+        /// Returns a singleton instance of the SQRL library. If an instance
+        /// was already created before, it will be returned instead of creating
+        /// another one. Only on the first call of this method, a new instance 
+        /// will be created.
+        /// </summary>
+        /// <param name="startCPS">Set to true if the CPS server should be started, or false otherwise.</param>
+        public static SQRL GetInstance(bool startCPS = false)
+        {
+            if (_instance == null)
+            {
+                _instance = new Lazy<SQRL>(() => new SQRL(startCPS));
+            }
+
+            return _instance.Value;
+        }
+
+        /// <summary>
         /// Creates and returns a random Identity Unlock Key (IUK).
         /// </summary>
-        public byte[] CreateIUK()
+        public static byte[] CreateIUK()
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -70,7 +89,7 @@ namespace SQRLUtilsLib
         /// <summary>
         /// Creates and returns a 24 character random "rescue code".
         /// </summary>
-        public string CreateRescueCode()
+        public static string CreateRescueCode()
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -100,7 +119,7 @@ namespace SQRLUtilsLib
         /// </summary>
         /// <param name="IUK">The identity's Identity Unlock Key (IUK).</param>
         /// <param name="SUK">The Server Unlock Key (SUK).</param>
-        public byte[] GetURSKey(byte[] IUK, byte[] SUK)
+        public static byte[] GetURSKey(byte[] IUK, byte[] SUK)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -116,7 +135,7 @@ namespace SQRLUtilsLib
         /// Identity Unlock Key (IUK).
         /// </summary>
         /// <param name="iuk">The identity's Identity Unlock Key (IUK).</param>
-        public byte[] CreateIMK(byte[] iuk)
+        public static byte[] CreateIMK(byte[] iuk)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -129,7 +148,7 @@ namespace SQRLUtilsLib
         /// Identity Unlock Key (IUK).
         /// </summary>
         /// <param name="iuk">The identity's Identity Unlock Key (IUK).</param>
-        public byte[] CreateILK(byte[] iuk)
+        public static byte[] CreateILK(byte[] iuk)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -140,7 +159,7 @@ namespace SQRLUtilsLib
         /// <summary>
         /// Generates and returns a Random Lock Key (RLK).
         /// </summary>
-        public byte[] RandomLockKey()
+        public static byte[] RandomLockKey()
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -153,7 +172,7 @@ namespace SQRLUtilsLib
         /// derived from the given Identity Lock Key (ILK).
         /// </summary>
         /// <param name="ILK">The identity's Identity Lock Key (ILK).</param>
-        public KeyValuePair<byte[], byte[]> GetSukVuk(byte[] ILK)
+        public static KeyValuePair<byte[], byte[]> GetSukVuk(byte[] ILK)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -173,9 +192,9 @@ namespace SQRLUtilsLib
         /// <summary>
         /// Initializes the "Libsodium" crypto library.
         /// </summary>
-        private void SodiumInit()
+        private static void SodiumInit()
         {
-            Sodium.SodiumCore.Init();
+            SodiumCore.Init();
             SodiumInitialized = true;
         }
 
@@ -187,7 +206,7 @@ namespace SQRLUtilsLib
         /// form a 1’s complement sum to produce the final result.
         /// </remarks>
         /// <param name="data">The input data to be EnHash'ed.</param>
-        public byte[] EnHash(byte[] data)
+        public static byte[] EnHash(byte[] data)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -223,7 +242,7 @@ namespace SQRLUtilsLib
         /// <param name="secondsToRun">Amount of time to run Scrypt (determines iteration count).</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
         /// <param name="progressText">A string representing a text descrition for the progress indicator (optional).</param>
-        public async Task<KeyValuePair<int, byte[]>> EnScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
+        public static async Task<KeyValuePair<int, byte[]>> EnScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -237,7 +256,7 @@ namespace SQRLUtilsLib
                 count = 0;
                 while (Math.Abs((DateTime.Now - startTime).TotalSeconds) < secondsToRun)
                 {
-                    byte[] key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
+                    byte[] key = PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
 
                     if (count == 0)
                     {
@@ -278,7 +297,7 @@ namespace SQRLUtilsLib
         /// <param name="randomSalt">Random data which is being used as salt for Scrypt.</param>
         /// <param name="logNFactor">Log N Factor for Scrypt.</param>
         /// <param name="intCount">Number of Scrypt iterations (inclusive).</param>
-        public async Task<byte[]> EnScryptCT(String password, byte[] randomSalt, int logNFactor, int intCount, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
+        public static async Task<byte[]> EnScryptCT(String password, byte[] randomSalt, int logNFactor, int intCount, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -330,7 +349,7 @@ namespace SQRLUtilsLib
         /// <param name="imk">The unencrypted Identity Master Key (IMK).</param>
         /// <param name="identity">The identity for which to generate the type 0 block.</param>
         /// <returns></returns>
-        public SQRLIdentity GenerateIdentityBlock0(byte[] imk, SQRLIdentity identity)
+        public static SQRLIdentity GenerateIdentityBlock0(byte[] imk, SQRLIdentity identity)
         {
             if (identity == null)
                 throw new ArgumentException("A valid identity must be provided!");
@@ -357,7 +376,7 @@ namespace SQRLUtilsLib
         /// <param name="identity">The identity for which to generate the type 1 block.</param>
         /// <param name="progress">An obect implementing the IProgress interface for monitoring the operation's progress (optional).</param>
         /// <param name="encTime">The time in seconds to run the EnScrypt PBKDF on <paramref name="password"/>. Defaults to 5 seconds.</param>
-        public async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] iuk, String password, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress=null, int encTime=5)
+        public static async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] iuk, String password, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress=null, int encTime=5)
         {
             byte[] imk = CreateIMK(iuk);
             byte[] ilk = CreateILK(iuk);
@@ -378,7 +397,7 @@ namespace SQRLUtilsLib
         /// <param name="identity">The identity for which to generate the type 1 block.</param>
         /// <param name="progress">An obect implementing the IProgress interface for monitoring the operation's progress (optional).</param>
         /// <param name="encTime">The time in seconds to run the EnScrypt PBKDF on <paramref name="password"/>. Defaults to 5 seconds.</param>
-        public async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] imk, byte[] ilk, string password, SQRLIdentity identity, IProgress<KeyValuePair<int, string>> progress=null, int encTime=5)
+        public static async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] imk, byte[] ilk, string password, SQRLIdentity identity, IProgress<KeyValuePair<int, string>> progress=null, int encTime=5)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -429,7 +448,7 @@ namespace SQRLUtilsLib
         /// <param name="identity">The <c>SQRLIdentity</c> for which to create the new type 2 block.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional)</param>
         /// <param name="encTime">The time in seconds to run the memory hard key derivation function (optional, defaults to 5 seconds).</param>
-        public async Task<SQRLIdentity> GenerateIdentityBlock2(byte[] iuk, String rescueCode, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress = null, int encTime=5)
+        public static async Task<SQRLIdentity> GenerateIdentityBlock2(byte[] iuk, String rescueCode, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress = null, int encTime=5)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -476,7 +495,7 @@ namespace SQRLUtilsLib
         /// <param name="v">The object to turn into a byte array.</param>
         /// <returns>Returns the input converted to a byte array for supported types
         /// and <c>null</c> if the given type is not supported.</returns>
-        private IEnumerable<byte> GetBytes(object v)
+        private static IEnumerable<byte> GetBytes(object v)
         {
             if (v.GetType() == typeof(UInt16))
             {
@@ -508,7 +527,7 @@ namespace SQRLUtilsLib
         /// <param name="additionalData">The additional data used for authenticating the encryption.</param>
         /// <param name="iv">The initialization vector for the AES-GCM encryption.</param>
         /// <param name="key">The key for the AES-GCM encryption.</param>
-        public byte[] AesGcmEncrypt(byte[] message, byte[] additionalData, byte[] iv, byte[] key)
+        public static byte[] AesGcmEncrypt(byte[] message, byte[] additionalData, byte[] iv, byte[] key)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -548,7 +567,7 @@ namespace SQRLUtilsLib
         /// Generates and returns a base56-encoded "textual version" of the given identity.
         /// </summary>
         /// <param name="sqrlId">The identity to be encoded.</param>
-        public string GenerateTextualIdentityFromSqrlID(SQRLIdentity sqrlId)
+        public static string GenerateTextualIdentityFromSqrlID(SQRLIdentity sqrlId)
         {
             return GenerateTextualIdentityBase56(sqrlId.Block2.ToByteArray().Concat(sqrlId.Block3.ToByteArray()).ToArray());
         }
@@ -557,7 +576,7 @@ namespace SQRLUtilsLib
         /// Generates and returns a base56-encoded "textual version" of the given identity bytes.
         /// </summary>
         /// <param name="identity">The raw byte data of the identity to be encoded.</param>
-        public string GenerateTextualIdentityBase56(byte[] identity)
+        public static string GenerateTextualIdentityBase56(byte[] identity)
         {
             int maxLength = (int)Math.Ceiling((double)(identity.Length * 8) / (Math.Log(ENCODING_BASE) / Math.Log(2)));
             BigInteger bigNum = new BigInteger(identity.Concat(new byte[] { (byte)0 }).ToArray());
@@ -598,7 +617,7 @@ namespace SQRLUtilsLib
         /// Generates and returns a checksum character for a given base56-encoded textual identity line.
         /// </summary>
         /// <param name="dataBytes">The bytes to create the checksum character from.</param>
-        public char GetBase56CheckSum(byte[] dataBytes)
+        public static char GetBase56CheckSum(byte[] dataBytes)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -651,7 +670,7 @@ namespace SQRLUtilsLib
         /// <param name="rescueCode">The identity's rescue code.</param>
         /// <param name="newPassword">The new password for encrypting the identity's block 1 keys.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
-        public async Task<SQRLIdentity> DecodeSqrlIdentityFromText(string identityTxt, string rescueCode, string newPassword, Progress<KeyValuePair<int, string>> progress = null)
+        public static async Task<SQRLIdentity> DecodeSqrlIdentityFromText(string identityTxt, string rescueCode, string newPassword, Progress<KeyValuePair<int, string>> progress = null)
         {
             byte[] id = Base56DecodeIdentity(identityTxt, false);
             SQRLIdentity identity = new SQRLIdentity();
@@ -664,9 +683,9 @@ namespace SQRLUtilsLib
                 identity.Block3.FromByteArray(block3);
             }
 
-            var iukRespose = await this.DecryptBlock2(identity, rescueCode, progress);
+            var iukRespose = await DecryptBlock2(identity, rescueCode, progress);
             if(iukRespose.Item1)
-                identity = await this.GenerateIdentityBlock1(iukRespose.Item2, newPassword, identity, progress);
+                identity = await GenerateIdentityBlock1(iukRespose.Item2, newPassword, identity, progress);
 
             return identity;
         }
@@ -676,7 +695,7 @@ namespace SQRLUtilsLib
         /// </summary>
         /// <param name="identityStr">The base-56 encoded "textual version" of the identity.</param>
         /// <param name="bypassCheck">If set to <c>true</c>, the result of the verification of the textual identity will be ignored.</param>
-        public byte[] Base56DecodeIdentity(string identityStr, bool bypassCheck = false)
+        public static byte[] Base56DecodeIdentity(string identityStr, bool bypassCheck = false)
         {
             byte[] identity = null;
             if (VerifyEncodedIdentity(identityStr) || bypassCheck)
@@ -728,7 +747,7 @@ namespace SQRLUtilsLib
         /// </summary>
         /// <param name="identityStr">The base-56 encoded "textual version" of the identity which should be checked.</param>
         /// <returns>Returns <c>true</c>if the verfification succeeds, and <c>false</c> otherwise.</returns>
-        public bool VerifyEncodedIdentity(string identityStr)
+        public static bool VerifyEncodedIdentity(string identityStr)
         {
             //Remove White Space
             identityStr = Regex.Replace(identityStr, @"\s+", "").Replace("\r\n", "");
@@ -768,7 +787,7 @@ namespace SQRLUtilsLib
         /// <param name="password">The identity's password.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
         /// <returns>Returns a <c>Tuple</c> containing a <c>bool</c> representing the operation's success, the decrypted IMK and the decrypted ILK.</returns>
-        public async Task<Tuple<bool, byte[], byte[]>> DecryptBlock1(SQRLIdentity identity, string password, IProgress<KeyValuePair<int,string>> progress = null)
+        public static async Task<Tuple<bool, byte[], byte[]>> DecryptBlock1(SQRLIdentity identity, string password, IProgress<KeyValuePair<int,string>> progress = null)
         {
             byte[] key = await EnScryptCT(password, identity.Block1.ScryptRandomSalt, (int)Math.Pow(2, identity.Block1.LogNFactor), (int)identity.Block1.IterationCount, progress, "Decrypting Block 1");
             bool allgood = false;
@@ -828,7 +847,7 @@ namespace SQRLUtilsLib
         /// <param name="rescueCode">The identity's secret rescue code.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
         /// <returns>Returns a <c>Tuple</c> containing a <c>bool</c> representing the operation's success, the decrypted IUK and an optional error message.</returns>
-        public async Task<Tuple<bool,byte[], string>> DecryptBlock2(SQRLIdentity identity, string rescueCode, IProgress<KeyValuePair<int, string>> progress = null)
+        public static async Task<Tuple<bool,byte[], string>> DecryptBlock2(SQRLIdentity identity, string rescueCode, IProgress<KeyValuePair<int, string>> progress = null)
         {
             byte[] key = await EnScryptCT(rescueCode, identity.Block2.RandomSalt, (int)Math.Pow(2, identity.Block2.LogNFactor), (int)identity.Block2.IterationCount, progress,"Decrypting Block 2");
 
@@ -879,7 +898,7 @@ namespace SQRLUtilsLib
         /// <returns>Returns a <c>Tuple</c> containing the PIUK as the first element and another <c>Tuple</c>
         /// as the second element, which in turn contains the site seed as the first element as well as the 
         /// actual ECDH public-private key pair as the second element.</returns>
-        public Dictionary<byte[], Tuple<byte[],Sodium.KeyPair>> CreatePriorSiteKeys(List<byte[]> oldIUKs, Uri domain, String altID)
+        public static Dictionary<byte[], Tuple<byte[],Sodium.KeyPair>> CreatePriorSiteKeys(List<byte[]> oldIUKs, Uri domain, String altID)
         {
             Dictionary<byte[], Tuple<byte[],Sodium.KeyPair>> priorSiteKeys = new Dictionary<byte[], Tuple<byte[], Sodium.KeyPair>>();
             foreach(var oldIUK in oldIUKs)
@@ -898,7 +917,7 @@ namespace SQRLUtilsLib
         /// <param name="altID">The "Alternate Id" that should be used for the keypair generation.</param>
         /// <param name="imk">The identity's unencrypted Identity Master Key (IMK).</param>
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
-        public Sodium.KeyPair CreateSiteKey(Uri domain, String altID, byte[] imk, bool test = false)
+        public static Sodium.KeyPair CreateSiteKey(Uri domain, String altID, byte[] imk, bool test = false)
         {
             byte[] siteSeed = CreateSiteSeed(domain, altID, imk, test);
             Sodium.KeyPair kp = Sodium.PublicKeyAuth.GenerateKeyPair(siteSeed);
@@ -915,7 +934,7 @@ namespace SQRLUtilsLib
         /// <param name="imk">The identity's unencrypted Identity Master Key (IMK).</param>
         /// <param name="secretIndex">The server-provided Secret Index (SIN).</param>
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
-        public byte[] CreateIndexedSecret(Uri domain, String altID, byte[] imk, byte[] secretIndex, bool test = false)
+        public static byte[] CreateIndexedSecret(Uri domain, String altID, byte[] imk, byte[] secretIndex, bool test = false)
         {
             byte[] siteSeed = CreateSiteSeed(domain, altID, imk, test);
             byte[] key = EnHash(siteSeed);
@@ -931,7 +950,7 @@ namespace SQRLUtilsLib
         /// <param name="siteSeed">The precomputed site seed.</param>
         /// <param name="secretIndex">The server-provided Secret Index (SIN).</param>
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
-        public byte[] CreateIndexedSecret(byte[] siteSeed, byte[] secretIndex, bool test = false)
+        public static byte[] CreateIndexedSecret(byte[] siteSeed, byte[] secretIndex, bool test = false)
         {
             byte[] key = EnHash(siteSeed);
             byte[] indexedSecret = Sodium.SecretKeyAuth.SignHmacSha256(secretIndex, key);
@@ -950,7 +969,7 @@ namespace SQRLUtilsLib
         /// <param name="altID">The "Alternate Id" that should be used.</param>
         /// <param name="imk">The identity's unencrypted Identity Master Key (IMK).</param>
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
-        private byte[] CreateSiteSeed(Uri domain, String altID, byte[] imk, bool test = false)
+        private static byte[] CreateSiteSeed(Uri domain, String altID, byte[] imk, bool test = false)
         {
             byte[] domainBytes = { };
 
@@ -989,7 +1008,7 @@ namespace SQRLUtilsLib
         /// <param name="message"></param>
         /// <param name="addClientData">Optional additional data to be appended to the client message (e.g. VUK / SUK etc.).</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object, representing the server's response details.</returns>
-        public SQRLServerResponse GenerateIdentCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string[] opts, out string message, StringBuilder addClientData = null)
+        public static SQRLServerResponse GenerateIdentCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string[] opts, out string message, StringBuilder addClientData = null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -1036,7 +1055,7 @@ namespace SQRLUtilsLib
         /// <param name="count">The number of times this function was called successively.</param>
         /// <param name="priorSiteKeys">An optional list of Previous Identity Key (PIDK) key pairs to be appended to the client message.</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
-        public SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, string encodedServerMessage=null, int count = 0, Dictionary<byte[], Tuple<byte[], KeyPair>> priorSiteKeys=null)
+        public static SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, string encodedServerMessage=null, int count = 0, Dictionary<byte[], Tuple<byte[], KeyPair>> priorSiteKeys=null)
         {
             SQRLServerResponse serverResponse = null;
             if(encodedServerMessage==null)
@@ -1072,7 +1091,7 @@ namespace SQRLUtilsLib
         /// <param name="opts">Optional SQRL options to be appended to the client message.</param>
         /// <param name="sin">Optional base64_url-encoded Secret Index (SIN) parameter to be appended to the client message.</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
-        public SQRLServerResponse GenerateNewIdentCommand(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk, SQRLOptions opts = null, StringBuilder sin=null)
+        public static SQRLServerResponse GenerateNewIdentCommand(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk, SQRLOptions opts = null, StringBuilder sin=null)
         {
             var sukvuk = GetSukVuk(ilk);
             StringBuilder addClientData = new StringBuilder();
@@ -1096,7 +1115,7 @@ namespace SQRLUtilsLib
         /// <param name="opts">Optional SQRL options to be appended to the client message.</param>
         /// <param name="sin">Optional base64_url-encoded Secret Index (SIN) parameter to be appended to the client message.</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
-        public SQRLServerResponse GenerateIdentCommandWithReplace(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk,byte[] ursKey, KeyPair priorKey, SQRLOptions opts = null, StringBuilder sin=null)
+        public static SQRLServerResponse GenerateIdentCommandWithReplace(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk,byte[] ursKey, KeyPair priorKey, SQRLOptions opts = null, StringBuilder sin=null)
         {
             var sukvuk = GetSukVuk(ilk);
             StringBuilder addClientData = new StringBuilder();
@@ -1118,7 +1137,7 @@ namespace SQRLUtilsLib
         /// <param name="addClientData">Optional additional data to be appended to the client message.</param>
         /// <param name="opts">Optional SQRL options to be appended to the client message.</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
-        public SQRLServerResponse GenerateEnableCommand(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ursKey, StringBuilder addClientData=null, SQRLOptions opts = null)
+        public static SQRLServerResponse GenerateEnableCommand(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ursKey, StringBuilder addClientData=null, SQRLOptions opts = null)
         {
             return GenerateSQRLCommand(SQRLCommands.enable, sqrl, siteKP, encodedServerMessage, addClientData, opts,null, ursKey);
         }
@@ -1134,7 +1153,7 @@ namespace SQRLUtilsLib
         /// <param name="addClientData">Optional additional data to be appended to the client message.</param>
         /// <param name="priorSiteKP">Optional Previous Identity Key (PIDK) key pair to be appended to the client message.</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
-        public SQRLServerResponse GenerateCommand(Uri sqrl, KeyPair siteKP, string priorServerMessage, string command, SQRLOptions opts, StringBuilder addClientData = null, KeyPair priorSiteKP=null)
+        public static SQRLServerResponse GenerateCommand(Uri sqrl, KeyPair siteKP, string priorServerMessage, string command, SQRLOptions opts, StringBuilder addClientData = null, KeyPair priorSiteKP=null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -1180,7 +1199,7 @@ namespace SQRLUtilsLib
         /// <param name="addClientData">Optional additional data to be appended to the client message.</param>
         /// <param name="priorMatchedKey">Optional Previous Identity Key (PIDK) key pair to be appended to the client message.</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
-        public SQRLServerResponse GenerateCommandWithURS(Uri sqrl, KeyPair siteKP, byte[] ursKey, string priorServerMessage, string command, SQRLOptions opts = null, StringBuilder addClientData = null, KeyPair priorMatchedKey=null)
+        public static SQRLServerResponse GenerateCommandWithURS(Uri sqrl, KeyPair siteKP, byte[] ursKey, string priorServerMessage, string command, SQRLOptions opts = null, StringBuilder addClientData = null, KeyPair priorMatchedKey=null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -1248,7 +1267,7 @@ namespace SQRLUtilsLib
         /// <param name="key">The private key for signing the message.</param>
         /// <returns>Returns a <c>KeyValuePair</c>, where the key is the chosen signature id (urs, ids, pids... etc.), 
         /// and the value is the generated, base64_url-encoded signature.</returns>
-        public KeyValuePair<string,string> GenerateSignature(string signatureID, string encodedServer, string client, byte[] key)
+        public static KeyValuePair<string,string> GenerateSignature(string signatureID, string encodedServer, string client, byte[] key)
         {
             string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
             
@@ -1267,7 +1286,7 @@ namespace SQRLUtilsLib
         /// <param name="ursKey">The Unlock Request Signing Key (URSK).</param>
         /// <returns>Returns a <c>KeyValuePair</c>, where the key is the signature id "urs" 
         /// and the value is the generated, base64_url-encoded signature.</returns>
-        public KeyValuePair<string,string> GenerateURS(string encodedServer, string client, byte[] ursKey)
+        public static KeyValuePair<string,string> GenerateURS(string encodedServer, string client, byte[] ursKey)
         {
             return GenerateSignature("urs", encodedServer, client, ursKey);
         }
@@ -1281,7 +1300,7 @@ namespace SQRLUtilsLib
         /// <param name="pidkKey">The Previous Identity Key (PIDK).</param>
         /// <returns>Returns a <c>KeyValuePair</c>, where the key is the signature id "pids" 
         /// and the value is the generated, base64_url-encoded signature.</returns>
-        public KeyValuePair<string, string> GeneratePIDS(string encodedServer, string client, byte[] pidkKey)
+        public static KeyValuePair<string, string> GeneratePIDS(string encodedServer, string client, byte[] pidkKey)
         {
             return GenerateSignature("pids", encodedServer, client, pidkKey);
         }
@@ -1295,7 +1314,7 @@ namespace SQRLUtilsLib
         /// <param name="idkKey">The site-specific private Identity Key (IDK).</param>
         /// <returns>Returns a <c>KeyValuePair</c>, where the key is the signature id "ids" 
         /// and the value is the generated, base64_url-encoded signature.</returns>
-        public KeyValuePair<string, string> GenerateIDS(string encodedServer, string client, byte[] idkKey)
+        public static KeyValuePair<string, string> GenerateIDS(string encodedServer, string client, byte[] idkKey)
         {
             return GenerateSignature("ids", encodedServer, client, idkKey);
         }
@@ -1312,7 +1331,7 @@ namespace SQRLUtilsLib
         /// <param name="priorKey">The optional prior site-specific ECDH public-private key pair.</param>
         /// <param name="ursKey">The optional Unlock Request Signing Key(URSK).</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
-        public SQRLServerResponse GenerateSQRLCommand(SQRLCommands command,Uri sqrlUri, KeyPair currentSiteKeyPair, string encodedServer, StringBuilder additionalClientData=null, SQRLOptions opts = null,KeyPair priorKey=null, byte[] ursKey=null)
+        public static SQRLServerResponse GenerateSQRLCommand(SQRLCommands command,Uri sqrlUri, KeyPair currentSiteKeyPair, string encodedServer, StringBuilder additionalClientData=null, SQRLOptions opts = null,KeyPair priorKey=null, byte[] ursKey=null)
         {
             SQRLServerResponse serverResponse = null;
             
@@ -1376,7 +1395,7 @@ namespace SQRLUtilsLib
         /// <param name="client">The contents of the client parameter.</param>
         /// <param name="server">The contents of the server parameter.</param>
         /// <param name="priorKP">The prior site-specific ECDH public-private key pair.</param>
-        private Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, StringBuilder server, KeyPair priorKP=null)
+        private static Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, StringBuilder server, KeyPair priorKP=null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -1392,7 +1411,7 @@ namespace SQRLUtilsLib
         /// <param name="client">The contents of the client parameter.</param>
         /// <param name="server">The contents of the server parameter.</param>
         /// <param name="priorKP">The prior site-specific ECDH public-private key pair.</param>
-        private Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, string server, KeyPair priorKP = null)
+        private static Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, string server, KeyPair priorKP = null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -1427,10 +1446,10 @@ namespace SQRLUtilsLib
         /// <param name="newPassword">The new master password for the rekeyed identity.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
         /// <returns>Returns a <c>KeyValuePair</c>, where the key is the newly generated rescue code and the value is the rekeyed <c>SQRLIdentity</c>.</returns>
-        public async Task<KeyValuePair<string,SQRLIdentity>> RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, IProgress<KeyValuePair<int,string>> progress)
+        public static async Task<KeyValuePair<string,SQRLIdentity>> RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, IProgress<KeyValuePair<int,string>> progress)
         {
             SQRLIdentity newID = new SQRLIdentity();
-            var oldIukData = await this.DecryptBlock2(identity, rescueCode, progress);
+            var oldIukData = await SQRL.DecryptBlock2(identity, rescueCode, progress);
             string newRescueCode = CreateRescueCode();
             byte[] newIUK = CreateIUK();
             if (oldIukData.Item1)
@@ -1451,7 +1470,7 @@ namespace SQRLUtilsLib
         /// <param name="newID">The identity which will hold the newly created block 3.</param>
         /// <param name="oldImk">The Identiy Master Key (IMK) of the of the <c>oldIdentity</c>.</param>
         /// <param name="newImk">The new Identity Master Key (IMK) under which the newly created block 3 will be encrypted.</param>
-        public void GenerateIdentityBlock3(byte[] oldIuk, SQRLIdentity oldIdentity, SQRLIdentity newID, byte[] oldImk, byte[] newImk)
+        public static void GenerateIdentityBlock3(byte[] oldIuk, SQRLIdentity oldIdentity, SQRLIdentity newID, byte[] oldImk, byte[] newImk)
         {
             byte[] decryptedBlock3 = null;
             List<byte> unencryptedOldKeys = new List<byte>();
@@ -1504,7 +1523,7 @@ namespace SQRLUtilsLib
         /// <param name="boolAllGood">Indicates whether the operation complented successfully.</param>
         /// <returns>Returns a contiguous block of all encrypted bytes from the identity's type 3 block, 
         /// which includes all the PIUKs as well as the authentication tag.</returns>
-        public byte[] DecryptBlock3(byte[] ikm, SQRLIdentity identity, out bool boolAllGood)
+        public static byte[] DecryptBlock3(byte[] ikm, SQRLIdentity identity, out bool boolAllGood)
         {
             List<byte> plainText = new List<byte>();
             plainText.AddRange(GetBytes(identity.Block3.Length));

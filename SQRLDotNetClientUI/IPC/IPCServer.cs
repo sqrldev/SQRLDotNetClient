@@ -66,7 +66,7 @@ namespace SQRLDotNetClientUI.IPC
                     {
                         var mm = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
 
-                        AuthenticationViewModel authView = new AuthenticationViewModel(mm.sqrlInstance, mm.CurrentIdentity, new Uri(data));
+                        AuthenticationViewModel authView = new AuthenticationViewModel(new Uri(data));
                         mm.AuthVM = authView;
                         AvaloniaLocator.Current.GetService<MainWindow>().Width = 400;
                         AvaloniaLocator.Current.GetService<MainWindow>().Height = 200;

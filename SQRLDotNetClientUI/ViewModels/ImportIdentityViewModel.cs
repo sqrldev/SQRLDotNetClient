@@ -22,25 +22,8 @@ namespace SQRLDotNetClientUI.ViewModels
             get => _identityFile; 
             set { this.RaiseAndSetIfChanged(ref _identityFile, value); } 
         }
-
-        public SQRL sqrlInstance { get; set; }
-
-        public SQRLIdentity sqrlIdentity { get; set; }
-
-        public string IdentityName { get; set; }
         
         public ImportIdentityViewModel()
-        {
-            Init();
-        }
-
-        public ImportIdentityViewModel(SQRL sqrlInstance)
-        {
-            Init();
-            this.sqrlInstance = sqrlInstance;
-        }
-
-        private void Init()
         {
             this.Title = _loc.GetLocalizationValue("ImportIdentityWindowTitle");
         }
@@ -77,7 +60,7 @@ namespace SQRLDotNetClientUI.ViewModels
             {
                 try
                 {
-                    byte[] identityBytes = this.sqrlInstance.Base56DecodeIdentity(this.TextualIdentity);
+                    byte[] identityBytes = SQRL.Base56DecodeIdentity(this.TextualIdentity);
                     bool noHeader = !SQRLIdentity.HasHeader(identityBytes);
                     identity = SQRLIdentity.FromByteArray(identityBytes, noHeader);
                 }
@@ -113,7 +96,7 @@ namespace SQRLDotNetClientUI.ViewModels
             if (identity != null)
             {
                 ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                    new ImportIdentitySetupViewModel(this.sqrlInstance, identity);
+                    new ImportIdentitySetupViewModel(identity);
             }   
         }
     }

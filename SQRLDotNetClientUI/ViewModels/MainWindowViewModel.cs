@@ -8,7 +8,6 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public SQRL sqrlInstance { get; set; }
         MainMenuViewModel mainMenu;
         ViewModelBase content;
         ViewModelBase priorContent;
@@ -33,19 +32,13 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public MainWindowViewModel()
         {
-            this.sqrlInstance = new SQRL(true);
-            var mainMnu = new MainMenuViewModel(this.sqrlInstance);
+            var mainMnu = new MainMenuViewModel();
             if (mainMnu != null && mainMnu.AuthVM != null)
                 Content = mainMnu.AuthVM;
             else
                 Content = mainMnu;
 
             MainMenu = mainMnu;
-        }
-
-        public MainWindowViewModel(SQRL sqrlInstance)
-        {
-            this.sqrlInstance = sqrlInstance;
         }
     }
 }

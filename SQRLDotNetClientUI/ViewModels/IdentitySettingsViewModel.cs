@@ -11,28 +11,35 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     class IdentitySettingsViewModel : ViewModelBase
     {
-        private IdentityManager _identityManager = IdentityManager.Instance;
-        public SQRL SqrlInstance { get; set; }
         public SQRLIdentity Identity { get; set; }
         public SQRLIdentity IdentityCopy { get; set; }
 
         private bool _canSave = true;
-        public bool CanSave { get => _canSave; set => this.RaiseAndSetIfChanged(ref _canSave, value); }
+        public bool CanSave 
+        { 
+            get => _canSave; 
+            set => this.RaiseAndSetIfChanged(ref _canSave, value); 
+        }
 
         private double _ProgressPercentage = 0;
-        public double ProgressPercentage { get => _ProgressPercentage; set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); }
+        public double ProgressPercentage 
+        { 
+            get => _ProgressPercentage; 
+            set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); 
+        }
 
         public double ProgressMax { get; set; } = 100;
 
         private string _progressText = string.Empty;
-        public string ProgressText { get => _progressText; set => this.RaiseAndSetIfChanged(ref _progressText, value); }
+        public string ProgressText 
+        { 
+            get => _progressText; 
+            set => this.RaiseAndSetIfChanged(ref _progressText, value); 
+        }
 
-        public IdentitySettingsViewModel() { }
-
-        public IdentitySettingsViewModel(SQRL sqrlInstance)
+        public IdentitySettingsViewModel()
         {
             this.Title = _loc.GetLocalizationValue("IdentitySettingsDialogTitle");
-            this.SqrlInstance = sqrlInstance;
             this.Identity = _identityManager.CurrentIdentity;
             this.IdentityCopy = this.Identity.Clone();
 
@@ -74,7 +81,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.ProgressText = p.Value + p.Key;
             });
 
-            (bool ok, byte[] imk, byte[] ilk) = await SqrlInstance.DecryptBlock1(Identity, password, progress);
+            (bool ok, byte[] imk, byte[] ilk) = await SQRL.DecryptBlock1(Identity, password, progress);
 
             if (!ok)
             {
@@ -92,7 +99,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 return;
             }
 
-            SQRLIdentity id = await SqrlInstance.GenerateIdentityBlock1(
+            SQRLIdentity id = await SQRL.GenerateIdentityBlock1(
                 imk, ilk, password, IdentityCopy, progress, IdentityCopy.Block1.PwdVerifySeconds);
 
             // Swap out the old type 1 block with the updated one

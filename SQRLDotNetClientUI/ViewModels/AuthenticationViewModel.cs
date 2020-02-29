@@ -31,9 +31,9 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
+        private SQRL _sqrlInstance = SQRL.GetInstance(true);
+
         public Uri Site { get; set; }
-        public SQRL sqrlInstance { get; set; }
-        public SQRLIdentity Identity { get; set; }
         public string AltID { get; set; }
         public string Password { get; set; }
 
@@ -54,11 +54,9 @@ namespace SQRLDotNetClientUI.ViewModels
             this.Site = new Uri("https://google.com");
         }
 
-        public AuthenticationViewModel(SQRL sqrlInstance, SQRLIdentity identity, Uri site)
+        public AuthenticationViewModel(Uri site)
         {
             Init();
-            this.sqrlInstance = sqrlInstance;
-            this.Identity = identity;
             this.Site = site;
             this.SiteID = site.Host;
         }
@@ -70,13 +68,13 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public void Cancel()
         {
-            if (this.sqrlInstance.cps.PendingResponse)
+            if (_sqrlInstance.cps.PendingResponse)
             {
-                this.sqrlInstance.cps.cpsBC.Add(this.sqrlInstance.cps.Can);
+                _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
             }
-            while (this.sqrlInstance.cps.PendingResponse)
+            while (_sqrlInstance.cps.PendingResponse)
                 ;
-            AvaloniaLocator.Current.GetService<MainWindow>().Close();
+            _mainWindow.Close();
         }
 
         public async void Login()
@@ -86,16 +84,16 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.Block1Progress = (int)percent.Key;
             });
 
-            var result = await this.sqrlInstance.DecryptBlock1(this.Identity, this.Password, progressBlock1);
+            var result = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, this.Password, progressBlock1);
             if (result.Item1)
             {
 
-                var siteKvp = sqrlInstance.CreateSiteKey(this.Site, this.AltID, result.Item2);
+                var siteKvp = SQRL.CreateSiteKey(this.Site, this.AltID, result.Item2);
 
                 Dictionary<byte[], Tuple<byte[], KeyPair>> priorKvps = null;
                 priorKvps = GeneratePriorKeyInfo(result, priorKvps);
                 SQRLOptions sqrlOpts = new SQRLOptions(SQRLOptions.SQRLOpts.CPS | SQRLOptions.SQRLOpts.SUK);
-                var serverResponse = this.sqrlInstance.GenerateQueryCommand(this.Site, siteKvp, sqrlOpts, null, 0, priorKvps);
+                var serverResponse = SQRL.GenerateQueryCommand(this.Site, siteKvp, sqrlOpts, null, 0, priorKvps);
                 if (!serverResponse.CommandFailed)
                 {
                     // New Account ask if they want to create one
@@ -107,18 +105,18 @@ namespace SQRLDotNetClientUI.ViewModels
                     else if (serverResponse.PreviousIDMatch)
                     {
                         byte[] ursKey = null;
-                        ursKey = this.sqrlInstance.GetURSKey(serverResponse.PriorMatchedKey.Key, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+                        ursKey = SQRL.GetURSKey(serverResponse.PriorMatchedKey.Key, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
                         StringBuilder additionalData = null;
                         if (!string.IsNullOrEmpty(serverResponse.SIN))
                         {
                             additionalData = new StringBuilder();
-                            byte[] ids = this.sqrlInstance.CreateIndexedSecret(this.Site, AltID, result.Item2, Encoding.UTF8.GetBytes(serverResponse.SIN));
+                            byte[] ids = SQRL.CreateIndexedSecret(this.Site, AltID, result.Item2, Encoding.UTF8.GetBytes(serverResponse.SIN));
                             additionalData.AppendLineWindows($"ins={Sodium.Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
-                            byte[] pids = this.sqrlInstance.CreateIndexedSecret(serverResponse.PriorMatchedKey.Value.Item1, Encoding.UTF8.GetBytes(serverResponse.SIN));
+                            byte[] pids = SQRL.CreateIndexedSecret(serverResponse.PriorMatchedKey.Value.Item1, Encoding.UTF8.GetBytes(serverResponse.SIN));
                             additionalData.AppendLineWindows($"pins={Sodium.Utilities.BinaryToBase64(pids, Utilities.Base64Variant.UrlSafeNoPadding)}");
 
                         }
-                        serverResponse = this.sqrlInstance.GenerateIdentCommandWithReplace(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, result.Item3, ursKey, serverResponse.PriorMatchedKey.Value.Item2, sqrlOpts, additionalData);
+                        serverResponse = SQRL.GenerateIdentCommandWithReplace(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, result.Item3, ursKey, serverResponse.PriorMatchedKey.Value.Item2, sqrlOpts, additionalData);
                     }
                     else if (serverResponse.CurrentIDMatch)
                     {
@@ -127,10 +125,10 @@ namespace SQRLDotNetClientUI.ViewModels
                         {
                             MainWindow w = new MainWindow();
 
-                            var mwTemp = new MainWindowViewModel(this.sqrlInstance);
+                            var mwTemp = new MainWindowViewModel();
                             w.DataContext = mwTemp;
                             w.WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterOwner;
-                            var avm = new AskViewModel(this.sqrlInstance, this.Identity, serverResponse)
+                            var avm = new AskViewModel(serverResponse)
                             {
                                 CurrentWindow = w
                             };
@@ -150,12 +148,12 @@ namespace SQRLDotNetClientUI.ViewModels
                             case LoginAction.Login:
                                 {
                                     addClientData = GenerateSIN(result, serverResponse, addClientData);
-                                    serverResponse = this.sqrlInstance.GenerateSQRLCommand(SQRLCommands.ident, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
-                                    if (this.sqrlInstance.cps != null && this.sqrlInstance.cps.PendingResponse)
+                                    serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.ident, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
+                                    if (SQRL.GetInstance(true).cps != null && _sqrlInstance.cps.PendingResponse)
                                     {
-                                        this.sqrlInstance.cps.cpsBC.Add(new Uri(serverResponse.SuccessUrl));
+                                        _sqrlInstance.cps.cpsBC.Add(new Uri(serverResponse.SuccessUrl));
                                     }
-                                    while (this.sqrlInstance.cps.PendingResponse)
+                                    while (_sqrlInstance.cps.PendingResponse)
                                         ;
                                     _mainWindow.Close();
                                 }
@@ -174,12 +172,12 @@ namespace SQRLDotNetClientUI.ViewModels
                                     if (btResult == ButtonResult.Yes)
                                     {
                                         GenerateSIN(result, serverResponse, addClientData);
-                                        serverResponse = this.sqrlInstance.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
-                                        if (this.sqrlInstance.cps != null && this.sqrlInstance.cps.PendingResponse)
+                                        serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
+                                        if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
                                         {
-                                            this.sqrlInstance.cps.cpsBC.Add(this.sqrlInstance.cps.Can);
+                                            _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
                                         }
-                                        while (this.sqrlInstance.cps.PendingResponse)
+                                        while (_sqrlInstance.cps.PendingResponse)
                                             ;
                                         _mainWindow.Close();
                                     }
@@ -221,7 +219,7 @@ namespace SQRLDotNetClientUI.ViewModels
             {
                 if (addClientData == null)
                     addClientData = new StringBuilder();
-                byte[] ids = this.sqrlInstance.CreateIndexedSecret(this.Site, AltID, result.Item2, Encoding.UTF8.GetBytes(serverResponse.SIN));
+                byte[] ids = SQRL.CreateIndexedSecret(this.Site, AltID, result.Item2, Encoding.UTF8.GetBytes(serverResponse.SIN));
                 addClientData.AppendLineWindows($"ins={Sodium.Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
             }
 
@@ -248,28 +246,28 @@ namespace SQRLDotNetClientUI.ViewModels
                 if (!string.IsNullOrEmpty(serverResponse.SIN))
                 {
                     additionalData = new StringBuilder();
-                    byte[] ids = this.sqrlInstance.CreateIndexedSecret(this.Site, AltID, result.Item2, Encoding.UTF8.GetBytes(serverResponse.SIN));
+                    byte[] ids = SQRL.CreateIndexedSecret(this.Site, AltID, result.Item2, Encoding.UTF8.GetBytes(serverResponse.SIN));
                     additionalData.AppendLineWindows($"ins={Sodium.Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
                 }
-                serverResponse = this.sqrlInstance.GenerateNewIdentCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, result.Item3, sqrlOpts, additionalData);
+                serverResponse = SQRL.GenerateNewIdentCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, result.Item3, sqrlOpts, additionalData);
                 if (!serverResponse.CommandFailed)
                 {
-                    if (this.sqrlInstance.cps.PendingResponse)
+                    if (_sqrlInstance.cps.PendingResponse)
                     {
-                        this.sqrlInstance.cps.cpsBC.Add(new Uri(serverResponse.SuccessUrl));
+                        _sqrlInstance.cps.cpsBC.Add(new Uri(serverResponse.SuccessUrl));
                     }
-                    while (this.sqrlInstance.cps.PendingResponse)
+                    while (_sqrlInstance.cps.PendingResponse)
                         ;
                     _mainWindow.Close();
                 }
             }
             else
             {
-                if (this.sqrlInstance.cps.PendingResponse)
+                if (_sqrlInstance.cps.PendingResponse)
                 {
-                    this.sqrlInstance.cps.cpsBC.Add(this.sqrlInstance.cps.Can);
+                    _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
                 }
-                while (this.sqrlInstance.cps.PendingResponse)
+                while (_sqrlInstance.cps.PendingResponse)
                     ;
                 _mainWindow.Close();
             }
@@ -279,9 +277,9 @@ namespace SQRLDotNetClientUI.ViewModels
 
         private Dictionary<byte[], Tuple<byte[], KeyPair>> GeneratePriorKeyInfo(Tuple<bool, byte[], byte[]> result, Dictionary<byte[], Tuple<byte[], KeyPair>> priorKvps)
         {
-            if (this.Identity.Block3 != null && this.Identity.Block3.Edition > 0)
+            if (_identityManager.CurrentIdentity.Block3 != null && _identityManager.CurrentIdentity.Block3.Edition > 0)
             {
-                byte[] decryptedBlock3 = this.sqrlInstance.DecryptBlock3(result.Item2, this.Identity, out bool allGood);
+                byte[] decryptedBlock3 = SQRL.DecryptBlock3(result.Item2, _identityManager.CurrentIdentity, out bool allGood);
                 List<byte[]> oldIUKs = new List<byte[]>();
                 if (allGood)
                 {
@@ -297,7 +295,7 @@ namespace SQRLDotNetClientUI.ViewModels
                     }
 
                     SQRL.ZeroFillByteArray(ref decryptedBlock3);
-                    priorKvps = this.sqrlInstance.CreatePriorSiteKeys(oldIUKs, this.Site, AltID);
+                    priorKvps = SQRL.CreatePriorSiteKeys(oldIUKs, this.Site, AltID);
                     oldIUKs.Clear();
                 }
             }
