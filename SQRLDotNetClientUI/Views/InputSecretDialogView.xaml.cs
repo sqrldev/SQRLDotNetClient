@@ -40,11 +40,11 @@ namespace SQRLDotNetClientUI.Views
         public InputSecretDialogView(SecretType secretType)
         {
             this.InitializeComponent();
-            _txtSecret = this.FindControl<TextBox>("txtSecret");
+            _txtSecret = this.FindControl<CopyPasteTextBox> ("txtSecret");
             _btnOK = this.FindControl<Button>("btnOK");
             _lblMessage = this.FindControl<TextBlock>("lblMessage");
 
-            _txtSecret.KeyUp += _txtSecret_KeyUp;
+            //_txtSecret.KeyUp += _txtSecret_KeyUp;
             _btnOK.Click += _btnOK_Click;
 
             this._secretType = secretType;

@@ -11,6 +11,7 @@ using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia;
 using Avalonia.Controls;
 using SQRLDotNetClientUI.Models;
+using Avalonia;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -33,7 +34,7 @@ namespace SQRLDotNetClientUI.ViewModels
         private SQRL _sqrlInstance = SQRL.GetInstance(true);
 
         public Uri Site { get; set; }
-        public string AltID { get; set; }
+        public string AltID { get; set; } = "";
         public string Password { get; set; } = "";
 
         public bool AuthAction { get; set; }
@@ -200,6 +201,49 @@ namespace SQRLDotNetClientUI.ViewModels
                             addClientData = new StringBuilder();
                             addClientData.AppendLineWindows($"btn={askResponse}");
                         }
+                        if (serverResponse.SQRLDisabled)
+                        {
+                            var disabledAccountAlert = string.Format(_loc.GetLocalizationValue("SqrlDisabledAlert"), this.SiteID, Environment.NewLine);
+                            var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                                _loc.GetLocalizationValue("ReEnableSQRLTitle").ToUpper(),
+                                $"{disabledAccountAlert}",
+                                ButtonEnum.YesNo,
+                                Icon.Lock);
+                            messageBoxStandardWindow.SetMessageStartupLocation(Avalonia.Controls.WindowStartupLocation.CenterOwner);
+                            var btResult = await messageBoxStandardWindow.ShowDialog(_mainWindow);
+                            if (btResult == ButtonResult.Yes)
+                            {
+                                RetryRescueCode:
+                                InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
+                                rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                                string rescueCode = await rescueCodeDlg.ShowDialog<string>(
+                                    _mainWindow);
+                                
+                                var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode),progressBlock1);
+                                if (iukData.Item1)
+                                {
+                                    byte[] ursKey = null;
+                                    ursKey = SQRL.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+
+                                    iukData.Item2.ZeroFill();
+                                    serverResponse = SQRL.GenerateEnableCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, ursKey, addClientData, sqrlOpts);
+                                }
+                                else
+                                {
+                                    var msgBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                        _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                                        MessageBox.Avalonia.Enums.ButtonEnum.YesNo,
+                                        MessageBox.Avalonia.Enums.Icon.Error);
+                                    var answer =await msgBox.ShowDialog(_mainWindow);
+                                    if(answer == ButtonResult.Yes)
+                                    {
+                                        goto RetryRescueCode;
+                                    }
+                                }
+                            }
+
+                        }
                         //Here
                         switch (Action)
                         {
@@ -243,7 +287,33 @@ namespace SQRLDotNetClientUI.ViewModels
                                 break;
                             case LoginAction.Remove:
                                 {
+                                    InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
+                                    rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                                    string rescueCode = await rescueCodeDlg.ShowDialog<string>(
+                                        _mainWindow);
+                                   var rescueResult = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode), progressBlock1);
+                                    if (rescueResult.Item1)
+                                    {
+                                        byte[] ursKey = SQRL.GetURSKey(rescueResult.Item2, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
 
+                                        serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts, null, ursKey);
+                                        if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
+                                        {
+                                            _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
+                                        }
+                                        while (_sqrlInstance.cps.PendingResponse)
+                                            ;
+                                        _mainWindow.Close();
+                                    }
+                                    else
+                                    {
+                                        var msgBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                        _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                                        MessageBox.Avalonia.Enums.ButtonEnum.Ok,
+                                        MessageBox.Avalonia.Enums.Icon.Error);
+                                        await msgBox.ShowDialog(_mainWindow);
+                                    }
                                 }
                                 break;
                         }

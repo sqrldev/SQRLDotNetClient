@@ -12,12 +12,20 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return value?.Equals(Enum.Parse(typeof(LoginAction),(string)parameter));
+            string parameterString = parameter.ToString();
+
+
+            object parameterValue = Enum.Parse(value.GetType(), parameterString);
+
+            return parameterValue.Equals(value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return value?.Equals(true)==true  ? Enum.Parse(typeof(LoginAction), (string)parameter) : LoginAction.Login;
+            string parameterString = parameter.ToString();
+ 
+
+            return Enum.Parse(targetType, parameterString);
         }
     }
 }
