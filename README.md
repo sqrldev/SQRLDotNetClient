@@ -1,15 +1,15 @@
-# SQRL Dot Net Core Client and Library
-This project has 2 main parts a SQRL library and a SQRL Client below is information on both. 
+
+# SQRL .Net Core Client and Library
+This project has 2 main parts: A **SQRL client** and a **SQRL library**. Below is information on both. 
 
 [SQRL Dot Net Core Client](#SQRL-Dot-Net-Core-Client)
-
 [SQRL Dot Net Core Library](#SQRL-Dot-Net-Core-Library)
 
 ### SQRL Dot Net Core Client
 
-An implementation of a full SQRL client along with a cross-platform UI using Avalonia
+An implementation of a fully-featured SQRL client, along with a cross-platform user interface (using the Avalonia UI framework).
 
-#### Installing Client on Linux (Desktop Environment is Required xdg-desktop)
+#### Installing the Client on Linux (desktop environment / xdg-desktop is required)
 
 ```shell
 sudo apt-get install -y libgdiplus
@@ -36,10 +36,10 @@ brew install mono-libgdiplus
 
 #### Install Client on Windows OS
 
-- Download Windows Client File https://client.sqrloauth.com/win-x64/SQRLDotNetClientUI.exe
-- Save the file in C:\SQRL\ folder
-- Download the Registry Edit File from: https://github.com/sqrldev/SQRLDotNetClient/blob/master/Installers/Windows/WindowsRegEx.reg
-- Run the downloaded file to register the sqrl schema. Not if your Client isn't in the C:\SQRL folder you'll have to adjust the script.
+- Download the latest Windows Client binary from the Github releases: [https://github.com/sqrldev/SQRLDotNetClient/releases](https://github.com/sqrldev/SQRLDotNetClient/releases)
+- Save the file in the `C:\SQRL\` folder
+- Download the registry file from: https://github.com/sqrldev/SQRLDotNetClient/blob/master/Installers/Windows/WindowsRegEx.reg
+- Run the downloaded file to register the sqrl schema. If your Client isn't in the `C:\SQRL` folder, you'll have to adjust the script.
 
 ![](/SQRLDotNetClientUI/Assets/SQRL_InAction.gif)
 
@@ -47,7 +47,7 @@ brew install mono-libgdiplus
 
 ### SQRL Dot Net Core Library
 
-An implementation of the full client protocol for SQRL written in Dot Net Core fully cross-platform to (Win, Nix, Mac)
+An implementation of the full client protocol for SQRL written in .Net Core, fully cross-platform too (Win, Nix, Mac).
 
 ![SQRLClientDemo](/SQRLUtilsLib/Resources/SQRLClientDemo.gif)
 
@@ -57,56 +57,73 @@ An implementation of the full client protocol for SQRL written in Dot Net Core f
 
 #### Requirements
 
-This is a Dot Net Core 3.1 library so you will need a compatible project
+This is a .Net Core 3.1 library so you will need a compatible project.
 
 #### How to Use
 
-##### Create an Instance of the SQRLib class
+Almost all of the library's functionality can be accessed by simply calling the static methods of the `SQRL` class:
 
 ```csharp
+/* Import the library's namespace */
+using SQRLUtilsLib;
 
 /* 
-Create an Instance of the SQRL library
-the boolean here tells the library to start the CPS server.
-If no CPS server is desired, pass false
+There is no need to instanciate the library 
+if no CPS server is needed. Just call the 
+static functions of the SQRL class.
 */ 
-SQRL sqrlLib = new SQRLUtilsLib.SQRL(true); 
+var rc = SQRL.CreateRescueCode(); 
 ```
 
-##### Create a new SQRL Identity (from scratch)
+##### Create an instance of the SQRL class
 
 ```csharp
-//Creates a new Identity Object
+/* 
+Create an instance of the SQRL library only if 
+you need the CPS server functionality. The SQRL 
+class follows the singleton pattern, so instead
+of calling the constructor, you call the library's
+GetInstance method, passing in true if you want
+to immediately start the CPS server, or false
+otherwise.
+*/ 
+SQRL sqrlLib = SQRL.GetInstance(true); 
+```
+
+##### Create a new SQRL identity (from scratch)
+
+```csharp
+//Creates a new Identity object
 SQRLIdentity newIdentity = new SQRLUtilsLib.SQRLIdentity();
 
 //Generates a Identity Unlock Key
-var iuk = sqrlLib.CreateIUK();
+var iuk = SQRL.CreateIUK();
 
 // Generaties a Rescue Code
-var rescueCode = sqrlLib.CreateRescueCode();
+var rescueCode = SQRL.CreateRescueCode();
 
-// Used to Report Progress when Encrypting / Decrypting (progress bar maybe)
+// Used to report progress when encrypting / decrypting (progress bar maybe)
 var progress = new Progress<KeyValuePair<int, string>>(percent =>
 {
 	Console.WriteLine($"{percent.Value}: {percent.Key}%");
 });
 
-newIdentity = await sqrlLib.GenerateIdentityBlock1(iuk, "My-Awesome-Password", newIdentity, progress);
+newIdentity = await SQRL.GenerateIdentityBlock1(iuk, "My-Awesome-Password", newIdentity, progress);
 
-newIdentity = await sqrlLib.GenerateIdentityBlock2(iuk, rescueCode, newIdentity, progress);
+newIdentity = await SQRL.GenerateIdentityBlock2(iuk, rescueCode, newIdentity, progress);
 ```
-##### Import Identity From File
+##### Import identity from file
 
 ```csharp
-SQRLIdentity newIdentity=SQRLIdentity.FromFile(@"C:\Temp\identiy.sqrl");
+SQRLIdentity newIdentity = SQRLIdentity.FromFile(@"C:\Temp\identiy.sqrl");
 ```
 
 
 
-##### Import Identity from Text
+##### Import identity from text
 
 ```csharp
-//Creates a new Identity Object
+//Creates a new Identity object
 string identityTxt = "KKcC 3BaX akxc Xwbf xki7 k7mF GHhg jQes gzWd 6TrK vMsZ dBtB pZbC zsz8 cUWj DtS2 ZK2s ZdAQ 8Yx3 iDyt QuXt CkTC y6gc qG8n Xfj9 bHDA 422";
 
 string rescueCode = "119887487132283883187570";
@@ -119,28 +136,28 @@ var progress = new Progress<KeyValuePair<int, string>>(percent =>
 	Console.WriteLine($"{percent.Value}: {percent.Key}%");
 });
 
-// Decodes the identity from Text Import
-SQRLIdentity newIdentity = await sqrlLib.DecodeSqrlIdentityFromText(identityTxt, rescueCode, password, progress);
+// Decodes the identity from text import
+SQRLIdentity newIdentity = await SQRL.DecodeSqrlIdentityFromText(identityTxt, rescueCode, password, progress);
 ```
-##### Export Identity to File
+##### Export identity to file
 
 ```csharp
 newIdentity.WriteToFile(@"C:\Temp\My-SQRL-Identity.sqrl");
 ```
 
-##### Re-Key Identity
+##### Re-Key identity
 
 ```csharp
-//Have an existing Identity Object (somehow)
-SQRLUtilsLib.SQRLIdentity existingIdentity = SQRL.ImportSqrlIdentityFromFile(@"C:\Temp\MyCurrentIdentity.sqrl");        
+//Have an existing Identity object (somehow)
+SQRLIdentity existingIdentity = ...
 
 //Reports progress while decrypting / encrypting the identity it is optional
 var progress = new Progress<KeyValuePair<int, string>>(percent =>
 {
 	Console.WriteLine($"{percent.Value}: {percent.Key}%");
 });
-//Re-Keys the existing Identity object and returns a tuple of your new rescue code and the new Identity (which now contains a new entry in block3 )
-var reKeyResponse = await sqrlLib.RekeyIdentity(existingIdentity, rescueCode, "My-New-Even-Better-Password", progress); 
+//Re-Keys the existing identity object and returns a tuple of your new rescue code and the new identity (which now contains a new entry in block3 )
+var reKeyResponse = await SQRL.RekeyIdentity(existingIdentity, rescueCode, "My-New-Even-Better-Password", progress); 
 
 Console.WriteLine($"New Rescue Code: {reKeyResponse.Key}");
 
@@ -148,37 +165,37 @@ var NewlyReKeyedIdentity = reKeyResponse.Value;
 ```
 
 
-##### Generate a Site Key Pair
+##### Generate a Site Key-Pair
 
 ```csharp
-SQRLUtilsLib.SQRL sqrlLib = new SQRLUtilsLib.SQRL();
 //Reports progress while decrypting / encrypting the identity
 var progress = new Progress<KeyValuePair<int, string>>(percent =>
 {
 	Console.WriteLine($"{percent.Value}: {percent.Key}%");
 });
-//Have an existing identity (some-how)
-SQRLIdentity existingIdentity = SQRL.ImportSqrlIdentityFromFile(@"C:\Temp\MyCurrentIdentity.sqrl");
+//Have an existing identity (somehow)
+SQRLIdentity existingIdentity = ...
 
 //Returns a tuple of 3 values a boolean indicating sucess, Item2 = IMK Item3 = ILK
-var block1DecryptedData= await sqrlLib.DecryptBlock1(existingIdentity, "My-Awesome-Password", progress);
+var block1DecryptedData = await SQRL.DecryptBlock1(existingIdentity, "My-Awesome-Password", progress);
+
 /*
 Note that bloc1DecryptedData returns a tuple as mentioned above 
 Item1 is a  boolean (sucess/not)
 Item2 is (IMK) Identity Master Key
 Item3 is (ILK) Identity Lock Key
 */
-if (block1DecryptedData.Item1) //If Sucess
+if (block1DecryptedData.Item1) //If success
 {
-    //This is the site's Key Pair for signing requests
-	Sodium.KeyPair siteKP = sqrlLib.CreateSiteKey(new Uri("sqrl://sqrl.grc.com/cli.sqrl?nut=fXkb4MBToCm7"), "Alt-ID-If-You-Want-One", block1DecryptedData.Item2); //Item2=IMK
+    //This is the site's Key-Pair for signing requests
+	Sodium.KeyPair siteKP = SQRL.CreateSiteKey(new Uri("sqrl://sqrl.grc.com/cli.sqrl?nut=fXkb4MBToCm7"), "Alt-ID-If-You-Want-One", block1DecryptedData.Item2); //Item2=IMK
 }
 else
 	throw new Exception("Invalid password, failed to decrypt");
 ```
 
 
-##### Generate a Query Command to the Server
+##### Generate a query command to the server
 
 Assumes you have a valid SiteKeyPair
 
@@ -188,20 +205,17 @@ Uri sqrlUrl = new Uri("sqrl://sqrl.grc.com/cli.sqrl?nut=fXkb4MBToCm7");
 //SQRL client options include CPS, SUK, HARDLOCK, NOIPTEST,SQRLONLY
 SQRLOptions opts = new SQRLOptions(SQRLOptions.SQRLOpts.CPS | SQRLOptions.SQRLOpts.SUK | SQRLOptions.SQRLOpts.);            
 /*
-Generates a query command and sends it to the server, requires that you have a  valid site keypair
-returns a "SQRLServerResponse" object which contains all pertinent data of the response from the server
-              
+Generates a query command and sends it to the server, requires that you have a  valid site keypair.
+Returns a "SQRLServerResponse" object which contains all pertinent data of the response from the server.
 */
-var serverRespose = sqrl.GenerateQueryCommand(requestURI, siteKvp, opts,null,0, priorKvps);
+var serverRespose = SQRL.GenerateQueryCommand(requestURI, siteKvp, opts,null,0, priorKvps);
 ```
 
 
-##### Deal with Ask on Query Response
-
-
+##### Deal with "Ask" on query response
 
 ```csharp
-if (serverRespose.HasAsk) //Returns true if server sent Ask
+if (serverRespose.HasAsk) //Returns true if server sent "Ask"
 {
 	Console.WriteLine(serverRespose.AskMessage);
 	Console.WriteLine($"Enter 1 for {serverRespose.GetAskButtons[0]} or 2 for 	{serverRespose.GetAskButtons[1]}");
@@ -228,16 +242,16 @@ if (askResponse > 0)
 }
 // addClientData now needs to be passed in to the next command (Ident)
 ```
-##### Generate Ident (create) Command
+##### Generate "Ident" (create) command
 
-Assumes you have a generated SiteKeyPair
-Assumes you have a decrypted ILK (Identity Lock Key) (by decrypting block1)
+Assumes you have a generated SiteKeyPair.
+Assumes you have a decrypted ILK (Identity Lock Key) (by decrypting block1).
 
 ```csharp
 if (!serverRespose.CurrentIDMatch) //New Account
 {
-    //Generates a new Identity with a new SUK/VUK generated from the decrypted block1
-    serverRespose = sqrl.GenerateNewIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3, opts);
+    //Generates a new identity with a new SUK/VUK generated from the decrypted block1
+    serverRespose = SQRL.GenerateNewIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3, opts);
 }
 ```
 
@@ -245,30 +259,28 @@ if (!serverRespose.CurrentIDMatch) //New Account
 
 
 
-##### Send Enable Command
-
-
+##### Send "Enable" command
 
 ```csharp
 if (serverRespose.SQRLDisabled)
 {
-    Console.WriteLine("SQRL Is Disabled, to Continue you must enable it. Do you want to? (Y/N)");
+    Console.WriteLine("SQRL is disabled, to continue you must enable it. Do you want to? (Y/N)");
     if (Console.ReadLine().StartsWith("Y", StringComparison.OrdinalIgnoreCase))
     {
-        Console.WriteLine("Enter your Rescue Code (No Sapces or Dashes)");
+        Console.WriteLine("Enter your Rescue Code (no sapces or dashes)");
         string rescueCode = Console.ReadLine().Trim();
         progress = new Progress<KeyValuePair<int, string>>(percent =>
-                                                           {
-                                                               Console.WriteLine($"Decrypting with Rescue Code: {percent.Key}%");
-                                                           });
-        var iukData = await sqrl.DecryptBlock2(newId, rescueCode, progress);
+        {
+            Console.WriteLine($"Decrypting with Rescue Code: {percent.Key}%");
+        });
+        var iukData = await SQRL.DecryptBlock2(newId, rescueCode, progress);
         if (iukData.Item1)
         {
             byte[] ursKey = null;
-            ursKey = sqrl.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+            ursKey = SQRL.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
 
             iukData.Item2.ZeroFill();
-            serverRespose = sqrl.GenerateEnableCommand(serverRespose.NewNutURL, siteKvp,serverRespose.FullServerRequest, ursKey,addClientData, opts);
+            serverRespose = SQRL.GenerateEnableCommand(serverRespose.NewNutURL, siteKvp,serverRespose.FullServerRequest, ursKey,addClientData, opts);
         }
         else
         {
@@ -278,67 +290,77 @@ if (serverRespose.SQRLDisabled)
     }
 }
 ```
-##### Send Disable Command
+##### Send "Disable" command
 
 ```csharp
-Console.WriteLine("This will disable all use of this SQRL Identity on the server, are you sure you want to proceed?: (Y/N)");
+// Instantiate the sqrl library to get the 
+// CPS server functionality
+SQRL sqrlInstance = SQRL.GetInstance(true);
+
+Console.WriteLine("This will disable all use of this SQRL identity on the server, are you sure you want to proceed?: (Y/N)");
 if (Console.ReadLine().StartsWith("Y", StringComparison.OrdinalIgnoreCase))
 {
-    serverRespose =sqrl.GenerateSQRLCommand(SQRLCommands.disable, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts);
-    if (sqrl.cps != null && sqrl.cps.PendingResponse)
+    serverRespose = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts);
+    if (sqrlInstance.cps != null && sqrlInstance.cps.PendingResponse)
     {
-        sqrl.cps.cpsBC.Add(sqrl.cps.Can);
+        sqrlInstance.cps.cpsBC.Add(sqrlInstance.cps.Can);
     }
 }
 ```
 
-
-
-##### Send Remove Command
+##### Send "Remove" command
 
 ```csharp
+// Instantiate the sqrl library to get the 
+// CPS server functionality
+SQRL sqrlInstance = SQRL.GetInstance(true);
+
 Console.WriteLine("Enter your Rescue Code (No Sapces or Dashes)");
 string rescueCode = Console.ReadLine().Trim();
 progress = new Progress<KeyValuePair<int, string>>(percent =>
-                                                   {
-                                                       Console.WriteLine($"Decrypting with Rescue Code: {percent.Key}%");
-                                                   });
-var iukData = await sqrl.DecryptBlock2(newId, rescueCode);
+{
+    Console.WriteLine($"Decrypting with Rescue Code: {percent.Key}%");
+});
+var iukData = await SQRL.DecryptBlock2(newId, rescueCode);
 if (iukData.Item1)
 {
-    byte[] ursKey = sqrl.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+    byte[] ursKey = SQRL.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
     iukData.Item2.ZeroFill();
-    serverRespose = sqrl.GenerateSQRLCommand(SQRLCommands.remove, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts,null,ursKey);
-    if (sqrl.cps != null && sqrl.cps.PendingResponse)
+    serverRespose = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts,null,ursKey);
+    if (sqrlInstance.cps != null && sqrlInstance.cps.PendingResponse)
     {
-        sqrl.cps.cpsBC.Add(sqrl.cps.Can);
+        sqrlInstance.cps.cpsBC.Add(sqrlInstance.cps.Can);
     }
 }
 else
-    throw new Exception("Failed to Decrypt Block 2, Invalid Rescue Code");
+    throw new Exception("Failed to decrypt Block 2, invalid Rescue Code");
 ```
 
-##### Send Ident With Replace (prior Identity matched)
+##### Send "Ident" with "Replace" (prior identity matched)
 
-Sends an Ident command along with new SUK/VUK and prior URS to replace identity
+Sends an "Ident" command along with new SUK/VUK and prior URS to replace identity.
 
 ```csharp
 if(serverRespose.PreviousIDMatch)
 {                            
     byte[] ursKey = null;
-    ursKey = sqrl.GetURSKey(serverRespose.PriorMatchedKey.Key, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-    serverRespose = sqrl.GenerateIdentCommandWithReplace(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3,ursKey,serverRespose.PriorMatchedKey.Value,opts);
+    ursKey = SQRL.GetURSKey(serverRespose.PriorMatchedKey.Key, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+    serverRespose = SQRL.GenerateIdentCommandWithReplace(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3,ursKey,serverRespose.PriorMatchedKey.Value,opts);
 }
 ```
-##### Send Ident and Deal with CPS
+##### Send "Ident" and deal with CPS
 
-Any serverResponse can be dealt with via CPS, if CPS is enabled and has a "pendingRequest"
+Any serverResponse can be dealt with via CPS, if CPS is enabled and has a "pendingRequest".
 
 ```csharp
-serverRespose = sqrl.GenerateSQRLCommand(SQRLCommands.ident, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts);
-if (sqrl.cps != null && sqrl.cps.PendingResponse)
+// Instantiate the sqrl library to get the 
+// CPS server functionality
+SQRL sqrlInstance = SQRL.GetInstance(true);
+
+var serverRespose = SQRL.GenerateSQRLCommand(SQRLCommands.ident, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts);
+if (sqrlInstance.cps != null && sqrlInstance.cps.PendingResponse)
 {
-    sqrl.cps.cpsBC.Add(new Uri(serverRespose.SuccessUrl));
+    sqrlInstance.cps.cpsBC.Add(new Uri(serverRespose.SuccessUrl));
 }
 ```
 
