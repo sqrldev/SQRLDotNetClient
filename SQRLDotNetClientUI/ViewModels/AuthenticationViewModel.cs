@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using ReactiveUI;
+﻿using ReactiveUI;
 using Sodium;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
@@ -10,6 +9,8 @@ using System.Text;
 using SQRLDotNetClientUI.Utils;
 using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia;
+using Avalonia.Controls;
+using SQRLDotNetClientUI.Models;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -25,26 +26,53 @@ namespace SQRLDotNetClientUI.ViewModels
         private LoginAction action = LoginAction.Login;
         public LoginAction Action
         {
-            get => action; set
-            {
-                this.RaiseAndSetIfChanged(ref action, value);
-            }
+            get => action; 
+            set { this.RaiseAndSetIfChanged(ref action, value); }
         }
 
         private SQRL _sqrlInstance = SQRL.GetInstance(true);
 
         public Uri Site { get; set; }
         public string AltID { get; set; }
-        public string Password { get; set; }
+        public string Password { get; set; } = "";
 
         public bool AuthAction { get; set; }
 
         public string _siteID = "";
-        public string SiteID { get { return $"{this.Site.Host}"; } set => this.RaiseAndSetIfChanged(ref _siteID, value); }
+        public string SiteID 
+        { 
+            get { return $"{this.Site.Host}"; } 
+            set => this.RaiseAndSetIfChanged(ref _siteID, value); 
+        }
+
+        public string _identityName = "";
+        public string IdentityName
+        {
+            get => _identityName;
+            set => this.RaiseAndSetIfChanged(ref _identityName, value);
+        }
+
+        public bool _showIdentitySelector;
+        public bool ShowIdentitySelector
+        {
+            get => _showIdentitySelector;
+            set => this.RaiseAndSetIfChanged(ref _showIdentitySelector, value);
+        }
+
+        public bool _advancedFunctionsVisible = false;
+        public bool AdvancedFunctionsVisible
+        {
+            get => _advancedFunctionsVisible;
+            set => this.RaiseAndSetIfChanged(ref _advancedFunctionsVisible, value);
+        }
 
         private int _Block1Progress = 0;
 
-        public int Block1Progress { get => _Block1Progress; set => this.RaiseAndSetIfChanged(ref _Block1Progress, value); }
+        public int Block1Progress 
+        { 
+            get => _Block1Progress; 
+            set => this.RaiseAndSetIfChanged(ref _Block1Progress, value); 
+        }
 
         public int MaxProgress { get => 100; }
 
@@ -52,6 +80,7 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             Init();
             this.Site = new Uri("https://google.com");
+            this.SiteID = this.Site.Host;
         }
 
         public AuthenticationViewModel(Uri site)
@@ -64,6 +93,35 @@ namespace SQRLDotNetClientUI.ViewModels
         private void Init()
         {
             this.Title = _loc.GetLocalizationValue("AuthenticationWindowTitle");
+            this.IdentityName = _identityManager.CurrentIdentity?.IdentityName;
+            _identityManager.IdentityChanged += IdentityChanged;
+            _identityManager.IdentityCountChanged += IdentityCountChanged;
+
+            IdentityCountChanged(this, new IdentityCountChangedEventArgs(
+                _identityManager.IdentityCount));
+        }
+
+        private void IdentityCountChanged(object sender, IdentityCountChangedEventArgs e)
+        {
+            if (e.IdentityCount > 1) this.ShowIdentitySelector = true;
+            else this.ShowIdentitySelector = false;
+        }
+
+        public async void SwitchIdentity()
+        {
+            SelectIdentityDialogView selectIdDialog = new SelectIdentityDialogView();
+            selectIdDialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            await selectIdDialog.ShowDialog(_mainWindow);
+        }
+
+        private void IdentityChanged(object sender, IdentityChangedEventArgs e)
+        {
+            this.IdentityName = e.Identity.IdentityName;
+        }
+
+        public void ShowAdvancedFunctions()
+        {
+            this.AdvancedFunctionsVisible = true;
         }
 
         public void Cancel()

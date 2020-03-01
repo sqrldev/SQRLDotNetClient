@@ -13,7 +13,7 @@
     { "NewAccountQuestion": "The server at {0} did not recognize this Identity, would you like to proceed? This may cause the site to create a new account for this Identity" },
     { "GenericQuestionTitle": "Question?" },
     { "AskHeader": "Question from: {0}" },
-    { "AltIDLabel": "Alt ID" },
+    { "AltIDLabel": "Alt-ID:" },
     { "DisableAccountAlert": "This will DISABLE all use of SQRL in the Given Site {0}, note that this operation is not easily reversed.{1}You will need your Rescue Code to enable SQRL in the future.{1}Would you like to continue?" },
     { "SelectIdentityLabel": "Select an identity:" },
     { "SelectIdentityTitle": "Select identity" },
@@ -98,7 +98,9 @@
     { "PasswordLabel": "Password:" },
     { "NewIdentityWindowTitle": "SQRL Client - New Identity" },
     { "NewIdentityMessage": "To generate a new identity you need to save the rescue code shown below and enter a password. You REALLY need to save and store the rescue code in a save place, it will be required later!" },
-    { "PasswordsDontMatchErrorMessage": "The entered passwords don't match!\nPlease try again." }
+    { "PasswordsDontMatchErrorMessage": "The entered passwords don't match!\nPlease try again." },
+    { "ShowAdvancedFunctionsLabel": "Show advanced functions" },
+    { "WithIdentityLabel": "with identity" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -114,7 +116,7 @@
     { "NewAccountQuestion": "The server at {0} did not recognize this Identity, would you like to proceed? This may cause the site to create a new account for this Identity" },
     { "GenericQuestionTitle": "Question?" },
     { "AskHeader": "Question from: {0}" },
-    { "AltIDLabel": "Alt ID" },
+    { "AltIDLabel": "Alt-ID:" },
     { "DisableAccountAlert": "This will DISABLE all use of SQRL in the Given Site {0}, note that this operation is not easily reversed.{1}You will need your Rescue Code to enable SQRL in the future.{1}Would you like to continue?" },
     { "SelectIdentityLabel": "Select an identity:" },
     { "SelectIdentityTitle": "Select identity" },
@@ -198,7 +200,9 @@
     { "PasswordLabel": "Password:" },
     { "NewIdentityWindowTitle": "SQRL Client - New Identity" },
     { "NewIdentityMessage": "To generate a new identity you need to save the rescue code shown below and enter a password. You REALLY need to save and store the rescue code in a save place, it will be required later!" },
-    { "PasswordsDontMatchErrorMessage": "The entered passwords don't match!\nPlease try again." }
+    { "PasswordsDontMatchErrorMessage": "The entered passwords don't match!\nPlease try again." },
+    { "ShowAdvancedFunctionsLabel": "Show advanced functions" },
+    { "WithIdentityLabel": "with identity" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -214,7 +218,7 @@
     { "NewAccountQuestion": "Der Server auf {0} hat diese Identität nicht erkannt. Möchten Sie trotzdem fortfahren? Dies könnte bedeuten, dass der Server einen neuen Account für diese Identität erstellt." },
     { "GenericQuestionTitle": "Frage" },
     { "AskHeader": "Frage von: {0}" },
-    { "AltIDLabel": "Alt-ID" },
+    { "AltIDLabel": "Alt-ID:" },
     { "DisableAccountAlert": "Dieser Vorgang deaktiviert die Anmeldung mittels SQRL auf {0} vollständig. Bitte beachten Sie, dass dieser Vorgang nicht ohne weiteres rückgängig gemacht werden kann.{1}Sie benötigen Ihren Rettungsschlüssel (\"rescue code\"), um SQRL später wieder zu aktivieren.{1}Möchten Sie fortfahren?" },
     { "SelectIdentityLabel": "Wählen Sie eine Identität:" },
     { "SelectIdentityTitle": "Identität wählen" },
@@ -298,6 +302,8 @@
     { "PasswordLabel": "Passwort:" },
     { "NewIdentityWindowTitle": "SQRL Client - Neue Identität" },
     { "NewIdentityMessage": "Um eine neue Identität zu erstellen, notieren Sie den angezeigten Rettungscode und vergeben Sie ein Passwort. Speichern bzw. verwahren Sie den Rettungscode unbedingt an einem sicheren Ort, Sie werden ihn später noch benötigen!" },
-    { "PasswordsDontMatchErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein!\nBitte versuchen Sie es erneut." }
+    { "PasswordsDontMatchErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein!\nBitte versuchen Sie es erneut." },
+    { "ShowAdvancedFunctionsLabel": "Erweiterte Funktionen anzeigen" },
+    { "WithIdentityLabel": "mit Identität" }
   ]
 }

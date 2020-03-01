@@ -7,54 +7,86 @@
              xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
              xmlns:util="clr-namespace:SQRLDotNetClientUI.ViewModels.AuthenticationViewModel;assembly=SQRLDotNetClientUI"
              xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="300"
+             mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="500"
              x:Class="SQRLDotNetClientUI.Views.AuthenticationView">
-  <Design.DataContext>
-    <vm:AuthenticationViewModel/>
-  </Design.DataContext>
-  <Grid ShowGridLines="False">
-    <Grid.Resources>
-      <loc:EnumBooleanConverter x:Key="enumBooleanConverter" />
-    </Grid.Resources>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="100"/>
-      <ColumnDefinition Width="*"/>
-    </Grid.ColumnDefinitions>
-    <Grid.RowDefinitions>
-      <RowDefinition />
-      <RowDefinition />
-      <RowDefinition />
-      <RowDefinition />
-      <RowDefinition />
-      <RowDefinition />
-      <RowDefinition />
-    </Grid.RowDefinitions>
-    <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
-    <StackPanel  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
-    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Text="{loc:Localization AuthMessage}" FontSize="15" TextWrapping="Wrap" />
-    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Text="{Binding SiteID}" FontSize="15" TextWrapping="Wrap" Grid.Row="0"/>
+
+  <!-- Begin main layout -->
+  <DockPanel Margin="0">
+
+    <!-- Header image -->
+    <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Margin="20" Height="50" DockPanel.Dock="Top" HorizontalAlignment="Center"></Image>
+
+    <!-- Login message and site id -->
+      <TextBlock HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="10, 0, 10, 5" Text="{loc:Localization AuthMessage}" FontSize="13" TextWrapping="Wrap" />
+      <TextBlock HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="10, 0, 10, 0" Text="www.grc.com" FontSize="22" FontFamily="Consolas" Foreground="#007cc3" TextWrapping="Wrap"/>
+
+    <!-- "Identity button/label -->
+    <StackPanel IsVisible="{Binding ShowIdentitySelector}" Orientation="Horizontal" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="5,5,5,0">
+      <Button Name="btnIdentitySelector" Command="{Binding SwitchIdentity}" IsVisible="{Binding SwitchIdentity}" Margin="0,5,0,0" BorderBrush="Transparent">
+        <Button.Template>
+          <ControlTemplate>
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="{loc:Localization WithIdentityLabel}" Margin="0,0,3,0" />
+              <TextBlock Text="{Binding IdentityName}" Foreground="Blue">Identity Name</TextBlock>
+            </StackPanel>
+          </ControlTemplate>
+        </Button.Template>
+      </Button>
     </StackPanel>
-    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Text="{loc:Localization Password}" FontSize="15" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
-    <loc:CopyPasteTextBox Text="{Binding Password}" HorizontalAlignment="Left" PasswordChar="*" Grid.Row="1" Grid.Column="1" Width="250" Height="30">
-      <i:Interaction.Behaviors>
-        <behaviors:FocusOnAttached />
-      </i:Interaction.Behaviors>
+
+    <!-- Password form -->
+    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="20,20,10,10">
+      <TextBlock Name="test" Text="{loc:Localization Password}" Width="100" VerticalAlignment="Center" FontSize="14" TextWrapping="Wrap"/>
+      <loc:CopyPasteTextBox Name="txtPassword" Text="{Binding Password}" PasswordChar="*" Width="230" Height="30">
+        <i:Interaction.Behaviors>
+          <behaviors:FocusOnAttached />
+        </i:Interaction.Behaviors>
       </loc:CopyPasteTextBox>
-    <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" Text="{loc:Localization AltIDLabel}" FontSize="15" TextWrapping="Wrap" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"/>
-    <loc:CopyPasteTextBox Text="{Binding AltID}" HorizontalAlignment="Left"  Grid.Row="2" Grid.Column="1" Width="100" Height="30"/>
-    <StackPanel Grid.Row="3" Grid.Column="1">
-    <RadioButton Content="{loc:Localization LoginRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Login}" Margin="0,2" />
-    <RadioButton Content="{loc:Localization DisableRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Disable}"  Margin="0,2" />
-      <!--
-      <RadioButton  IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Remove}"  Margin="0,2">Remove</RadioButton>
-      -->
     </StackPanel>
-    <ProgressBar  IsIndeterminate="False" Value="{Binding Block1Progress}" Maximum="{Binding MaxProgress}" Minimum="0" IsEnabled="true"  Height="20"  MinWidth="10" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="10"/>
-    <Button Command="{Binding Cancel}" Grid.Row="6" Grid.Column="0" Width="100" Height="30" HorizontalAlignment="Left" Margin="10" >
-      <TextBlock Text="{loc:Localization BtnCancel}"/>
+
+    <!-- "Show advanced functions" button/label -->
+    <Button Name="btnAdvancedFunctions" Command="{Binding ShowAdvancedFunctions}" IsVisible="{Binding !AdvancedFunctionsVisible}" DockPanel.Dock="Top" 
+            HorizontalAlignment="Center" BorderBrush="Transparent">
+      <Button.Template>
+        <ControlTemplate>
+          <TextBlock Text="{loc:Localization ShowAdvancedFunctionsLabel}" Foreground="Blue" />
+        </ControlTemplate>
+      </Button.Template>
     </Button>
-    <Button Command="{Binding Login}" Grid.Row="6" Grid.Column="1" Width="100" Height="30" HorizontalAlignment="Right" Margin="10" IsDefault="True">
-      <TextBlock Text="{loc:Localization BtnOK}"/>
-    </Button>
-  </Grid>
+
+    <!-- Advanced functions -->
+    <StackPanel DockPanel.Dock="Top" IsVisible="{Binding AdvancedFunctionsVisible}">
+      
+      <!-- Alt-ID -->  
+      <StackPanel Orientation="Horizontal" Margin="20,0,20,0">
+        <TextBlock Text="{loc:Localization AltIDLabel}" Width="100" VerticalAlignment="Center" FontSize="14" TextWrapping="Wrap"/>
+        <loc:CopyPasteTextBox Name="txtAltID" Text="{Binding AltID}" HorizontalAlignment="Left" Width="230" Height="30"/>
+      </StackPanel>
+
+      <!-- Enable/Disable/Remove radio buttons -->
+      <StackPanel Margin="120,15,20,0">
+        <StackPanel.Resources>
+          <loc:EnumBooleanConverter x:Key="enumBooleanConverter" />
+        </StackPanel.Resources>
+        <RadioButton Content="{loc:Localization LoginRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Login}" Margin="0,0,0,2" />
+        <RadioButton Content="{loc:Localization DisableRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Disable}"  Margin="0,2,0,2" />
+        <!--<RadioButton  IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Remove}"  Margin="110,2,2,2">Remove</RadioButton>-->
+      </StackPanel>
+
+    <!-- End advanced functions -->
+    </StackPanel>
+
+    <!-- Cancel/OK buttons -->
+    <Panel DockPanel.Dock="Top" Margin="20,40,20,0">
+      <Button Content="{loc:Localization BtnCancel}" Command="{Binding Cancel}" Width="100" Height="30" HorizontalAlignment="Left" />
+      <Button Content="{loc:Localization BtnOK}" Command="{Binding Login}" Width="100" Height="30" HorizontalAlignment="Right" IsDefault="True" />
+    </Panel>
+    
+
+    <!-- Progress indicator -->
+    <ProgressBar DockPanel.Dock="Bottom" Margin="0" IsIndeterminate="False" Value="{Binding Block1Progress}" Maximum="{Binding MaxProgress}"
+                 Minimum="0" IsEnabled="true"  Height="20"  MinWidth="10"/>
+
+  </DockPanel>
+
 </UserControl>
