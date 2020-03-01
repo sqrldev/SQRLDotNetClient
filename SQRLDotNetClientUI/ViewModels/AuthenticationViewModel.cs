@@ -40,11 +40,19 @@ namespace SQRLDotNetClientUI.ViewModels
         public bool AuthAction { get; set; }
 
         public string _siteID = "";
-        public string SiteID { get { return $"{this.Site.Host}"; } set => this.RaiseAndSetIfChanged(ref _siteID, value); }
+        public string SiteID 
+        { 
+            get { return $"{this.Site.Host}"; } 
+            set => this.RaiseAndSetIfChanged(ref _siteID, value); 
+        }
 
         private int _Block1Progress = 0;
 
-        public int Block1Progress { get => _Block1Progress; set => this.RaiseAndSetIfChanged(ref _Block1Progress, value); }
+        public int Block1Progress 
+        { 
+            get => _Block1Progress; 
+            set => this.RaiseAndSetIfChanged(ref _Block1Progress, value); 
+        }
 
         public int MaxProgress { get => 100; }
 
@@ -52,6 +60,7 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             Init();
             this.Site = new Uri("https://google.com");
+            this.SiteID = this.Site.Host;
         }
 
         public AuthenticationViewModel(Uri site)
