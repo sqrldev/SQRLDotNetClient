@@ -294,7 +294,7 @@
     { "EncryptingBlock2Label": "Verschlüssle Block 2" },
     { "BtnNext": "Weiter" },
     { "InvalidPasswordMessage": "Ungültiges Passwort!" },
-    { "InvalidRescueCodeMessage": "Ungültiger Rettungscode (\"rescue code\")! Bitte versuche es erneut" },
+    { "InvalidRescueCodeMessage": "Ungültiger Rettungscode (\"rescue code\")! Bitte versuchen Sie es erneut." },
     { "ImportIdentitySetupWindowTitle": "SQRL Client - Identitäts-Import-Setup" },
     { "ImportIdentityMessage": "Fügen Sie die Textversion der Identität ein oder wählen Sie eine Datei für den Import aus." },
     { "TextualIdentityLabel": "Textversion der Identität:" },

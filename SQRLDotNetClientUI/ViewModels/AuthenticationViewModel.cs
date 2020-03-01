@@ -217,7 +217,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                 InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
                                 rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                                 string rescueCode = await rescueCodeDlg.ShowDialog<string>(
-                                    AvaloniaLocator.Current.GetService<MainWindow>());
+                                    _mainWindow);
                                 
                                 var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode),progressBlock1);
                                 if (iukData.Item1)
@@ -235,7 +235,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                         _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
                                         MessageBox.Avalonia.Enums.ButtonEnum.YesNo,
                                         MessageBox.Avalonia.Enums.Icon.Error);
-                                    var answer =await msgBox.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                                    var answer =await msgBox.ShowDialog(_mainWindow);
                                     if(answer == ButtonResult.Yes)
                                     {
                                         goto RetryRescueCode;
@@ -290,7 +290,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                     InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
                                     rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
                                     string rescueCode = await rescueCodeDlg.ShowDialog<string>(
-                                        AvaloniaLocator.Current.GetService<MainWindow>());
+                                        _mainWindow);
                                    var rescueResult = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode), progressBlock1);
                                     if (rescueResult.Item1)
                                     {
@@ -312,7 +312,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                         _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
                                         MessageBox.Avalonia.Enums.ButtonEnum.Ok,
                                         MessageBox.Avalonia.Enums.Icon.Error);
-                                        await msgBox.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                                        await msgBox.ShowDialog(_mainWindow);
                                     }
                                 }
                                 break;
