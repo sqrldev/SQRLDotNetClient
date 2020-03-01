@@ -157,6 +157,9 @@ namespace SQRLDotNetClientUI.Models
             {
                 SetCurrentIdentity(null);
             }
+
+            // Fire the IdentityCountChanged event
+            IdentityCountChanged?.Invoke(this, new IdentityCountChangedEventArgs(this.IdentityCount));
         }
 
         /// <summary>
@@ -195,6 +198,9 @@ namespace SQRLDotNetClientUI.Models
             {
                 SetCurrentIdentity(newIdRec.UniqueId);
             }
+
+            // Finally, fire the IdentityCountChanged event
+            IdentityCountChanged?.Invoke(this, new IdentityCountChangedEventArgs(this.IdentityCount));
         }
 
         /// <summary>
@@ -299,6 +305,11 @@ namespace SQRLDotNetClientUI.Models
         /// This event is raised if the currently selected identity changes.
         /// </summary>
         public event EventHandler<IdentityChangedEventArgs> IdentityChanged;
+
+        /// <summary>
+        /// This event is raised if the number of available identities changes.
+        /// </summary>
+        public event EventHandler<IdentityCountChangedEventArgs> IdentityCountChanged;
     }
 
     public class IdentityChangedEventArgs : EventArgs
@@ -312,6 +323,16 @@ namespace SQRLDotNetClientUI.Models
             this.Identity = identity;
             this.IdentityName = identityName;
             this.IdentityUniqueId = identityUniqueId;
+        }
+    }
+
+    public class IdentityCountChangedEventArgs : EventArgs
+    {
+        public int IdentityCount { get; }
+
+        public IdentityCountChangedEventArgs(int identityCount)
+        {
+            this.IdentityCount = identityCount;
         }
     }
 }
