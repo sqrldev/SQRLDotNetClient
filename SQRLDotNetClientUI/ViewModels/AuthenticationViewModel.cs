@@ -11,6 +11,7 @@ using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia;
 using Avalonia.Controls;
 using SQRLDotNetClientUI.Models;
+using Avalonia;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -199,6 +200,49 @@ namespace SQRLDotNetClientUI.ViewModels
                         {
                             addClientData = new StringBuilder();
                             addClientData.AppendLineWindows($"btn={askResponse}");
+                        }
+                        if (serverResponse.SQRLDisabled)
+                        {
+                            var disabledAccountAlert = string.Format(_loc.GetLocalizationValue("SqrlDisabledAlert"), this.SiteID, Environment.NewLine);
+                            var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                                _loc.GetLocalizationValue("ReEnableSQRLTitle").ToUpper(),
+                                $"{disabledAccountAlert}",
+                                ButtonEnum.YesNo,
+                                Icon.Lock);
+                            messageBoxStandardWindow.SetMessageStartupLocation(Avalonia.Controls.WindowStartupLocation.CenterOwner);
+                            var btResult = await messageBoxStandardWindow.ShowDialog(_mainWindow);
+                            if (btResult == ButtonResult.Yes)
+                            {
+                                RetryRescueCode:
+                                InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
+                                rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                                string rescueCode = await rescueCodeDlg.ShowDialog<string>(
+                                    AvaloniaLocator.Current.GetService<MainWindow>());
+                                
+                                var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode),progressBlock1);
+                                if (iukData.Item1)
+                                {
+                                    byte[] ursKey = null;
+                                    ursKey = SQRL.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+
+                                    iukData.Item2.ZeroFill();
+                                    serverResponse = SQRL.GenerateEnableCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, ursKey, addClientData, sqrlOpts);
+                                }
+                                else
+                                {
+                                    var msgBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
+                                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                        _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                                        MessageBox.Avalonia.Enums.ButtonEnum.YesNo,
+                                        MessageBox.Avalonia.Enums.Icon.Error);
+                                    var answer =await msgBox.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
+                                    if(answer == ButtonResult.Yes)
+                                    {
+                                        goto RetryRescueCode;
+                                    }
+                                }
+                            }
+
                         }
                         //Here
                         switch (Action)

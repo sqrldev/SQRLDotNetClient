@@ -70,6 +70,7 @@
         </StackPanel.Resources>
         <RadioButton Content="{loc:Localization LoginRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Login}" Margin="0,0,0,2" />
         <RadioButton Content="{loc:Localization DisableRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Disable}"  Margin="0,2,0,2" />
+        <RadioButton Content="{loc:Localization RemoveRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Remove}"  Margin="0,2,0,2" />
         <!--<RadioButton  IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Remove}"  Margin="110,2,2,2">Remove</RadioButton>-->
       </StackPanel>
 
@@ -84,7 +85,7 @@
     
 
     <!-- Progress indicator -->
-    <ProgressBar DockPanel.Dock="Bottom" Margin="0" IsIndeterminate="False" Value="{Binding Block1Progress}" Maximum="{Binding MaxProgress}"
+    <ProgressBar  DockPanel.Dock="Bottom" Margin="10" IsIndeterminate="False" Value="{Binding Block1Progress}" Maximum="{Binding MaxProgress}"
                  Minimum="0" IsEnabled="true"  Height="20"  MinWidth="10"/>
 
   </DockPanel>
