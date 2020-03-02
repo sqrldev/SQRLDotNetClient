@@ -2,7 +2,7 @@
 # SQRL .Net Core Client and Library
 This project has 2 main parts: A **SQRL client** and a **SQRL library**. Below is information on both. 
 
-[SQRL Dot Net Core Client](#SQRL-Dot-Net-Core-Client)
+[SQRL Dot Net Core Client](#SQRL-Dot-Net-Core-Client) <br/>
 [SQRL Dot Net Core Library](#SQRL-Dot-Net-Core-Library)
 
 ### SQRL Dot Net Core Client
