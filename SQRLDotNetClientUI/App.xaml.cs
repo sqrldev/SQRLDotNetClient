@@ -2,12 +2,10 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using MonoMac.AppKit;
-using SQRLDotNetClientUI.IPC;
 using SQRLDotNetClientUI.ViewModels;
 using SQRLDotNetClientUI.Views;
-using SQRLUtilsLib;
 using System.Runtime.InteropServices;
-using System.Threading;
+using Serilog;
 
 namespace SQRLDotNetClientUI
 {
@@ -17,6 +15,12 @@ namespace SQRLDotNetClientUI
         {
             AvaloniaXamlLoader.Load(this);
 
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
+            Log.Information("App starting, initialization completed!");
         }
 
         public override void OnFrameworkInitializationCompleted()
@@ -35,9 +39,7 @@ namespace SQRLDotNetClientUI
                     NSApplication.SharedApplication.Delegate = new Utils.AppDelegate((MainWindow)desktop.MainWindow);
                 }
 
-            }
-
-            
+            }          
 
             base.OnFrameworkInitializationCompleted();
         }

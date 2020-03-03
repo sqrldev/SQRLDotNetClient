@@ -6,6 +6,7 @@ using System;
 using SQRLDotNetClientUI.Models;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
+using Serilog;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -103,6 +104,9 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public void IdentitySettings()
         {
+            Log.Information("Launching identity settings for identity id {IdentityUniqueId}",
+                _identityManager.CurrentIdentityUniqueId);
+
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
                 new IdentitySettingsViewModel();
         }

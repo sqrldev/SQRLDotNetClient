@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
+using Serilog;
 
 namespace SQRLDotNetClientUI.Models
 {
@@ -21,6 +21,7 @@ namespace SQRLDotNetClientUI.Models
         private SQRLDBContext _db;
         private Identity _currentIdentityDB = null;
         private SQRLIdentity _currentIdentity = null;
+        private ILogger _log = Log.ForContext(typeof(IdentityManager));
 
         /// <summary>
         /// The constructor is private because <c>IdentityManager</c> 
@@ -32,6 +33,8 @@ namespace SQRLDotNetClientUI.Models
             _db = new SQRLDBContext();
             _currentIdentityDB = GetIdentityInternal(GetUserData().LastLoadedIdentity);
             if (_currentIdentityDB != null) _currentIdentity = DeserializeIdentity(_currentIdentityDB.DataBytes);
+
+            _log.Information("IdentityManager initialized.");
         }
 
         /// <summary>

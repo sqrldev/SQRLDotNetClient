@@ -2,9 +2,9 @@
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using Serilog;
 
 namespace SQRLDotNetClientUI.Models
 {
@@ -15,8 +15,9 @@ namespace SQRLDotNetClientUI.Models
     {
         private static readonly Lazy<QuickPassManager> _instance = new Lazy<QuickPassManager>(() => new QuickPassManager());
         private IdentityManager _identityManager = IdentityManager.Instance;
-        private object _dataSyncObj;
+        private object _dataSyncObj = new object();
         private Dictionary<string, QuickPassInfo> _data = new Dictionary<string, QuickPassInfo>();
+        private ILogger _log = Log.ForContext(typeof(QuickPassManager));
 
         /// <summary>
         /// Returns the singleton <c>QuickPassManager</c> instance. If 
@@ -42,6 +43,8 @@ namespace SQRLDotNetClientUI.Models
         {
             // Register the identity changed event handler
             _identityManager.IdentityChanged += _identityManager_IdentityChanged;
+
+            _log.Information("QuickPassManager initialized.");
         }
 
         ~QuickPassManager()
