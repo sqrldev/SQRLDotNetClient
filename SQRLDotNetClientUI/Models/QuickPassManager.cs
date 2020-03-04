@@ -331,7 +331,7 @@ namespace SQRLDotNetClientUI.Models
         /// <summary>
         /// This event gets fired when the QuickPass was cleared from memory.
         /// </summary>
-        public EventHandler<QuickPassClearedEventArgs> QuickPassCleared;
+        public event EventHandler<QuickPassClearedEventArgs> QuickPassCleared;
     }
 
     /// <summary>
