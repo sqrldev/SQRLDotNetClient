@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Reflection;
 using System.Threading;
 using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Logging.Serilog;
 using Avalonia.ReactiveUI;
 using SQRLDotNetClientUI.IPC;
@@ -18,9 +16,10 @@ namespace SQRLDotNetClientUI
         // yet and stuff might break. 
         public static void Main(string[] args)
         {
-            Thread th = new Thread(StartNamePipe);
             const string mutexId = @"Global\{{83cfa3fa-72bd-4903-9b9d-ba90f7f6ba7f}}";
-           // Console.WriteLine(Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion);
+            Thread ipcThread = new Thread(StartIPCServer);
+
+            // Try to detect an existing instance of our app
             using (var mutex = new Mutex(false, mutexId, out bool created))
             {
                 bool hasHandle = false;
@@ -31,8 +30,12 @@ namespace SQRLDotNetClientUI
                         hasHandle = mutex.WaitOne(500, false);
                         if(!hasHandle)
                         {
-                            ForwardToExistingInstance(args.Length>0?args[0]:string.Empty);
-                            System.Environment.Exit(1);
+                            // Existing instance detected, forward the first 
+                            // command line argument if present.
+                            ForwardToExistingInstance(args.Length > 0 ? args[0] : IPCServer.MAGIC_WAKEUP_STR);
+
+                            // And then shut down.
+                            Environment.Exit(1);
                         }
                     }
                     catch(AbandonedMutexException)
@@ -40,30 +43,43 @@ namespace SQRLDotNetClientUI
                         hasHandle = true;
                     }
 
-                    th.Start();
+                    // No existing instance of the app running,
+                    // so start the IPC server and run the app
+                    ipcThread.Start();
                     BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-                    
                 }
                 finally
                 {
-                    if(hasHandle)
+                    if (hasHandle)
                     {
                         mutex.ReleaseMutex();
                     }
-                    if(th.IsAlive)
+                    if (ipcThread.IsAlive)
                     {
-                        System.Environment.Exit(1);
+                        // Force close the app without waiting 
+                        // for any threads to finish.
+                        Environment.Exit(1);
                     }
                 }
             }
         }
 
-        private static void StartNamePipe(object obj)
+        /// <summary>
+        /// Starts the IPC server and also starts listening for incoming IPC queries.
+        /// </summary>
+        /// <param name="obj">Not used.</param>
+        private static void StartIPCServer(object obj)
         {
             IPCServer nps = new IPCServer("127.0.0.1", 13000);
-            nps.StartServer();
+            nps.StartListening();
         }
-       
+
+        /// <summary>
+        /// Forwards the given string to the existing app instance by estblishing
+        /// a TCP connection to the existing instance's IPC server and sending the
+        /// given data over that connection.
+        /// </summary>
+        /// <param name="url">The data to send to the exisnting app instance.</param>
         private static void ForwardToExistingInstance(string url)
         {
             try
@@ -72,11 +88,11 @@ namespace SQRLDotNetClientUI
                 TcpClient client = new TcpClient("127.0.0.1", port);
                 NetworkStream stream = client.GetStream();
 
-                // Translate the Message into ASCII.
+                // Translate the message into ASCII.
                 Byte[] data = System.Text.Encoding.UTF8.GetBytes(url);
-                // Send the message to the connected TcpServer. 
-                stream.Write(data, 0, data.Length);
 
+                // Send the message to the connected TCP server. 
+                stream.Write(data, 0, data.Length);
 
                 stream.Close();
                 client.Close();
