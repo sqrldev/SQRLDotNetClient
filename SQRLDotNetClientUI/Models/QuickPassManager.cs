@@ -110,10 +110,11 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         /// <param name="password">The full identity master password.</param>
         /// <param name="imk">The identity's unencrypted Identity Master Key (IMK).</param>
+        /// <param name="ilk">The identity's unencrypted Identity Lock Key (ILK).</param>
         /// <param name="identity">The identity that the QuickPass should be set for.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
         /// <param name="progressText">A string representing a text descrition for the progress indicator (optional).</param>
-        public async Task<bool> SetQuickPass(string password, byte[] imk, SQRLIdentity identity, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
+        public async void SetQuickPass(string password, byte[] imk, byte[] ilk, SQRLIdentity identity, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
             QuickPassItem qpi = new QuickPassItem()
             {
@@ -143,6 +144,7 @@ namespace SQRLDotNetClientUI.Models
 
             qpi.ScryptIterationCount = enscryptResult.Key;
             qpi.EncryptedImk = StreamEncryption.Encrypt(imk, qpi.Nonce, enscryptResult.Value);
+            qpi.EncryptedIlk = StreamEncryption.Encrypt(ilk, qpi.Nonce, enscryptResult.Value);
 
             // If we already have a QuickPass entry for this identity, remove it first
             if (HasQuickPass(qpi.IdentityUniqueId)) 
@@ -157,8 +159,6 @@ namespace SQRLDotNetClientUI.Models
 
             Log.Information("QuickPass set for identity {IdentityUniqueId}", 
                 qpi.IdentityUniqueId);
-
-            return true;
         }
 
         /// <summary>
@@ -172,9 +172,9 @@ namespace SQRLDotNetClientUI.Models
         /// or <c>null</c> if you want to decrypt the current identity's IMK.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
         /// <param name="progressText">A string representing a text descrition for the progress indicator (optional).</param>
-        /// <returns>The decrypted Identity Master Key for the given <paramref name="identityUniqueId"/>, or
+        /// <returns>The decrypted block 1 keys (IMK, ILK) for the given <paramref name="identityUniqueId"/>, or
         /// <c>null</c> if no such QuickPass entry exists.</returns>
-        public async Task<byte[]> GetQuickPassDecryptedImk(string quickPass, string identityUniqueId = null, 
+        public async Task<QuickPassDecryptedKeys> GetQuickPassDecryptedImk(string quickPass, string identityUniqueId = null, 
             IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
             QuickPassItem qpi = null;
@@ -207,11 +207,12 @@ namespace SQRLDotNetClientUI.Models
                 qpi.ScryptIterationCount, progress, progressText);
 
             byte[] decryptedImk = StreamEncryption.Decrypt(qpi.EncryptedImk, qpi.Nonce, key);
+            byte[] decryptedIlk = StreamEncryption.Decrypt(qpi.EncryptedIlk, qpi.Nonce, key);
 
             Log.Information("QuickPass retrieved for identity {IdentityUniqueId}",
                 identityUniqueId);
 
-            return decryptedImk;
+            return new QuickPassDecryptedKeys(decryptedImk, decryptedIlk);
         }
 
         /// <summary>
@@ -278,9 +279,10 @@ namespace SQRLDotNetClientUI.Models
                 // First, stop the QuickPass timer
                 qpi.Timer.Stop();
 
-                // Then, overwrite the encrypted imk so that we don't leave any
-                // traces of key material in RAM.
+                // Then, overwrite the encrypted imk and ilk so that we don't 
+                // leave any traces of key material in RAM.
                 qpi.EncryptedImk.ZeroFill();
+                qpi.EncryptedIlk.ZeroFill();
 
                 // Delete the QuickPass entry from our dictionary
                 _quickPassItems.Remove(identityUniqueId);
@@ -343,6 +345,7 @@ namespace SQRLDotNetClientUI.Models
     public class QuickPassItem
     {
         public byte[] EncryptedImk;
+        public byte[] EncryptedIlk;
         public DateTime EstablishedDate;
         public int QuickPassLength;
         public int QuickPassTimeoutSecs;
@@ -366,6 +369,29 @@ namespace SQRLDotNetClientUI.Models
         public QuickPassClearedEventArgs(List<string> identityUniqueIds)
         {
             this.IdentityUniqueIds = identityUniqueIds;
+        }
+    }
+
+    /// <summary>
+    /// Encapsulates the SQRL block 1 keys which are held by
+    /// a QuickPass entry.
+    /// </summary>
+    public class QuickPassDecryptedKeys
+    {
+        /// <summary>
+        /// The Identity Master Key (IMK).
+        /// </summary>
+        public byte[] Imk;
+
+        /// <summary>
+        /// The Identity Lock Key (ILK).
+        /// </summary>
+        public byte[] Ilk;
+
+        public QuickPassDecryptedKeys(byte[] imk, byte[] ilk)
+        {
+            this.Imk = imk;
+            this.Ilk = ilk;
         }
     }
 }
