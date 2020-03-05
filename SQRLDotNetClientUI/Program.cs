@@ -6,6 +6,9 @@ using Avalonia;
 using Avalonia.Logging.Serilog;
 using Avalonia.ReactiveUI;
 using SQRLDotNetClientUI.IPC;
+using Serilog;
+using System.IO;
+using System.Reflection;
 
 namespace SQRLDotNetClientUI
 {
@@ -18,6 +21,17 @@ namespace SQRLDotNetClientUI
         {
             const string mutexId = @"Global\{{83cfa3fa-72bd-4903-9b9d-ba90f7f6ba7f}}";
             Thread ipcThread = new Thread(StartIPCServer);
+
+            // Set up logging
+            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string logFilePath = Path.Combine(currentDir, "log.txt");
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
+            Log.Information("New app instance is being launched on {Platform}", RuntimeInformation.OSDescription);
 
             // Try to detect an existing instance of our app
             using (var mutex = new Mutex(false, mutexId, out bool created))
@@ -32,9 +46,8 @@ namespace SQRLDotNetClientUI
                         {
                             // Existing instance detected, forward the first 
                             // command line argument if present.
+                            Log.Information("Existing app instance detected, forwarding data and shutting down");
                             ForwardToExistingInstance(args.Length > 0 ? args[0] : IPCServer.MAGIC_WAKEUP_STR);
-
-                            // And then shut down.
                             Environment.Exit(1);
                         }
                     }
@@ -58,10 +71,13 @@ namespace SQRLDotNetClientUI
                     {
                         // Force close the app without waiting 
                         // for any threads to finish.
+                        Log.Information("Forcing exit because of IPC thread still running.");
                         Environment.Exit(1);
                     }
                 }
             }
+
+            Log.Information("App shutting down");
         }
 
         /// <summary>

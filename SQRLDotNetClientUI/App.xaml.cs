@@ -16,16 +16,7 @@ namespace SQRLDotNetClientUI
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
-
-            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string logFilePath = Path.Combine(currentDir, "log.txt");
-
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day)
-                .CreateLogger();
-
-            Log.Information("App starting, initialization completed!");
+            Log.Information("App initialization completed!");
         }
 
         public override void OnFrameworkInitializationCompleted()
