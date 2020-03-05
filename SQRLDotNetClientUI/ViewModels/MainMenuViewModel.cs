@@ -9,6 +9,7 @@ using MessageBox.Avalonia.Enums;
 using Serilog;
 using System.Threading;
 using System.Linq;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -138,6 +139,8 @@ namespace SQRLDotNetClientUI.ViewModels
         public void Exit()
         {
             _mainWindow.Close();
+            ((IClassicDesktopStyleApplicationLifetime)App.Current.ApplicationLifetime)
+                .Shutdown();
         }
 
         public async void DeleteIdentity()
