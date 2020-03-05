@@ -72,10 +72,13 @@ namespace SQRLDotNetClientUI.IPC
                         AvaloniaLocator.Current.GetService<MainWindow>().Height = 200;
                         ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = authView;
 
+                        AvaloniaLocator.Current.GetService<MainWindow>().Show();
                         AvaloniaLocator.Current.GetService<MainWindow>().Focus();
                         AvaloniaLocator.Current.GetService<MainWindow>().Activate();
                     });
                 }
+
+
             }
             catch (Exception e)
             {
