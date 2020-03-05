@@ -47,6 +47,13 @@ namespace SQRLDotNetClientUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _siteID, value); 
         }
 
+        public string _passwordLabel = "";
+        public string PasswordLabel
+        {
+            get => _passwordLabel;
+            set => this.RaiseAndSetIfChanged(ref _passwordLabel, value);
+        }
+
         public string _identityName = "";
         public string IdentityName
         {
@@ -101,6 +108,16 @@ namespace SQRLDotNetClientUI.ViewModels
 
             IdentityCountChanged(this, new IdentityCountChangedEventArgs(
                 _identityManager.IdentityCount));
+
+            CheckForQuickPass();
+        }
+
+        private void CheckForQuickPass()
+        {
+            if (_quickPassManager.HasQuickPass())
+                this.PasswordLabel = _loc.GetLocalizationValue("PasswordLabel");
+            else
+                this.PasswordLabel = _loc.GetLocalizationValue("QuickPassLabel");
         }
 
         private void IdentityCountChanged(object sender, IdentityCountChangedEventArgs e)

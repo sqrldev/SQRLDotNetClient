@@ -34,9 +34,9 @@
       </Button>
     </StackPanel>
 
-    <!-- Password form -->
+    <!-- Password/QuickPass form -->
     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="20,20,10,10">
-      <TextBlock Name="test" Text="{loc:Localization Password}" Width="100" VerticalAlignment="Center" FontSize="14" TextWrapping="Wrap"/>
+      <TextBlock Text="{Binding PasswordLabel}" Width="100" VerticalAlignment="Center" FontSize="14" TextWrapping="Wrap"/>
       <loc:CopyPasteTextBox Name="txtPassword" Text="{Binding Password}" PasswordChar="*" Width="230" Height="30">
         <i:Interaction.Behaviors>
           <behaviors:FocusOnAttached />
