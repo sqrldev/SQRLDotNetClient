@@ -97,15 +97,16 @@ namespace SQRLDotNetClientUI.IPC
 
                     Dispatcher.UIThread.Post(() =>
                     {
-                        if (data != MAGIC_WAKEUP_STR)
+                        var mainMenuViewModel = ((MainWindowViewModel)mainWindow.DataContext).MainMenu;
+
+                        if (data == MAGIC_WAKEUP_STR)
                         {
-                            var mm = ((MainWindowViewModel)mainWindow.DataContext).MainMenu;
-
+                            ((MainWindowViewModel)mainWindow.DataContext).Content = mainMenuViewModel;
+                        }
+                        else
+                        {
                             AuthenticationViewModel authView = new AuthenticationViewModel(new Uri(data));
-                            mm.AuthVM = authView;
-                            mainWindow.Width = 400;
-                            mainWindow.Height = 200;
-
+                            mainMenuViewModel.AuthVM = authView;
                             ((MainWindowViewModel)mainWindow.DataContext).Content = authView;
                         }
 
