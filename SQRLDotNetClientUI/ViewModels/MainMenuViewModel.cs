@@ -69,28 +69,6 @@ namespace SQRLDotNetClientUI.ViewModels
                     AuthVM = authView;
                 }
             }
-
-            TestQuickPass();   
-        }
-
-        private async void TestQuickPass()
-        {
-            QuickPassManager quickPass = QuickPassManager.Instance;
-
-            byte[] imk = Sodium.SodiumCore.GetRandomBytes(32);
-            var id = _identityManager.CurrentIdentity;
-            id.Block1.PwdTimeoutMins = 1;
-
-            quickPass.QuickPassCleared += (s, e) => { };
-
-            await quickPass.SetQuickPass("test12345678", imk, id);
-            bool isSet = quickPass.HasQuickPass();
-            byte[] imk2 = await quickPass.GetQuickPassDecryptedImk("test");
-
-            bool same = (imk.SequenceEqual(imk2));
-            bool didClear = quickPass.ClearQuickPass("abc");
-            Thread.Sleep(2000);
-            quickPass.ClearQuickPass(_identityManager.CurrentIdentityUniqueId);
         }
 
         private void OnIdentityChanged(object sender, IdentityChangedEventArgs e)
