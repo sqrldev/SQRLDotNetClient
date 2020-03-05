@@ -90,10 +90,6 @@ namespace SQRLDotNetClientUI.ViewModels
             bool didClear = quickPass.ClearQuickPass("abc");
             Thread.Sleep(2000);
             quickPass.ClearQuickPass(_identityManager.CurrentIdentityUniqueId);
-
-
-
-
         }
 
         private void OnIdentityChanged(object sender, IdentityChangedEventArgs e)

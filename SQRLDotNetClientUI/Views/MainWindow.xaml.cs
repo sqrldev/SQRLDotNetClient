@@ -19,6 +19,14 @@ namespace SQRLDotNetClientUI.Views
 #if DEBUG
             this.AttachDevTools();
 #endif
+
+            // Prevent that closing the main form shuts down
+            // the application and only hide the main window instead.
+            this.Closing += (s, e) =>
+            {
+                ((Window)s).Hide();
+                e.Cancel = true;
+            };
         }
 
         private void InitializeComponent()
