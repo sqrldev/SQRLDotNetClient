@@ -11,7 +11,7 @@ using MessageBox.Avalonia.Enums;
 using MessageBox.Avalonia;
 using Avalonia.Controls;
 using SQRLDotNetClientUI.Models;
-using Avalonia;
+using Serilog;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -36,7 +36,13 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public Uri Site { get; set; }
         public string AltID { get; set; } = "";
-        public string Password { get; set; } = "";
+
+        public string _password = "";
+        public string Password
+        {
+            get => _password;
+            set => this.RaiseAndSetIfChanged(ref _password, value);
+        }
 
         public bool AuthAction { get; set; }
 
@@ -75,6 +81,13 @@ namespace SQRLDotNetClientUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _advancedFunctionsVisible, value);
         }
 
+        public bool _isBusy = false;
+        public bool IsBusy
+        {
+            get => _isBusy;
+            set => this.RaiseAndSetIfChanged(ref _isBusy, value);
+        }
+
         private int _Block1Progress = 0;
 
         public int Block1Progress 
@@ -109,12 +122,32 @@ namespace SQRLDotNetClientUI.ViewModels
             IdentityCountChanged(this, new IdentityCountChangedEventArgs(
                 _identityManager.IdentityCount));
 
+            // Observe changes to the password/quickpass field
+            // and initiate automatic quickpass login if available
+            this.WhenAnyValue(x => x.Password).Subscribe(x =>
+            {
+                if (!_quickPassManager.HasQuickPass())
+                    return;
+
+                int quickPassLength = _identityManager.CurrentIdentity.Block1.HintLength;
+
+                Log.Debug("QuickPassLength len: {QuickPassLength}, CurrentLength: {CurrentLength}",
+                    quickPassLength, x.Length);
+
+                if (x.Length == quickPassLength)
+                {
+                    Log.Information("Initiating login using QuickPass");
+
+                    Login(useQuickPass: true);
+                }
+            });
+
             CheckForQuickPass();
         }
 
         private void CheckForQuickPass()
         {
-            if (_quickPassManager.HasQuickPass())
+            if (!_quickPassManager.HasQuickPass())
                 this.PasswordLabel = _loc.GetLocalizationValue("PasswordLabel");
             else
                 this.PasswordLabel = _loc.GetLocalizationValue("QuickPassLabel");
@@ -154,229 +187,248 @@ namespace SQRLDotNetClientUI.ViewModels
             _mainWindow.Close();
         }
 
-        public async void Login()
+        public async void Login(bool useQuickPass = false)
         {
+            byte[] imk, ilk;
+            this.IsBusy = true;
+
             var progressBlock1 = new Progress<KeyValuePair<int, string>>(percent =>
             {
                 this.Block1Progress = (int)percent.Key;
             });
 
-            var result = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, this.Password, progressBlock1);
-            if (result.Item1)
+            if (useQuickPass)
             {
-                // Block 1 was sucessfully decrypted using the master pasword,
-                // so enable QuickPass if it isn't already set
-                if (!_quickPassManager.HasQuickPass(_identityManager.CurrentIdentityUniqueId))
-                    _quickPassManager.SetQuickPass(this.Password, result.Item2, _identityManager.CurrentIdentity);
-
-                var siteKvp = SQRL.CreateSiteKey(this.Site, this.AltID, result.Item2);
-
-                Dictionary<byte[], Tuple<byte[], KeyPair>> priorKvps = null;
-                priorKvps = GeneratePriorKeyInfo(result, priorKvps);
-                SQRLOptions sqrlOpts = new SQRLOptions(SQRLOptions.SQRLOpts.CPS | SQRLOptions.SQRLOpts.SUK);
-                var serverResponse = SQRL.GenerateQueryCommand(this.Site, siteKvp, sqrlOpts, null, 0, priorKvps);
-                if (!serverResponse.CommandFailed)
-                {
-                    // New Account ask if they want to create one
-
-                    if (!serverResponse.CurrentIDMatch && !serverResponse.PreviousIDMatch)
-                    {
-                        serverResponse = await HandleNewAccount(result, siteKvp, sqrlOpts, serverResponse);
-                    }
-                    else if (serverResponse.PreviousIDMatch)
-                    {
-                        byte[] ursKey = null;
-                        ursKey = SQRL.GetURSKey(serverResponse.PriorMatchedKey.Key, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-                        StringBuilder additionalData = null;
-                        if (!string.IsNullOrEmpty(serverResponse.SIN))
-                        {
-                            additionalData = new StringBuilder();
-                            byte[] ids = SQRL.CreateIndexedSecret(this.Site, AltID, result.Item2, Encoding.UTF8.GetBytes(serverResponse.SIN));
-                            additionalData.AppendLineWindows($"ins={Sodium.Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
-                            byte[] pids = SQRL.CreateIndexedSecret(serverResponse.PriorMatchedKey.Value.Item1, Encoding.UTF8.GetBytes(serverResponse.SIN));
-                            additionalData.AppendLineWindows($"pins={Sodium.Utilities.BinaryToBase64(pids, Utilities.Base64Variant.UrlSafeNoPadding)}");
-
-                        }
-                        serverResponse = SQRL.GenerateIdentCommandWithReplace(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, result.Item3, ursKey, serverResponse.PriorMatchedKey.Value.Item2, sqrlOpts, additionalData);
-                    }
-                    else if (serverResponse.CurrentIDMatch)
-                    {
-                        int askResponse = 0;
-                        if (serverResponse.HasAsk)
-                        {
-                            MainWindow w = new MainWindow();
-
-                            var mwTemp = new MainWindowViewModel();
-                            w.DataContext = mwTemp;
-                            w.WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterOwner;
-                            var avm = new AskViewModel(serverResponse)
-                            {
-                                CurrentWindow = w
-                            };
-                            mwTemp.Content = avm;
-                            askResponse = await w.ShowDialog<int>(_mainWindow);
-                        }
-
-                        StringBuilder addClientData = null;
-                        if (askResponse > 0)
-                        {
-                            addClientData = new StringBuilder();
-                            addClientData.AppendLineWindows($"btn={askResponse}");
-                        }
-                        if (serverResponse.SQRLDisabled)
-                        {
-                            var disabledAccountAlert = string.Format(_loc.GetLocalizationValue("SqrlDisabledAlert"), this.SiteID, Environment.NewLine);
-                            var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                                _loc.GetLocalizationValue("ReEnableSQRLTitle").ToUpper(),
-                                $"{disabledAccountAlert}",
-                                ButtonEnum.YesNo,
-                                Icon.Lock);
-                            messageBoxStandardWindow.SetMessageStartupLocation(Avalonia.Controls.WindowStartupLocation.CenterOwner);
-                            var btResult = await messageBoxStandardWindow.ShowDialog(_mainWindow);
-                            if (btResult == ButtonResult.Yes)
-                            {
-                                RetryRescueCode:
-                                InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
-                                rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                                string rescueCode = await rescueCodeDlg.ShowDialog<string>(
-                                    _mainWindow);
-                                
-                                var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode),progressBlock1);
-                                if (iukData.Item1)
-                                {
-                                    byte[] ursKey = null;
-                                    ursKey = SQRL.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-
-                                    iukData.Item2.ZeroFill();
-                                    serverResponse = SQRL.GenerateEnableCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, ursKey, addClientData, sqrlOpts);
-                                }
-                                else
-                                {
-                                    var msgBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                        _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
-                                        MessageBox.Avalonia.Enums.ButtonEnum.YesNo,
-                                        MessageBox.Avalonia.Enums.Icon.Error);
-                                    var answer =await msgBox.ShowDialog(_mainWindow);
-                                    if(answer == ButtonResult.Yes)
-                                    {
-                                        goto RetryRescueCode;
-                                    }
-                                }
-                            }
-
-                        }
-                        //Here
-                        switch (Action)
-                        {
-                            case LoginAction.Login:
-                                {
-                                    addClientData = GenerateSIN(result, serverResponse, addClientData);
-                                    serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.ident, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
-                                    if (SQRL.GetInstance(true).cps != null && _sqrlInstance.cps.PendingResponse)
-                                    {
-                                        _sqrlInstance.cps.cpsBC.Add(new Uri(serverResponse.SuccessUrl));
-                                    }
-                                    while (_sqrlInstance.cps.PendingResponse)
-                                        ;
-                                    _mainWindow.Close();
-                                }
-                                break;
-                            case LoginAction.Disable:
-                                {
-                                    var disableAccountAlert = string.Format(_loc.GetLocalizationValue("DisableAccountAlert"), this.SiteID, Environment.NewLine);
-                                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                                        _loc.GetLocalizationValue("WarningMessageBoxTitle").ToUpper(), 
-                                        $"{disableAccountAlert}", 
-                                        ButtonEnum.YesNo, 
-                                        Icon.Lock);
-                                    messageBoxStandardWindow.SetMessageStartupLocation(Avalonia.Controls.WindowStartupLocation.CenterOwner);
-                                    var btResult = await messageBoxStandardWindow.ShowDialog(_mainWindow);
-
-                                    if (btResult == ButtonResult.Yes)
-                                    {
-                                        GenerateSIN(result, serverResponse, addClientData);
-                                        serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
-                                        if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
-                                        {
-                                            _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
-                                        }
-                                        while (_sqrlInstance.cps.PendingResponse)
-                                            ;
-                                        _mainWindow.Close();
-                                    }
-                                }
-                                break;
-                            case LoginAction.Remove:
-                                {
-                                    InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
-                                    rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                                    string rescueCode = await rescueCodeDlg.ShowDialog<string>(
-                                        _mainWindow);
-                                   var rescueResult = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode), progressBlock1);
-                                    if (rescueResult.Item1)
-                                    {
-                                        byte[] ursKey = SQRL.GetURSKey(rescueResult.Item2, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-
-                                        serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts, null, ursKey);
-                                        if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
-                                        {
-                                            _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
-                                        }
-                                        while (_sqrlInstance.cps.PendingResponse)
-                                            ;
-                                        _mainWindow.Close();
-                                    }
-                                    else
-                                    {
-                                        var msgBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                        _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
-                                        MessageBox.Avalonia.Enums.ButtonEnum.Ok,
-                                        MessageBox.Avalonia.Enums.Icon.Error);
-                                        await msgBox.ShowDialog(_mainWindow);
-                                    }
-                                }
-                                break;
-                        }
-                    }
-                }
-                else
-                {
-                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                        _loc.GetLocalizationValue("ErrorTitleGeneric"), 
-                        _loc.GetLocalizationValue("SQRLCommandFailedUnknown"), 
-                        ButtonEnum.Ok, 
-                        Icon.Error);
-                    await messageBoxStandardWindow.ShowDialog(_mainWindow);
-                }
+                var keys = await _quickPassManager.GetQuickPassDecryptedImk(this.Password, null, progressBlock1);
+                imk = keys.Imk;
+                ilk = keys.Ilk;
             }
             else
             {
-                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                    _loc.GetLocalizationValue("BadPasswordErrorTitle"),
-                    _loc.GetLocalizationValue("BadPasswordError"),
-                    ButtonEnum.Ok, 
-                    Icon.Error);
-                await messageBoxStandardWindow.ShowDialog(_mainWindow);
+                var result = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, this.Password, progressBlock1);
+                if (!result.Item1)
+                {
+                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                        _loc.GetLocalizationValue("BadPasswordErrorTitle"),
+                        _loc.GetLocalizationValue("BadPasswordError"),
+                        ButtonEnum.Ok,
+                        Icon.Error);
+                    await messageBoxStandardWindow.ShowDialog(_mainWindow);
+                    this.IsBusy = false;
+                    return;
+                }
+                imk = result.Item2;
+                ilk = result.Item3;
             }
 
+            // Block 1 was sucessfully decrypted using the master pasword,
+            // so enable QuickPass if it isn't already set
+            if (!_quickPassManager.HasQuickPass(_identityManager.CurrentIdentityUniqueId))
+                _quickPassManager.SetQuickPass(this.Password, imk, ilk, _identityManager.CurrentIdentity);
+
+            var siteKvp = SQRL.CreateSiteKey(this.Site, this.AltID, imk);
+
+            Dictionary<byte[], Tuple<byte[], KeyPair>> priorKvps = null;
+            priorKvps = GeneratePriorKeyInfo(imk, priorKvps);
+            SQRLOptions sqrlOpts = new SQRLOptions(SQRLOptions.SQRLOpts.CPS | SQRLOptions.SQRLOpts.SUK);
+            var serverResponse = SQRL.GenerateQueryCommand(this.Site, siteKvp, sqrlOpts, null, 0, priorKvps);
+
+            if (serverResponse.CommandFailed)
+            {
+                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                        _loc.GetLocalizationValue("SQRLCommandFailedUnknown"),
+                        ButtonEnum.Ok,
+                        Icon.Error);
+                await messageBoxStandardWindow.ShowDialog(_mainWindow);
+
+                this.IsBusy = false;
+                return;
+            }
+
+            // New account, ask if they want to create one
+            if (!serverResponse.CurrentIDMatch && !serverResponse.PreviousIDMatch)
+            {
+                serverResponse = await HandleNewAccount(imk, ilk, siteKvp, sqrlOpts, serverResponse);
+            }
+            // A previous id matches, replace the outdated id on the server with the latest
+            else if (serverResponse.PreviousIDMatch)
+            {
+                byte[] ursKey = null;
+                ursKey = SQRL.GetURSKey(serverResponse.PriorMatchedKey.Key, Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Utilities.Base64Variant.UrlSafeNoPadding));
+                StringBuilder additionalData = null;
+                if (!string.IsNullOrEmpty(serverResponse.SIN))
+                {
+                    additionalData = new StringBuilder();
+                    byte[] ids = SQRL.CreateIndexedSecret(this.Site, AltID, imk, Encoding.UTF8.GetBytes(serverResponse.SIN));
+                    additionalData.AppendLineWindows($"ins={Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
+                    byte[] pids = SQRL.CreateIndexedSecret(serverResponse.PriorMatchedKey.Value.Item1, Encoding.UTF8.GetBytes(serverResponse.SIN));
+                    additionalData.AppendLineWindows($"pins={Utilities.BinaryToBase64(pids, Utilities.Base64Variant.UrlSafeNoPadding)}");
+
+                }
+                serverResponse = SQRL.GenerateIdentCommandWithReplace(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, 
+                    ilk, ursKey, serverResponse.PriorMatchedKey.Value.Item2, sqrlOpts, additionalData);
+            }
+            // Current id matches 
+            else if (serverResponse.CurrentIDMatch)
+            {
+                int askResponse = 0;
+                if (serverResponse.HasAsk)
+                {
+                    MainWindow w = new MainWindow();
+
+                    var mwTemp = new MainWindowViewModel();
+                    w.DataContext = mwTemp;
+                    w.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                    var avm = new AskViewModel(serverResponse)
+                    {
+                        CurrentWindow = w
+                    };
+                    mwTemp.Content = avm;
+                    askResponse = await w.ShowDialog<int>(_mainWindow);
+                }
+
+                StringBuilder addClientData = null;
+                if (askResponse > 0)
+                {
+                    addClientData = new StringBuilder();
+                    addClientData.AppendLineWindows($"btn={askResponse}");
+                }
+                if (serverResponse.SQRLDisabled)
+                {
+                    var disabledAccountAlert = string.Format(_loc.GetLocalizationValue("SqrlDisabledAlert"), this.SiteID, Environment.NewLine);
+                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                        _loc.GetLocalizationValue("ReEnableSQRLTitle").ToUpper(),
+                        $"{disabledAccountAlert}",
+                        ButtonEnum.YesNo,
+                        Icon.Lock);
+                    messageBoxStandardWindow.SetMessageStartupLocation(WindowStartupLocation.CenterOwner);
+                    var btResult = await messageBoxStandardWindow.ShowDialog(_mainWindow);
+                    if (btResult == ButtonResult.Yes)
+                    {
+                        RetryRescueCode:
+                        InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
+                        rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                        string rescueCode = await rescueCodeDlg.ShowDialog<string>(
+                            _mainWindow);
+                                
+                        var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode),progressBlock1);
+                        if (iukData.Item1)
+                        {
+                            byte[] ursKey = null;
+                            ursKey = SQRL.GetURSKey(iukData.Item2, Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Utilities.Base64Variant.UrlSafeNoPadding));
+
+                            iukData.Item2.ZeroFill();
+                            serverResponse = SQRL.GenerateEnableCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, ursKey, addClientData, sqrlOpts);
+                        }
+                        else
+                        {
+                            var msgBox = MessageBoxManager.GetMessageBoxStandardWindow(
+                                _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                                ButtonEnum.YesNo,
+                                Icon.Error);
+                            var answer =await msgBox.ShowDialog(_mainWindow);
+                            if(answer == ButtonResult.Yes)
+                            {
+                                goto RetryRescueCode;
+                            }
+                        }
+                    }
+
+                }
+                //Here
+                switch (Action)
+                {
+                    case LoginAction.Login:
+                        {
+                            addClientData = GenerateSIN(imk, serverResponse, addClientData);
+                            serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.ident, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
+                            if (SQRL.GetInstance(true).cps != null && _sqrlInstance.cps.PendingResponse)
+                            {
+                                _sqrlInstance.cps.cpsBC.Add(new Uri(serverResponse.SuccessUrl));
+                            }
+                            while (_sqrlInstance.cps.PendingResponse)
+                                ;
+                            _mainWindow.Close();
+                        }
+                        break;
+                    case LoginAction.Disable:
+                        {
+                            var disableAccountAlert = string.Format(_loc.GetLocalizationValue("DisableAccountAlert"), this.SiteID, Environment.NewLine);
+                            var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
+                                _loc.GetLocalizationValue("WarningMessageBoxTitle").ToUpper(), 
+                                $"{disableAccountAlert}", 
+                                ButtonEnum.YesNo, 
+                                Icon.Lock);
+                            messageBoxStandardWindow.SetMessageStartupLocation(Avalonia.Controls.WindowStartupLocation.CenterOwner);
+                            var btResult = await messageBoxStandardWindow.ShowDialog(_mainWindow);
+
+                            if (btResult == ButtonResult.Yes)
+                            {
+                                GenerateSIN(imk, serverResponse, addClientData);
+                                serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
+                                if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
+                                {
+                                    _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
+                                }
+                                while (_sqrlInstance.cps.PendingResponse)
+                                    ;
+                                _mainWindow.Close();
+                            }
+                        }
+                        break;
+                    case LoginAction.Remove:
+                        {
+                            InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
+                            rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                            string rescueCode = await rescueCodeDlg.ShowDialog<string>(
+                                _mainWindow);
+                            var rescueResult = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode), progressBlock1);
+                            if (rescueResult.Item1)
+                            {
+                                byte[] ursKey = SQRL.GetURSKey(rescueResult.Item2, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+
+                                serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts, null, ursKey);
+                                if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
+                                {
+                                    _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
+                                }
+                                while (_sqrlInstance.cps.PendingResponse)
+                                    ;
+                                _mainWindow.Close();
+                            }
+                            else
+                            {
+                                var msgBox = MessageBoxManager.GetMessageBoxStandardWindow(
+                                _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                                ButtonEnum.Ok,
+                                Icon.Error);
+                                await msgBox.ShowDialog(_mainWindow);
+                            }
+                        }
+                        break;
+                }
+            }
+
+            this.IsBusy = false;
         }
 
-        private StringBuilder GenerateSIN(Tuple<bool, byte[], byte[]> result, SQRLServerResponse serverResponse, StringBuilder addClientData)
+        private StringBuilder GenerateSIN(byte[] imk, SQRLServerResponse serverResponse, StringBuilder addClientData)
         {
             if (!string.IsNullOrEmpty(serverResponse.SIN))
             {
                 if (addClientData == null)
                     addClientData = new StringBuilder();
-                byte[] ids = SQRL.CreateIndexedSecret(this.Site, AltID, result.Item2, Encoding.UTF8.GetBytes(serverResponse.SIN));
+                byte[] ids = SQRL.CreateIndexedSecret(this.Site, AltID, imk, Encoding.UTF8.GetBytes(serverResponse.SIN));
                 addClientData.AppendLineWindows($"ins={Sodium.Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
             }
 
             return addClientData;
         }
 
-        private async System.Threading.Tasks.Task<SQRLServerResponse> HandleNewAccount(Tuple<bool, byte[], byte[]> result, KeyPair siteKvp, SQRLOptions sqrlOpts, SQRLServerResponse serverResponse)
+        private async System.Threading.Tasks.Task<SQRLServerResponse> HandleNewAccount(byte[] imk, byte[] ilk, KeyPair siteKvp, SQRLOptions sqrlOpts, SQRLServerResponse serverResponse)
         {
             string newAccountQuestion = string.Format(_loc.GetLocalizationValue("NewAccountQuestion"), this.SiteID);
             string genericQuestionTitle = string.Format(_loc.GetLocalizationValue("GenericQuestionTitle"), this.SiteID);
@@ -396,10 +448,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 if (!string.IsNullOrEmpty(serverResponse.SIN))
                 {
                     additionalData = new StringBuilder();
-                    byte[] ids = SQRL.CreateIndexedSecret(this.Site, AltID, result.Item2, Encoding.UTF8.GetBytes(serverResponse.SIN));
+                    byte[] ids = SQRL.CreateIndexedSecret(this.Site, AltID, imk, Encoding.UTF8.GetBytes(serverResponse.SIN));
                     additionalData.AppendLineWindows($"ins={Sodium.Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
                 }
-                serverResponse = SQRL.GenerateNewIdentCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, result.Item3, sqrlOpts, additionalData);
+                serverResponse = SQRL.GenerateNewIdentCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, ilk, sqrlOpts, additionalData);
                 if (!serverResponse.CommandFailed)
                 {
                     if (_sqrlInstance.cps.PendingResponse)
@@ -425,11 +477,11 @@ namespace SQRLDotNetClientUI.ViewModels
             return serverResponse;
         }
 
-        private Dictionary<byte[], Tuple<byte[], KeyPair>> GeneratePriorKeyInfo(Tuple<bool, byte[], byte[]> result, Dictionary<byte[], Tuple<byte[], KeyPair>> priorKvps)
+        private Dictionary<byte[], Tuple<byte[], KeyPair>> GeneratePriorKeyInfo(byte[] imk, Dictionary<byte[], Tuple<byte[], KeyPair>> priorKvps)
         {
             if (_identityManager.CurrentIdentity.Block3 != null && _identityManager.CurrentIdentity.Block3.Edition > 0)
             {
-                byte[] decryptedBlock3 = SQRL.DecryptBlock3(result.Item2, _identityManager.CurrentIdentity, out bool allGood);
+                byte[] decryptedBlock3 = SQRL.DecryptBlock3(imk, _identityManager.CurrentIdentity, out bool allGood);
                 List<byte[]> oldIUKs = new List<byte[]>();
                 if (allGood)
                 {

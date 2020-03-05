@@ -36,8 +36,8 @@
 
     <!-- Password/QuickPass form -->
     <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="20,20,10,10">
-      <TextBlock Text="{Binding PasswordLabel}" Width="100" VerticalAlignment="Center" FontSize="14" TextWrapping="Wrap"/>
-      <loc:CopyPasteTextBox Name="txtPassword" Text="{Binding Password}" PasswordChar="*" Width="230" Height="30">
+      <TextBlock Text="{Binding PasswordLabel}" Width="100" VerticalAlignment="Center" FontSize="14" TextWrapping="Wrap">Password</TextBlock>
+      <loc:CopyPasteTextBox Name="txtPassword" Text="{Binding Password, Mode=TwoWay}" IsEnabled="{Binding !IsBusy}" PasswordChar="*" Width="230" Height="30">
         <i:Interaction.Behaviors>
           <behaviors:FocusOnAttached />
         </i:Interaction.Behaviors>
@@ -45,8 +45,8 @@
     </StackPanel>
 
     <!-- "Show advanced functions" button/label -->
-    <Button Name="btnAdvancedFunctions" Command="{Binding ShowAdvancedFunctions}" IsVisible="{Binding !AdvancedFunctionsVisible}" DockPanel.Dock="Top" 
-            HorizontalAlignment="Center" BorderBrush="Transparent">
+    <Button Name="btnAdvancedFunctions" Command="{Binding ShowAdvancedFunctions}" IsVisible="{Binding !AdvancedFunctionsVisible}" 
+            IsEnabled="{Binding !IsBusy}" DockPanel.Dock="Top" HorizontalAlignment="Center" BorderBrush="Transparent">
       <Button.Template>
         <ControlTemplate>
           <TextBlock Text="{loc:Localization ShowAdvancedFunctionsLabel}" Foreground="Blue" />
@@ -60,7 +60,7 @@
       <!-- Alt-ID -->  
       <StackPanel Orientation="Horizontal" Margin="20,0,20,0">
         <TextBlock Text="{loc:Localization AltIDLabel}" Width="100" VerticalAlignment="Center" FontSize="14" TextWrapping="Wrap"/>
-        <loc:CopyPasteTextBox Name="txtAltID" Text="{Binding AltID}" HorizontalAlignment="Left" Width="230" Height="30"/>
+        <loc:CopyPasteTextBox Name="txtAltID" Text="{Binding AltID}" IsEnabled="{Binding !IsBusy}" HorizontalAlignment="Left" Width="230" Height="30"/>
       </StackPanel>
 
       <!-- Enable/Disable/Remove radio buttons -->
@@ -68,9 +68,12 @@
         <StackPanel.Resources>
           <loc:EnumBooleanConverter x:Key="enumBooleanConverter" />
         </StackPanel.Resources>
-        <RadioButton Content="{loc:Localization LoginRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Login}" Margin="0,0,0,2" />
-        <RadioButton Content="{loc:Localization DisableRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Disable}"  Margin="0,2,0,2" />
-        <RadioButton Content="{loc:Localization RemoveRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Remove}"  Margin="0,2,0,2" />
+        <RadioButton Content="{loc:Localization LoginRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Login}" 
+                     IsEnabled="{Binding !IsBusy}" Margin="0,0,0,2" />
+        <RadioButton Content="{loc:Localization DisableRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Disable}" 
+                     IsEnabled="{Binding !IsBusy}" Margin="0,2,0,2" />
+        <RadioButton Content="{loc:Localization RemoveRadioButtonText}" IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Remove}" 
+                     IsEnabled="{Binding !IsBusy}" Margin="0,2,0,2" />
         <!--<RadioButton  IsChecked="{Binding Path=Action, Converter={StaticResource enumBooleanConverter}, ConverterParameter=Remove}"  Margin="110,2,2,2">Remove</RadioButton>-->
       </StackPanel>
 
@@ -80,7 +83,7 @@
     <!-- Cancel/OK buttons -->
     <Panel DockPanel.Dock="Top" Margin="20,40,20,0">
       <Button Content="{loc:Localization BtnCancel}" Command="{Binding Cancel}" Width="100" Height="30" HorizontalAlignment="Left" />
-      <Button Content="{loc:Localization BtnOK}" Command="{Binding Login}" Width="100" Height="30" HorizontalAlignment="Right" IsDefault="True" />
+      <Button Content="{loc:Localization BtnOK}" Command="{Binding Login}" IsEnabled="{Binding !IsBusy}" Width="100" Height="30" HorizontalAlignment="Right" IsDefault="True" />
     </Panel>
     
 
