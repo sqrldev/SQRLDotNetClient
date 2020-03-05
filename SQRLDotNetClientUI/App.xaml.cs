@@ -32,6 +32,11 @@ namespace SQRLDotNetClientUI
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
+                // Do not shutdown the application when the last window closes,
+                // but only when receiving an explicit shutdown command.
+                desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnExplicitShutdown;
+
+                // Set up the app's main window
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = new MainWindowViewModel(),
@@ -43,7 +48,6 @@ namespace SQRLDotNetClientUI
                     NSApplication.Init();
                     NSApplication.SharedApplication.Delegate = new Utils.AppDelegate((MainWindow)desktop.MainWindow);
                 }
-
             }          
 
             base.OnFrameworkInitializationCompleted();
