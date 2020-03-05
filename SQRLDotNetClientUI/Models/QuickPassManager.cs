@@ -10,6 +10,9 @@ namespace SQRLDotNetClientUI.Models
 {
     /// <summary>
     /// Provides functionality for SQRL's "QuickPass" feature.
+    /// To get the sinleton instance of the class, just use the 
+    /// static property <c>QuickPassManager.Instance</c> instead
+    /// of calling the constructor.
     /// </summary>
     public sealed class QuickPassManager
     {
