@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using SQRLDotNetClientUI.AvaloniaExtensions;
+using Serilog;
 
 namespace SQRLDotNetClientUI.Views
 {
@@ -24,6 +25,7 @@ namespace SQRLDotNetClientUI.Views
             // the application and only hide the main window instead.
             this.Closing += (s, e) =>
             {
+                Log.Information("Hiding main window");
                 ((Window)s).Hide();
                 e.Cancel = true;
             };
