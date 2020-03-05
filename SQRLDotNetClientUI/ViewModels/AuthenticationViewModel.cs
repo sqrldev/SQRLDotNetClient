@@ -32,6 +32,7 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         private SQRL _sqrlInstance = SQRL.GetInstance(true);
+        private QuickPassManager _quickPassManager = QuickPassManager.Instance;
 
         public Uri Site { get; set; }
         public string AltID { get; set; } = "";
@@ -146,6 +147,10 @@ namespace SQRLDotNetClientUI.ViewModels
             var result = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, this.Password, progressBlock1);
             if (result.Item1)
             {
+                // Block 1 was sucessfully decrypted using the master pasword,
+                // so enable QuickPass if it isn't already set
+                if (!_quickPassManager.HasQuickPass(_identityManager.CurrentIdentityUniqueId))
+                    _quickPassManager.SetQuickPass(this.Password, result.Item2, _identityManager.CurrentIdentity);
 
                 var siteKvp = SQRL.CreateSiteKey(this.Site, this.AltID, result.Item2);
 
