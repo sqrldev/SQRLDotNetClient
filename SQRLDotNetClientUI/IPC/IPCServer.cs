@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using Serilog;
+using Avalonia.Controls;
 
 namespace SQRLDotNetClientUI.IPC
 {
@@ -111,6 +112,7 @@ namespace SQRLDotNetClientUI.IPC
                         }
 
                         Log.Information("IPC server showing main window!");
+                        mainWindow.WindowState = WindowState.Normal;
                         mainWindow.Show();
                         mainWindow.Focus();
                         mainWindow.Activate();
