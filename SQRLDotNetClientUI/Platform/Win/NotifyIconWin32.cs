@@ -3,45 +3,126 @@ using System.Runtime.InteropServices;
 using System.ComponentModel;
 using Serilog;
 using Avalonia.Win32.Interop;
+using SQRLDotNetClientUI.Models;
+using System.Drawing;
 
 namespace SQRLDotNetClientUI.Platform.Win
 {
     /// <summary>
     /// Represents a "tray icon" on Windows.
     /// </summary>
-    public class NotifyIconWin32
+    public class NotifyIconWin32 : INotifyIcon
     {
         private NativeWindow _nativeWindow = null;
-        private UnmanagedMethods.NOTIFYICONDATA _notifyIconData;
         private readonly int _uID = 0;
         private static int _nextUID = 0;
-        private IntPtr _icon;
+        private bool _iconAdded = false;
+        private string _iconPath = string.Empty;
+        private Icon _icon = null;
 
-        public NotifyIconWin32(string iconPath)
+        public event EventHandler<EventArgs> Click;
+        public event EventHandler<EventArgs> DoubleClick;
+
+        /// <summary>
+        /// Gets or sets the icon for the notify icon.
+        /// </summary>
+        public string IconPath 
+        {
+            get => _iconPath;
+            set
+            {
+                try
+                {
+                    _icon = new Icon(value);
+                    _iconPath = value;
+                }
+                catch (Exception)
+                {
+                    _icon = null;
+                    _iconPath = string.Empty;
+                }
+
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the tooltip text for the notify icon.
+        /// </summary>
+        public string ToolTipText { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the notify icon is visible or not.
+        /// </summary>
+        public bool Visible { get; set; }
+
+        /// <summary>
+        /// Creates a new nptify icon instance.
+        /// </summary>
+        public NotifyIconWin32()
         {
             _uID = ++_nextUID;
-
             _nativeWindow = new NativeWindow();
-            _icon = UnmanagedMethods.LoadImage(IntPtr.Zero, iconPath, UnmanagedMethods.IMAGE_ICON, 0, 0,
-                UnmanagedMethods.LR_DEFAULTSIZE | UnmanagedMethods.LR_LOADFROMFILE);
-
-            _notifyIconData = new UnmanagedMethods.NOTIFYICONDATA()
-            {
-                cbSize = Marshal.SizeOf(typeof(UnmanagedMethods.NOTIFYICONDATA)),
-                hwnd = _nativeWindow.Handle,
-                uID = _uID,
-                uFlags = UnmanagedMethods.NIF_TIP | UnmanagedMethods.NIF_ICON | UnmanagedMethods.NIF_MESSAGE,
-                uCallbackMessage = (int)UnmanagedMethods.CustomWindowsMessage.WM_TRAYMOUSE,
-                hIcon = _icon,
-                szTip = "Test"
-            };
-
-            bool success = UnmanagedMethods.Shell_NotifyIcon(UnmanagedMethods.NIM_ADD, ref _notifyIconData);
         }
 
         ~NotifyIconWin32()
         {
-            bool success = UnmanagedMethods.Shell_NotifyIcon(UnmanagedMethods.NIM_DELETE, ref _notifyIconData);
+            UpdateIcon(remove: true);
+        }
+
+        /// <summary>
+        /// Shows, hides or removes the notify icon based on the set properties and parameters.
+        /// </summary>
+        /// <param name="remove">If set to true, the notify icon will be removed.</param>
+        private void UpdateIcon(bool remove = false)
+        {
+            UnmanagedMethods.NOTIFYICONDATA iconData = new UnmanagedMethods.NOTIFYICONDATA()
+            {
+                cbSize = Marshal.SizeOf(typeof(UnmanagedMethods.NOTIFYICONDATA)),
+                hwnd = _nativeWindow.Handle,
+                uID = _uID,
+                uFlags = UnmanagedMethods.NIF_TIP | UnmanagedMethods.NIF_MESSAGE,
+                uCallbackMessage = (int)UnmanagedMethods.CustomWindowsMessage.WM_TRAYMOUSE,
+                hIcon = IntPtr.Zero,
+                szTip = "Test"
+            };
+
+            if (!remove && _icon != null && Visible)
+            {
+                iconData.uFlags |= UnmanagedMethods.NIF_ICON;
+                iconData.hIcon = _icon.Handle;
+
+                if (!_iconAdded)
+                {
+                    UnmanagedMethods.Shell_NotifyIcon(UnmanagedMethods.NIM_ADD, ref iconData);
+                    _iconAdded = true;
+                }
+                else
+                {
+                    UnmanagedMethods.Shell_NotifyIcon(UnmanagedMethods.NIM_ADD, ref iconData);
+                }
+            }
+            else
+            {
+                UnmanagedMethods.Shell_NotifyIcon(UnmanagedMethods.NIM_DELETE, ref iconData);
+                _iconAdded = false;
+            }
+        }
+
+        public void Show()
+        {
+            Visible = true;
+            UpdateIcon();
+        }
+
+        public void Hide()
+        {
+            Visible = false;
+            UpdateIcon();
+        }
+
+        public void Remove()
+        {
+            UpdateIcon(remove: true);
         }
     }
 
