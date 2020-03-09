@@ -41,8 +41,6 @@ namespace SQRLDotNetClientUI.ViewModels
                 Content = mainMnu;
 
             MainMenu = mainMnu;
-
-            trayIcon = new NotifyIconWin32(@"C:\Users\Alex\Desktop\test.ico");
         }
     }
 }

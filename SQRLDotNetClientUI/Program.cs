@@ -9,6 +9,7 @@ using SQRLDotNetClientUI.IPC;
 using Serilog;
 using System.IO;
 using System.Reflection;
+using SQRLDotNetClientUI.Platform.Win;
 
 namespace SQRLDotNetClientUI
 {
@@ -21,6 +22,9 @@ namespace SQRLDotNetClientUI
         {
             const string mutexId = @"Global\{{83cfa3fa-72bd-4903-9b9d-ba90f7f6ba7f}}";
             Thread ipcThread = new Thread(StartIPCServer);
+            NotifyIconWin32 trayIcon = new NotifyIconWin32();
+            trayIcon.IconPath = @"C:\Users\Alex\Desktop\test.ico";
+            trayIcon.Show();
 
             // Set up logging
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -60,6 +64,11 @@ namespace SQRLDotNetClientUI
                     // so start the IPC server and run the app
                     ipcThread.Start();
                     BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+
+                    // Remove the tray icon
+                    trayIcon.Remove();
+
+                    Log.Information("App shutting down");
                 }
                 finally
                 {
@@ -76,8 +85,6 @@ namespace SQRLDotNetClientUI
                     }
                 }
             }
-
-            Log.Information("App shutting down");
         }
 
         /// <summary>
