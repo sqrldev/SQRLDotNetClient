@@ -7,7 +7,6 @@ using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Platform.Win;
 using SQRLDotNetClientUI.Platform;
 using System;
-using System.Reflection;
 
 namespace SQRLDotNetClientUI.Views
 {
@@ -30,8 +29,7 @@ namespace SQRLDotNetClientUI.Views
             NotifyIcon = (NotifyIcon)Activator.CreateInstance(Implementation.ForType<INotifyIcon>());
             if (NotifyIcon != null)
             {
-                //NotifyIcon.IconPath = @"C:\Users\Alex\Desktop\test.ico";
-                string[] resNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+                NotifyIcon.ToolTipText = "SQRL .NET Client";
                 NotifyIcon.IconPath = @"resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_256.ico";
                 NotifyIcon.DoubleClick += (s, e) =>
                 {
@@ -40,19 +38,18 @@ namespace SQRLDotNetClientUI.Views
                     this.Activate();
                     this.Focus();
                 };
-                NotifyIcon.Show();
+                NotifyIcon.Visible = true;
             }
 
-            // Prevent that closing the main form shuts down
-            // the application and only hide the main window instead.
+            // Prevent the main window from closing. Just hide it instead
+            // if we have a notify icon, or minimize it otherwise.
             this.Closing += (s, e) =>
             {
-
                 if (NotifyIcon != null)
                 {
                     Log.Information("Hiding main window");
                     ((Window)s).Hide();
-                    NotifyIcon.Show();
+                    NotifyIcon.Visible = true;
                 }
                 else
                 {
@@ -64,7 +61,7 @@ namespace SQRLDotNetClientUI.Views
 
             this.Closed += (s, e) =>
             {
-                // Remove the notify icon
+                // Remove the notify icon when the main window closes
                 if (NotifyIcon != null) NotifyIcon?.Remove();
             };
         }
