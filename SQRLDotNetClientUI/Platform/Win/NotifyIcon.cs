@@ -11,7 +11,7 @@ using Avalonia.Platform;
 namespace SQRLDotNetClientUI.Platform.Win
 {
     /// <summary>
-    /// Represents a "tray icon" on Windows.
+    /// Represents a taskbar notification area icon (aka "tray icon") on Windows.
     /// </summary>
     public class NotifyIcon : INotifyIcon
     {
@@ -21,13 +21,16 @@ namespace SQRLDotNetClientUI.Platform.Win
         private bool _iconAdded = false;
         private string _iconPath = string.Empty;
         private Icon _icon = null;
+        private string _toolTipText = "";
+        private bool _visible = false;
 
         public event EventHandler<EventArgs> Click;
         public event EventHandler<EventArgs> DoubleClick;
         public event EventHandler<EventArgs> RightClick;
 
         /// <summary>
-        /// Gets or sets the icon for the notify icon.
+        /// Gets or sets the icon for the notify icon. Either a file system path
+        /// or a <c>resm:</c> manifest resource path can be specified.
         /// </summary>
         public string IconPath 
         {
@@ -56,6 +59,10 @@ namespace SQRLDotNetClientUI.Platform.Win
                     _icon = null;
                     _iconPath = string.Empty;
                 }
+                finally
+                {
+                    UpdateIcon();
+                }
 
             }
         }
@@ -63,15 +70,38 @@ namespace SQRLDotNetClientUI.Platform.Win
         /// <summary>
         /// Gets or sets the tooltip text for the notify icon.
         /// </summary>
-        public string ToolTipText { get; set; }
+        public string ToolTipText 
+        {
+            get => _toolTipText;
+            set
+            {
+                if (_toolTipText != value)
+                {
+                    _toolTipText = value;
+                }
+                UpdateIcon();
+            }
+        }
 
         /// <summary>
-        /// Gets or sets if the notify icon is visible or not.
+        /// Gets or sets if the notify icon is visible in the 
+        /// taskbar notification area or not.
         /// </summary>
-        public bool Visible { get; set; }
+        public bool Visible 
+        {
+            get => _visible;
+            set
+            {
+                if (_visible != value)
+                {
+                    _visible = value;
+                }
+                UpdateIcon();
+            }
+        }
 
         /// <summary>
-        /// Creates a new nptify icon instance.
+        /// Creates a new notify icon instance.
         /// </summary>
         public NotifyIcon()
         {
@@ -92,13 +122,13 @@ namespace SQRLDotNetClientUI.Platform.Win
         {
             UnmanagedMethods.NOTIFYICONDATA iconData = new UnmanagedMethods.NOTIFYICONDATA()
             {
-                cbSize = Marshal.SizeOf(typeof(UnmanagedMethods.NOTIFYICONDATA)),
+                cbSize = Marshal.SizeOf<UnmanagedMethods.NOTIFYICONDATA>(),
                 hwnd = _nativeWindow.Handle,
                 uID = _uID,
                 uFlags = UnmanagedMethods.NIF_TIP | UnmanagedMethods.NIF_MESSAGE,
                 uCallbackMessage = (int)UnmanagedMethods.CustomWindowsMessage.WM_TRAYMOUSE,
                 hIcon = IntPtr.Zero,
-                szTip = "Test"
+                szTip = ToolTipText
             };
 
             if (!remove && _icon != null && Visible)
@@ -124,45 +154,13 @@ namespace SQRLDotNetClientUI.Platform.Win
         }
 
         /// <summary>
-        /// Shows the notification icon.
-        /// </summary>
-        public void Show()
-        {
-            Visible = true;
-            UpdateIcon();
-        }
-
-        /// <summary>
-        /// Hides the notify icon.
-        /// </summary>
-        public void Hide()
-        {
-            Visible = false;
-            UpdateIcon();
-        }
-
-        /// <summary>
-        /// Removes the notify icon from the task bar.
+        /// Removes the notify icon from the taskbar notification area.
         /// </summary>
         public void Remove()
         {
             UpdateIcon(remove: true);
         }
 
-        public void OnClick(EventArgs e)
-        {
-            Click?.Invoke(this, e);
-        }
-
-        public void OnDoubleClick(EventArgs e)
-        {
-            DoubleClick?.Invoke(this, e);
-        }
-
-        public void OnRightClick(EventArgs e)
-        {
-            RightClick?.Invoke(this, e);
-        }
 
         public void WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
@@ -177,15 +175,15 @@ namespace SQRLDotNetClientUI.Platform.Win
                     switch (lParam.ToInt32())
                     {
                         case (int)UnmanagedMethods.WindowsMessage.WM_LBUTTONUP:
-                            OnClick(new EventArgs());
+                            Click?.Invoke(this, new EventArgs());
                             break;
 
                         case (int)UnmanagedMethods.WindowsMessage.WM_LBUTTONDBLCLK:
-                            OnDoubleClick(new EventArgs());
+                            DoubleClick?.Invoke(this, new EventArgs());
                             break;
 
                         case (int)UnmanagedMethods.WindowsMessage.WM_RBUTTONUP:
-                            OnRightClick(new EventArgs());
+                            RightClick?.Invoke(this, new EventArgs());
                             break;
 
                         default:
