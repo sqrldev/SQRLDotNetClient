@@ -5,15 +5,17 @@ using Serilog;
 using Avalonia.Win32.Interop;
 using SQRLDotNetClientUI.Models;
 using System.Drawing;
+using Avalonia;
+using Avalonia.Platform;
 
 namespace SQRLDotNetClientUI.Platform.Win
 {
     /// <summary>
     /// Represents a "tray icon" on Windows.
     /// </summary>
-    public class NotifyIconWin32 : INotifyIcon
+    public class NotifyIcon : INotifyIcon
     {
-        private NativeWindow _nativeWindow = null;
+        private NotifyIconNativeWindow _nativeWindow = null;
         private readonly int _uID = 0;
         private static int _nextUID = 0;
         private bool _iconAdded = false;
@@ -22,6 +24,7 @@ namespace SQRLDotNetClientUI.Platform.Win
 
         public event EventHandler<EventArgs> Click;
         public event EventHandler<EventArgs> DoubleClick;
+        public event EventHandler<EventArgs> RightClick;
 
         /// <summary>
         /// Gets or sets the icon for the notify icon.
@@ -33,7 +36,19 @@ namespace SQRLDotNetClientUI.Platform.Win
             {
                 try
                 {
-                    _icon = new Icon(value);
+                    // Check if path is a file system or resource path
+                    if (value.StartsWith("resm:"))
+                    {
+                        // Resource path
+                        var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+                        _icon = new Icon(assets.Open(new Uri(value)));
+
+                    }
+                    else
+                    {
+                        // File system path
+                        _icon = new Icon(value);
+                    }
                     _iconPath = value;
                 }
                 catch (Exception)
@@ -58,13 +73,13 @@ namespace SQRLDotNetClientUI.Platform.Win
         /// <summary>
         /// Creates a new nptify icon instance.
         /// </summary>
-        public NotifyIconWin32()
+        public NotifyIcon()
         {
             _uID = ++_nextUID;
-            _nativeWindow = new NativeWindow();
+            _nativeWindow = new NotifyIconNativeWindow(this);
         }
 
-        ~NotifyIconWin32()
+        ~NotifyIcon()
         {
             UpdateIcon(remove: true);
         }
@@ -108,29 +123,89 @@ namespace SQRLDotNetClientUI.Platform.Win
             }
         }
 
+        /// <summary>
+        /// Shows the notification icon.
+        /// </summary>
         public void Show()
         {
             Visible = true;
             UpdateIcon();
         }
 
+        /// <summary>
+        /// Hides the notify icon.
+        /// </summary>
         public void Hide()
         {
             Visible = false;
             UpdateIcon();
         }
 
+        /// <summary>
+        /// Removes the notify icon from the task bar.
+        /// </summary>
         public void Remove()
         {
             UpdateIcon(remove: true);
         }
+
+        public void OnClick(EventArgs e)
+        {
+            Click?.Invoke(this, e);
+        }
+
+        public void OnDoubleClick(EventArgs e)
+        {
+            DoubleClick?.Invoke(this, e);
+        }
+
+        public void OnRightClick(EventArgs e)
+        {
+            RightClick?.Invoke(this, e);
+        }
+
+        public void WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
+        {
+            Log.Debug("NotifyIcon WndProc: MSG={Msg}, wParam={wParam}, lParam={lParam}", 
+                ((UnmanagedMethods.CustomWindowsMessage)msg).ToString(),
+                ((UnmanagedMethods.WindowsMessage)wParam.ToInt32()).ToString(),
+                ((UnmanagedMethods.WindowsMessage)lParam.ToInt32()).ToString());
+
+            switch (msg)
+            {
+                case ((uint)UnmanagedMethods.CustomWindowsMessage.WM_TRAYMOUSE):
+                    switch (lParam.ToInt32())
+                    {
+                        case (int)UnmanagedMethods.WindowsMessage.WM_LBUTTONUP:
+                            OnClick(new EventArgs());
+                            break;
+
+                        case (int)UnmanagedMethods.WindowsMessage.WM_LBUTTONDBLCLK:
+                            OnDoubleClick(new EventArgs());
+                            break;
+
+                        case (int)UnmanagedMethods.WindowsMessage.WM_RBUTTONUP:
+                            OnRightClick(new EventArgs());
+                            break;
+
+                        default:
+                            break;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 
     /// <summary>
-    /// Represents a native Win32 window.
+    /// A native Win32 helper window for dealing with the window messages
+    /// sent by the notification icon.
     /// </summary>
-    public class NativeWindow
+    public class NotifyIconNativeWindow
     {
+        private NotifyIcon _notifyIcon;
         private UnmanagedMethods.WndProc _wndProc;
         private string _className = "NotIcoNatHelper";
 
@@ -139,8 +214,10 @@ namespace SQRLDotNetClientUI.Platform.Win
         /// </summary>
         public IntPtr Handle { get; set; }
 
-        public NativeWindow()
+        public NotifyIconNativeWindow(NotifyIcon notifyIcon)
         {
+            _notifyIcon = notifyIcon;
+
             _wndProc = new UnmanagedMethods.WndProc(WndProc);
             UnmanagedMethods.WNDCLASSEX wndClassEx = new UnmanagedMethods.WNDCLASSEX
             {
@@ -167,7 +244,8 @@ namespace SQRLDotNetClientUI.Platform.Win
 
         private IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
-            Log.Information("MyWndProc called: MSG = {Msg}", ((UnmanagedMethods.WindowsMessage)msg).ToString());
+            Log.Debug("WndProc called on helper window: MSG = {Msg}", ((UnmanagedMethods.WindowsMessage)msg).ToString());
+
             switch (msg)
             {
                 case (uint)UnmanagedMethods.WindowsMessage.WM_CLOSE:
@@ -177,7 +255,7 @@ namespace SQRLDotNetClientUI.Platform.Win
                     UnmanagedMethods.PostQuitMessage(0);
                     break;
                 case (uint)UnmanagedMethods.CustomWindowsMessage.WM_TRAYMOUSE:
-                    Log.Information("TRAYICON msg !!!!");
+                    _notifyIcon.WndProc(hWnd, msg, wParam, lParam);
                     break;
                 default:
                     return UnmanagedMethods.DefWindowProc(hWnd, msg, wParam, lParam);
