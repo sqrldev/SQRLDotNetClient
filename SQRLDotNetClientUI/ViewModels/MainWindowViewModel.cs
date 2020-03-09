@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using SQRLDotNetClientUI.Platform.Win;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace SQRLDotNetClientUI.ViewModels
         MainMenuViewModel mainMenu;
         ViewModelBase content;
         ViewModelBase priorContent;
+        NotifyIconWin32 trayIcon;
 
         public MainMenuViewModel MainMenu
         {
@@ -39,6 +41,8 @@ namespace SQRLDotNetClientUI.ViewModels
                 Content = mainMnu;
 
             MainMenu = mainMnu;
+
+            trayIcon = new NotifyIconWin32(@"C:\Users\Alex\Desktop\test.ico");
         }
     }
 }

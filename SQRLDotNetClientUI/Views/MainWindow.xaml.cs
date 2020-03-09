@@ -25,8 +25,8 @@ namespace SQRLDotNetClientUI.Views
             // the application and only hide the main window instead.
             this.Closing += (s, e) =>
             {
-                Log.Information("Hiding main window");
-                ((Window)s).Hide();
+                Log.Information("Minimizing main window");
+                ((Window)s).WindowState = WindowState.Minimized;
                 e.Cancel = true;
             };
         }
