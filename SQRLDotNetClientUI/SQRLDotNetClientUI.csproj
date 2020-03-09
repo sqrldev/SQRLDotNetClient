@@ -187,7 +187,7 @@
     <ProjectReference Include="..\SQRLUtilsLib\SQRLUtilsLib.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\sqrl_icon_normal_256.ico" />
+    <EmbeddedResource Include="Assets\sqrl_icon_normal_256.ico" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Views\AskView.xaml.cs">

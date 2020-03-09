@@ -9,7 +9,7 @@ using SQRLDotNetClientUI.IPC;
 using Serilog;
 using System.IO;
 using System.Reflection;
-using SQRLDotNetClientUI.Platform.Win;
+using SQRLDotNetClientUI.Views;
 
 namespace SQRLDotNetClientUI
 {
@@ -22,9 +22,6 @@ namespace SQRLDotNetClientUI
         {
             const string mutexId = @"Global\{{83cfa3fa-72bd-4903-9b9d-ba90f7f6ba7f}}";
             Thread ipcThread = new Thread(StartIPCServer);
-            NotifyIconWin32 trayIcon = new NotifyIconWin32();
-            trayIcon.IconPath = @"C:\Users\Alex\Desktop\test.ico";
-            trayIcon.Show();
 
             // Set up logging
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -35,7 +32,8 @@ namespace SQRLDotNetClientUI
                 .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
-            Log.Information("New app instance is being launched on {Platform}", RuntimeInformation.OSDescription);
+            Log.Information("New app instance is being launched on {OSDescription}", 
+                RuntimeInformation.OSDescription);
 
             // Try to detect an existing instance of our app
             using (var mutex = new Mutex(false, mutexId, out bool created))
@@ -64,23 +62,23 @@ namespace SQRLDotNetClientUI
                     // so start the IPC server and run the app
                     ipcThread.Start();
                     BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-
-                    // Remove the tray icon
-                    trayIcon.Remove();
-
-                    Log.Information("App shutting down");
                 }
                 finally
                 {
+                    Log.Information("App shutting down");
+
                     if (hasHandle)
                     {
                         mutex.ReleaseMutex();
                     }
+
                     if (ipcThread.IsAlive)
                     {
                         // Force close the app without waiting 
                         // for any threads to finish.
                         Log.Information("Forcing exit because of IPC thread still running.");
+
+                        AvaloniaLocator.Current.GetService<MainWindow>().NotifyIcon?.Remove();
                         Environment.Exit(1);
                     }
                 }

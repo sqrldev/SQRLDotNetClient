@@ -12,7 +12,6 @@ namespace SQRLDotNetClientUI.ViewModels
         MainMenuViewModel mainMenu;
         ViewModelBase content;
         ViewModelBase priorContent;
-        NotifyIconWin32 trayIcon;
 
         public MainMenuViewModel MainMenu
         {
