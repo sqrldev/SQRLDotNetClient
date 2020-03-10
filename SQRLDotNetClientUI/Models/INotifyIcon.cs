@@ -6,6 +6,9 @@ namespace SQRLDotNetClientUI.Models
     /// <summary>
     /// Represents a taskbar notification area icon (aka "tray icon") on Windows,
     /// and similar task panel notification icons on Linux and Mac.
+    /// 
+    /// Platform-specific implementations for this interface can be found in 
+    /// <c>SQRLDotNetClientUI.Platform.XXX</c>.
     /// </summary>
     public interface INotifyIcon
     {

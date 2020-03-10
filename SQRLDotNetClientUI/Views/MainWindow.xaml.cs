@@ -31,6 +31,7 @@ namespace SQRLDotNetClientUI.Views
             this.AttachDevTools();
 #endif
 
+            // Set up and configure the notification icon
             NotifyIcon = (NotifyIcon)Activator.CreateInstance(
                 Implementation.ForType<INotifyIcon>());
 
@@ -86,6 +87,10 @@ namespace SQRLDotNetClientUI.Views
                 if (NotifyIcon != null) NotifyIcon?.Remove();
             };
         }
+
+        // This would be ideal for the notification icon, but unfortunately
+        // it causes the main window to only show a black screen when showing
+        // the window again. Probably an Avalonia bug.
 
         //protected override void HandleWindowStateChanged(WindowState state)
         //{           
