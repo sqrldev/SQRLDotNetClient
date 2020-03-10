@@ -19,6 +19,11 @@ namespace SQRLDotNetClientUI.Models
         public string ToolTipText { get; set; }
 
         /// <summary>
+        /// Gets or sets the context- (right-click)-menu for the notify icon.
+        /// </summary>
+        public ContextMenu ContextMenu { get; set; }
+
+        /// <summary>
         /// Gets or sets if the notify icon is visible in the 
         /// taskbar notification area or not.
         /// </summary>
