@@ -137,7 +137,6 @@ namespace SQRLDotNetClientUI.ViewModels
                 if (x.Length == quickPassLength)
                 {
                     Log.Information("Initiating login using QuickPass");
-
                     Login(useQuickPass: true);
                 }
             });
@@ -145,6 +144,10 @@ namespace SQRLDotNetClientUI.ViewModels
             CheckForQuickPass();
         }
 
+        /// <summary>
+        /// Check if QuickPass is available for the currently selected identity
+        /// and change the UI labels accordingly.
+        /// </summary>
         private void CheckForQuickPass()
         {
             if (!_quickPassManager.HasQuickPass())
@@ -153,12 +156,18 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.PasswordLabel = _loc.GetLocalizationValue("QuickPassLabel");
         }
 
+        /// <summary>
+        /// Dynamically react to identity additions/removals.
+        /// </summary>
         private void IdentityCountChanged(object sender, IdentityCountChangedEventArgs e)
         {
             if (e.IdentityCount > 1) this.ShowIdentitySelector = true;
             else this.ShowIdentitySelector = false;
         }
 
+        /// <summary>
+        /// Opens the identity selection dialog.
+        /// </summary>
         public async void SwitchIdentity()
         {
             SelectIdentityDialogView selectIdDialog = new SelectIdentityDialogView();
@@ -166,11 +175,17 @@ namespace SQRLDotNetClientUI.ViewModels
             await selectIdDialog.ShowDialog(_mainWindow);
         }
 
+        /// <summary>
+        /// React to identity changes.
+        /// </summary>
         private void IdentityChanged(object sender, IdentityChangedEventArgs e)
         {
             this.IdentityName = e.Identity.IdentityName;
         }
 
+        /// <summary>
+        /// Shows advanced functions like disable/remove account etc.
+        /// </summary>
         public void ShowAdvancedFunctions()
         {
             this.AdvancedFunctionsVisible = true;
@@ -184,7 +199,7 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             while (_sqrlInstance.cps.PendingResponse)
                 ;
-            _mainWindow.Close();
+            ShowMainScreenAndClose();
         }
 
         public async void Login(bool useQuickPass = false)
@@ -350,7 +365,7 @@ namespace SQRLDotNetClientUI.ViewModels
                             }
                             while (_sqrlInstance.cps.PendingResponse)
                                 ;
-                            _mainWindow.Close();
+                            ShowMainScreenAndClose();
                         }
                         break;
                     case LoginAction.Disable:
@@ -374,7 +389,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                 }
                                 while (_sqrlInstance.cps.PendingResponse)
                                     ;
-                                _mainWindow.Close();
+                                ShowMainScreenAndClose();
                             }
                         }
                         break;
@@ -396,7 +411,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                 }
                                 while (_sqrlInstance.cps.PendingResponse)
                                     ;
-                                _mainWindow.Close();
+                                ShowMainScreenAndClose();
                             }
                             else
                             {
@@ -460,7 +475,7 @@ namespace SQRLDotNetClientUI.ViewModels
                     }
                     while (_sqrlInstance.cps.PendingResponse)
                         ;
-                    _mainWindow.Close();
+                    ShowMainScreenAndClose();
                 }
             }
             else
@@ -471,7 +486,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 while (_sqrlInstance.cps.PendingResponse)
                     ;
-                _mainWindow.Close();
+                ShowMainScreenAndClose();
             }
 
             return serverResponse;
@@ -503,6 +518,16 @@ namespace SQRLDotNetClientUI.ViewModels
             }
 
             return priorKvps;
+        }
+
+        /// <summary>
+        /// Sets the content of the window to the main page and closes the window.
+        /// </summary>
+        private void ShowMainScreenAndClose()
+        {
+            ((MainWindowViewModel)_mainWindow.DataContext).Content =
+                ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
+            _mainWindow.Close();
         }
     }
 }
