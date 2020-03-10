@@ -25,6 +25,7 @@ namespace SQRLDotNetClientUI.Platform.Win
         private Icon _icon = null;
         private string _toolTipText = string.Empty;
         private bool _visible = false;
+        private bool _doubleClick = false;
 
         public event EventHandler<EventArgs> Click;
         public event EventHandler<EventArgs> DoubleClick;
@@ -230,7 +231,7 @@ namespace SQRLDotNetClientUI.Platform.Win
         /// </summary>
         public void WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
-            Log.Debug("NotifyIcon WndProc: MSG={Msg}, wParam={wParam}, lParam={lParam}", 
+            Log.Information("NotifyIcon WndProc: MSG={Msg}, wParam={wParam}, lParam={lParam}", 
                 ((UnmanagedMethods.CustomWindowsMessage)msg).ToString(),
                 ((UnmanagedMethods.WindowsMessage)wParam.ToInt32()).ToString(),
                 ((UnmanagedMethods.WindowsMessage)lParam.ToInt32()).ToString());
@@ -243,11 +244,16 @@ namespace SQRLDotNetClientUI.Platform.Win
             switch (lParam.ToInt32())
             {
                 case (int)UnmanagedMethods.WindowsMessage.WM_LBUTTONUP:
-                    Click?.Invoke(this, new EventArgs());
+                    if (!_doubleClick)
+                    {
+                        Click?.Invoke(this, new EventArgs());
+                    }
+                    _doubleClick = false;
                     break;
 
                 case (int)UnmanagedMethods.WindowsMessage.WM_LBUTTONDBLCLK:
                     DoubleClick?.Invoke(this, new EventArgs());
+                    _doubleClick = true;
                     break;
 
                 case (int)UnmanagedMethods.WindowsMessage.WM_RBUTTONUP:
