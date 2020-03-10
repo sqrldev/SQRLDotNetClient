@@ -86,7 +86,7 @@ namespace SQRLDotNetClientUI.Platform.Win
         }
 
         /// <summary>
-        /// Gets or sets the context- (right-click)-menu for the notify icon.
+        /// Gets or sets the context menu for the notify icon.
         /// </summary>
         public ContextMenu ContextMenu { get; set; }
 
@@ -108,7 +108,8 @@ namespace SQRLDotNetClientUI.Platform.Win
         }
 
         /// <summary>
-        /// Creates a new notify icon instance.
+        /// Creates a new notify icon instance and sets up some 
+        /// required resources.
         /// </summary>
         public NotifyIcon()
         {
@@ -168,10 +169,36 @@ namespace SQRLDotNetClientUI.Platform.Win
             UpdateIcon(remove: true);
         }
 
-        private void OnRightClick(object sender, EventArgs e)
+        /// <summary>
+        /// If available, displays the notification icon's context menu.
+        /// </summary>
+        private void ShowContextMenu()
         {
             if (ContextMenu != null)
             {
+                // Since we can't use the Avalonia ContextMenu directly due to shortcomings
+                // regrading its positioning, we'll create a native context menu instead. 
+                // This dictionary will map the menu item IDs which we'll need for the native 
+                // menu to the MenuItems of the provided Avalonia ContextMenu.
+                Dictionary<uint, MenuItem> contextItemLookup = new Dictionary<uint, MenuItem>();
+
+                // Create a native (Win32) popup menu as the notify icon's context menu.
+                IntPtr popupMenu = UnmanagedMethods.CreatePopupMenu();
+
+                uint i = 1;
+                foreach (var item in this.ContextMenu.Items)
+                {
+                    MenuItem menuItem = (MenuItem)item;
+
+                    // Add items to the native context menu by simply reusing
+                    // the information provided within the Avalonia ContextMenu.
+                    UnmanagedMethods.AppendMenu(popupMenu, UnmanagedMethods.MenuFlags.MF_STRING, i, (string)menuItem.Header);
+
+                    // Add the mapping so that we can find the selected item later
+                    contextItemLookup.Add(i, menuItem);
+                    i++;
+                }
+
                 // To display a context menu for a notification icon, the current window 
                 // must be the foreground window before the application calls TrackPopupMenu 
                 // or TrackPopupMenuEx.Otherwise, the menu will not disappear when the user 
@@ -180,21 +207,7 @@ namespace SQRLDotNetClientUI.Platform.Win
                 // (top-level) parent window as the foreground window.
                 UnmanagedMethods.SetForegroundWindow(_helperWindow.Handle);
 
-                // Create a native (Win32) popup menu as the notify icon's context menu
-                IntPtr popupMenu = UnmanagedMethods.CreatePopupMenu();
-
-                Dictionary<uint, MenuItem> contextItemLookup = new Dictionary<uint, MenuItem>();
-                uint i = 1;
-                foreach (var item in this.ContextMenu.Items)
-                {
-                    MenuItem menuItem = (MenuItem)item;
-
-                    UnmanagedMethods.AppendMenu(popupMenu, UnmanagedMethods.MenuFlags.MF_STRING, i, (string)menuItem.Header);
-                    contextItemLookup.Add(i, menuItem);
-                    i++;
-                }
-
-                // Get the mouse cursor 
+                // Get the mouse cursor position
                 UnmanagedMethods.GetCursorPos(out UnmanagedMethods.POINT pt);
 
                 // Now display the context menu and block until we get a result
@@ -240,7 +253,7 @@ namespace SQRLDotNetClientUI.Platform.Win
                 case (int)UnmanagedMethods.WindowsMessage.WM_RBUTTONUP:
                     EventArgs e = new EventArgs();
                     RightClick?.Invoke(this, e);
-                    OnRightClick(this, e);
+                    ShowContextMenu();
                     break;
 
                 default:
@@ -249,9 +262,11 @@ namespace SQRLDotNetClientUI.Platform.Win
         }
     }
 
+
+
     /// <summary>
-    /// A native Win32 helper window for dealing with the window messages
-    /// sent by the notification icon.
+    /// A native Win32 helper window encapsulation for dealing with the window 
+    /// messages sent by the notification icon.
     /// </summary>
     public class NotifyIconHelperWindow
     {
@@ -260,15 +275,23 @@ namespace SQRLDotNetClientUI.Platform.Win
         private string _className = "NotIcoNatHelper";
 
         /// <summary>
-        /// The Win32 window handle of the native window.
+        /// The window handle of the underlying native window.
         /// </summary>
         public IntPtr Handle { get; set; }
 
+        /// <summary>
+        /// Creates a new native (Win32) helper window for receiving window messages.
+        /// </summary>
+        /// <param name="notifyIcon">The <c>NotifyIcon</c> instance which will be
+        /// the source of the tray icon's window messages.</param>
         public NotifyIconHelperWindow(NotifyIcon notifyIcon)
         {
             _notifyIcon = notifyIcon;
 
+            // We need to store the window proc as a field so that
+            // it doesn't get garbage collected away.
             _wndProc = new UnmanagedMethods.WndProc(WndProc);
+
             UnmanagedMethods.WNDCLASSEX wndClassEx = new UnmanagedMethods.WNDCLASSEX
             {
                 cbSize = Marshal.SizeOf<UnmanagedMethods.WNDCLASSEX>(),
@@ -284,14 +307,33 @@ namespace SQRLDotNetClientUI.Platform.Win
                 throw new Win32Exception();
             }
 
+            Log.Information("Successfully registered window class for native NotifyIcon helper window.");
+
             Handle = UnmanagedMethods.CreateWindowEx(0, atom, null, 0, 0, 0, 0, 0, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
 
             if (Handle == IntPtr.Zero)
             {
                 throw new Win32Exception();
             }
+
+            Log.Information("Successfully created native NotifyIcon helper window.");
         }
 
+        /// <summary>
+        /// Destructs the object and destroys the native window.
+        /// </summary>
+        ~NotifyIconHelperWindow()
+        {
+            if (Handle != IntPtr.Zero)
+            {
+                Log.Information("Destroying native NotifyIcon helper window.");
+                UnmanagedMethods.PostMessage(this.Handle, (uint)UnmanagedMethods.WindowsMessage.WM_DESTROY, IntPtr.Zero, IntPtr.Zero);
+            }
+        }
+
+        /// <summary>
+        /// This function will receive all the system window messages relevant to our window.
+        /// </summary>
         private IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
             Log.Debug("WndProc called on helper window: MSG = {Msg}", ((UnmanagedMethods.WindowsMessage)msg).ToString());
@@ -305,6 +347,7 @@ namespace SQRLDotNetClientUI.Platform.Win
                     UnmanagedMethods.PostQuitMessage(0);
                     break;
                 case (uint)UnmanagedMethods.CustomWindowsMessage.WM_TRAYMOUSE:
+                    // Forward WM_TRAYMOUSE messages to the tray icon's window procedure
                     _notifyIcon.WndProc(hWnd, msg, wParam, lParam);
                     break;
                 default:

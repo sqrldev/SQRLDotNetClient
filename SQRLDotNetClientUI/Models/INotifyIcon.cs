@@ -1,10 +1,12 @@
 ﻿using Avalonia.Controls;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SQRLDotNetClientUI.Models
 {
+    /// <summary>
+    /// Represents a taskbar notification area icon (aka "tray icon") on Windows,
+    /// and similar task panel notification icons on Linux and Mac.
+    /// </summary>
     public interface INotifyIcon
     {
         /// <summary>
@@ -34,8 +36,19 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         public void Remove();
 
+        /// <summary>
+        /// This event is raised when a user clicks on the notification icon.
+        /// </summary>
         public event EventHandler<EventArgs> Click;
+
+        /// <summary>
+        /// This event is raised when a user doubleclicks on the notification icon.
+        /// </summary>
         public event EventHandler<EventArgs> DoubleClick;
+
+        /// <summary>
+        /// This event is raised when a user right-clicks on the notification icon.
+        /// </summary>
         public event EventHandler<EventArgs> RightClick;
     }
 }
