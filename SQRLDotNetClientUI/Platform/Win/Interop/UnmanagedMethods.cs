@@ -3,6 +3,7 @@
 
 // Slightly modified and extended version for the use in SQRLDotNetClientUI
 
+using Avalonia;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -13,7 +14,7 @@ using System.Text;
 // ReSharper disable InconsistentNaming
 #pragma warning disable 169, 649
 
-namespace Avalonia.Win32.Interop
+namespace SQRLDotNetClientUI.Platform.Win.Interop
 {
     [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1305:FieldNamesMustNotUseHungarianNotation", Justification = "Using Win32 naming for consistency.")]
     [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1307:AccessibleFieldsMustBeginWithUpperCaseLetter", Justification = "Using Win32 naming for consistency.")]
@@ -32,6 +33,21 @@ namespace Avalonia.Win32.Interop
 
         [DllImport("user32.dll")]
         public static extern void PostQuitMessage(int nExitCode);
+
+        [DllImport("user32.dll", ExactSpelling = true)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr CreatePopupMenu();
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern bool InsertMenuItem(IntPtr hMenu, uint uItem, bool fByPosition, [In] ref MENUITEMINFO lpmii);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern bool AppendMenu(IntPtr hMenu, MenuFlags uFlags, uint uIDNewItem, string lpNewItem);
+
+        [DllImport("user32.dll")]
+        public static extern uint TrackPopupMenuEx(IntPtr hmenu, UFLAGS uFlags, int x, int y, IntPtr hwnd, IntPtr lptpm);
 
         public const uint NIM_ADD = 0x00;
         public const uint NIM_MODIFY = 0x01;
@@ -80,6 +96,29 @@ namespace Avalonia.Win32.Interop
             public int dwInfoFlags;
         }
 
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public class MENUITEMINFO
+        {
+            public Int32 cbSize = Marshal.SizeOf(typeof(MENUITEMINFO));
+            public MIIM fMask;
+            public UInt32 fType;
+            public UInt32 fState;
+            public UInt32 wID;
+            public IntPtr hSubMenu;
+            public IntPtr hbmpChecked;
+            public IntPtr hbmpUnchecked;
+            public IntPtr dwItemData;
+            public string dwTypeData = null;
+            public UInt32 cch; // length of dwTypeData
+            public IntPtr hbmpItem;
+
+            public MENUITEMINFO() { }
+            public MENUITEMINFO(MIIM pfMask)
+            {
+                fMask = pfMask;
+            }
+        }
+
         /// <summary>
         /// Custom Win32 window messages for the NotifyIcon
         /// </summary>
@@ -89,6 +128,44 @@ namespace Avalonia.Win32.Interop
             WM_TRAYMOUSE = (uint)WindowsMessage.WM_USER + 1024
 
         }
+
+        [Flags]
+        public enum MIIM
+        {
+            BITMAP = 0x00000080,
+            CHECKMARKS = 0x00000008,
+            DATA = 0x00000020,
+            FTYPE = 0x00000100,
+            ID = 0x00000002,
+            STATE = 0x00000001,
+            STRING = 0x00000040,
+            SUBMENU = 0x00000004,
+            TYPE = 0x00000010
+        }
+
+        [Flags]
+        public enum MenuFlags : uint
+        {
+            MF_STRING = 0,
+            MF_BYPOSITION = 0x400,
+            MF_SEPARATOR = 0x800,
+            MF_REMOVE = 0x1000,
+        }
+
+        [Flags]
+        public enum UFLAGS : uint
+        {
+            TPM_LEFTALIGN = 0x0000,
+            TPM_CENTERALIGN = 0x0004,
+            TPM_RIGHTALIGN = 0x0008,
+            TPM_TOPALIGN = 0x0000,
+            TPM_VCENTERALIGN = 0x0010,
+            TPM_BOTTOMALIGN = 0x0020,
+            TPM_HORIZONTAL = 0x0000,
+            TPM_VERTICAL = 0x0040,
+            TPM_NONOTIFY = 0x0080,
+            TPM_RETURNCMD = 0x0100
+    }
 
         // End extensions for SQRLDotNetClientUI
 
