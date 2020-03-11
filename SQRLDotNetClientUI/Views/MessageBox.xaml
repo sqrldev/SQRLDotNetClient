@@ -3,32 +3,26 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
-        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="220"
         x:Class="SQRLDotNetClientUI.Views.MessageBox"
         Title="{Binding Title}"
         Icon="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico"
         xmlns:vm="clr-namespace:SQRLDotNetClientUI.Views;assembly=SQRLDotNetClientUI"
-        Width="400"
+        Width="{Binding Width}"
         CanResize="False"
         SizeToContent="Height"
-        MaxHeight="600"
-        MaxWidth="500"
-        Height="200"
+        Height="{Binding Height}"
         >
-  <Grid ShowGridLines="False" Margin="10" >
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="*"/>
-      <ColumnDefinition Width="*"/>
-    </Grid.ColumnDefinitions>
-    <Grid.RowDefinitions>
-      <RowDefinition />
-      <RowDefinition  />
-      <RowDefinition />
-    </Grid.RowDefinitions>
-    <Image Stretch="None" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Source="resm:SQRLDotNetClientUI.Assets.Icons.ok.png" />
-    <TextBlock Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0">It is a long  </TextBlock>
-    <Button HorizontalAlignment="Left" Name="btnYes" Grid.Row="2" Grid.Column="0" Height="25" Width="100">Yes</Button>
-    <Button HorizontalAlignment="Left" Name="btnOK" Grid.Row="2" Grid.Column="0" Height="25" Width="100">OK</Button>
-    <Button HorizontalAlignment="Right" Name="btnNo" Grid.Row="2" Grid.Column="1" Height="25" Width="100">Yes</Button>
-  </Grid>
+  <DockPanel>
+  <StackPanel DockPanel.Dock="Top" Orientation="Vertical" VerticalAlignment="Bottom" Margin="10" >
+    <Image Stretch="None" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Source="{Binding IconSource}" />
+    <TextBlock   Margin="10" MaxHeight="{Binding MaxHeight}"  Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0">
+asdasd
+    </TextBlock>
+  </StackPanel>
+  <StackPanel Margin="10" DockPanel.Dock="Bottom" Name="pnlButtons" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+    <Button Margin="10,0" Width="60">Yes</Button>
+    <Button Margin="10,0" Width="60">No</Button>
+  </StackPanel>
+  </DockPanel>
 </Window>
