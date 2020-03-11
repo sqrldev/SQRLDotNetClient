@@ -26,14 +26,14 @@ namespace SQRLDotNetClientUI.Models
         /// <summary>
         /// The number of seconds the QuickPass shall be run through the PBKDF.
         /// </summary>
-        private const int QP_KEYDERIV_SEC = 60*60*24*14; // 14 days
+        private const int QP_KEYDERIV_SEC = 1; 
 
         /// <summary>
         /// The general (app-specified) timeout in seconds after which a QuickPass
         /// entry expires and gets cleared. This is independent of the user-specified
         /// idle timout.
         /// </summary>
-        private const int QP_GENERAL_TIMEOUT_SEC = 1;
+        private const int QP_GENERAL_TIMEOUT_SEC = 60*60*24*14; // 14 days
 
         /// <summary>
         /// Returns the singleton <c>QuickPassManager</c> instance. If 
@@ -72,8 +72,14 @@ namespace SQRLDotNetClientUI.Models
                 idleTimeoutSecs = (int)_identityManager.CurrentIdentity.Block1.PwdTimeoutMins * 60;
 
             // Set up a system event notifier
-            _systemEventNotifier = (ISystemEventNotifier)Activator.CreateInstance(
-                Implementation.ForType<ISystemEventNotifier>(), new object[] { idleTimeoutSecs });
+            // Get the type of the platform-specific implementation
+            Type type = Implementation.ForType<ISystemEventNotifier>();
+            if (type != null)
+            {
+                // If we have one, create an instance for it
+                _systemEventNotifier = (ISystemEventNotifier)
+                    Activator.CreateInstance(type, new object[] { idleTimeoutSecs });
+            }
 
             if (_systemEventNotifier != null)
             {
@@ -84,6 +90,7 @@ namespace SQRLDotNetClientUI.Models
                 _systemEventNotifier.Standby += HandleBlankingEvents;
                 _systemEventNotifier.SessionLogoff += HandleSessionEvents;
                 _systemEventNotifier.Idle += HandleIdleEvent;
+                Log.Information("QuickPass system event handlers initialized.");
             }
 
             Log.Information("QuickPassManager initialized.");
@@ -223,8 +230,8 @@ namespace SQRLDotNetClientUI.Models
 
             qpi.Timer.Enabled = false;
             qpi.Timer.AutoReset = false; // Dont restart timer after calling elapsed
-            qpi.Timer.Interval = QP_KEYDERIV_SEC;
-            qpi.Timer.Elapsed += _timer_Elapsed;
+            qpi.Timer.Interval = QP_GENERAL_TIMEOUT_SEC;
+            qpi.Timer.Elapsed += QuickPassTimerElapsed;
 
             string quickPass = password.Substring(0, qpi.QuickPassLength);
 
@@ -411,7 +418,7 @@ namespace SQRLDotNetClientUI.Models
         /// This event handler gets called when the QuickPass timer has elapsed,
         /// indicating that the QuickPass belonging to this specific timer shall be cleared.
         /// </summary>
-        private void _timer_Elapsed(object sender, ElapsedEventArgs e)
+        private void QuickPassTimerElapsed(object sender, ElapsedEventArgs e)
         {
             QuickPassItem qpi = null;
             Timer timer = (Timer)sender;
@@ -429,7 +436,7 @@ namespace SQRLDotNetClientUI.Models
                 }
             }
 
-            Log.Information("QuckPass timer elapsed for identity id {IdentityUniqueId}",
+            Log.Information("QuickPass timer elapsed for identity id {IdentityUniqueId}",
                 qpi?.IdentityUniqueId);
 
             // If such a QuickPassInfo item exists, clear it

@@ -21,7 +21,7 @@ namespace SQRLDotNetClientUI.Views
         // so that it will immediately receive system event notifications
         private QuickPassManager _quickPassManager = QuickPassManager.Instance;
 
-        public INotifyIcon NotifyIcon { get; }
+        public INotifyIcon NotifyIcon { get; } = null;
         public LocalizationExtension LocalizationService {get;}
         public MainWindow()
         {
@@ -36,8 +36,13 @@ namespace SQRLDotNetClientUI.Views
 #endif
 
             // Set up and configure the notification icon
-            NotifyIcon = (NotifyIcon)Activator.CreateInstance(
-                Implementation.ForType<INotifyIcon>());
+            // Get the type of the platform-specific implementation
+            Type type = Implementation.ForType<INotifyIcon>();
+            if (type != null)
+            {
+                // If we have one, create an instance for it
+                NotifyIcon = (INotifyIcon)Activator.CreateInstance(type);
+            }
 
             if (NotifyIcon != null)
             {
