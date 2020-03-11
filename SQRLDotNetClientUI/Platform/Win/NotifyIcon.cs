@@ -109,7 +109,7 @@ namespace SQRLDotNetClientUI.Platform.Win
         }
 
         /// <summary>
-        /// Creates a new notify icon instance and sets up some 
+        /// Creates a new <c>NotifyIcon</c> instance and sets up some 
         /// required resources.
         /// </summary>
         public NotifyIcon()
@@ -231,7 +231,7 @@ namespace SQRLDotNetClientUI.Platform.Win
         /// </summary>
         public void WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
-            Log.Information("NotifyIcon WndProc: MSG={Msg}, wParam={wParam}, lParam={lParam}", 
+            Log.Debug("NotifyIcon WndProc: MSG={Msg}, wParam={wParam}, lParam={lParam}", 
                 ((UnmanagedMethods.CustomWindowsMessage)msg).ToString(),
                 ((UnmanagedMethods.WindowsMessage)wParam.ToInt32()).ToString(),
                 ((UnmanagedMethods.WindowsMessage)lParam.ToInt32()).ToString());
@@ -274,90 +274,31 @@ namespace SQRLDotNetClientUI.Platform.Win
     /// A native Win32 helper window encapsulation for dealing with the window 
     /// messages sent by the notification icon.
     /// </summary>
-    public class NotifyIconHelperWindow
+    public class NotifyIconHelperWindow : NativeWindow
     {
         private NotifyIcon _notifyIcon;
-        private UnmanagedMethods.WndProc _wndProc;
-        private string _className = "NotIcoNatHelper";
-
-        /// <summary>
-        /// The window handle of the underlying native window.
-        /// </summary>
-        public IntPtr Handle { get; set; }
-
-        /// <summary>
-        /// Creates a new native (Win32) helper window for receiving window messages.
-        /// </summary>
-        /// <param name="notifyIcon">The <c>NotifyIcon</c> instance which will be
-        /// the source of the tray icon's window messages.</param>
-        public NotifyIconHelperWindow(NotifyIcon notifyIcon)
+        
+        public NotifyIconHelperWindow(NotifyIcon notifyIcon) : base()
         {
             _notifyIcon = notifyIcon;
-
-            // We need to store the window proc as a field so that
-            // it doesn't get garbage collected away.
-            _wndProc = new UnmanagedMethods.WndProc(WndProc);
-
-            UnmanagedMethods.WNDCLASSEX wndClassEx = new UnmanagedMethods.WNDCLASSEX
-            {
-                cbSize = Marshal.SizeOf<UnmanagedMethods.WNDCLASSEX>(),
-                lpfnWndProc = _wndProc,
-                hInstance = UnmanagedMethods.GetModuleHandle(null),
-                lpszClassName = _className + Guid.NewGuid(),
-            };
-
-            ushort atom = UnmanagedMethods.RegisterClassEx(ref wndClassEx);
-
-            if (atom == 0)
-            {
-                throw new Win32Exception();
-            }
-
-            Log.Information("Successfully registered window class for native NotifyIcon helper window.");
-
-            Handle = UnmanagedMethods.CreateWindowEx(0, atom, null, 0, 0, 0, 0, 0, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
-
-            if (Handle == IntPtr.Zero)
-            {
-                throw new Win32Exception();
-            }
-
-            Log.Information("Successfully created native NotifyIcon helper window.");
-        }
-
-        /// <summary>
-        /// Destructs the object and destroys the native window.
-        /// </summary>
-        ~NotifyIconHelperWindow()
-        {
-            if (Handle != IntPtr.Zero)
-            {
-                Log.Information("Destroying native NotifyIcon helper window.");
-                UnmanagedMethods.PostMessage(this.Handle, (uint)UnmanagedMethods.WindowsMessage.WM_DESTROY, IntPtr.Zero, IntPtr.Zero);
-            }
         }
 
         /// <summary>
         /// This function will receive all the system window messages relevant to our window.
         /// </summary>
-        private IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
+        protected override IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
         {
-            Log.Debug("WndProc called on helper window: MSG = {Msg}", ((UnmanagedMethods.WindowsMessage)msg).ToString());
+            Log.Verbose("WndProc called on NotifyIcon helper window: MSG = {Msg}", 
+                ((UnmanagedMethods.WindowsMessage)msg).ToString());
 
             switch (msg)
             {
-                case (uint)UnmanagedMethods.WindowsMessage.WM_CLOSE:
-                    UnmanagedMethods.DestroyWindow(hWnd);
-                    break;
-                case (uint)UnmanagedMethods.WindowsMessage.WM_DESTROY:
-                    UnmanagedMethods.PostQuitMessage(0);
-                    break;
                 case (uint)UnmanagedMethods.CustomWindowsMessage.WM_TRAYMOUSE:
                     // Forward WM_TRAYMOUSE messages to the tray icon's window procedure
                     _notifyIcon.WndProc(hWnd, msg, wParam, lParam);
                     break;
                 default:
-                    return UnmanagedMethods.DefWindowProc(hWnd, msg, wParam, lParam);
+                    return base.WndProc(hWnd, msg, wParam, lParam);
             }
             return IntPtr.Zero;
         }

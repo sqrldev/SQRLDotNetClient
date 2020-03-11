@@ -9,6 +9,7 @@ namespace SQRLDotNetClientUI.Models
     /// 
     /// Platform-specific implementations for this interface can be found in 
     /// <c>SQRLDotNetClientUI.Platform.XXX</c>.
+    /// 
     /// </summary>
     public interface INotifyIcon
     {
