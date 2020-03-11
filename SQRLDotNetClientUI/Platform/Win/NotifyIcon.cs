@@ -131,10 +131,9 @@ namespace SQRLDotNetClientUI.Platform.Win
         {
             UnmanagedMethods.NOTIFYICONDATA iconData = new UnmanagedMethods.NOTIFYICONDATA()
             {
-                cbSize = Marshal.SizeOf<UnmanagedMethods.NOTIFYICONDATA>(),
-                hwnd = _helperWindow.Handle,
+                hWnd = _helperWindow.Handle,
                 uID = _uID,
-                uFlags = UnmanagedMethods.NIF_TIP | UnmanagedMethods.NIF_MESSAGE,
+                uFlags = UnmanagedMethods.NIF.TIP | UnmanagedMethods.NIF.MESSAGE,
                 uCallbackMessage = (int)UnmanagedMethods.CustomWindowsMessage.WM_TRAYMOUSE,
                 hIcon = IntPtr.Zero,
                 szTip = ToolTipText
@@ -142,22 +141,22 @@ namespace SQRLDotNetClientUI.Platform.Win
 
             if (!remove && _icon != null && Visible)
             {
-                iconData.uFlags |= UnmanagedMethods.NIF_ICON;
+                iconData.uFlags |= UnmanagedMethods.NIF.ICON;
                 iconData.hIcon = _icon.Handle;
 
                 if (!_iconAdded)
                 {
-                    UnmanagedMethods.Shell_NotifyIcon(UnmanagedMethods.NIM_ADD, ref iconData);
+                    UnmanagedMethods.Shell_NotifyIcon(UnmanagedMethods.NIM.ADD, iconData);
                     _iconAdded = true;
                 }
                 else
                 {
-                    UnmanagedMethods.Shell_NotifyIcon(UnmanagedMethods.NIM_ADD, ref iconData);
+                    UnmanagedMethods.Shell_NotifyIcon(UnmanagedMethods.NIM.MODIFY, iconData);
                 }
             }
             else
             {
-                UnmanagedMethods.Shell_NotifyIcon(UnmanagedMethods.NIM_DELETE, ref iconData);
+                UnmanagedMethods.Shell_NotifyIcon(UnmanagedMethods.NIM.DELETE, iconData);
                 _iconAdded = false;
             }
         }
