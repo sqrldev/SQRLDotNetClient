@@ -49,6 +49,30 @@ namespace SQRLDotNetClientUI.Platform.Win.Interop
         [DllImport("user32.dll")]
         public static extern uint TrackPopupMenuEx(IntPtr hmenu, UFLAGS uFlags, int x, int y, IntPtr hwnd, IntPtr lptpm);
 
+        [DllImport("wtsapi32.dll", SetLastError = true)]
+        public static extern bool WTSRegisterSessionNotification(IntPtr hWnd, [MarshalAs(UnmanagedType.U4)] int dwFlags);
+
+        [DllImport("wtsapi32.dll", SetLastError = true)]
+        public static extern bool WTSUnRegisterSessionNotification(IntPtr hWnd);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SystemParametersInfo(uint uAction, uint uParam, ref bool lpvParam, int fWinIni);
+
+        [DllImport("user32.dll")]
+        public static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+        // constants that can be passed for the WTSRegisterSessionNotification
+        // dwFlags parameter
+        public const int NOTIFY_FOR_THIS_SESSION = 0;
+        public const int NOTIFY_FOR_ALL_SESSIONS = 1;
+
+        // lParam values for WM_ENDSESSION message
+        public const int ENDSESSION_CLOSEAPP = 0x1;
+        public const int ENDSESSION_CRITICAL = 0x40000000;
+        public const int ENDSESSION_LOGOFF = unchecked((int)0x80000000);
+
+
         public const uint NIM_ADD = 0x00;
         public const uint NIM_MODIFY = 0x01;
         public const uint NIM_DELETE = 0x02;
@@ -74,6 +98,43 @@ namespace SQRLDotNetClientUI.Platform.Win.Interop
         public static IntPtr HWND_NOTOPMOST = new IntPtr(-2);
         public static IntPtr HWND_MESSAGE = new IntPtr(-3);
 
+        public const uint WS_POPUP = 0x80000000;
+        public const uint WS_VISIBLE = 0x10000000;
+
+        public const int WTS_CONSOLE_CONNECT = 0x1; // A session was connected to the console terminal.
+        public const int WTS_CONSOLE_DISCONNECT = 0x2; // A session was disconnected from the console terminal.
+        public const int WTS_REMOTE_CONNECT = 0x3; // A session was connected to the remote terminal.
+        public const int WTS_REMOTE_DISCONNECT = 0x4; // A session was disconnected from the remote terminal.
+        public const int WTS_SESSION_LOGON = 0x5; // A user has logged on to the session.
+        public const int WTS_SESSION_LOGOFF = 0x6; // A user has logged off the session.
+        public const int WTS_SESSION_LOCK = 0x7; // A session has been locked.
+        public const int WTS_SESSION_UNLOCK = 0x8; // A session has been unlocked.
+        public const int WTS_SESSION_REMOTE_CONTROL = 0x9; // A session has changed its remote controlled status.
+
+        public const int PBT_APMQUERYSUSPEND = 0x0000;
+        public const int PBT_APMQUERYSTANDBY = 0x0001;
+        public const int PBT_APMQUERYSUSPENDFAILED = 0x0002;
+        public const int PBT_APMQUERYSTANDBYFAILED = 0x0003;
+        public const int PBT_APMSUSPEND = 0x0004;
+        public const int PBT_APMSTANDBY = 0x0005;
+        public const int PBT_APMRESUMECRITICAL = 0x0006;
+        public const int PBT_APMRESUMESUSPEND = 0x0007;
+        public const int PBT_APMRESUMESTANDBY = 0x0008;
+        public const int PBT_APMBATTERYLOW = 0x0009;
+        public const int PBT_APMPOWERSTATUSCHANGE = 0x000A;
+        public const int PBT_APMOEMEVENT = 0x000B;
+
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct LASTINPUTINFO
+        {
+            public static readonly int SizeOf = Marshal.SizeOf(typeof(LASTINPUTINFO));
+
+            [MarshalAs(UnmanagedType.U4)]
+            public UInt32 cbSize;
+            [MarshalAs(UnmanagedType.U4)]
+            public UInt32 dwTime;
+        }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public struct NOTIFYICONDATA
@@ -127,6 +188,42 @@ namespace SQRLDotNetClientUI.Platform.Win.Interop
             WM_TRAYICON = (uint)WindowsMessage.WM_APP + 1024,
             WM_TRAYMOUSE = (uint)WindowsMessage.WM_USER + 1024
 
+        }
+
+        public enum SysCommands : int
+        {
+            SC_SIZE = 0xF000,
+            SC_MOVE = 0xF010,
+            SC_MINIMIZE = 0xF020,
+            SC_MAXIMIZE = 0xF030,
+            SC_NEXTWINDOW = 0xF040,
+            SC_PREVWINDOW = 0xF050,
+            SC_CLOSE = 0xF060,
+            SC_VSCROLL = 0xF070,
+            SC_HSCROLL = 0xF080,
+            SC_MOUSEMENU = 0xF090,
+            SC_KEYMENU = 0xF100,
+            SC_ARRANGE = 0xF110,
+            SC_RESTORE = 0xF120,
+            SC_TASKLIST = 0xF130,
+            SC_SCREENSAVE = 0xF140,
+            SC_HOTKEY = 0xF150,
+            //#if(WINVER >= 0x0400) //Win95
+            SC_DEFAULT = 0xF160,
+            SC_MONITORPOWER = 0xF170,
+            SC_CONTEXTHELP = 0xF180,
+            SC_SEPARATOR = 0xF00F,
+            //#endif /* WINVER >= 0x0400 */
+
+            //#if(WINVER >= 0x0600) //Vista
+            SCF_ISSECURE = 0x00000001,
+            //#endif /* WINVER >= 0x0600 */
+
+            /*
+             * Obsolete names
+             */
+            SC_ICON = SC_MINIMIZE,
+            SC_ZOOM = SC_MAXIMIZE,
         }
 
         [Flags]
