@@ -67,7 +67,9 @@ namespace SQRLDotNetClientUI.Models
             // Register the identity changed event handler
             _identityManager.IdentityChanged += _identityManager_IdentityChanged;
 
-            int idleTimeoutSecs = (int)_identityManager?.CurrentIdentity?.Block1?.PwdTimeoutMins * 60;
+            int idleTimeoutSecs = 60*15; // Default to 15 minutes
+            if (_identityManager.CurrentIdentity != null)
+                idleTimeoutSecs = (int)_identityManager.CurrentIdentity.Block1.PwdTimeoutMins * 60;
 
             // Set up a system event notifier
             _systemEventNotifier = (ISystemEventNotifier)Activator.CreateInstance(
@@ -108,7 +110,8 @@ namespace SQRLDotNetClientUI.Models
 
         private void HandleBlankingEvents(object sender, SystemEventArgs e)
         {
-            if (_identityManager.CurrentIdentity.Block1.OptionFlags.ClearQuickPassOnSleep)
+            if (_identityManager.CurrentIdentity != null && 
+                _identityManager.CurrentIdentity.Block1.OptionFlags.ClearQuickPassOnSleep)
             {
                 Log.Information("Clearing QuickPass. Reason: {QuickPassClearReason}",
                     e.EventDescription);
@@ -123,7 +126,8 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         private void HandleIdleEvent(object sender, SystemEventArgs e)
         {
-            if (_identityManager.CurrentIdentity.Block1.OptionFlags.ClearQuickPassOnIdle)
+            if (_identityManager.CurrentIdentity != null && 
+                _identityManager.CurrentIdentity.Block1.OptionFlags.ClearQuickPassOnIdle)
             {
                 Log.Information("Clearing QuickPass. Reason: {QuickPassClearReason}",
                        e.EventDescription);
@@ -138,7 +142,8 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         private void HandleSessionEvents(object sender, SystemEventArgs e)
         {
-            if (_identityManager.CurrentIdentity.Block1.OptionFlags.ClearQuickPassOnSwitchingUser)
+            if (_identityManager.CurrentIdentity != null && 
+                _identityManager.CurrentIdentity.Block1.OptionFlags.ClearQuickPassOnSwitchingUser)
             {
                 Log.Information("Clearing QuickPass. Reason: {QuickPassClearReason}",
                     e.EventDescription);
@@ -169,7 +174,11 @@ namespace SQRLDotNetClientUI.Models
         public bool HasQuickPass(string identityUniqueId = null)
         {
             if (identityUniqueId == null)
+            {
+                if (_identityManager.CurrentIdentity == null) return false;
                 identityUniqueId = _identityManager.CurrentIdentity?.Block0?.UniqueIdentifier?.ToHex();
+            }
+                
 
             if (identityUniqueId == null)
                 return false;
@@ -265,7 +274,11 @@ namespace SQRLDotNetClientUI.Models
             QuickPassItem qpi = null;
 
             if (identityUniqueId == null)
+            {
+                if (_identityManager.CurrentIdentity == null) return null;
                 identityUniqueId = _identityManager.CurrentIdentity?.Block0?.UniqueIdentifier?.ToHex();
+            }
+                
 
             if (identityUniqueId == null)
             {
