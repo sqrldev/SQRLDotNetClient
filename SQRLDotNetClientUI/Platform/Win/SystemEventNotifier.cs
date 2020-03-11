@@ -12,18 +12,29 @@ namespace SQRLDotNetClientUI.Platform.Win
     /// Provides access to Windows system events that are relevant to the 
     /// clearing of QuickPass-related data from RAM, like entering
     /// an idle state, logging off or entering a sleep or hilbernation
-    /// state.
+    /// state etc.
+    /// 
+    /// Most of the events are gathered by creating a native window and 
+    /// registering and listening to event related window messages. Some
+    /// events require polling, so a low-impact polling thread is implemented
+    /// to peridodically check for those events.
     /// </summary>
     public class SystemEventNotifier : ISystemEventNotifier
     {
+        /// <summary>
+        /// Specifies the checking interval for the polling thread.
+        /// </summary>
+        private readonly int POLL_INTERVAL = 5000;
+
         private SystemEventHelperWindow _helperWindow = null;
         private CancellationTokenSource _cts = null;
         private CancellationToken _ct;
         private Task _pollTask = null;
         private bool _screensaverDetected = false;
         private bool _idleDetected = false;
-        private int _maxIdleSeconds = 60*15;
+        private int _maxIdleSeconds = 60*15; // Set a sensible default, will be overwritten anyway
 
+        // These are the events that the class offers
         public event EventHandler<SystemEventArgs> Idle;
         public event EventHandler<SystemEventArgs> Screensaver;
         public event EventHandler<SystemEventArgs> Standby;
@@ -84,7 +95,7 @@ namespace SQRLDotNetClientUI.Platform.Win
                             _idleDetected = false;
                     }
 
-                    Thread.Sleep(1000);
+                    Thread.Sleep(POLL_INTERVAL);
                 }
 
                 Log.Information("SystemEventNotifier polling task ending");
