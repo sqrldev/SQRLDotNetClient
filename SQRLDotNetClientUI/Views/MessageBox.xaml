@@ -1,0 +1,34 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
+        x:Class="SQRLDotNetClientUI.Views.MessageBox"
+        Title="{Binding Title}"
+        Icon="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico"
+        xmlns:vm="clr-namespace:SQRLDotNetClientUI.Views;assembly=SQRLDotNetClientUI"
+        Width="400"
+        CanResize="False"
+        SizeToContent="Height"
+        MaxHeight="600"
+        MaxWidth="500"
+        Height="200"
+        >
+  <Grid ShowGridLines="False" Margin="10" >
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition />
+      <RowDefinition  />
+      <RowDefinition />
+    </Grid.RowDefinitions>
+    <Image Stretch="None" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Source="resm:SQRLDotNetClientUI.Assets.Icons.ok.png" />
+    <TextBlock Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0">It is a long  </TextBlock>
+    <Button HorizontalAlignment="Left" Name="btnYes" Grid.Row="2" Grid.Column="0" Height="25" Width="100">Yes</Button>
+    <Button HorizontalAlignment="Left" Name="btnOK" Grid.Row="2" Grid.Column="0" Height="25" Width="100">OK</Button>
+    <Button HorizontalAlignment="Right" Name="btnNo" Grid.Row="2" Grid.Column="1" Height="25" Width="100">Yes</Button>
+  </Grid>
+</Window>

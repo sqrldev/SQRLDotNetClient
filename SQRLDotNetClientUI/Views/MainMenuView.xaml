@@ -81,7 +81,7 @@
 
       <!-- Action buttons -->
       <Button Content="{loc:Localization BtnNewIdentity}" Name="btnNewIdentity" Command="{Binding OnNewIdentityClick}" Height="30" Width="130" Margin="10" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" />
-      <Button Content="{loc:Localization BtnRekeyIdentity}" Name="btnReKeyIdentity" Command="{Binding RekeyIdentity}" Height="30" Width="130" Margin="10" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}" HorizontalAlignment="Left"/>
+      <Button Content="{loc:Localization BtnRekeyIdentity}" Name="btnReKeyIdentity" Command="{Binding RekeyIdentity}" Height="30" Width="130" Margin="10" Grid.Row="1" Grid.Column="1"  HorizontalAlignment="Left"/>
       <Button Content="{loc:Localization BtnImportIdentity}" Name="btnImportIdentity" Command="{Binding ImportIdentity}" Height="30" Width="130" Margin="10" Grid.Row="2" Grid.Column="0" />
       <Button Content="{loc:Localization BtnExportIdentity}" Name="btnExport" Command="{Binding ExportIdentity}" Height="30" Width="130" Margin="10" Grid.Row="2" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}" HorizontalAlignment="Left"/>
       <Button Content="{loc:Localization BtnDeleteIdentity}" Name="btnDeleteIdentity" Command="{Binding DeleteIdentity}" Height="30" Width="130" Margin="10" Grid.Row="3" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}" HorizontalAlignment="Left"/>

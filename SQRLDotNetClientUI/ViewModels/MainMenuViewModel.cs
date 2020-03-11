@@ -153,5 +153,11 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
             }
         }
+
+        public async void RekeyIdentity()
+        {
+            var msg = new Views.MessageBoxModel("Hello", "World");
+            await new Views.MessageBox() { DataContext = msg }.ShowDialog(_mainWindow);
+        }
     }
 }

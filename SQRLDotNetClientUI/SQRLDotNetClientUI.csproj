@@ -25,6 +25,9 @@
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Regular.ttf" />
+    <AvaloniaResource Remove="Assets\Icons\error.png" />
+    <AvaloniaResource Remove="Assets\Icons\ok.png" />
+    <AvaloniaResource Remove="Assets\Icons\warning.png" />
     <AvaloniaResource Remove="Assets\Localization\localization.json" />
     <AvaloniaResource Remove="Assets\SQRL_icon_light_128.png" />
     <AvaloniaResource Remove="Assets\SQRL_icon_light_16.png" />
@@ -50,6 +53,7 @@
     <AvaloniaResource Remove="Views\ImportIdentityView.xaml" />
     <AvaloniaResource Remove="Views\InputSecretDialogView.xaml" />
     <AvaloniaResource Remove="Views\MainMenuView.xaml" />
+    <AvaloniaResource Remove="Views\MessageBox.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityVerifyView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityView.xaml" />
     <AvaloniaResource Remove="Views\SelectIdentityDialogView.xaml" />
@@ -59,6 +63,9 @@
     <None Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
     <None Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
     <None Remove="Assets\Fonts\SpaceMono-Regular.ttf" />
+    <None Remove="Assets\Icons\error.png" />
+    <None Remove="Assets\Icons\ok.png" />
+    <None Remove="Assets\Icons\warning.png" />
     <None Remove="Assets\Localization\localization.json" />
     <None Remove="Assets\SQRL_icon_light_128.png" />
     <None Remove="Assets\SQRL_icon_light_16.png" />
@@ -81,6 +88,7 @@
     <None Remove="Views\ImportIdentityView.xaml" />
     <None Remove="Views\InputSecretDialogView.xaml" />
     <None Remove="Views\MainMenuView.xaml" />
+    <None Remove="Views\MessageBox.xaml" />
     <None Remove="Views\NewIdentityVerifyView.xaml" />
     <None Remove="Views\NewIdentityView.xaml" />
     <None Remove="Views\SelectIdentityDialogView.xaml" />
@@ -93,6 +101,9 @@
     <EmbeddedResource Include="Assets\Localization\localization.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Assets\Icons\error.png" />
+    <EmbeddedResource Include="Assets\Icons\ok.png" />
+    <EmbeddedResource Include="Assets\Icons\warning.png" />
     <Content Include="Assets\SQRL_icon_light_128.png" />
     <Content Include="Assets\SQRL_icon_light_16.png" />
     <EmbeddedResource Include="Assets\SQRL_icon_light_256.png" />
@@ -199,6 +210,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\SelectIdentityDialogView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\MessageBox.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>
