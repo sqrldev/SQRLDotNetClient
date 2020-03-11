@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Timers;
 using Serilog;
+using SQRLDotNetClientUI.Platform;
 
 namespace SQRLDotNetClientUI.Models
 {
@@ -16,10 +17,11 @@ namespace SQRLDotNetClientUI.Models
     /// </summary>
     public sealed class QuickPassManager
     {
-        private static readonly Lazy<QuickPassManager> _instance = new Lazy<QuickPassManager>(() => new QuickPassManager());
+        private static QuickPassManager _instance = null;
         private IdentityManager _identityManager = IdentityManager.Instance;
         private object _dataSyncObj = new object();
         private Dictionary<string, QuickPassItem> _quickPassItems = new Dictionary<string, QuickPassItem>();
+        private ISystemEventNotifier _systemEventNotifier = null;
 
         /// <summary>
         /// The number of seconds the QuickPass shall be run through the PBKDF.
@@ -32,7 +34,14 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         public static QuickPassManager Instance
         {
-            get => _instance.Value;
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new QuickPassManager();
+                }
+                return _instance;
+            }
         }
 
         /// <summary>
@@ -51,6 +60,23 @@ namespace SQRLDotNetClientUI.Models
             // Register the identity changed event handler
             _identityManager.IdentityChanged += _identityManager_IdentityChanged;
 
+            int idleTimeoutSecs = (int)_identityManager?.CurrentIdentity?.Block1?.PwdTimeoutMins * 60;
+
+            // Set up a system event notifier
+            _systemEventNotifier = (ISystemEventNotifier)Activator.CreateInstance(
+                Implementation.ForType<ISystemEventNotifier>(), new object[] { idleTimeoutSecs });
+
+            if (_systemEventNotifier != null)
+            {
+                // Register the handler for system events
+                _systemEventNotifier.SessionLock += HandleBlankingEvents;
+                _systemEventNotifier.Screensaver += HandleBlankingEvents;
+                _systemEventNotifier.ShutdownOrRestart += HandleBlankingEvents;
+                _systemEventNotifier.Standby += HandleBlankingEvents;
+                _systemEventNotifier.SessionLogoff += HandleSessionEvents;
+                _systemEventNotifier.Idle += HandleIdleEvent;
+            }
+
             Log.Information("QuickPassManager initialized.");
         }
 
@@ -61,8 +87,57 @@ namespace SQRLDotNetClientUI.Models
             // Unregister the identity changed event handler
             _identityManager.IdentityChanged -= _identityManager_IdentityChanged;
 
+            // Unregister the handler for system events
+            _systemEventNotifier.SessionLock -= HandleBlankingEvents;
+            _systemEventNotifier.Screensaver -= HandleBlankingEvents;
+            _systemEventNotifier.ShutdownOrRestart -= HandleBlankingEvents;
+            _systemEventNotifier.Standby -= HandleBlankingEvents;
+            _systemEventNotifier.SessionLogoff -= HandleSessionEvents;
+            _systemEventNotifier.Idle -= HandleIdleEvent;
+
             //Clear all QuickPass entries
             ClearAllQuickPass();
+        }
+
+        private void HandleBlankingEvents(object sender, SystemEventArgs e)
+        {
+            if (_identityManager.CurrentIdentity.Block1.OptionFlags.ClearQuickPassOnSleep)
+            {
+                Log.Information("Clearing QuickPass. Reason: {QuickPassClearReason}",
+                    e.EventDescription);
+
+                ClearAllQuickPass();
+            }
+        }
+
+        /// <summary>
+        /// Handles system event notifications regarding idle timeouts which are 
+        /// relevant for the clearing of QuickPass-related data.
+        /// </summary>
+        private void HandleIdleEvent(object sender, SystemEventArgs e)
+        {
+            if (_identityManager.CurrentIdentity.Block1.OptionFlags.ClearQuickPassOnIdle)
+            {
+                Log.Information("Clearing QuickPass. Reason: {QuickPassClearReason}",
+                       e.EventDescription);
+
+                ClearAllQuickPass();
+            }
+        }
+
+        /// <summary>
+        /// Handles system event notifications regarding user sessions which are 
+        /// relevant for the clearing of QuickPass-related data.
+        /// </summary>
+        private void HandleSessionEvents(object sender, SystemEventArgs e)
+        {
+            if (_identityManager.CurrentIdentity.Block1.OptionFlags.ClearQuickPassOnSwitchingUser)
+            {
+                Log.Information("Clearing QuickPass. Reason: {QuickPassClearReason}",
+                    e.EventDescription);
+
+                ClearAllQuickPass();
+            }
         }
 
         /// <summary>
@@ -340,7 +415,7 @@ namespace SQRLDotNetClientUI.Models
     }
 
     /// <summary>
-    /// This class acts as a container for QuickPass management information.
+    /// A container for QuickPass management information.
     /// </summary>
     public class QuickPassItem
     {

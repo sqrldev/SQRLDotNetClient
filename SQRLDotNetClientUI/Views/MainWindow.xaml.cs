@@ -17,6 +17,10 @@ namespace SQRLDotNetClientUI.Views
         private bool _reallyClose = false;
         private ContextMenu _NotifyIconContextMenu;
 
+        // We establish and keep a QuickPassManager instance here
+        // so that it will immediately receive system event notifications
+        private QuickPassManager _quickPassManager = QuickPassManager.Instance;
+
         public INotifyIcon NotifyIcon { get; }
         public LocalizationExtension LocalizationService {get;}
         public MainWindow()
