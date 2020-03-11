@@ -6,6 +6,10 @@ using System;
 using SQRLDotNetClientUI.Models;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
+using Serilog;
+using System.Threading;
+using System.Linq;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -103,6 +107,9 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public void IdentitySettings()
         {
+            Log.Information("Launching identity settings for identity id {IdentityUniqueId}",
+                _identityManager.CurrentIdentityUniqueId);
+
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
                 new IdentitySettingsViewModel();
         }
@@ -110,6 +117,10 @@ namespace SQRLDotNetClientUI.ViewModels
         public void Exit()
         {
             _mainWindow.Close();
+
+            Log.Information("App shutting down");
+            ((IClassicDesktopStyleApplicationLifetime)App.Current.ApplicationLifetime)
+                .Shutdown();
         }
 
         public async void DeleteIdentity()

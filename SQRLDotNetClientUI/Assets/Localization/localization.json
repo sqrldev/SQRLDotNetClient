@@ -103,7 +103,9 @@
     { "NewIdentityMessage": "To generate a new identity you need to save the rescue code shown below and enter a password. You REALLY need to save and store the rescue code in a save place, it will be required later!" },
     { "PasswordsDontMatchErrorMessage": "The entered passwords don't match!\nPlease try again." },
     { "ShowAdvancedFunctionsLabel": "Show advanced functions" },
-    { "WithIdentityLabel": "with identity" }
+    { "WithIdentityLabel": "with identity" },
+    { "QuickPassLabel": "QuickPass:" },
+    { "NotifyIconContextMenuItemHeaderExit": "Exit" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -208,7 +210,9 @@
     { "NewIdentityMessage": "To generate a new identity you need to save the rescue code shown below and enter a password. You REALLY need to save and store the rescue code in a save place, it will be required later!" },
     { "PasswordsDontMatchErrorMessage": "The entered passwords don't match!\nPlease try again." },
     { "ShowAdvancedFunctionsLabel": "Show advanced functions" },
-    { "WithIdentityLabel": "with identity" }
+    { "WithIdentityLabel": "with identity" },
+    { "QuickPassLabel": "QuickPass:" },
+    { "NotifyIconContextMenuItemHeaderExit": "Exit" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -313,6 +317,8 @@
     { "NewIdentityMessage": "Um eine neue Identität zu erstellen, notieren Sie den angezeigten Rettungscode und vergeben Sie ein Passwort. Speichern bzw. verwahren Sie den Rettungscode unbedingt an einem sicheren Ort, Sie werden ihn später noch benötigen!" },
     { "PasswordsDontMatchErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein!\nBitte versuchen Sie es erneut." },
     { "ShowAdvancedFunctionsLabel": "Erweiterte Funktionen anzeigen" },
-    { "WithIdentityLabel": "mit Identität" }
+    { "WithIdentityLabel": "mit Identität" },
+    { "QuickPassLabel": "QuickPass:" },
+    { "NotifyIconContextMenuItemHeaderExit": "Beenden" }
   ]
 }

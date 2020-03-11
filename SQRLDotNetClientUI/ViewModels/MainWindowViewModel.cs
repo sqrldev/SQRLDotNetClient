@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using SQRLDotNetClientUI.Platform.Win;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
