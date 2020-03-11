@@ -96,7 +96,7 @@ namespace SQRLDotNetClientUI.Models
             _systemEventNotifier.Idle -= HandleIdleEvent;
 
             //Clear all QuickPass entries
-            ClearAllQuickPass();
+            ClearAllQuickPass(QuickPassClearReason.Unspecified);
         }
 
         private void HandleBlankingEvents(object sender, SystemEventArgs e)
@@ -106,7 +106,7 @@ namespace SQRLDotNetClientUI.Models
                 Log.Information("Clearing QuickPass. Reason: {QuickPassClearReason}",
                     e.EventDescription);
 
-                ClearAllQuickPass();
+                ClearAllQuickPass(QuickPassClearReason.EnterBlankingState);
             }
         }
 
@@ -121,7 +121,7 @@ namespace SQRLDotNetClientUI.Models
                 Log.Information("Clearing QuickPass. Reason: {QuickPassClearReason}",
                        e.EventDescription);
 
-                ClearAllQuickPass();
+                ClearAllQuickPass(QuickPassClearReason.IdleTimeout);
             }
         }
 
@@ -136,7 +136,7 @@ namespace SQRLDotNetClientUI.Models
                 Log.Information("Clearing QuickPass. Reason: {QuickPassClearReason}",
                     e.EventDescription);
 
-                ClearAllQuickPass();
+                ClearAllQuickPass(QuickPassClearReason.UserSwitching);
             }
         }
 
@@ -148,7 +148,7 @@ namespace SQRLDotNetClientUI.Models
             if (ClearQuickPassOnIdentityChange)
             {
                 Log.Information("Clearing all QuickPass entries because of identity change");
-                ClearAllQuickPass();
+                ClearAllQuickPass(QuickPassClearReason.IdentityChange);
             }
         }
 
@@ -199,8 +199,11 @@ namespace SQRLDotNetClientUI.Models
                 ScryptRandomSalt = SodiumCore.GetRandomBytes(16),
                 Nonce = SodiumCore.GetRandomBytes(24),
                 QuickPassTimeoutSecs = identity.Block1.PwdTimeoutMins * 60,
+                ClearQuickPassOnIdle = identity.Block1.OptionFlags.ClearQuickPassOnIdle,
+                ClearQuickPassOnSleep = identity.Block1.OptionFlags.ClearQuickPassOnSleep,
+                ClearQuickPassOnSwitchingUser = identity.Block1.OptionFlags.ClearQuickPassOnSwitchingUser,
                 Timer = new Timer()
-            };
+                };
 
             qpi.Timer.Enabled = false;
             qpi.Timer.AutoReset = false; // Dont restart timer after calling elapsed
@@ -223,7 +226,7 @@ namespace SQRLDotNetClientUI.Models
 
             // If we already have a QuickPass entry for this identity, remove it first
             if (HasQuickPass(qpi.IdentityUniqueId)) 
-                ClearQuickPass(qpi.IdentityUniqueId);
+                ClearQuickPass(qpi.IdentityUniqueId, QuickPassClearReason.Unspecified);
 
             // Now, add the QuickPass item to our list and start the timer
             lock (_dataSyncObj)
@@ -295,10 +298,11 @@ namespace SQRLDotNetClientUI.Models
         /// this method, SQRL will ask for the full master password again for all
         /// available identities.
         /// </summary>
+        /// <param name="reason">The reason for clearing the QuickPass.</param>
         /// <param name="combineEvents">If set to <c>true</c>, <c>QuickPassManager</c>
         /// will not raise individual <c>QuickPassCleared</c> events for each of the
         /// QuickPass entries affected, but instead raise a combined event.</param>
-        public void ClearAllQuickPass(bool combineEvents = true)
+        public void ClearAllQuickPass(QuickPassClearReason reason, bool combineEvents = true)
         {
             Log.Verbose("{MethodName} called", nameof(ClearAllQuickPass));
 
@@ -312,7 +316,7 @@ namespace SQRLDotNetClientUI.Models
 
             foreach (string uniqueId in uniqueIdsAvailable)
             {
-                if (ClearQuickPass(uniqueId, !combineEvents))
+                if (ClearQuickPass(uniqueId, reason, !combineEvents))
                 {
                     uniqueIdsCleared.Add(uniqueId);
                 }
@@ -323,7 +327,8 @@ namespace SQRLDotNetClientUI.Models
             if (combineEvents && uniqueIdsCleared.Count > 0)
             {
                 QuickPassCleared?.Invoke(this, new QuickPassClearedEventArgs(uniqueIdsCleared));
-                Log.Information("Fired combined ClickPassCleared event");
+                Log.Information("Fired combined ClickPassCleared event. Reason: {Reason}",
+                    reason.ToString());
             }
         }
 
@@ -334,10 +339,11 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         /// <param name="identityUniqueId">The unique id (block 0) of the identity for 
         /// which to clear the QuickPass entry.</param>
-        /// <param name="fireQuickPassClearedEvent">If set to <c>true</c>, a 
+        /// <param name="reason">The reason for clearing the QuickPass.</param>
+        /// <param name="fireClearedEvent">If set to <c>true</c>, a 
         /// <c>QuickPassCleared</c> event will be fired if the QuickPass for the given
         /// <paramref name="identityUniqueId"/> could be successfully cleared.</param>
-        public bool ClearQuickPass(string identityUniqueId, bool fireClearedEvent = true)
+        public bool ClearQuickPass(string identityUniqueId, QuickPassClearReason reason, bool fireClearedEvent = true)
         {
             Log.Verbose("{MethodName} called", nameof(ClearQuickPass));
 
@@ -351,6 +357,11 @@ namespace SQRLDotNetClientUI.Models
 
                 QuickPassItem qpi = _quickPassItems[identityUniqueId];
 
+                if (reason == QuickPassClearReason.IdentityChange && !ClearQuickPassOnIdentityChange) return false;
+                if (reason == QuickPassClearReason.IdleTimeout && !qpi.ClearQuickPassOnIdle) return false;
+                if (reason == QuickPassClearReason.EnterBlankingState && !qpi.ClearQuickPassOnSleep) return false;
+                if (reason == QuickPassClearReason.UserSwitching && !qpi.ClearQuickPassOnSwitchingUser) return false;
+
                 // First, stop the QuickPass timer
                 qpi.Timer.Stop();
 
@@ -363,8 +374,8 @@ namespace SQRLDotNetClientUI.Models
                 _quickPassItems.Remove(identityUniqueId);
             }
 
-            Log.Information("QuickPass entry cleared for identity id {IdentityUniqueId}",
-                identityUniqueId);
+            Log.Information("QuickPass entry cleared. ID: {IdentityUniqueId} Reason: {Reason}",
+                identityUniqueId, reason.ToString());
 
             // Finally, fire the QuickPassCleared event
             if (fireClearedEvent)
@@ -404,7 +415,7 @@ namespace SQRLDotNetClientUI.Models
             // If such a QuickPassInfo item exists, clear it
             if (qpi != null)
             {
-                ClearQuickPass(qpi.IdentityUniqueId);
+                ClearQuickPass(qpi.IdentityUniqueId, QuickPassClearReason.QuickPassTimeout);
             }
         }
 
@@ -427,8 +438,50 @@ namespace SQRLDotNetClientUI.Models
         public int ScryptIterationCount;
         public byte[] ScryptRandomSalt;
         public byte[] Nonce;
+        public bool ClearQuickPassOnIdle = true;
+        public bool ClearQuickPassOnSleep = true;
+        public bool ClearQuickPassOnSwitchingUser = true;
         public Timer Timer;
         public string IdentityUniqueId;
+    }
+
+    /// <summary>
+    /// Represents reasons for clearing QuickPass-related data from RAM.
+    /// </summary>
+    public enum QuickPassClearReason
+    {
+        /// <summary>
+        /// The system was in an idle state (no user input) for longer 
+        /// than the IdleTimout setting.
+        /// </summary>
+        IdleTimeout,
+
+        /// <summary>
+        /// The QuickPass lifetime exceeded the app's general QuickPass
+        /// timeout setting.
+        /// </summary>
+        QuickPassTimeout,
+
+        /// <summary>
+        /// The user session was locked, ended or was switched.
+        /// </summary>
+        UserSwitching,
+
+        /// <summary>
+        /// The system went into any form of blanking state, such as
+        /// system standby, hilbernation or the screensaver kicked in.
+        /// </summary>
+        EnterBlankingState,
+
+        /// <summary>
+        /// The current SQRL identity was changed.
+        /// </summary>
+        IdentityChange,
+
+        /// <summary>
+        /// The reason for clearing the QuickPass is unspecified.
+        /// </summary>
+        Unspecified
     }
 
     /// <summary>
