@@ -26,7 +26,14 @@ namespace SQRLDotNetClientUI.Models
         /// <summary>
         /// The number of seconds the QuickPass shall be run through the PBKDF.
         /// </summary>
-        private const int QP_KEYDERIV_SEC = 1;
+        private const int QP_KEYDERIV_SEC = 60*60*24*14; // 14 days
+
+        /// <summary>
+        /// The general (app-specified) timeout in seconds after which a QuickPass
+        /// entry expires and gets cleared. This is independent of the user-specified
+        /// idle timout.
+        /// </summary>
+        private const int QP_GENERAL_TIMEOUT_SEC = 1;
 
         /// <summary>
         /// Returns the singleton <c>QuickPassManager</c> instance. If 
@@ -207,7 +214,7 @@ namespace SQRLDotNetClientUI.Models
 
             qpi.Timer.Enabled = false;
             qpi.Timer.AutoReset = false; // Dont restart timer after calling elapsed
-            qpi.Timer.Interval = qpi.QuickPassTimeoutSecs * 1000;
+            qpi.Timer.Interval = QP_KEYDERIV_SEC;
             qpi.Timer.Elapsed += _timer_Elapsed;
 
             string quickPass = password.Substring(0, qpi.QuickPassLength);
