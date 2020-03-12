@@ -9,6 +9,7 @@ using SQRLDotNetClientUI.Platform;
 using System;
 using System.Collections.Generic;
 using ReactiveUI;
+using System.Runtime.InteropServices;
 
 namespace SQRLDotNetClientUI.Views
 {
@@ -47,7 +48,7 @@ namespace SQRLDotNetClientUI.Views
             if (NotifyIcon != null)
             {
                 NotifyIcon.ToolTipText = "SQRL .NET Client";
-                NotifyIcon.IconPath = @"resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_256.ico";
+                NotifyIcon.IconPath = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)? "resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_16.png" : @"resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_256.ico";
                 NotifyIcon.DoubleClick += (s, e) =>
                 {
                     RestoreWindow();
