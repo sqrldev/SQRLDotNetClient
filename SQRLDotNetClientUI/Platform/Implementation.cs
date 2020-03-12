@@ -28,7 +28,7 @@ namespace SQRLDotNetClientUI.Platform
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     return null;
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                    return typeof(OSX.AppDelegate);
+                    return typeof(OSX.NotifyIcon);
                 else return null;
             }
 

@@ -19,31 +19,15 @@ namespace SQRLDotNetClientUI.Platform.OSX
     /// This requires us to use MonoMac to make it work with .net core
     /// </summary>
     [Register("AppDelegate")]
-    class AppDelegate : NSApplicationDelegate, INotifyIcon
+    public class AppDelegate : NSApplicationDelegate
     {
 
-        NSStatusItem statusBarItem;
+        //public NSStatusItem statusBarItem;
         
         // Instance Window of our App
         Window mainWindow = null;
 
-        public event EventHandler<EventArgs> Click;
-        public event EventHandler<EventArgs> DoubleClick;
-        public event EventHandler<EventArgs> RightClick;
-
-        private string _iconPath = "";
-        public string IconPath { get => _iconPath; set => _iconPath=value; }
-        public string ToolTipText { get; set;}="";
-        private ContextMenu _menu;
-        public ContextMenu ContextMenu { get=> _menu; set {
-                _menu = value;
-                foreach(var x in _menu.Items.Cast<MenuItem>())
-                {
-                    NSMenuItem menuItem = new NSMenuItem(x.Header.ToString());
-                    menuItem.Activated += (s, e) => { x.Command.Execute(null); };
-                }
-            } }
-        public bool Visible { get; set; }
+       
 
         public AppDelegate(Window mainWindow)
         {
@@ -104,19 +88,6 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         }
 
-        public override void DidFinishLaunching(MonoMac.Foundation.NSNotification notification)
-        {
-            var systemStatusBar = NSStatusBar.SystemStatusBar;
-            statusBarItem = systemStatusBar.CreateStatusItem(30);
-            var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-
-            statusBarItem.Image = NSImage.FromStream(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_16.png")));
-            statusBarItem.DoubleClick += (s, e) => { DoubleClick?.Invoke(this, new EventArgs()); };
-            statusBarItem.ToolTip = this.ToolTipText;
-            statusBarItem.Menu = new NSMenu();
-            
-        }
-        
 
         public void Remove()
         {
