@@ -41,8 +41,6 @@ namespace SQRLDotNetClientUI.Views
             if (type != null)
             {
                 // If we have one, create an instance for it
-
-               
                  NotifyIcon = (INotifyIcon)Activator.CreateInstance(type);
             }
 
@@ -52,17 +50,15 @@ namespace SQRLDotNetClientUI.Views
                 NotifyIcon.IconPath = @"resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_256.ico";
                 NotifyIcon.DoubleClick += (s, e) =>
                 {
-                    Log.Information("Restoring main window from notification icon");
-                    this.WindowState = WindowState.Normal;
-                    this.Show();
-                    this.BringIntoView();
-                    this.Activate();
-                    this.Focus();
+                    RestoreWindow();
                 };
 
                 _NotifyIconContextMenu = new ContextMenu();
                 List<object> menuItems = new List<object>();
                 menuItems.AddRange(new[] {
+                    new MenuItem() {
+                        Header = LocalizationService.GetLocalizationValue("NotifyIconContextMenuItemHeaderRestore"),
+                        Command = ReactiveCommand.Create(RestoreWindow) },
                     new MenuItem() { 
                         Header = LocalizationService.GetLocalizationValue("NotifyIconContextMenuItemHeaderExit"), 
                         Command = ReactiveCommand.Create(Exit) }
@@ -97,6 +93,16 @@ namespace SQRLDotNetClientUI.Views
                 // Remove the notify icon when the main window closes
                 if (NotifyIcon != null) NotifyIcon?.Remove();
             };
+        }
+
+        private void RestoreWindow()
+        {
+            Log.Information("Restoring main window from notification icon");
+            this.WindowState = WindowState.Normal;
+            this.Show();
+            this.BringIntoView();
+            this.Activate();
+            this.Focus();
         }
 
         // This would be ideal for the notification icon, but unfortunately

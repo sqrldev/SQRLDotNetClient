@@ -107,7 +107,8 @@
     { "ShowAdvancedFunctionsLabel": "Show advanced functions" },
     { "WithIdentityLabel": "with identity" },
     { "QuickPassLabel": "QuickPass:" },
-    { "NotifyIconContextMenuItemHeaderExit": "Exit" }
+    { "NotifyIconContextMenuItemHeaderExit": "Exit" },
+    { "NotifyIconContextMenuItemHeaderRestore": "Restore" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -216,7 +217,8 @@
     { "ShowAdvancedFunctionsLabel": "Show advanced functions" },
     { "WithIdentityLabel": "with identity" },
     { "QuickPassLabel": "QuickPass:" },
-    { "NotifyIconContextMenuItemHeaderExit": "Exit" }
+    { "NotifyIconContextMenuItemHeaderExit": "Exit" },
+    { "NotifyIconContextMenuItemHeaderRestore": "Restore" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -325,6 +327,7 @@
     { "ShowAdvancedFunctionsLabel": "Erweiterte Funktionen anzeigen" },
     { "WithIdentityLabel": "mit Identität" },
     { "QuickPassLabel": "QuickPass:" },
-    { "NotifyIconContextMenuItemHeaderExit": "Beenden" }
+    { "NotifyIconContextMenuItemHeaderExit": "Beenden" },
+    { "NotifyIconContextMenuItemHeaderRestore": "Wiederherstellen" }
   ]
 }
