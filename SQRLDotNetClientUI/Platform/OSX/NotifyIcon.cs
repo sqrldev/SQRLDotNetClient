@@ -13,12 +13,30 @@ namespace SQRLDotNetClientUI.Platform.OSX
 {
     public class NotifyIcon : INotifyIcon
     {
-
-        private NSStatusItem statusBarItem { get; set; }// => AvaloniaLocator.Current.GetService<AppDelegate>()}
+        private NSStatusItem _item;
+        private NSStatusItem statusBarItem { get => _item; set {
+                _item = value;
+                UpdateMenu();
+            } }// => AvaloniaLocator.Current.GetService<AppDelegate>()}
 
         public event EventHandler<EventArgs> Click;
         public event EventHandler<EventArgs> DoubleClick;
         public event EventHandler<EventArgs> RightClick;
+
+        private void UpdateMenu()
+        {
+            if(_item!=null)
+            {
+                _item.ToolTip = this.ToolTipText;
+                statusBarItem.Menu.RemoveAllItems();
+                foreach (var x in _menu.Items.Cast<MenuItem>())
+                {
+                    NSMenuItem menuItem = new NSMenuItem(x.Header.ToString());
+                    menuItem.Activated += (s, e) => { x.Command.Execute(null); };
+                    statusBarItem.Menu.AddItem(menuItem);
+                }
+            }
+        }
 
         private string _iconPath = "";
         public string IconPath { get => _iconPath; set => _iconPath = value; }
@@ -30,16 +48,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
             get => _menu; set
             {
                 _menu = value;
-                if (statusBarItem != null)
-                {
-                    statusBarItem.Menu.RemoveAllItems();
-                    foreach (var x in _menu.Items.Cast<MenuItem>())
-                    {
-                        NSMenuItem menuItem = new NSMenuItem(x.Header.ToString());
-                        menuItem.Activated += (s, e) => { x.Command.Execute(null); };
-                        statusBarItem.Menu.AddItem(menuItem);
-                    }
-                }
+                UpdateMenu();
             }
         }
         public bool Visible { get; set; }
@@ -60,7 +69,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
                 statusBarItem.DoubleClick += (s, e) => { DoubleClick?.Invoke(this, new EventArgs()); };
                 statusBarItem.ToolTip = this.ToolTipText;
                 statusBarItem.Menu = new NSMenu();
-            });
+            },DispatcherPriority.MaxValue);
         }
     }
 }
