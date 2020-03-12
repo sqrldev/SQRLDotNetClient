@@ -1,7 +1,7 @@
-﻿using MessageBox.Avalonia;
-using MessageBox.Avalonia.Enums;
+﻿
 using ReactiveUI;
 using SQRLDotNetClientUI.Models;
+using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
@@ -114,13 +114,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (InvalidOperationException e)
                 {
-                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                    _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                    e.Message,
-                    ButtonEnum.Ok,
-                    Icon.Error);
-
-                    await messageBoxStandardWindow.ShowDialog(_mainWindow);
+                    var btnRsult = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), e.Message, MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR).ShowDialog<MessagBoxDialogResult>(_mainWindow);
                 }
                 finally
                 {
@@ -130,13 +124,8 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             else
             {
-                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                    _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                    _loc.GetLocalizationValue("InvalidRescueCodeMessage"), 
-                    ButtonEnum.Ok, 
-                    Icon.Error);
-
-                await messageBoxStandardWindow.ShowDialog(_mainWindow);
+                
+                var btnRsult = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), _loc.GetLocalizationValue("InvalidRescueCodeMessage"), MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR).ShowDialog<MessagBoxDialogResult>(_mainWindow);
             }
         }
     }

@@ -1,6 +1,6 @@
-﻿using MessageBox.Avalonia;
-using MessageBox.Avalonia.Enums;
+﻿
 using ReactiveUI;
+using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
@@ -74,12 +74,8 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             else
             {
-                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                    _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                    _loc.GetLocalizationValue("PasswordsDontMatchErrorMessage"),
-                    ButtonEnum.Ok, Icon.Error);
-
-                await messageBoxStandardWindow.ShowDialog(_mainWindow);
+                
+                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), _loc.GetLocalizationValue("PasswordsDontMatchErrorMessage"), MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR).ShowDialog<MessagBoxDialogResult>(_mainWindow);
             }
         }
 

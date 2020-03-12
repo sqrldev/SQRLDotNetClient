@@ -4,8 +4,7 @@ using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using SQRLDotNetClientUI.Models;
-using MessageBox.Avalonia;
-using MessageBox.Avalonia.Enums;
+
 using Serilog;
 using System.Threading;
 using System.Linq;
@@ -99,8 +98,10 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             if (_identityManager.IdentityCount > 1)
             {
-                SelectIdentityDialogView selectIdentityDialog = new SelectIdentityDialogView();
-                selectIdentityDialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                SelectIdentityDialogView selectIdentityDialog = new SelectIdentityDialogView
+                {
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                };
                 await selectIdentityDialog.ShowDialog(_mainWindow);
             }
         }
@@ -125,15 +126,9 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void DeleteIdentity()
         {
-            var msgBox = MessageBoxManager.GetMessageBoxStandardWindow(
-                    _loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
-                    string.Format(_loc.GetLocalizationValue("DeleteIdentityMessageBoxText"), this.IdentityName, Environment.NewLine),
-                    ButtonEnum.YesNo,
-                    Icon.Warning);
-
-            var result = await msgBox.ShowDialog(_mainWindow);
-
-            if (result == ButtonResult.Yes)
+            
+            var result = await new Views.MessageBox(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"), string.Format(_loc.GetLocalizationValue("DeleteIdentityMessageBoxText"), this.IdentityName, Environment.NewLine), MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.WARNING).ShowDialog<MessagBoxDialogResult>(_mainWindow);
+            if (result == MessagBoxDialogResult.YES)
             {
                 _identityManager.DeleteCurrentIdentity();
             }
@@ -154,10 +149,12 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
-        public async void RekeyIdentity()
+        public  void RekeyIdentity()
         {
-            var msg = new Views.MessageBoxModel("Hello", "World");
-            await new Views.MessageBox() { DataContext = msg }.ShowDialog(_mainWindow);
+
+           //var result= await new Views.MessageBox("Hi", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut orci sed eros pharetra aliquet sit amet at ipsum. Aenean ut diam nec nisi iaculis tincidunt. Mauris at felis ante. Aliquam posuere, libero et imperdiet venenatis, turpis orci luctus nisi, eget condimentum augue magna eu risus. Suspendisse ac lorem ex. Phasellus semper null", MessageBoxSize.Small, MessageBoxButtons.OKCancel).ShowDialog<MessagBoxDialogResult>(_mainWindow);
+            //Console.WriteLine(result);
+
         }
     }
 }

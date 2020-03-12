@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
-        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="220"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="150"
         x:Class="SQRLDotNetClientUI.Views.MessageBox"
         Title="{Binding Title}"
         Icon="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico"
@@ -16,13 +16,12 @@
   <DockPanel>
   <StackPanel DockPanel.Dock="Top" Orientation="Vertical" VerticalAlignment="Bottom" Margin="10" >
     <Image Stretch="None" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Source="{Binding IconSource}" />
-    <TextBlock   Margin="10" MaxHeight="{Binding MaxHeight}"  Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0">
-asdasd
-    </TextBlock>
+    <TextBlock   Margin="10" MaxHeight="{Binding MaxHeight}"  Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0" Text="{Binding Message}" />
+      
+    
   </StackPanel>
-  <StackPanel Margin="10" DockPanel.Dock="Bottom" Name="pnlButtons" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
-    <Button Margin="10,0" Width="60">Yes</Button>
-    <Button Margin="10,0" Width="60">No</Button>
-  </StackPanel>
+  <StackPanel Margin="10" DockPanel.Dock="Bottom" Name="pnlButtons" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+    
+  
   </DockPanel>
 </Window>
