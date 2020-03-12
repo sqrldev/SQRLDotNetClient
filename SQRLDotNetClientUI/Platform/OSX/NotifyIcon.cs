@@ -28,13 +28,19 @@ namespace SQRLDotNetClientUI.Platform.OSX
             if(_item!=null)
             {
                 _item.ToolTip = this.ToolTipText;
-                statusBarItem.Menu.RemoveAllItems();
+                if(statusBarItem.Menu==null)
+                    statusBarItem.Menu = new NSMenu();
+                else
+                {
+                    statusBarItem.Menu.RemoveAllItems();
+                }    
                 foreach (var x in _menu.Items.Cast<MenuItem>())
                 {
                     NSMenuItem menuItem = new NSMenuItem(x.Header.ToString());
                     menuItem.Activated += (s, e) => { x.Command.Execute(null); };
                     statusBarItem.Menu.AddItem(menuItem);
                 }
+                statusBarItem.DoubleClick += (s, e) => { DoubleClick?.Invoke(this, new EventArgs()); };
             }
         }
 
@@ -66,9 +72,9 @@ namespace SQRLDotNetClientUI.Platform.OSX
                 statusBarItem = systemStatusBar.CreateStatusItem(30);
                 var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
                 statusBarItem.Image = NSImage.FromStream(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_16.png")));
-                statusBarItem.DoubleClick += (s, e) => { DoubleClick?.Invoke(this, new EventArgs()); };
+                
                 statusBarItem.ToolTip = this.ToolTipText;
-                statusBarItem.Menu = new NSMenu();
+                
             },DispatcherPriority.MaxValue);
         }
     }

@@ -68,6 +68,11 @@ namespace SQRLDotNetClientUI.ViewModels
                     AuthVM = authView;
                 }
             }
+            else
+            {
+                     _mainWindow.Height = 450;
+                    _mainWindow.Width = 400;
+            }
         }
 
         private void OnIdentityChanged(object sender, IdentityChangedEventArgs e)

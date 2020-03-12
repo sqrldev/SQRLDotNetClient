@@ -44,10 +44,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
         /// </summary>
         private void Init()
         {
-            if (AvaloniaLocator.Current.GetService<AppDelegate>() == null)
-            {
-                AvaloniaLocator.CurrentMutable.Bind<AppDelegate>().ToConstant(this);
-            }
+            
             NSAppleEventManager.SharedAppleEventManager.SetEventHandler(this, new MonoMac.ObjCRuntime.Selector("handleGetURLEvent:withReplyEvent:"), AEEventClass.Internet, AEEventID.GetUrl);
         }
         /// <summary>
