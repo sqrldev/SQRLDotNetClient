@@ -1,13 +1,15 @@
-﻿using Avalonia.Controls;
-
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Platform;
 using MonoMac.AppKit;
 using MonoMac.Foundation;
+using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
-
-namespace SQRLDotNetClientUI.Utils
+using System.Linq;
+namespace SQRLDotNetClientUI.Platform.OSX
 {
     /// <summary>
     /// This class is an AppDelegate helper specifically for Mac OSX
@@ -17,11 +19,16 @@ namespace SQRLDotNetClientUI.Utils
     /// This requires us to use MonoMac to make it work with .net core
     /// </summary>
     [Register("AppDelegate")]
-    class AppDelegate : NSApplicationDelegate
+    public class AppDelegate : NSApplicationDelegate
     {
-   
+
+        //public NSStatusItem statusBarItem;
+        
         // Instance Window of our App
         Window mainWindow = null;
+
+       
+
         public AppDelegate(Window mainWindow)
         {
             this.mainWindow = mainWindow;
@@ -37,6 +44,7 @@ namespace SQRLDotNetClientUI.Utils
         /// </summary>
         private void Init()
         {
+            
             NSAppleEventManager.SharedAppleEventManager.SetEventHandler(this, new MonoMac.ObjCRuntime.Selector("handleGetURLEvent:withReplyEvent:"), AEEventClass.Internet, AEEventID.GetUrl);
         }
         /// <summary>
@@ -59,11 +67,11 @@ namespace SQRLDotNetClientUI.Utils
                     var mwvm = (MainWindowViewModel)this.mainWindow.DataContext;
 
                     //Get a hold of the currently loaded Model (main menu)
-                    if(mwvm.Content.GetType()==typeof(MainMenuViewModel))
+                    if (mwvm.Content.GetType() == typeof(MainMenuViewModel))
                     {
                         var mmvm = mwvm.Content as MainMenuViewModel;
                         //If there is a Loaded Identity then Invoke the Authentication Dialog
-                        if(mmvm.CurrentIdentity !=null)
+                        if (mmvm.CurrentIdentity != null)
                         {
                             mmvm.AuthVM = new AuthenticationViewModel(new Uri(innerDesc.StringValue));
                             mwvm.PriorContent = mwvm.Content;
@@ -71,10 +79,13 @@ namespace SQRLDotNetClientUI.Utils
                         }
 
                     }
-                  
+
                 }
             }
 
         }
+
+
+       
     }
 }

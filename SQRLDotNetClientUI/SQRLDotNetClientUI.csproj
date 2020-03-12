@@ -107,7 +107,7 @@
     <EmbeddedResource Include="Assets\Icons\ok.png" />
     <EmbeddedResource Include="Assets\Icons\warning.png" />
     <Content Include="Assets\SQRL_icon_light_128.png" />
-    <Content Include="Assets\SQRL_icon_light_16.png" />
+    <EmbeddedResource Include="Assets\SQRL_icon_light_16.png" />
     <EmbeddedResource Include="Assets\SQRL_icon_light_256.png" />
     <EmbeddedResource Include="Assets\SQRL_icon_light_32.png" />
     <Content Include="Assets\SQRL_icon_light_64.png" />
@@ -208,6 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="Utils\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\SelectIdentityDialogView.xaml">
