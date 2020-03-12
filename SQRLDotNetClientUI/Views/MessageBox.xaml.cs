@@ -115,25 +115,25 @@ namespace SQRLDotNetClientUI.Views
             switch (messageBoxSize)
             {
                 case MessageBoxSize.XLarge:
-                    this.Height = 280;
+                    
                     this.Width = 800;
-                    this.MaxHeight = 60;
+                    
                     break;
                 case MessageBoxSize.Large:
-                    this.Height = 180;
+                    
                     this.Width = 600;
-                    this.MaxHeight = 60;
+                    
                     break;
                 case MessageBoxSize.Small:
-                    this.Height = 180;
+                    
                     this.Width = 200;
-                    this.MaxHeight = 60;
+                    
                     break;
                 default:
                     {
-                        this.Height = 180;
+                        
                         this.Width = 400;
-                        this.MaxHeight = 60;
+                        
                     }
                     break;
             }
