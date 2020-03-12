@@ -86,7 +86,7 @@ namespace SQRLDotNetClientUI.Utils
             statusBarItem = systemStatusBar.CreateStatusItem(30);
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
 
-            statusBarItem.Image = NSImage.FromStream(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_32.png")));
+            statusBarItem.Image = NSImage.FromStream(assets.Open(new Uri("resm:SQRL_icon_light_16.png")));
             statusBarItem.Title = "SQRL Dot Net Client";
             
         }
