@@ -41,6 +41,8 @@ namespace SQRLDotNetClientUI.Views
             if (type != null)
             {
                 // If we have one, create an instance for it
+                
+
                 NotifyIcon = (INotifyIcon)Activator.CreateInstance(type);
             }
 

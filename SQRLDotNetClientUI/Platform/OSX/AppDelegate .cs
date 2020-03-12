@@ -33,7 +33,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         private string _iconPath = "";
         public string IconPath { get => _iconPath; set => _iconPath=value; }
-        public string ToolTipText { get; set;}
+        public string ToolTipText { get; set;}="";
         private ContextMenu _menu;
         public ContextMenu ContextMenu { get=> _menu; set {
                 _menu = value;
@@ -60,6 +60,10 @@ namespace SQRLDotNetClientUI.Platform.OSX
         /// </summary>
         private void Init()
         {
+            if (AvaloniaLocator.Current.GetService<AppDelegate>() == null)
+            {
+                AvaloniaLocator.CurrentMutable.Bind<AppDelegate>().ToConstant(this);
+            }
             NSAppleEventManager.SharedAppleEventManager.SetEventHandler(this, new MonoMac.ObjCRuntime.Selector("handleGetURLEvent:withReplyEvent:"), AEEventClass.Internet, AEEventID.GetUrl);
         }
         /// <summary>
