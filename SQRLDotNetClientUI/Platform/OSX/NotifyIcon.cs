@@ -60,7 +60,8 @@ namespace SQRLDotNetClientUI.Platform.OSX
         /// Gets or sets the icon for the notify icon. Either a file system path
         /// or a <c>resm:</c> manifest resource path can be specified.
         /// </summary>
-        public string IconPath { get; set; } = "";
+        private string _iconPath = "";
+        public string IconPath { get => _iconPath; set { _iconPath = value; UpdateMenu(); } }
         private string _toolTip = "";
 
         /// <summary>

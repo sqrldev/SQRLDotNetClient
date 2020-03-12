@@ -23,7 +23,7 @@ namespace SQRLDotNetClientUI.Views
         private QuickPassManager _quickPassManager = QuickPassManager.Instance;
 
         public INotifyIcon NotifyIcon { get; } = null;
-        public LocalizationExtension LocalizationService {get;}
+        public LocalizationExtension LocalizationService { get; }
         public MainWindow()
         {
             InitializeComponent();
@@ -42,13 +42,17 @@ namespace SQRLDotNetClientUI.Views
             if (type != null)
             {
                 // If we have one, create an instance for it
-                 NotifyIcon = (INotifyIcon)Activator.CreateInstance(type);
+                NotifyIcon = (INotifyIcon)Activator.CreateInstance(type);
             }
 
             if (NotifyIcon != null)
             {
                 NotifyIcon.ToolTipText = "SQRL .NET Client";
-                NotifyIcon.IconPath = RuntimeInformation.IsOSPlatform(OSPlatform.OSX)? "resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_16.png" : @"resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_256.ico";
+                NotifyIcon.IconPath = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ?
+                                      "resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_16.png" :
+                                      @"resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_256.ico";
+
+
                 NotifyIcon.DoubleClick += (s, e) =>
                 {
                     RestoreWindow();
@@ -60,8 +64,8 @@ namespace SQRLDotNetClientUI.Views
                     new MenuItem() {
                         Header = LocalizationService.GetLocalizationValue("NotifyIconContextMenuItemHeaderRestore"),
                         Command = ReactiveCommand.Create(RestoreWindow) },
-                    new MenuItem() { 
-                        Header = LocalizationService.GetLocalizationValue("NotifyIconContextMenuItemHeaderExit"), 
+                    new MenuItem() {
+                        Header = LocalizationService.GetLocalizationValue("NotifyIconContextMenuItemHeaderExit"),
                         Command = ReactiveCommand.Create(Exit) }
                     });
                 _NotifyIconContextMenu.Items = menuItems;
