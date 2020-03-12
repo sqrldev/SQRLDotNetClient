@@ -30,12 +30,15 @@ namespace SQRLDotNetClientUI.Platform.OSX
             get => _menu; set
             {
                 _menu = value;
-                statusBarItem.Menu.RemoveAllItems();
-                foreach (var x in _menu.Items.Cast<MenuItem>())
+                if (statusBarItem != null)
                 {
-                    NSMenuItem menuItem = new NSMenuItem(x.Header.ToString());
-                    menuItem.Activated += (s, e) => { x.Command.Execute(null); };
-                    statusBarItem.Menu.AddItem(menuItem);
+                    statusBarItem.Menu.RemoveAllItems();
+                    foreach (var x in _menu.Items.Cast<MenuItem>())
+                    {
+                        NSMenuItem menuItem = new NSMenuItem(x.Header.ToString());
+                        menuItem.Activated += (s, e) => { x.Command.Execute(null); };
+                        statusBarItem.Menu.AddItem(menuItem);
+                    }
                 }
             }
         }
