@@ -23,7 +23,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
         private string _iconPath = "";
         public string IconPath { get => _iconPath; set => _iconPath = value; }
         private string _toolTip = "";
-        public string ToolTipText { get => _toolTip; set { _toolTip = value; statusBarItem.ToolTip = _toolTip; } }
+        public string ToolTipText { get => _toolTip; set { _toolTip = value; } }
         private ContextMenu _menu;
         public ContextMenu ContextMenu
         {
