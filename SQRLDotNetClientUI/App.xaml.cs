@@ -35,14 +35,7 @@ namespace SQRLDotNetClientUI
                     NSApplication.Init();
                     NSApplication.SharedApplication.Delegate = new  SQRLDotNetClientUI.Platform.OSX.AppDelegate((MainWindow)desktop.MainWindow);
                 }
-                else if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    new Eto.Forms.Application(Eto.Platforms.Gtk).Attach();
-                    Platform.Linux.LinuxTrayIcon lti = new Platform.Linux.LinuxTrayIcon();
-                    lti.Show();
-                    /*Eto.Forms.TrayIndicator ti = new Eto.Forms.TrayIndicator();
-                    ti.Image = new Eto.Drawing.ImageConverter()*/
-                }
+                
             }          
 
             base.OnFrameworkInitializationCompleted();

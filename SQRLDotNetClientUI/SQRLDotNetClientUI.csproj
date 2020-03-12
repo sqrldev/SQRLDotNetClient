@@ -147,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\sqrl_icon_normal_48_icon.ico" />
+    <EmbeddedResource Include="Assets\sqrl_icon_normal_256_32_icon.ico" />
     <EmbeddedResource Include="Assets\VL.png" />
     <EmbeddedResource Include="Views\MainMenuView.xaml">
       <Generator>MSBuild:Compile</Generator>
