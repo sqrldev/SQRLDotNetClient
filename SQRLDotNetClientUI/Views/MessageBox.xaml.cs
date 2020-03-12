@@ -58,7 +58,8 @@ namespace SQRLDotNetClientUI.Views
     {
         OK,
         ERROR,
-        WARNING
+        WARNING,
+        QUESTION
     }
 
     public enum MessagBoxDialogResult
@@ -105,6 +106,7 @@ namespace SQRLDotNetClientUI.Views
             {
                 MessageBoxIcons.ERROR => "resm:SQRLDotNetClientUI.Assets.Icons.error.png",
                 MessageBoxIcons.WARNING => "resm:SQRLDotNetClientUI.Assets.Icons.warning.png",
+                MessageBoxIcons.QUESTION => "resm:SQRLDotNetClientUI.Assets.Icons.question.png",
                 _ => "resm:SQRLDotNetClientUI.Assets.Icons.ok.png",
             };
             switch (messageBoxButtons)
@@ -148,10 +150,7 @@ namespace SQRLDotNetClientUI.Views
             panel.Add(btn);
         }
 
-        private void Btn_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public MessageBoxModel()
         {

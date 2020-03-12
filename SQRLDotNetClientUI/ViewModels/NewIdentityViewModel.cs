@@ -75,7 +75,10 @@ namespace SQRLDotNetClientUI.ViewModels
             else
             {
                 
-                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), _loc.GetLocalizationValue("PasswordsDontMatchErrorMessage"), MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR).ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                           _loc.GetLocalizationValue("PasswordsDontMatchErrorMessage"),
+                                           MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                           .ShowDialog<MessagBoxDialogResult>(_mainWindow);
             }
         }
 

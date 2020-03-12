@@ -10,18 +10,16 @@
         xmlns:vm="clr-namespace:SQRLDotNetClientUI.Views;assembly=SQRLDotNetClientUI"
         Width="{Binding Width}"
         CanResize="False"
-        SizeToContent="Height"
-        Height="{Binding Height}"
+        SizeToContent="Height" 
         >
-  <DockPanel>
-  <StackPanel DockPanel.Dock="Top" Orientation="Vertical" VerticalAlignment="Bottom" Margin="10" >
+  <DockPanel LastChildFill="True" >
+  <StackPanel  DockPanel.Dock="Top" Orientation="Vertical" VerticalAlignment="Bottom" Margin="10" >
     <Image Stretch="None" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Source="{Binding IconSource}" />
-    <TextBlock   Margin="10" MaxHeight="{Binding MaxHeight}"  Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0" Text="{Binding Message}" />
+    <TextBlock   Margin="10"  Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0" Text="{Binding Message}" />
       
     
   </StackPanel>
   <StackPanel Margin="10" DockPanel.Dock="Bottom" Name="pnlButtons" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-    
   
   </DockPanel>
 </Window>

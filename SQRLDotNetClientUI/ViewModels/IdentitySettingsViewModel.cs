@@ -86,7 +86,10 @@ namespace SQRLDotNetClientUI.ViewModels
             if (!ok)
             {
 
-                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), _loc.GetLocalizationValue("BadPasswordError"), MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR).ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                           _loc.GetLocalizationValue("BadPasswordError"), 
+                                           MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                           .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                 ProgressText = "";
                 ProgressPercentage = 0;
                 CanSave = true;

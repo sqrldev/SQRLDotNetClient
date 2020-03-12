@@ -127,7 +127,10 @@ namespace SQRLDotNetClientUI.ViewModels
         public async void DeleteIdentity()
         {
             
-            var result = await new Views.MessageBox(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"), string.Format(_loc.GetLocalizationValue("DeleteIdentityMessageBoxText"), this.IdentityName, Environment.NewLine), MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.WARNING).ShowDialog<MessagBoxDialogResult>(_mainWindow);
+            var result = await new Views.MessageBox(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
+                                                    string.Format(_loc.GetLocalizationValue("DeleteIdentityMessageBoxText"), this.IdentityName, Environment.NewLine),
+                                                    MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+                                                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
             if (result == MessagBoxDialogResult.YES)
             {
                 _identityManager.DeleteCurrentIdentity();
@@ -149,11 +152,15 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
-        public  void RekeyIdentity()
+        public async  void RekeyIdentity()
         {
 
-           //var result= await new Views.MessageBox("Hi", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ut orci sed eros pharetra aliquet sit amet at ipsum. Aenean ut diam nec nisi iaculis tincidunt. Mauris at felis ante. Aliquam posuere, libero et imperdiet venenatis, turpis orci luctus nisi, eget condimentum augue magna eu risus. Suspendisse ac lorem ex. Phasellus semper null", MessageBoxSize.Small, MessageBoxButtons.OKCancel).ShowDialog<MessagBoxDialogResult>(_mainWindow);
-            //Console.WriteLine(result);
+
+            await new Views.MessageBox(
+     _loc.GetLocalizationValue("ErrorTitleGeneric"),
+     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras nec tristique tortor. Praesent quis ipsum dolor. Mauris id lectus pulvinar, ultricies lorem eget, suscipit erat. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce placerat augue ut ipsum ornare tincidunt. Mauris pretium tortor orci, nec consectetur leo blandit et. Praesent euismod ex in eros sollicitudin porta. Suspendisse potenti. Vestibulum dapibus purus justo, molestie sodales eros efficitur vitae. Nunc bibendum porttitor mattis. Sed feugiat facilisis sodales. Aliquam sit amet erat mollis, euismod odio eget, dapibus lacus. Vivamus in finibus urna. Sed id turpis a turpis tempus gravida eu vitae lorem. Curabitur faucibus vel turpis nec viverra.",
+     MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+     .ShowDialog<MessagBoxDialogResult>(_mainWindow);
 
         }
     }

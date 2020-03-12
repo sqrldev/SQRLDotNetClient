@@ -78,7 +78,10 @@ namespace SQRLDotNetClientUI.ViewModels
             if (!string.IsNullOrEmpty(msg))
             {
                 
-                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), $"{msg}", MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR).ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                            $"{msg}", 
+                                            MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                            .ShowDialog<MessagBoxDialogResult>(_mainWindow);
             }
             else
             {
@@ -89,7 +92,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 catch (InvalidOperationException e)
                 {
 
-                    await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), e.Message, MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR).ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                    await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                                e.Message, MessageBoxSize.Medium,
+                                                MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                                .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                 }
                 finally
                 {

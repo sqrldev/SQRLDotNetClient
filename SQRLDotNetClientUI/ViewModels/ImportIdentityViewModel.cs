@@ -68,7 +68,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), string.Format(_loc.GetLocalizationValue("TextualImportErrorMessage"), ex.Message), MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR).ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                    await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                               string.Format(_loc.GetLocalizationValue("TextualImportErrorMessage"), ex.Message),
+                                               MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                               .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                 }
             }
             else if (!string.IsNullOrEmpty(this.IdentityFile))
@@ -80,7 +83,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 catch (Exception ex)
                 {
 
-                    await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), string.Format(_loc.GetLocalizationValue("FileImportErrorMessage"), ex.Message), MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR).ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                    await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), 
+                                               string.Format(_loc.GetLocalizationValue("FileImportErrorMessage"), ex.Message),
+                                               MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                               .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                 }
             }
 

@@ -65,6 +65,7 @@
     <None Remove="Assets\Fonts\SpaceMono-Regular.ttf" />
     <None Remove="Assets\Icons\error.png" />
     <None Remove="Assets\Icons\ok.png" />
+    <None Remove="Assets\Icons\question.png" />
     <None Remove="Assets\Icons\warning.png" />
     <None Remove="Assets\Localization\localization.json" />
     <None Remove="Assets\SQRL_icon_light_128.png" />
@@ -98,6 +99,7 @@
     <EmbeddedResource Include="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
     <EmbeddedResource Include="Assets\Fonts\SpaceMono-Italic.ttf" />
     <EmbeddedResource Include="Assets\Fonts\SpaceMono-Regular.ttf" />
+    <EmbeddedResource Include="Assets\Icons\question.png" />
     <EmbeddedResource Include="Assets\Localization\localization.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
