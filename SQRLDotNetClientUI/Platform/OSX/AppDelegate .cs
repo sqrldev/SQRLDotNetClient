@@ -86,9 +86,6 @@ namespace SQRLDotNetClientUI.Platform.OSX
         }
 
 
-        public void Remove()
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }
