@@ -35,6 +35,11 @@ namespace SQRLDotNetClientUI
                     NSApplication.Init();
                     NSApplication.SharedApplication.Delegate = new  SQRLDotNetClientUI.Platform.OSX.AppDelegate((MainWindow)desktop.MainWindow);
                 }
+                else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    new Eto.Forms.Application(Eto.Platforms.Gtk).Attach();
+                  
+                }
             }          
 
             base.OnFrameworkInitializationCompleted();
