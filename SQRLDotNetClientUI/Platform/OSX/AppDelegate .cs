@@ -3,12 +3,13 @@ using Avalonia.Controls;
 using Avalonia.Platform;
 using MonoMac.AppKit;
 using MonoMac.Foundation;
+using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
-
-namespace SQRLDotNetClientUI.Utils
+using System.Linq;
+namespace SQRLDotNetClientUI.Platform.OSX
 {
     /// <summary>
     /// This class is an AppDelegate helper specifically for Mac OSX
@@ -18,13 +19,32 @@ namespace SQRLDotNetClientUI.Utils
     /// This requires us to use MonoMac to make it work with .net core
     /// </summary>
     [Register("AppDelegate")]
-    class AppDelegate : NSApplicationDelegate
+    class AppDelegate : NSApplicationDelegate, INotifyIcon
     {
 
         NSStatusItem statusBarItem;
         
         // Instance Window of our App
         Window mainWindow = null;
+
+        public event EventHandler<EventArgs> Click;
+        public event EventHandler<EventArgs> DoubleClick;
+        public event EventHandler<EventArgs> RightClick;
+
+        private string _iconPath = "";
+        public string IconPath { get => _iconPath; set => _iconPath=value; }
+        public string ToolTipText { get; set;}
+        private ContextMenu _menu;
+        public ContextMenu ContextMenu { get=> _menu; set {
+                _menu = value;
+                foreach(var x in _menu.Items.Cast<MenuItem>())
+                {
+                    NSMenuItem menuItem = new NSMenuItem(x.Header.ToString());
+                    menuItem.Activated += (s, e) => { x.Command.Execute(null); };
+                }
+            } }
+        public bool Visible { get; set; }
+
         public AppDelegate(Window mainWindow)
         {
             this.mainWindow = mainWindow;
@@ -86,9 +106,17 @@ namespace SQRLDotNetClientUI.Utils
             statusBarItem = systemStatusBar.CreateStatusItem(30);
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
 
-            statusBarItem.Image = NSImage.FromStream(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_light_16.png")));
+            statusBarItem.Image = NSImage.FromStream(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_16.png")));
+            statusBarItem.DoubleClick += (s, e) => { DoubleClick?.Invoke(this, new EventArgs()); };
+            statusBarItem.ToolTip = this.ToolTipText;
+            statusBarItem.Menu = new NSMenu();
             
-            
+        }
+        
+
+        public void Remove()
+        {
+            throw new NotImplementedException();
         }
     }
 }

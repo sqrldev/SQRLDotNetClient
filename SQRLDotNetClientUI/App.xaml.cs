@@ -33,7 +33,7 @@ namespace SQRLDotNetClientUI
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
                     NSApplication.Init();
-                    NSApplication.SharedApplication.Delegate = new Utils.AppDelegate((MainWindow)desktop.MainWindow);
+                    NSApplication.SharedApplication.Delegate = new  SQRLDotNetClientUI.Platform.OSX.AppDelegate((MainWindow)desktop.MainWindow);
                 }
             }          
 
