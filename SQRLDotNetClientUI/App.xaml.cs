@@ -38,7 +38,7 @@ namespace SQRLDotNetClientUI
                 else if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     new Eto.Forms.Application(Eto.Platforms.Gtk).Attach();
-                  
+                  //as
                 }
             }          
 
