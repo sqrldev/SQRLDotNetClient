@@ -7,6 +7,7 @@ using System.Linq;
 using MonoMac.AppKit;
 using Avalonia;
 using Avalonia.Platform;
+using Avalonia.Threading;
 
 namespace SQRLDotNetClientUI.Platform.OSX
 {
@@ -47,13 +48,16 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         public NotifyIcon()
         {
-            var systemStatusBar = NSStatusBar.SystemStatusBar;
-            statusBarItem = systemStatusBar.CreateStatusItem(30);
-            var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            statusBarItem.Image = NSImage.FromStream(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_16.png")));
-            statusBarItem.DoubleClick += (s, e) => { DoubleClick?.Invoke(this, new EventArgs()); };
-            statusBarItem.ToolTip = this.ToolTipText;
-            statusBarItem.Menu = new NSMenu();
+            Dispatcher.UIThread.Post(() =>
+            {
+                var systemStatusBar = NSStatusBar.SystemStatusBar;
+                statusBarItem = systemStatusBar.CreateStatusItem(30);
+                var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+                statusBarItem.Image = NSImage.FromStream(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_16.png")));
+                statusBarItem.DoubleClick += (s, e) => { DoubleClick?.Invoke(this, new EventArgs()); };
+                statusBarItem.ToolTip = this.ToolTipText;
+                statusBarItem.Menu = new NSMenu();
+            });
         }
     }
 }
