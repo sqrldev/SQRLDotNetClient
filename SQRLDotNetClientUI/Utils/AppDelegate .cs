@@ -1,5 +1,6 @@
-﻿using Avalonia.Controls;
-
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Platform;
 using MonoMac.AppKit;
 using MonoMac.Foundation;
 using SQRLDotNetClientUI.ViewModels;
@@ -19,7 +20,9 @@ namespace SQRLDotNetClientUI.Utils
     [Register("AppDelegate")]
     class AppDelegate : NSApplicationDelegate
     {
-   
+
+        NSStatusItem statusBarItem;
+        
         // Instance Window of our App
         Window mainWindow = null;
         public AppDelegate(Window mainWindow)
@@ -59,11 +62,11 @@ namespace SQRLDotNetClientUI.Utils
                     var mwvm = (MainWindowViewModel)this.mainWindow.DataContext;
 
                     //Get a hold of the currently loaded Model (main menu)
-                    if(mwvm.Content.GetType()==typeof(MainMenuViewModel))
+                    if (mwvm.Content.GetType() == typeof(MainMenuViewModel))
                     {
                         var mmvm = mwvm.Content as MainMenuViewModel;
                         //If there is a Loaded Identity then Invoke the Authentication Dialog
-                        if(mmvm.CurrentIdentity !=null)
+                        if (mmvm.CurrentIdentity != null)
                         {
                             mmvm.AuthVM = new AuthenticationViewModel(new Uri(innerDesc.StringValue));
                             mwvm.PriorContent = mwvm.Content;
@@ -71,10 +74,21 @@ namespace SQRLDotNetClientUI.Utils
                         }
 
                     }
-                  
+
                 }
             }
 
+        }
+
+        public override void DidFinishLaunching(MonoMac.Foundation.NSNotification notification)
+        {
+            var systemStatusBar = NSStatusBar.SystemStatusBar;
+            statusBarItem = systemStatusBar.CreateStatusItem(30);
+            var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+
+            statusBarItem.Image = NSImage.FromStream(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_32.png")));
+            statusBarItem.Title = "SQRL Dot Net Client";
+            
         }
     }
 }
