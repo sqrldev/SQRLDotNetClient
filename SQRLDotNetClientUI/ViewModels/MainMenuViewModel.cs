@@ -156,11 +156,7 @@ namespace SQRLDotNetClientUI.ViewModels
         {
 
 
-            await new Views.MessageBox(
-     _loc.GetLocalizationValue("ErrorTitleGeneric"),
-     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras nec tristique tortor. Praesent quis ipsum dolor. Mauris id lectus pulvinar, ultricies lorem eget, suscipit erat. Interdum et malesuada fames ac ante ipsum primis in faucibus. Fusce placerat augue ut ipsum ornare tincidunt. Mauris pretium tortor orci, nec consectetur leo blandit et. Praesent euismod ex in eros sollicitudin porta. Suspendisse potenti. Vestibulum dapibus purus justo, molestie sodales eros efficitur vitae. Nunc bibendum porttitor mattis. Sed feugiat facilisis sodales. Aliquam sit amet erat mollis, euismod odio eget, dapibus lacus. Vivamus in finibus urna. Sed id turpis a turpis tempus gravida eu vitae lorem. Curabitur faucibus vel turpis nec viverra.",
-     MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-     .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+            //TODO: Implement this
 
         }
     }
