@@ -1,8 +1,8 @@
 ﻿using System;
 using Avalonia.Controls;
-using MessageBox.Avalonia;
-using MessageBox.Avalonia.Enums;
+
 using ReactiveUI;
+using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 
 namespace SQRLDotNetClientUI.ViewModels
@@ -34,8 +34,10 @@ namespace SQRLDotNetClientUI.ViewModels
             fdf.Extensions.Add("sqrl");
             fdf.Name = _loc.GetLocalizationValue("FileDialogFilterName");
 
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.AllowMultiple = false;
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                AllowMultiple = false
+            };
             ofd.Filters.Add(fdf);
             ofd.Title = _loc.GetLocalizationValue("ImportOpenFileDialogTitle");
 
@@ -66,13 +68,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                        string.Format(_loc.GetLocalizationValue("TextualImportErrorMessage"), ex.Message), 
-                        ButtonEnum.Ok, 
-                        Icon.Error);
-
-                    await messageBoxStandardWindow.ShowDialog(_mainWindow);
+                    await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                               string.Format(_loc.GetLocalizationValue("TextualImportErrorMessage"), ex.Message),
+                                               MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                               .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                 }
             }
             else if (!string.IsNullOrEmpty(this.IdentityFile))
@@ -83,13 +82,11 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                        string.Format(_loc.GetLocalizationValue("FileImportErrorMessage"), ex.Message),
-                        ButtonEnum.Ok, 
-                        Icon.Error);
 
-                    await messageBoxStandardWindow.ShowDialog(_mainWindow);
+                    await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), 
+                                               string.Format(_loc.GetLocalizationValue("FileImportErrorMessage"), ex.Message),
+                                               MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                               .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                 }
             }
 

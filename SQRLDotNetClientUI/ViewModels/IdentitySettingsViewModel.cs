@@ -85,14 +85,11 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (!ok)
             {
-                var msgBox = MessageBox.Avalonia.MessageBoxManager.GetMessageBoxStandardWindow(
-                    _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                    _loc.GetLocalizationValue("BadPasswordError"),
-                    MessageBox.Avalonia.Enums.ButtonEnum.Ok, 
-                    MessageBox.Avalonia.Enums.Icon.Error);
 
-                await msgBox.ShowDialog(AvaloniaLocator.Current.GetService<MainWindow>());
-
+                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                           _loc.GetLocalizationValue("BadPasswordError"), 
+                                           MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                           .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                 ProgressText = "";
                 ProgressPercentage = 0;
                 CanSave = true;

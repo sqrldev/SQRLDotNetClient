@@ -7,8 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SQRLDotNetClientUI.Utils;
-using MessageBox.Avalonia.Enums;
-using MessageBox.Avalonia;
+
 using Avalonia.Controls;
 using SQRLDotNetClientUI.Models;
 using Serilog;
@@ -170,8 +169,10 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public async void SwitchIdentity()
         {
-            SelectIdentityDialogView selectIdDialog = new SelectIdentityDialogView();
-            selectIdDialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            SelectIdentityDialogView selectIdDialog = new SelectIdentityDialogView
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
             await selectIdDialog.ShowDialog(_mainWindow);
         }
 
@@ -223,12 +224,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 var result = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, this.Password, progressBlock1);
                 if (!result.Item1)
                 {
-                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                        _loc.GetLocalizationValue("BadPasswordErrorTitle"),
-                        _loc.GetLocalizationValue("BadPasswordError"),
-                        ButtonEnum.Ok,
-                        Icon.Error);
-                    await messageBoxStandardWindow.ShowDialog(_mainWindow);
+                    await new Views.MessageBox(_loc.GetLocalizationValue("BadPasswordErrorTitle"), 
+                                               _loc.GetLocalizationValue("BadPasswordError"), 
+                                               MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                               .ShowDialog(_mainWindow);
                     this.IsBusy = false;
                     return;
                 }
@@ -250,13 +249,11 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (serverResponse.CommandFailed)
             {
-                var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                        _loc.GetLocalizationValue("SQRLCommandFailedUnknown"),
-                        ButtonEnum.Ok,
-                        Icon.Error);
-                await messageBoxStandardWindow.ShowDialog(_mainWindow);
-
+                
+                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                           _loc.GetLocalizationValue("SQRLCommandFailedUnknown"), 
+                                           MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                           .ShowDialog(_mainWindow);
                 this.IsBusy = false;
                 return;
             }
@@ -312,14 +309,12 @@ namespace SQRLDotNetClientUI.ViewModels
                 if (serverResponse.SQRLDisabled)
                 {
                     var disabledAccountAlert = string.Format(_loc.GetLocalizationValue("SqrlDisabledAlert"), this.SiteID, Environment.NewLine);
-                    var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                        _loc.GetLocalizationValue("ReEnableSQRLTitle").ToUpper(),
-                        $"{disabledAccountAlert}",
-                        ButtonEnum.YesNo,
-                        Icon.Lock);
-                    messageBoxStandardWindow.SetMessageStartupLocation(WindowStartupLocation.CenterOwner);
-                    var btResult = await messageBoxStandardWindow.ShowDialog(_mainWindow);
-                    if (btResult == ButtonResult.Yes)
+                    
+                    var btResult =await new Views.MessageBox(_loc.GetLocalizationValue("ReEnableSQRLTitle").ToUpper(),
+                                                             disabledAccountAlert,
+                                                             MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+                                                            .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                    if (btResult == MessagBoxDialogResult.YES)
                     {
                         RetryRescueCode:
                         InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
@@ -338,13 +333,12 @@ namespace SQRLDotNetClientUI.ViewModels
                         }
                         else
                         {
-                            var msgBox = MessageBoxManager.GetMessageBoxStandardWindow(
-                                _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
-                                ButtonEnum.YesNo,
-                                Icon.Error);
-                            var answer =await msgBox.ShowDialog(_mainWindow);
-                            if(answer == ButtonResult.Yes)
+                            
+                            var answer = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), 
+                                                                    _loc.GetLocalizationValue("InvalidRescueCodeMessage"), 
+                                                                    MessageBoxSize.Small, MessageBoxButtons.YesNo, MessageBoxIcons.ERROR)
+                                                                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                            if (answer == MessagBoxDialogResult.YES)
                             {
                                 goto RetryRescueCode;
                             }
@@ -371,15 +365,12 @@ namespace SQRLDotNetClientUI.ViewModels
                     case LoginAction.Disable:
                         {
                             var disableAccountAlert = string.Format(_loc.GetLocalizationValue("DisableAccountAlert"), this.SiteID, Environment.NewLine);
-                            var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                                _loc.GetLocalizationValue("WarningMessageBoxTitle").ToUpper(), 
-                                $"{disableAccountAlert}", 
-                                ButtonEnum.YesNo, 
-                                Icon.Lock);
-                            messageBoxStandardWindow.SetMessageStartupLocation(Avalonia.Controls.WindowStartupLocation.CenterOwner);
-                            var btResult = await messageBoxStandardWindow.ShowDialog(_mainWindow);
-
-                            if (btResult == ButtonResult.Yes)
+                            
+                            var btResult = await new Views.MessageBox(_loc.GetLocalizationValue("WarningMessageBoxTitle").ToUpper(),
+                                                                     disableAccountAlert, 
+                                                                     MessageBoxSize.Large, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+                                                                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                            if (btResult == MessagBoxDialogResult.YES)
                             {
                                 GenerateSIN(imk, serverResponse, addClientData);
                                 serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
@@ -395,8 +386,10 @@ namespace SQRLDotNetClientUI.ViewModels
                         break;
                     case LoginAction.Remove:
                         {
-                            InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
-                            rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                            InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode)
+                            {
+                                WindowStartupLocation = WindowStartupLocation.CenterOwner
+                            };
                             string rescueCode = await rescueCodeDlg.ShowDialog<string>(
                                 _mainWindow);
                             var rescueResult = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode), progressBlock1);
@@ -415,12 +408,12 @@ namespace SQRLDotNetClientUI.ViewModels
                             }
                             else
                             {
-                                var msgBox = MessageBoxManager.GetMessageBoxStandardWindow(
-                                _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
-                                ButtonEnum.Ok,
-                                Icon.Error);
-                                await msgBox.ShowDialog(_mainWindow);
+                                
+                                
+                                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                                           _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                                                           MessageBoxSize.Small, MessageBoxButtons.OK,MessageBoxIcons.ERROR)
+                                                           .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                             }
                         }
                         break;
@@ -448,16 +441,12 @@ namespace SQRLDotNetClientUI.ViewModels
             string newAccountQuestion = string.Format(_loc.GetLocalizationValue("NewAccountQuestion"), this.SiteID);
             string genericQuestionTitle = string.Format(_loc.GetLocalizationValue("GenericQuestionTitle"), this.SiteID);
 
-            var messageBoxStandardWindow = MessageBoxManager.GetMessageBoxStandardWindow(
-                $"{genericQuestionTitle}", 
-                $"{newAccountQuestion}", 
-                ButtonEnum.YesNo, 
-                Icon.Plus);
-
-            messageBoxStandardWindow.SetMessageStartupLocation(Avalonia.Controls.WindowStartupLocation.CenterOwner);
-            var btnRsult = await messageBoxStandardWindow.ShowDialog(_mainWindow);
-
-            if (btnRsult == ButtonResult.Yes)
+            
+            var btnRsult = await new Views.MessageBox(genericQuestionTitle,
+                                                      newAccountQuestion, 
+                                                      MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+                                                      .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+            if (btnRsult == MessagBoxDialogResult.YES)
             {
                 StringBuilder additionalData = null;
                 if (!string.IsNullOrEmpty(serverResponse.SIN))

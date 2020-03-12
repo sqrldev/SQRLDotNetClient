@@ -1,6 +1,5 @@
 ﻿using Avalonia.Controls;
-using MessageBox.Avalonia;
-using MessageBox.Avalonia.Enums;
+
 using MonoMac.AppKit;
 using MonoMac.Foundation;
 using SQRLDotNetClientUI.ViewModels;
