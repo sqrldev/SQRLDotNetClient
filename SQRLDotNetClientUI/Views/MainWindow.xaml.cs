@@ -41,9 +41,10 @@ namespace SQRLDotNetClientUI.Views
             if (type != null)
             {
                 // If we have one, create an instance for it
-                
 
-                NotifyIcon = (INotifyIcon)Activator.CreateInstance(type);
+                NotifyIcon = (NotifyIcon)AvaloniaLocator.Current.GetService(type);
+                if(NotifyIcon==null)
+                    NotifyIcon = (INotifyIcon)Activator.CreateInstance(type);
             }
 
             if (NotifyIcon != null)
