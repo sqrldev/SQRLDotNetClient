@@ -47,7 +47,7 @@ namespace SQRLDotNetClientUI.Platform.Linux
         /// taskbar notification area or not.
         /// </summary>
         public bool Visible { get; set; }
-        Avalonia.Controls.ContextMenu INotifyIcon.ContextMenu { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        
 
         public void Remove()
         {
