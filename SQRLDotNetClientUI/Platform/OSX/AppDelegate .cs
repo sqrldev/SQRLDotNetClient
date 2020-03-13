@@ -88,11 +88,116 @@ namespace SQRLDotNetClientUI.Platform.OSX
         public override void DidFinishLaunching(NSNotification notification)
         {
             base.DidFinishLaunching(notification);
-            NSDistributedNotificationCenter.DefaultCenter.AddObserver("com.apple.screenIsLocked",NSKeyValueObservingOptions.Initial, (obj) => {
+            //NSDistributedNotificationCenter.DefaultCenter.AddObserver(new IObserver())
+            Observer observer2 = new Observer(NSDistributedNotificationCenter.DefaultCenter, new NSString("com.apple.screenIsLocked"), (obj) => {
                 Console.WriteLine("123");
             });
+            
+            NSDistributedNotificationCenter.DefaultCenter.AddObserver(observer2, new NSString("com.apple.screenIsLocked"), NSKeyValueObservingOptions.Initial,observer2.Handle);
         }
 
 
     }
+
+    public class Observer : NSObject
+    {
+        // Fields
+        private Action<NSObservedChange> cback;
+        private NSString key;
+        private WeakReference obj;
+
+        // Methods
+        public Observer(NSObject obj, NSString key, Action<NSObservedChange> observer)
+        {
+            if (observer == null)
+            {
+                throw new ArgumentNullException("observer");
+            }
+            this.obj = new WeakReference(obj);
+            this.key = key;
+            this.cback = observer;
+            base.IsDirectBinding = false;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.obj != null)
+                {
+                    NSObject target = (NSObject)this.obj.Target;
+                    if (target != null)
+                    {
+                        target.RemoveObserver(this, this.key);
+                    }
+                }
+                this.obj = null;
+                this.cback = null;
+            }
+            else
+            {
+                Console.WriteLine("Warning: observer object was not disposed manually with Dispose()");
+            }
+            base.Dispose(disposing);
+        }
+
+        [Preserve(Conditional = true)]
+        public override void ObserveValue(NSString keyPath, NSObject ofObject, NSDictionary change, IntPtr context)
+        {
+            if ((keyPath == this.key) && (context == base.Handle))
+            {
+                this.cback(new NSObservedChange(change));
+            }
+            else
+            {
+                base.ObserveValue(keyPath, ofObject, change, context);
+            }
+        }
+    }
+
+
+    public class NSObservedChange
+    {
+        // Fields
+        private NSDictionary dict;
+
+        // Methods
+        public NSObservedChange(NSDictionary source)
+        {
+            this.dict = source;
+        }
+
+        // Properties
+        public NSKeyValueChange Change
+        {
+            get
+            {
+                NSNumber number = (NSNumber)this.dict[NSObject.ChangeKindKey];
+                return (NSKeyValueChange)number.Int32Value;
+            }
+        }
+
+        public NSIndexSet Indexes =>
+            ((NSIndexSet)this.dict[NSObject.ChangeIndexesKey]);
+
+        public bool IsPrior
+        {
+            get
+            {
+                NSNumber number = this.dict[NSObject.ChangeNotificationIsPriorKey] as NSNumber;
+                if (number == null)
+                    return false;
+                return number.BoolValue;
+            }
+        }
+
+        public NSObject NewValue =>
+            this.dict[NSObject.ChangeNewKey];
+
+        public NSObject OldValue =>
+            this.dict[NSObject.ChangeOldKey];
+    }
+
+
+
 }
