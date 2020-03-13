@@ -682,9 +682,9 @@ namespace SQRLUtilsLib
                 identity.Block3.FromByteArray(block3);
             }
 
-            var iukRespose = await DecryptBlock2(identity, rescueCode, progress);
-            if(iukRespose.Item1)
-                identity = await GenerateIdentityBlock1(iukRespose.Item2, newPassword, identity, progress);
+            var result = await DecryptBlock2(identity, rescueCode, progress);
+            if (result.DecryptionSucceeded)
+                identity = await GenerateIdentityBlock1(result.Iuk, newPassword, identity, progress);
 
             return identity;
         }
@@ -785,8 +785,8 @@ namespace SQRLUtilsLib
         /// <param name="identity">The identity containing the type 1 block to be decrypted.</param>
         /// <param name="password">The identity's password.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
-        /// <returns>Returns a <c>Tuple</c> containing a <c>bool</c> representing the operation's success, the decrypted IMK and the decrypted ILK.</returns>
-        public static async Task<Tuple<bool, byte[], byte[]>> DecryptBlock1(SQRLIdentity identity, string password, IProgress<KeyValuePair<int,string>> progress = null)
+        /// <returns>Returns an object containing the operation's success status, the decrypted IMK and the decrypted ILK.</returns>
+        public static async Task<DecryptBlock1Result> DecryptBlock1(SQRLIdentity identity, string password, IProgress<KeyValuePair<int,string>> progress = null)
         {
             byte[] key = await EnScryptCT(password, identity.Block1.ScryptRandomSalt, (int)Math.Pow(2, identity.Block1.LogNFactor), (int)identity.Block1.IterationCount, progress, "Decrypting Block 1");
             bool allgood = false;
@@ -804,9 +804,12 @@ namespace SQRLUtilsLib
             plainText.Add(identity.Block1.PwdVerifySeconds);
             plainText.AddRange(GetBytes(identity.Block1.PwdTimeoutMins));
 
-            var tupl = await Task.Run(() =>
+            return await Task.Run(() =>
             {
-                byte[] encryptedKeys = identity.Block1.EncryptedIMK.Concat(identity.Block1.EncryptedILK).Concat(identity.Block1.VerificationTag).ToArray();
+                byte[] encryptedKeys = identity.Block1.EncryptedIMK
+                    .Concat(identity.Block1.EncryptedILK)
+                    .Concat(identity.Block1.VerificationTag).ToArray();
+
                 byte[] result = null;
                 try
                 {
@@ -832,10 +835,8 @@ namespace SQRLUtilsLib
                     imk = null;
                     allgood = false;
                 }
-                return new Tuple<bool,byte[],byte[]>(allgood, imk, ilk);
+                return new DecryptBlock1Result(allgood, imk, ilk);
             });
-
-            return tupl;
         }
 
         /// <summary>
@@ -845,12 +846,13 @@ namespace SQRLUtilsLib
         /// <param name="identity">The identity containing the type 2 block to be decrypted.</param>
         /// <param name="rescueCode">The identity's secret rescue code.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
-        /// <returns>Returns a <c>Tuple</c> containing a <c>bool</c> representing the operation's success, the decrypted IUK and an optional error message.</returns>
-        public static async Task<Tuple<bool,byte[], string>> DecryptBlock2(SQRLIdentity identity, string rescueCode, IProgress<KeyValuePair<int, string>> progress = null)
+        /// <returns>Returns an object representing the operation's success, the decrypted IUK and an optional error message.</returns>
+        public static async Task<DecryptBlock2Result> DecryptBlock2(SQRLIdentity identity, string rescueCode, IProgress<KeyValuePair<int, string>> progress = null)
         {
-            byte[] key = await EnScryptCT(rescueCode, identity.Block2.RandomSalt, (int)Math.Pow(2, identity.Block2.LogNFactor), (int)identity.Block2.IterationCount, progress,"Decrypting Block 2");
+            byte[] key = await EnScryptCT(rescueCode, identity.Block2.RandomSalt, (int)Math.Pow(2, identity.Block2.LogNFactor), 
+                (int)identity.Block2.IterationCount, progress,"Decrypting Block 2");
 
-            var tupl = await Task.Run(() =>
+            return await Task.Run(() =>
             {
                 List<byte> plainText = new List<byte>();
                 bool allGood = false;
@@ -869,7 +871,7 @@ namespace SQRLUtilsLib
                 }
                 catch(Exception x)
                 {
-                    Console.Error.WriteLine($"Failed to Decrypt: {x.ToString()} CallStack: {x.StackTrace}");
+                    Console.Error.WriteLine($"Failed to decrypt: {x.ToString()} CallStack: {x.StackTrace}");
                 }
                 if (result != null)
                 {
@@ -882,10 +884,9 @@ namespace SQRLUtilsLib
                     allGood = false;
                 }
 
-                return new Tuple<bool, byte[], string>(allGood, iuk, (!allGood?"Failed to Decrypt bad Password or Rescue Code":""));
+                return new DecryptBlock2Result(allGood, iuk, (!allGood ? 
+                    "Decryption failed. Bad password or rescue code" : ""));
             });
-
-            return tupl;
         }
 
         /// <summary>
@@ -1451,11 +1452,12 @@ namespace SQRLUtilsLib
             var oldIukData = await SQRL.DecryptBlock2(identity, rescueCode, progress);
             string newRescueCode = CreateRescueCode();
             byte[] newIUK = CreateIUK();
-            if (oldIukData.Item1)
+            
+            if (oldIukData.DecryptionSucceeded)
             {
                 newID= await GenerateIdentityBlock1(newIUK, newPassword, newID, progress);
                 newID= await GenerateIdentityBlock2(newIUK, newRescueCode, newID, progress);
-                GenerateIdentityBlock3(oldIukData.Item2, identity, newID, CreateIMK(oldIukData.Item2), CreateIMK(newIUK));
+                GenerateIdentityBlock3(oldIukData.Iuk, identity, newID, CreateIMK(oldIukData.Iuk), CreateIMK(newIUK));
             }
             return new KeyValuePair<string, SQRLIdentity>(newRescueCode,newID);
         }
@@ -1517,26 +1519,26 @@ namespace SQRLUtilsLib
         /// <summary>
         /// Decrypts an identity's type 3 block using the provided Identity Master Key (IMK).
         /// </summary>
-        /// <param name="ikm">The identity's unencrypted Identity Master Key (IMK).</param>
+        /// <param name="imk">The identity's unencrypted Identity Master Key (IMK).</param>
         /// <param name="identity">The identity containing the type 3 block to be decrypted.</param>
-        /// <param name="boolAllGood">Indicates whether the operation complented successfully.</param>
+        /// <param name="allGood">Indicates whether the operation complented successfully.</param>
         /// <returns>Returns a contiguous block of all encrypted bytes from the identity's type 3 block, 
         /// which includes all the PIUKs as well as the authentication tag.</returns>
-        public static byte[] DecryptBlock3(byte[] ikm, SQRLIdentity identity, out bool boolAllGood)
+        public static byte[] DecryptBlock3(byte[] imk, SQRLIdentity identity, out bool allGood)
         {
             List<byte> plainText = new List<byte>();
             plainText.AddRange(GetBytes(identity.Block3.Length));
             plainText.AddRange(GetBytes(identity.Block3.Type));
             plainText.AddRange(GetBytes(identity.Block3.Edition));
             List<byte> encryptedKeys = new List<byte>();
-            boolAllGood = false;
+            allGood = false;
             identity.Block3.EncryptedPrevIUKs.ForEach(x => encryptedKeys.AddRange(x));
             encryptedKeys.AddRange(identity.Block3.VerificationTag);
             byte[] result = null;
             try
             {
-                result = Sodium.SecretAeadAes.Decrypt(encryptedKeys.ToArray(), new byte[12], ikm, plainText.ToArray());
-                boolAllGood = true;
+                result = Sodium.SecretAeadAes.Decrypt(encryptedKeys.ToArray(), new byte[12], imk, plainText.ToArray());
+                allGood = true;
             }
             catch(Exception ex)
             {
@@ -1555,6 +1557,66 @@ namespace SQRLUtilsLib
             {
                 key[i] = 0;
             }
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of decrypting a SQRL type 1 block.
+    /// </summary>
+    public class DecryptBlock1Result
+    {
+        /// <summary>
+        /// Indicates whether the decryption succeeded or not.
+        /// </summary>
+        public bool DecryptionSucceeded = false;
+
+        /// <summary>
+        /// If the decryption operation succeeded, this will hold the
+        /// unencrypted Identity Master Key (IMK).
+        /// </summary>
+        public byte[] Imk;
+
+        /// <summary>
+        /// If the decryption operation succeeded, this will hold the
+        /// unencrypted Identity Lock Key (ILK).
+        /// </summary>
+        public byte[] Ilk;
+
+        public DecryptBlock1Result(bool operationSucceeded, byte[] imk, byte[] ilk)
+        {
+            this.DecryptionSucceeded = operationSucceeded;
+            this.Imk = imk;
+            this.Ilk = ilk;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of decrypting a SQRL type 2 block.
+    /// </summary>
+    public class DecryptBlock2Result
+    {
+        /// <summary>
+        /// Indicates whether the decryption succeeded or not.
+        /// </summary>
+        public bool DecryptionSucceeded = false;
+
+        /// <summary>
+        /// If the decryption operation succeeded, this will hold the
+        /// unencrypted Identity Unlock Key (IUK).
+        /// </summary>
+        public byte[] Iuk;
+
+        /// <summary>
+        /// If the decryption operation failed, this will hold an
+        /// error message explaining the reason for the error.
+        /// </summary>
+        public string ErrorMessage;
+
+        public DecryptBlock2Result(bool operationSucceeded, byte[] iuk, string errorMessage)
+        {
+            this.DecryptionSucceeded = operationSucceeded;
+            this.Iuk = iuk;
+            this.ErrorMessage = errorMessage;
         }
     }
 }
