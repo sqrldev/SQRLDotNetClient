@@ -92,20 +92,15 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (ok)
             {
-                SQRLIdentity newId = new SQRLIdentity();
+                SQRLIdentity newId = this.Identity.Clone();
                 byte[] imk = SQRL.CreateIMK(iuk);
 
-                if (this.Identity.HasBlock(0)) newId.Blocks.Add(this.Identity.Block0);
-                else SQRL.GenerateIdentityBlock0(imk, newId);
+                if (!newId.HasBlock(0)) SQRL.GenerateIdentityBlock0(imk, newId);
                 var block1 = SQRL.GenerateIdentityBlock1(iuk, this.NewPassword, newId, progressBlock1);
                 var block2 = SQRL.GenerateIdentityBlock2(iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progressBlock2);
                 await Task.WhenAll(block1, block2);
+                if (newId.HasBlock(3)) SQRL.GenerateIdentityBlock3(iuk, this.Identity, newId, imk, imk); 
 
-                newId = block2.Result;
-                if (this.Identity.Block3 != null)
-                {
-                    SQRL.GenerateIdentityBlock3(iuk, this.Identity, newId, imk, imk); 
-                }
                 newId.IdentityName = this.IdentityName;
 
                 try

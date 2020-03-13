@@ -463,7 +463,6 @@ namespace SQRLUtilsLib
             var identityT = await Task.Run(() =>
             {
                 identity.Block2.RandomSalt = randomSalt;
-
                 identity.Block2.IterationCount = (uint)key.Key;
 
                 List<byte> plainText = new List<byte>();
@@ -1476,9 +1475,9 @@ namespace SQRLUtilsLib
             List<byte> unencryptedOldKeys = new List<byte>();
             unencryptedOldKeys.AddRange(oldIuk);
             int skip = 0;
+
             if (oldIdentity.HasBlock(3) && oldIdentity.Block3.EncryptedPrevIUKs.Count > 0)
             {
-                
                 decryptedBlock3 = DecryptBlock3(oldImk, oldIdentity, out bool allGood);
                 if (allGood)
                 {
