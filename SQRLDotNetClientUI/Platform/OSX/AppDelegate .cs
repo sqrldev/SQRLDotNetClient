@@ -85,7 +85,14 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         }
 
+        public override void DidFinishLaunching(NSNotification notification)
+        {
+            base.DidFinishLaunching(notification);
+            NSDistributedNotificationCenter.DefaultCenter.AddObserver("com.apple.screenIsLocked",NSKeyValueObservingOptions.Initial, (obj) => {
+                Console.WriteLine("123");
+            });
+        }
 
-       
+
     }
 }

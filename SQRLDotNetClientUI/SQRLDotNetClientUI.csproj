@@ -141,7 +141,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MonoMac.NetStandard" Version="0.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="protobuf-net" Version="2.4.4" />
     <PackageReference Include="QRCoder" Version="1.3.6" />
@@ -227,6 +226,11 @@
     <EmbeddedResource Include="Views\MessageBox.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="XamMac">
+      <HintPath>D:\Apps\XamMac.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Update="sqrl.db">
