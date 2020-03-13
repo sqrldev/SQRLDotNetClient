@@ -50,7 +50,9 @@ namespace SQRLDotNetClientUI.Views
                 NotifyIcon.ToolTipText = "SQRL .NET Client";
                 NotifyIcon.IconPath = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ?
                                       "resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_16.png" :
-                                      @"resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_256.ico";
+                                      RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+                                      @"resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_256.ico":
+                                      @"resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_256_32_icon.ico";
 
 
                 NotifyIcon.DoubleClick += (s, e) =>

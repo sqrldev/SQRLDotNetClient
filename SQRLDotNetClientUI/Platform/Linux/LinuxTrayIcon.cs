@@ -16,8 +16,8 @@ namespace SQRLDotNetClientUI.Platform.Linux
             ClientSize = new Size(200, 200);
             _tray = new TrayIndicator
             {
-                Image = Eto.Drawing.Icon.FromResource("SQRLDotNetClientUI.Assets.sqrl_icon_normal_256_32_icon.ico"),
-                Menu = new ContextMenu()
+                //Image = Eto.Drawing.Icon.FromResource("SQRLDotNetClientUI.Assets.sqrl_icon_normal_256_32_icon.ico"),
+                //Menu = new ContextMenu()
             };
 
             _tray.Show();
