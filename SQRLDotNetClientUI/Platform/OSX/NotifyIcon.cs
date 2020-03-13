@@ -26,9 +26,11 @@ namespace SQRLDotNetClientUI.Platform.OSX
             }
         }
 
+        #pragma warning disable 67 // Get rid of event "not used" warnings
         public event EventHandler<EventArgs> Click;
         public event EventHandler<EventArgs> DoubleClick;
         public event EventHandler<EventArgs> RightClick;
+        #pragma warning restore 67
 
 
         /// <summary>

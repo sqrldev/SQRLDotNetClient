@@ -67,21 +67,19 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.Block2ProgressPercentage = ((int)percent.Key);
             });
 
-            var data = SQRL.DecryptBlock1(this.Identity, this.Password, progressBlock1);
-            var dataBlock2 = SQRL.DecryptBlock2(this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressBlock2);
-            await Task.WhenAll(data, dataBlock2);
+            var block1Task = SQRL.DecryptBlock1(this.Identity, this.Password, progressBlock1);
+            var block2Task = SQRL.DecryptBlock2(this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressBlock2);
+            await Task.WhenAll(block1Task, block2Task);
 
             string msg = "";
-            if (!data.Result.Item1) msg = _loc.GetLocalizationValue("InvalidPasswordMessage") + Environment.NewLine;
-            if (!dataBlock2.Result.Item1) msg = _loc.GetLocalizationValue("InvalidRescueCodeMessage") + Environment.NewLine;
+            if (!block1Task.Result.DecryptionSucceeded) msg = _loc.GetLocalizationValue("InvalidPasswordMessage") + Environment.NewLine;
+            if (!block2Task.Result.DecryptionSucceeded) msg = _loc.GetLocalizationValue("InvalidRescueCodeMessage") + Environment.NewLine;
 
             if (!string.IsNullOrEmpty(msg))
             {
-                
-                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                            $"{msg}", 
-                                            MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                            .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), $"{msg}", 
+                    MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
             }
             else
             {
@@ -91,11 +89,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (InvalidOperationException e)
                 {
-
                     await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                                e.Message, MessageBoxSize.Medium,
-                                                MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                                .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                        e.Message, MessageBoxSize.Medium,
+                        MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                        .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                 }
                 finally
                 {

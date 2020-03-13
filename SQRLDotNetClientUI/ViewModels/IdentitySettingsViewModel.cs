@@ -81,9 +81,9 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.ProgressText = p.Value + p.Key;
             });
 
-            (bool ok, byte[] imk, byte[] ilk) = await SQRL.DecryptBlock1(Identity, password, progress);
+            var block1Keys = await SQRL.DecryptBlock1(Identity, password, progress);
 
-            if (!ok)
+            if (!block1Keys.DecryptionSucceeded)
             {
 
                 await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
@@ -96,8 +96,8 @@ namespace SQRLDotNetClientUI.ViewModels
                 return;
             }
 
-            SQRLIdentity id = await SQRL.GenerateIdentityBlock1(
-                imk, ilk, password, IdentityCopy, progress, IdentityCopy.Block1.PwdVerifySeconds);
+            SQRLIdentity id = await SQRL.GenerateIdentityBlock1(block1Keys.Imk, block1Keys.Ilk, 
+                password, IdentityCopy, progress, IdentityCopy.Block1.PwdVerifySeconds);
 
             // Swap out the old type 1 block with the updated one
             // TODO: We should probably make sure that this is an atomic operation

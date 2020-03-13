@@ -87,19 +87,19 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.Block2DecryptProgressPercentage = ((int)percent.Key);
             });
 
-            (bool ok, byte[] iuk, string errorMsg) = await SQRL.DecryptBlock2(
+            var iukData = await SQRL.DecryptBlock2(
                 this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressDecryptBlock2);
 
-            if (ok)
+            if (iukData.DecryptionSucceeded)
             {
                 SQRLIdentity newId = this.Identity.Clone();
-                byte[] imk = SQRL.CreateIMK(iuk);
+                byte[] imk = SQRL.CreateIMK(iukData.Iuk);
 
                 if (!newId.HasBlock(0)) SQRL.GenerateIdentityBlock0(imk, newId);
-                var block1 = SQRL.GenerateIdentityBlock1(iuk, this.NewPassword, newId, progressBlock1);
-                var block2 = SQRL.GenerateIdentityBlock2(iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progressBlock2);
+                var block1 = SQRL.GenerateIdentityBlock1(iukData.Iuk, this.NewPassword, newId, progressBlock1);
+                var block2 = SQRL.GenerateIdentityBlock2(iukData.Iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progressBlock2);
                 await Task.WhenAll(block1, block2);
-                if (newId.HasBlock(3)) SQRL.GenerateIdentityBlock3(iuk, this.Identity, newId, imk, imk); 
+                if (newId.HasBlock(3)) SQRL.GenerateIdentityBlock3(iukData.Iuk, this.Identity, newId, imk, imk); 
 
                 newId.IdentityName = this.IdentityName;
 
@@ -109,10 +109,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (InvalidOperationException e)
                 {
-                    var btnRsult = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                                              e.Message, 
-                                                              MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                                              .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                    var btnRsult = await new Views.MessageBox(
+                        _loc.GetLocalizationValue("ErrorTitleGeneric"), e.Message,
+                        MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                        .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                 }
                 finally
                 {
@@ -122,11 +122,11 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             else
             {
-                
-                var btnRsult = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                                          _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
-                                                          MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                                          .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                var btnRsult = await new Views.MessageBox(
+                    _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                    MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
             }
         }
     }

@@ -221,8 +221,8 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             else
             {
-                var result = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, this.Password, progressBlock1);
-                if (!result.Item1)
+                var block1Keys = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, this.Password, progressBlock1);
+                if (!block1Keys.DecryptionSucceeded)
                 {
                     await new Views.MessageBox(_loc.GetLocalizationValue("BadPasswordErrorTitle"), 
                                                _loc.GetLocalizationValue("BadPasswordError"), 
@@ -231,8 +231,8 @@ namespace SQRLDotNetClientUI.ViewModels
                     this.IsBusy = false;
                     return;
                 }
-                imk = result.Item2;
-                ilk = result.Item3;
+                imk = block1Keys.Imk;
+                ilk = block1Keys.Ilk;
             }
 
             // Block 1 was sucessfully decrypted using the master pasword,
@@ -323,12 +323,12 @@ namespace SQRLDotNetClientUI.ViewModels
                             _mainWindow);
                                 
                         var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode),progressBlock1);
-                        if (iukData.Item1)
+                        if (iukData.DecryptionSucceeded)
                         {
                             byte[] ursKey = null;
-                            ursKey = SQRL.GetURSKey(iukData.Item2, Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Utilities.Base64Variant.UrlSafeNoPadding));
+                            ursKey = SQRL.GetURSKey(iukData.Iuk, Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Utilities.Base64Variant.UrlSafeNoPadding));
 
-                            iukData.Item2.ZeroFill();
+                            iukData.Iuk.ZeroFill();
                             serverResponse = SQRL.GenerateEnableCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, ursKey, addClientData, sqrlOpts);
                         }
                         else
@@ -392,10 +392,10 @@ namespace SQRLDotNetClientUI.ViewModels
                             };
                             string rescueCode = await rescueCodeDlg.ShowDialog<string>(
                                 _mainWindow);
-                            var rescueResult = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode), progressBlock1);
-                            if (rescueResult.Item1)
+                            var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode), progressBlock1);
+                            if (iukData.DecryptionSucceeded)
                             {
-                                byte[] ursKey = SQRL.GetURSKey(rescueResult.Item2, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+                                byte[] ursKey = SQRL.GetURSKey(iukData.Iuk, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
 
                                 serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts, null, ursKey);
                                 if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
