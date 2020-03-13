@@ -98,7 +98,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 if (this.Identity.HasBlock(0)) newId.Blocks.Add(this.Identity.Block0);
                 else SQRL.GenerateIdentityBlock0(imk, newId);
                 var block1 = SQRL.GenerateIdentityBlock1(iuk, this.NewPassword, newId, progressBlock1);
-                var block2 = SQRL.GenerateIdentityBlock2(iuk, this.RescueCode, newId, progressBlock2);
+                var block2 = SQRL.GenerateIdentityBlock2(iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progressBlock2);
                 await Task.WhenAll(block1, block2);
 
                 newId = block2.Result;
