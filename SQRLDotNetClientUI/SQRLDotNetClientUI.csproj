@@ -21,6 +21,12 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaResource Remove="Utils\**" />
+    <Compile Remove="Utils\**" />
+    <EmbeddedResource Remove="Utils\**" />
+    <None Remove="Utils\**" />
+  </ItemGroup>
+  <ItemGroup>
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
@@ -124,6 +130,8 @@
     <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.9.3" />
     <PackageReference Include="Avalonia.Xaml.Interactions.Custom" Version="0.9.3" />
     <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.9.3" />
+    <PackageReference Include="Eto.Forms" Version="2.5.0" />
+    <PackageReference Include="Eto.Platform.Gtk" Version="2.5.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -145,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\sqrl_icon_normal_48_icon.ico" />
+    <EmbeddedResource Include="Assets\sqrl_icon_normal_256_32_icon.ico" />
     <EmbeddedResource Include="Assets\VL.png" />
     <EmbeddedResource Include="Views\MainMenuView.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -208,7 +217,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="Utils\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\SelectIdentityDialogView.xaml">

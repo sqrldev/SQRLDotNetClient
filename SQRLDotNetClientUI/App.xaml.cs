@@ -35,6 +35,7 @@ namespace SQRLDotNetClientUI
                     NSApplication.Init();
                     NSApplication.SharedApplication.Delegate = new  SQRLDotNetClientUI.Platform.OSX.AppDelegate((MainWindow)desktop.MainWindow);
                 }
+                
             }          
 
             base.OnFrameworkInitializationCompleted();
