@@ -127,9 +127,9 @@
     <PackageReference Include="Avalonia" Version="0.9.4" />
     <PackageReference Include="Avalonia.Desktop" Version="0.9.4" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.4" />
-    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.9.3" />
-    <PackageReference Include="Avalonia.Xaml.Interactions.Custom" Version="0.9.3" />
-    <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.9.3" />
+    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.9.4" />
+    <PackageReference Include="Avalonia.Xaml.Interactions.Custom" Version="0.9.4" />
+    <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.9.4" />
     <PackageReference Include="Eto.Forms" Version="2.5.0" />
     <PackageReference Include="Eto.Platform.Gtk" Version="2.5.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.2">
@@ -141,6 +141,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="MonoMac.NetStandard" Version="0.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="protobuf-net" Version="2.4.4" />
     <PackageReference Include="QRCoder" Version="1.3.6" />
@@ -226,11 +227,6 @@
     <EmbeddedResource Include="Views\MessageBox.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="XamMac">
-      <HintPath>D:\Apps\XamMac.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Update="sqrl.db">
