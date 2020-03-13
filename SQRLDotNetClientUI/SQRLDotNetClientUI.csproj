@@ -21,6 +21,12 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaResource Remove="Utils\**" />
+    <Compile Remove="Utils\**" />
+    <EmbeddedResource Remove="Utils\**" />
+    <None Remove="Utils\**" />
+  </ItemGroup>
+  <ItemGroup>
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
@@ -211,7 +217,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="Utils\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\SelectIdentityDialogView.xaml">

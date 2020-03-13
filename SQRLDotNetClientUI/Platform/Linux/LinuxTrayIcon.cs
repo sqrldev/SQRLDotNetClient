@@ -7,10 +7,15 @@ using System.Linq;
 using Avalonia.Threading;
 namespace SQRLDotNetClientUI.Platform.Linux
 {
+    /// <summary>
+    /// This Implements a Linux GTK3 Icon Tray 
+    /// </summary>
     public class LinuxTrayIcon: Eto.Forms.Form
     {
         public TrayIndicator _tray;
         private bool _startup = true;
+
+        //Everything has to be sent in on the constructor since things do not auto-refresh / update this is a limitation
         public LinuxTrayIcon(string TooTip, string IconPath, Avalonia.Controls.ContextMenu _menu)
         {
              Dispatcher.UIThread.Post(() =>

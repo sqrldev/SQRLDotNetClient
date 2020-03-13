@@ -54,34 +54,26 @@ namespace SQRLDotNetClientUI.Platform.Linux
 
         public void Remove()
         {
-            lti._tray.Hide();
-            canTok.Cancel();
+            Dispatcher.UIThread.Post(() =>
+            {
+                lti._tray.Hide();
+                canTok.Cancel();
+            });
         }
 
         private void UpdateMenu()
         {
-            /*if(trayIconTask!=null)
-            {
-                trayIconTask.Dispose();
-            }*/
             if(!string.IsNullOrEmpty(this.IconPath) && !string.IsNullOrEmpty(this.ToolTipText) && this.ContextMenu !=null)
             {
                 canTok = new System.Threading.CancellationTokenSource();
                  Dispatcher.UIThread.Post(() =>
                 {
-                    
-                    //lti._tray.Title = this.ToolTipText;
-                    //lti._tray.Menu=null;
-                    
+                    //Because of the way that Linux works this needs to run on its own Thread.
                     trayIconTask= Task.Factory.StartNew(() =>
                     {
                         new Eto.Forms.Application(Eto.Platform.Detect).Run(ltiProp = new LinuxTrayIcon(this.ToolTipText, this.IconPath, this.ContextMenu));
                     }
                 , canTok.Token,TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
-                    //lti._tray.Menu = ctxMnu;
-                    //lti._tray.Activated += (s, e) => { this.Click?.Invoke(this, new EventArgs()); };
-                    
-                    
                 },DispatcherPriority.MaxValue);
             }
           
