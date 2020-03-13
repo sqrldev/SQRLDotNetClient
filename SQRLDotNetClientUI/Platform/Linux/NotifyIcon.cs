@@ -18,7 +18,7 @@ namespace SQRLDotNetClientUI.Platform.Linux
 #pragma warning restore 67
 
         private LinuxTrayIcon lti;
-        private LinuxTrayIcon ltiProp { get => lti; set { lti=value; }}
+        private LinuxTrayIcon ltiProp { get => lti; set { lti = value; } }
 
         private Task trayIconTask;
         private System.Threading.CancellationTokenSource canTok;
@@ -52,7 +52,7 @@ namespace SQRLDotNetClientUI.Platform.Linux
         /// taskbar notification area or not.
         /// </summary>
         public bool Visible { get; set; }
-        
+
 
         public void Remove()
         {
@@ -65,20 +65,21 @@ namespace SQRLDotNetClientUI.Platform.Linux
 
         private void UpdateMenu()
         {
-            if(!string.IsNullOrEmpty(this.IconPath) && !string.IsNullOrEmpty(this.ToolTipText) && this.ContextMenu !=null)
+            if (!string.IsNullOrEmpty(this.IconPath) && !string.IsNullOrEmpty(this.ToolTipText) && this.ContextMenu != null)
             {
                 canTok = new System.Threading.CancellationTokenSource();
-                 Dispatcher.UIThread.Post(() =>
-                {
+                Dispatcher.UIThread.Post(() =>
+               {
                     //Because of the way that Linux works this needs to run on its own Thread.
-                    trayIconTask= Task.Factory.StartNew(() =>
-                    {
-                        new Eto.Forms.Application(Eto.Platform.Detect).Run(ltiProp = new LinuxTrayIcon(this.ToolTipText, this.IconPath, this.ContextMenu));
-                    }
-                , canTok.Token,TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
-                },DispatcherPriority.MaxValue);
+                    trayIconTask = Task.Factory.StartNew(() =>
+                     {
+                       new Eto.Forms.Application(Eto.Platform.Detect).Run(ltiProp = new LinuxTrayIcon(this.ToolTipText, this.IconPath, this.ContextMenu));
+                   }
+               , canTok.Token, TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
+               }, DispatcherPriority.MaxValue);
             }
-          
+
 
         }
+    }
 }
