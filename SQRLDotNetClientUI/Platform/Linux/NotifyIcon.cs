@@ -11,10 +11,12 @@ namespace SQRLDotNetClientUI.Platform.Linux
 {
     public class NotifyIcon : INotifyIcon
     {
-
+#pragma warning disable 67
         public event EventHandler<EventArgs> Click;
         public event EventHandler<EventArgs> DoubleClick;
         public event EventHandler<EventArgs> RightClick;
+#pragma warning restore 67
+
         private LinuxTrayIcon lti;
         private LinuxTrayIcon ltiProp { get => lti; set { lti=value; }}
 
@@ -79,12 +81,4 @@ namespace SQRLDotNetClientUI.Platform.Linux
           
 
         }
-
-        public NotifyIcon()
-        {
-          
-           
-            
-        }
-    }
 }

@@ -8,7 +8,7 @@ using Avalonia.Threading;
 namespace SQRLDotNetClientUI.Platform.Linux
 {
     /// <summary>
-    /// This Implements a Linux GTK3 Icon Tray 
+    /// This Implements a Linux GTK3 Tray Icon
     /// </summary>
     public class LinuxTrayIcon: Eto.Forms.Form
     {
