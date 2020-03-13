@@ -16,7 +16,9 @@ namespace SQRLDotNetClientUI.Platform.Linux
         public event EventHandler<EventArgs> DoubleClick;
         public event EventHandler<EventArgs> RightClick;
         private LinuxTrayIcon lti;
-        private LinuxTrayIcon ltiProp { get => lti; set { lti=value; UpdateMenu();}}
+        private LinuxTrayIcon ltiProp { get => lti; set { lti=value; }}
+
+        private Task trayIconTask;
         private System.Threading.CancellationTokenSource canTok;
         /// <summary>
         /// Gets or sets the icon for the notify icon. Either a file system path
@@ -58,28 +60,26 @@ namespace SQRLDotNetClientUI.Platform.Linux
 
         private void UpdateMenu()
         {
-            if(lti!=null)
+            /*if(trayIconTask!=null)
             {
-                //lti._tray.Image = ;
+                trayIconTask.Dispose();
+            }*/
+            if(!string.IsNullOrEmpty(this.IconPath) && !string.IsNullOrEmpty(this.ToolTipText) && this.ContextMenu !=null)
+            {
+                canTok = new System.Threading.CancellationTokenSource();
                  Dispatcher.UIThread.Post(() =>
                 {
-                    lti._tray.Image=Eto.Drawing.Icon.FromResource(IconPath.Replace("resm:", ""));
-                    lti._tray.Title = this.ToolTipText;
-                    lti._tray.Menu=null;
-                    var ctxMnu = new Eto.Forms.ContextMenu();
-                    foreach (var x in _menu.Items.Cast<Avalonia.Controls.MenuItem>())
+                    
+                    //lti._tray.Title = this.ToolTipText;
+                    //lti._tray.Menu=null;
+                    
+                    trayIconTask= Task.Factory.StartNew(() =>
                     {
-                        ButtonMenuItem bmi = new ButtonMenuItem();
-                        bmi.Text = x.Header.ToString();
-                        bmi.Command = new Command((s, e) => { Dispatcher.UIThread.Post(() =>
-                                                    {
-                                                        x.Command.Execute(null);
-                                                    }); 
-                                                });
-                        ctxMnu.Items.Add(bmi);
+                        new Eto.Forms.Application(Eto.Platform.Detect).Run(ltiProp = new LinuxTrayIcon(this.ToolTipText, this.IconPath, this.ContextMenu));
                     }
-                    lti._tray.Menu = ctxMnu;
-                    lti._tray.Activated += (s, e) => { this.Click?.Invoke(this, new EventArgs()); };
+                , canTok.Token,TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
+                    //lti._tray.Menu = ctxMnu;
+                    //lti._tray.Activated += (s, e) => { this.Click?.Invoke(this, new EventArgs()); };
                     
                     
                 },DispatcherPriority.MaxValue);
@@ -90,13 +90,8 @@ namespace SQRLDotNetClientUI.Platform.Linux
 
         public NotifyIcon()
         {
-            canTok = new System.Threading.CancellationTokenSource();
-            Task.Factory.StartNew(() =>
-                {
-                    new Eto.Forms.Application(Eto.Platform.Detect).Run(ltiProp = new LinuxTrayIcon());
-                }
-            , canTok.Token,TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
-            UpdateMenu();
+          
+           
             
         }
     }
