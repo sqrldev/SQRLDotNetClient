@@ -405,13 +405,13 @@ namespace SQRLUtilsLib
 
             byte[] initVector = Sodium.SodiumCore.GetRandomBytes(12);
             byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
-            var key = await EnScryptTime(password, randomSalt, (int)Math.Pow(2, 9), encTime, progress, "Generating Block 1");
+            var enScryptResult = await EnScryptTime(password, randomSalt, (int)Math.Pow(2, 9), encTime, progress, "Generating Block 1");
 
             var identityT = await Task.Run(() =>
             {
                 identity.Block1.AesGcmInitVector = initVector;
                 identity.Block1.ScryptRandomSalt = randomSalt;
-                identity.Block1.IterationCount = (uint)key.Key;
+                identity.Block1.IterationCount = (uint)enScryptResult.IterationCount;
 
                 List<byte> plainText = new List<byte>();
                 plainText.AddRange(GetBytes(identity.Block1.Length));
@@ -428,7 +428,7 @@ namespace SQRLUtilsLib
 
                 IEnumerable<byte> unencryptedKeys = imk.Concat(ilk);
 
-                byte[] encryptedData = AesGcmEncrypt(unencryptedKeys.ToArray(), plainText.ToArray(), initVector, key.Value); //Should be 80 bytes
+                byte[] encryptedData = AesGcmEncrypt(unencryptedKeys.ToArray(), plainText.ToArray(), initVector, enScryptResult.Key); //Should be 80 bytes
                 identity.Block1.EncryptedIMK = encryptedData.ToList().GetRange(0, 32).ToArray();
                 identity.Block1.EncryptedILK = encryptedData.ToList().GetRange(32, 32).ToArray();
                 identity.Block1.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray();
@@ -457,11 +457,11 @@ namespace SQRLUtilsLib
             byte[] initVector = new byte[12];
             byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
 
-            var key = await EnScryptTime(rescueCode, randomSalt, (int)Math.Pow(2, 9), encTime, progress,"Generating Block 2");
+            var enScryptResult = await EnScryptTime(rescueCode, randomSalt, (int)Math.Pow(2, 9), encTime, progress,"Generating Block 2");
             var identityT = await Task.Run(() =>
             {
                 identity.Block2.RandomSalt = randomSalt;
-                identity.Block2.IterationCount = (uint)key.Key;
+                identity.Block2.IterationCount = (uint)enScryptResult.IterationCount;
 
                 List<byte> plainText = new List<byte>();
                 plainText.AddRange(GetBytes(identity.Block2.Length));
@@ -470,7 +470,7 @@ namespace SQRLUtilsLib
                 plainText.Add(identity.Block2.LogNFactor);
                 plainText.AddRange(GetBytes(identity.Block2.IterationCount));
 
-                byte[] encryptedData = AesGcmEncrypt(iuk, plainText.ToArray(), initVector, key.Value); //Should be 80 bytes
+                byte[] encryptedData = AesGcmEncrypt(iuk, plainText.ToArray(), initVector, enScryptResult.Key); //Should be 80 bytes
                 identity.Block2.EncryptedIUK = encryptedData.ToList().GetRange(0, 32).ToArray(); ;
                 identity.Block2.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray();
                 return identity;

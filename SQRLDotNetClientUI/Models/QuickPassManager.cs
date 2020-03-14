@@ -235,7 +235,7 @@ namespace SQRLDotNetClientUI.Models
 
             string quickPass = password.Substring(0, qpi.QuickPassLength);
 
-            KeyValuePair<int, byte[]> enscryptResult = await SQRL.EnScryptTime(
+            var enScryptResult = await SQRL.EnScryptTime(
                 quickPass, 
                 qpi.ScryptRandomSalt, 
                 (int)Math.Pow(2, 9), 
@@ -243,9 +243,9 @@ namespace SQRLDotNetClientUI.Models
                 progress, 
                 progressText);
 
-            qpi.ScryptIterationCount = enscryptResult.Key;
-            qpi.EncryptedImk = StreamEncryption.Encrypt(imk, qpi.Nonce, enscryptResult.Value);
-            qpi.EncryptedIlk = StreamEncryption.Encrypt(ilk, qpi.Nonce, enscryptResult.Value);
+            qpi.ScryptIterationCount = enScryptResult.IterationCount;
+            qpi.EncryptedImk = StreamEncryption.Encrypt(imk, qpi.Nonce, enScryptResult.Key);
+            qpi.EncryptedIlk = StreamEncryption.Encrypt(ilk, qpi.Nonce, enScryptResult.Key);
 
             // If we already have a QuickPass entry for this identity, remove it first
             if (HasQuickPass(qpi.IdentityUniqueId)) 
