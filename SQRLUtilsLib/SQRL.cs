@@ -1284,15 +1284,15 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Generates an Unlock Request Signature (URS) for the given a <c>server</c> and <c>client</c>
-        /// parameter values, signed by <c>ursKey</c>.
+        /// Generates an Unlock Request Signature (URS) for the given a <paramref name="encodedServer"/> 
+        /// and <paramref name="client"/> parameter values, signed by <paramref name="ursKey"/>.
         /// </summary>
         /// <param name="encodedServer">The base64_url-encoded contents for the server parameter.</param>
         /// <param name="client">The unencoded contents for the client parameter.</param>
         /// <param name="ursKey">The Unlock Request Signing Key (URSK).</param>
-        /// <returns>Returns a <c>KeyValuePair</c>, where the key is the signature id "urs" 
-        /// and the value is the generated, base64_url-encoded signature.</returns>
-        public static KeyValuePair<string,string> GenerateURS(string encodedServer, string client, byte[] ursKey)
+        /// <returns>Returns a <c>SignatureResult</c> object containing the signature id ("urs") 
+        /// and the base64_url-encoded signature.</returns>
+        public static SignatureResult GenerateURS(string encodedServer, string client, byte[] ursKey)
         {
             return GenerateSignature("urs", encodedServer, client, ursKey);
         }
@@ -1304,9 +1304,9 @@ namespace SQRLUtilsLib
         /// <param name="encodedServer">The base64_url-encoded contents for the server parameter.</param>
         /// <param name="client">The unencoded contents for the client parameter.</param>
         /// <param name="pidkKey">The Previous Identity Key (PIDK).</param>
-        /// <returns>Returns a <c>KeyValuePair</c>, where the key is the signature id "pids" 
-        /// and the value is the generated, base64_url-encoded signature.</returns>
-        public static KeyValuePair<string, string> GeneratePIDS(string encodedServer, string client, byte[] pidkKey)
+        /// <returns>Returns a <c>SignatureResult</c> object, containing the signature id ("pids")
+        /// and the base64_url-encoded signature.</returns>
+        public static SignatureResult GeneratePIDS(string encodedServer, string client, byte[] pidkKey)
         {
             return GenerateSignature("pids", encodedServer, client, pidkKey);
         }
@@ -1318,9 +1318,9 @@ namespace SQRLUtilsLib
         /// <param name="encodedServer">The base64_url-encoded contents for the server parameter.</param>
         /// <param name="client">The unencoded contents for the client parameter.</param>
         /// <param name="idkKey">The site-specific private Identity Key (IDK).</param>
-        /// <returns>Returns a <c>KeyValuePair</c>, where the key is the signature id "ids" 
-        /// and the value is the generated, base64_url-encoded signature.</returns>
-        public static KeyValuePair<string, string> GenerateIDS(string encodedServer, string client, byte[] idkKey)
+        /// <returns>Returns a <c>SignatureResult</c> object, containing the signature id ("ids")
+        /// and the base64_url-encoded signature.</returns>
+        public static SignatureResult GenerateIDS(string encodedServer, string client, byte[] idkKey)
         {
             return GenerateSignature("ids", encodedServer, client, idkKey);
         }
@@ -1362,25 +1362,25 @@ namespace SQRLUtilsLib
 
             string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
 
-            KeyValuePair<string,string> ids = GenerateIDS(encodedServer, client.ToString(), currentSiteKeyPair.PrivateKey);
+            var ids = GenerateIDS(encodedServer, client.ToString(), currentSiteKeyPair.PrivateKey);
             Dictionary<string, string> strContent = new Dictionary<string, string>()
             {
                 {"client",encodedClient },
                 {"server",encodedServer },
             };
             //Add Ids
-            strContent.Add(ids.Key,ids.Value);
+            strContent.Add(ids.SignatureType, ids.Signature);
 
             if(priorKey!=null)
             {
                 var pids = GeneratePIDS(encodedServer, client.ToString(), priorKey.PrivateKey);
-                strContent.Add(pids.Key, pids.Value);
+                strContent.Add(pids.SignatureType, pids.Signature);
             }
 
             if(ursKey!=null)
             {
                 var urs = GenerateURS(encodedServer, client.ToString(), ursKey);
-                strContent.Add(urs.Key, urs.Value);
+                strContent.Add(urs.SignatureType, urs.Signature);
             }
             using (HttpClient wc = new HttpClient())
             {
