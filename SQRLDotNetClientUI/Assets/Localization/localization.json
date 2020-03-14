@@ -108,7 +108,8 @@
     { "WithIdentityLabel": "with identity" },
     { "QuickPassLabel": "QuickPass:" },
     { "NotifyIconContextMenuItemHeaderExit": "Exit" },
-    { "NotifyIconContextMenuItemHeaderRestore": "Restore" }
+    { "NotifyIconContextMenuItemHeaderRestore": "Restore" },
+    { "NewPasswordMessage": "Enter the new password for your identity twice to avoid typos." }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -218,7 +219,8 @@
     { "WithIdentityLabel": "with identity" },
     { "QuickPassLabel": "QuickPass:" },
     { "NotifyIconContextMenuItemHeaderExit": "Exit" },
-    { "NotifyIconContextMenuItemHeaderRestore": "Restore" }
+    { "NotifyIconContextMenuItemHeaderRestore": "Restore" },
+    { "NewPasswordMessage": "Enter the new password for your identity twice to avoid typos." }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -328,6 +330,7 @@
     { "WithIdentityLabel": "mit Identität" },
     { "QuickPassLabel": "QuickPass:" },
     { "NotifyIconContextMenuItemHeaderExit": "Beenden" },
-    { "NotifyIconContextMenuItemHeaderRestore": "Wiederherstellen" }
+    { "NotifyIconContextMenuItemHeaderRestore": "Wiederherstellen" },
+    { "NewPasswordMessage": "Geben Sie das neue Passwor für Ihre Identität zweimal ein, um Tippfehler auszuschließen." }
   ]
 }
