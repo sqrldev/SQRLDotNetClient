@@ -172,7 +172,7 @@ namespace SQRLUtilsLib
         /// derived from the given Identity Lock Key (ILK).
         /// </summary>
         /// <param name="ILK">The identity's Identity Lock Key (ILK).</param>
-        public static KeyValuePair<byte[], byte[]> GetSukVuk(byte[] ILK)
+        public static SukVukResult GetSukVuk(byte[] ILK)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -181,12 +181,10 @@ namespace SQRLUtilsLib
             var SUK = Sodium.ScalarMult.Base(RLK);
 
             var bytesToSign = Sodium.ScalarMult.Mult(RLK, ILK);
-
             var vukKeyPair = Sodium.PublicKeyAuth.GenerateKeyPair(bytesToSign);
-
             var VUK = vukKeyPair.PublicKey;
 
-            return KeyValuePair.Create(SUK, VUK);
+            return new SukVukResult(SUK, VUK);
         }
 
         /// <summary>
@@ -1668,6 +1666,29 @@ namespace SQRLUtilsLib
         {
             this.NewRescueCode = newRescueCode;
             this.RekeyedIdentity= rekeyedIdentity;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of creting a Server Unlock Key (SUK) / 
+    /// Verification Unlock Key (VUK) key pair.
+    /// </summary>
+    public class SukVukResult
+    {
+        /// <summary>
+        /// The generated Server Unlock Key (SUK).
+        /// </summary>
+        public byte[] Suk;
+
+        /// <summary>
+        /// The generted Verification Unlock Key (VUK).
+        /// </summary>
+        public byte[] Vuk;
+
+        public SukVukResult(byte[] suk, byte[] vuk)
+        {
+            this.Suk = suk;
+            this.Vuk = vuk;
         }
     }
 }
