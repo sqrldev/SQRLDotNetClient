@@ -895,15 +895,18 @@ namespace SQRLUtilsLib
         /// <param name="oldIUKs">The list of previous Identity Unlock Keys (IUKs).</param>
         /// <param name="domain">The domain for which to generate the key pairs.</param>
         /// <param name="altID">The "Alternate Id" that should be used for the keypair generation.</param>
-        /// <returns>Returns a <c>Tuple</c> containing the PIUK as the first element and another <c>Tuple</c>
-        /// as the second element, which in turn contains the site seed as the first element as well as the 
-        /// actual ECDH public-private key pair as the second element.</returns>
-        public static Dictionary<byte[], Tuple<byte[],Sodium.KeyPair>> CreatePriorSiteKeys(List<byte[]> oldIUKs, Uri domain, String altID)
+        /// <returns>Returns a <c>Dictionary</c> where the key represents the PIUK and the value contains an object
+        /// encapsulating the site seed as well as the actual ECDH public-private key pair for that particular PIUK.</returns>
+        public static Dictionary<byte[], PriorSiteKeysResult> CreatePriorSiteKeys(List<byte[]> oldIUKs, Uri domain, String altID)
         {
-            Dictionary<byte[], Tuple<byte[],Sodium.KeyPair>> priorSiteKeys = new Dictionary<byte[], Tuple<byte[], Sodium.KeyPair>>();
+            Dictionary<byte[], PriorSiteKeysResult> priorSiteKeys = new Dictionary<byte[], PriorSiteKeysResult>();
             foreach(var oldIUK in oldIUKs)
             {
-                priorSiteKeys.Add(oldIUK,new Tuple<byte[], Sodium.KeyPair>(CreateSiteSeed(domain,altID,CreateIMK(oldIUK)), CreateSiteKey(domain, altID, CreateIMK(oldIUK))));
+                PriorSiteKeysResult result = new PriorSiteKeysResult(
+                    CreateSiteSeed(domain, altID, CreateIMK(oldIUK)),
+                    CreateSiteKey(domain, altID, CreateIMK(oldIUK)));
+
+                priorSiteKeys.Add(oldIUK, result);
             }
 
             return priorSiteKeys;
@@ -1617,6 +1620,29 @@ namespace SQRLUtilsLib
             this.DecryptionSucceeded = operationSucceeded;
             this.Iuk = iuk;
             this.ErrorMessage = errorMessage;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of creating a prior site key pair.
+    /// </summary>
+    public class PriorSiteKeysResult
+    {
+        /// <summary>
+        /// A binary value created using the site's domain/URL which 
+        /// is used as a seed for a number of cryptographic functions.
+        /// </summary>
+        public byte[] SiteSeed;
+
+        /// <summary>
+        /// The ECDH public-private key pair for a particular site/PIUK.
+        /// </summary>
+        public Sodium.KeyPair KeyPair;
+
+        public PriorSiteKeysResult(byte[] siteSeed, Sodium.KeyPair keyPair)
+        {
+            this.SiteSeed = siteSeed;
+            this.KeyPair = keyPair;
         }
     }
 }
