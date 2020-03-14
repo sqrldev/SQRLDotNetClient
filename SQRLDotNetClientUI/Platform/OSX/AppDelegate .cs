@@ -87,13 +87,12 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         public override void DidFinishLaunching(NSNotification notification)
         {
-            base.DidFinishLaunching(notification);
-            //NSDistributedNotificationCenter.DefaultCenter.AddObserver(new IObserver())
-            Observer observer2 = new Observer(NSDistributedNotificationCenter.DefaultCenter, new NSString("com.apple.screenIsLocked"), (obj) => {
-                Console.WriteLine("123");
-            });
             
-            NSDistributedNotificationCenter.DefaultCenter.AddObserver(observer2, new NSString("com.apple.screenIsLocked"), NSKeyValueObservingOptions.Initial,observer2.Handle);
+            
+            ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screenIsLocked"), (obj) =>
+            {
+                Console.WriteLine("Hello");
+            });
         }
 
 
