@@ -165,7 +165,7 @@ namespace SQRLUtilsLib
         /// <summary>
         /// The Previous Identity Key (PIDK) key of the matched previous identity.
         /// </summary>
-        public KeyValuePair<byte[],Tuple<byte[], KeyPair>> PriorMatchedKey { get; set; }
+        public KeyValuePair<byte[], PriorSiteKeysResult> PriorMatchedKey { get; set; }
 
         /// <summary>
         /// The decoded plain text ask message which was transmitted by the server

@@ -172,7 +172,7 @@ namespace SQRLUtilsLib
         /// derived from the given Identity Lock Key (ILK).
         /// </summary>
         /// <param name="ILK">The identity's Identity Lock Key (ILK).</param>
-        public static KeyValuePair<byte[], byte[]> GetSukVuk(byte[] ILK)
+        public static SukVukResult GetSukVuk(byte[] ILK)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -181,12 +181,10 @@ namespace SQRLUtilsLib
             var SUK = Sodium.ScalarMult.Base(RLK);
 
             var bytesToSign = Sodium.ScalarMult.Mult(RLK, ILK);
-
             var vukKeyPair = Sodium.PublicKeyAuth.GenerateKeyPair(bytesToSign);
-
             var VUK = vukKeyPair.PublicKey;
 
-            return KeyValuePair.Create(SUK, VUK);
+            return new SukVukResult(SUK, VUK);
         }
 
         /// <summary>
@@ -232,9 +230,9 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Run the "Scrypt" memory hard key derivation function on the given 
-        /// password for a determined amount of time, using the given random 
-        /// salt and logNFactor.
+        /// Run the "Scrypt" memory hard key derivation function on the given <paramref name="password"/> 
+        /// for a determined amount of <paramref name="secondsToRun"/>, using the given <paramref name="randomSalt"/> 
+        /// and <paramref name="logNFactor"/>.
         /// </summary>
         /// <param name="password">The password to hash.</param>
         /// <param name="randomSalt">Random data which is being used as salt for Scrypt.</param>
@@ -242,7 +240,8 @@ namespace SQRLUtilsLib
         /// <param name="secondsToRun">Amount of time to run Scrypt (determines iteration count).</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
         /// <param name="progressText">A string representing a text descrition for the progress indicator (optional).</param>
-        public static async Task<KeyValuePair<int, byte[]>> EnScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
+        public static async Task<EnScryptTimeResult> EnScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, 
+            IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -251,7 +250,8 @@ namespace SQRLUtilsLib
             DateTime startTime = DateTime.Now;
             byte[] xorKey = new byte[32];
             int count = 0;
-            var kvp =await Task.Run(() =>
+
+            return await Task.Run(() =>
             {
                 count = 0;
                 while (Math.Abs((DateTime.Now - startTime).TotalSeconds) < secondsToRun)
@@ -283,10 +283,8 @@ namespace SQRLUtilsLib
                     }
                     count++;
                 }
-                return new KeyValuePair<int, byte[]>(count, xorKey);
+                return new EnScryptTimeResult(count, xorKey);
             });
-
-            return kvp;
         }
 
         /// <summary>
@@ -407,13 +405,13 @@ namespace SQRLUtilsLib
 
             byte[] initVector = Sodium.SodiumCore.GetRandomBytes(12);
             byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
-            var key = await EnScryptTime(password, randomSalt, (int)Math.Pow(2, 9), encTime, progress, "Generating Block 1");
+            var enScryptResult = await EnScryptTime(password, randomSalt, (int)Math.Pow(2, 9), encTime, progress, "Generating Block 1");
 
             var identityT = await Task.Run(() =>
             {
                 identity.Block1.AesGcmInitVector = initVector;
                 identity.Block1.ScryptRandomSalt = randomSalt;
-                identity.Block1.IterationCount = (uint)key.Key;
+                identity.Block1.IterationCount = (uint)enScryptResult.IterationCount;
 
                 List<byte> plainText = new List<byte>();
                 plainText.AddRange(GetBytes(identity.Block1.Length));
@@ -430,7 +428,7 @@ namespace SQRLUtilsLib
 
                 IEnumerable<byte> unencryptedKeys = imk.Concat(ilk);
 
-                byte[] encryptedData = AesGcmEncrypt(unencryptedKeys.ToArray(), plainText.ToArray(), initVector, key.Value); //Should be 80 bytes
+                byte[] encryptedData = AesGcmEncrypt(unencryptedKeys.ToArray(), plainText.ToArray(), initVector, enScryptResult.Key); //Should be 80 bytes
                 identity.Block1.EncryptedIMK = encryptedData.ToList().GetRange(0, 32).ToArray();
                 identity.Block1.EncryptedILK = encryptedData.ToList().GetRange(32, 32).ToArray();
                 identity.Block1.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray();
@@ -459,11 +457,11 @@ namespace SQRLUtilsLib
             byte[] initVector = new byte[12];
             byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
 
-            var key = await EnScryptTime(rescueCode, randomSalt, (int)Math.Pow(2, 9), encTime, progress,"Generating Block 2");
+            var enScryptResult = await EnScryptTime(rescueCode, randomSalt, (int)Math.Pow(2, 9), encTime, progress,"Generating Block 2");
             var identityT = await Task.Run(() =>
             {
                 identity.Block2.RandomSalt = randomSalt;
-                identity.Block2.IterationCount = (uint)key.Key;
+                identity.Block2.IterationCount = (uint)enScryptResult.IterationCount;
 
                 List<byte> plainText = new List<byte>();
                 plainText.AddRange(GetBytes(identity.Block2.Length));
@@ -472,7 +470,7 @@ namespace SQRLUtilsLib
                 plainText.Add(identity.Block2.LogNFactor);
                 plainText.AddRange(GetBytes(identity.Block2.IterationCount));
 
-                byte[] encryptedData = AesGcmEncrypt(iuk, plainText.ToArray(), initVector, key.Value); //Should be 80 bytes
+                byte[] encryptedData = AesGcmEncrypt(iuk, plainText.ToArray(), initVector, enScryptResult.Key); //Should be 80 bytes
                 identity.Block2.EncryptedIUK = encryptedData.ToList().GetRange(0, 32).ToArray(); ;
                 identity.Block2.VerificationTag = encryptedData.ToList().GetRange(encryptedData.Length - 16, 16).ToArray();
                 return identity;
@@ -682,9 +680,9 @@ namespace SQRLUtilsLib
                 identity.Block3.FromByteArray(block3);
             }
 
-            var iukRespose = await DecryptBlock2(identity, rescueCode, progress);
-            if(iukRespose.Item1)
-                identity = await GenerateIdentityBlock1(iukRespose.Item2, newPassword, identity, progress);
+            var result = await DecryptBlock2(identity, rescueCode, progress);
+            if (result.DecryptionSucceeded)
+                identity = await GenerateIdentityBlock1(result.Iuk, newPassword, identity, progress);
 
             return identity;
         }
@@ -785,8 +783,8 @@ namespace SQRLUtilsLib
         /// <param name="identity">The identity containing the type 1 block to be decrypted.</param>
         /// <param name="password">The identity's password.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
-        /// <returns>Returns a <c>Tuple</c> containing a <c>bool</c> representing the operation's success, the decrypted IMK and the decrypted ILK.</returns>
-        public static async Task<Tuple<bool, byte[], byte[]>> DecryptBlock1(SQRLIdentity identity, string password, IProgress<KeyValuePair<int,string>> progress = null)
+        /// <returns>Returns an object containing the operation's success status, the decrypted IMK and the decrypted ILK.</returns>
+        public static async Task<DecryptBlock1Result> DecryptBlock1(SQRLIdentity identity, string password, IProgress<KeyValuePair<int,string>> progress = null)
         {
             byte[] key = await EnScryptCT(password, identity.Block1.ScryptRandomSalt, (int)Math.Pow(2, identity.Block1.LogNFactor), (int)identity.Block1.IterationCount, progress, "Decrypting Block 1");
             bool allgood = false;
@@ -804,9 +802,12 @@ namespace SQRLUtilsLib
             plainText.Add(identity.Block1.PwdVerifySeconds);
             plainText.AddRange(GetBytes(identity.Block1.PwdTimeoutMins));
 
-            var tupl = await Task.Run(() =>
+            return await Task.Run(() =>
             {
-                byte[] encryptedKeys = identity.Block1.EncryptedIMK.Concat(identity.Block1.EncryptedILK).Concat(identity.Block1.VerificationTag).ToArray();
+                byte[] encryptedKeys = identity.Block1.EncryptedIMK
+                    .Concat(identity.Block1.EncryptedILK)
+                    .Concat(identity.Block1.VerificationTag).ToArray();
+
                 byte[] result = null;
                 try
                 {
@@ -832,10 +833,8 @@ namespace SQRLUtilsLib
                     imk = null;
                     allgood = false;
                 }
-                return new Tuple<bool,byte[],byte[]>(allgood, imk, ilk);
+                return new DecryptBlock1Result(allgood, imk, ilk);
             });
-
-            return tupl;
         }
 
         /// <summary>
@@ -845,12 +844,13 @@ namespace SQRLUtilsLib
         /// <param name="identity">The identity containing the type 2 block to be decrypted.</param>
         /// <param name="rescueCode">The identity's secret rescue code.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
-        /// <returns>Returns a <c>Tuple</c> containing a <c>bool</c> representing the operation's success, the decrypted IUK and an optional error message.</returns>
-        public static async Task<Tuple<bool,byte[], string>> DecryptBlock2(SQRLIdentity identity, string rescueCode, IProgress<KeyValuePair<int, string>> progress = null)
+        /// <returns>Returns an object representing the operation's success, the decrypted IUK and an optional error message.</returns>
+        public static async Task<DecryptBlock2Result> DecryptBlock2(SQRLIdentity identity, string rescueCode, IProgress<KeyValuePair<int, string>> progress = null)
         {
-            byte[] key = await EnScryptCT(rescueCode, identity.Block2.RandomSalt, (int)Math.Pow(2, identity.Block2.LogNFactor), (int)identity.Block2.IterationCount, progress,"Decrypting Block 2");
+            byte[] key = await EnScryptCT(rescueCode, identity.Block2.RandomSalt, (int)Math.Pow(2, identity.Block2.LogNFactor), 
+                (int)identity.Block2.IterationCount, progress,"Decrypting Block 2");
 
-            var tupl = await Task.Run(() =>
+            return await Task.Run(() =>
             {
                 List<byte> plainText = new List<byte>();
                 bool allGood = false;
@@ -869,7 +869,7 @@ namespace SQRLUtilsLib
                 }
                 catch(Exception x)
                 {
-                    Console.Error.WriteLine($"Failed to Decrypt: {x.ToString()} CallStack: {x.StackTrace}");
+                    Console.Error.WriteLine($"Failed to decrypt: {x.ToString()} CallStack: {x.StackTrace}");
                 }
                 if (result != null)
                 {
@@ -882,10 +882,9 @@ namespace SQRLUtilsLib
                     allGood = false;
                 }
 
-                return new Tuple<bool, byte[], string>(allGood, iuk, (!allGood?"Failed to Decrypt bad Password or Rescue Code":""));
+                return new DecryptBlock2Result(allGood, iuk, (!allGood ? 
+                    "Decryption failed. Bad password or rescue code" : ""));
             });
-
-            return tupl;
         }
 
         /// <summary>
@@ -894,15 +893,18 @@ namespace SQRLUtilsLib
         /// <param name="oldIUKs">The list of previous Identity Unlock Keys (IUKs).</param>
         /// <param name="domain">The domain for which to generate the key pairs.</param>
         /// <param name="altID">The "Alternate Id" that should be used for the keypair generation.</param>
-        /// <returns>Returns a <c>Tuple</c> containing the PIUK as the first element and another <c>Tuple</c>
-        /// as the second element, which in turn contains the site seed as the first element as well as the 
-        /// actual ECDH public-private key pair as the second element.</returns>
-        public static Dictionary<byte[], Tuple<byte[],Sodium.KeyPair>> CreatePriorSiteKeys(List<byte[]> oldIUKs, Uri domain, String altID)
+        /// <returns>Returns a <c>Dictionary</c> where the key represents the PIUK and the value contains an object
+        /// encapsulating the site seed as well as the actual ECDH public-private key pair for that particular PIUK.</returns>
+        public static Dictionary<byte[], PriorSiteKeysResult> CreatePriorSiteKeys(List<byte[]> oldIUKs, Uri domain, String altID)
         {
-            Dictionary<byte[], Tuple<byte[],Sodium.KeyPair>> priorSiteKeys = new Dictionary<byte[], Tuple<byte[], Sodium.KeyPair>>();
+            Dictionary<byte[], PriorSiteKeysResult> priorSiteKeys = new Dictionary<byte[], PriorSiteKeysResult>();
             foreach(var oldIUK in oldIUKs)
             {
-                priorSiteKeys.Add(oldIUK,new Tuple<byte[], Sodium.KeyPair>(CreateSiteSeed(domain,altID,CreateIMK(oldIUK)), CreateSiteKey(domain, altID, CreateIMK(oldIUK))));
+                PriorSiteKeysResult result = new PriorSiteKeysResult(
+                    CreateSiteSeed(domain, altID, CreateIMK(oldIUK)),
+                    CreateSiteKey(domain, altID, CreateIMK(oldIUK)));
+
+                priorSiteKeys.Add(oldIUK, result);
             }
 
             return priorSiteKeys;
@@ -1054,14 +1056,17 @@ namespace SQRLUtilsLib
         /// <param name="count">The number of times this function was called successively.</param>
         /// <param name="priorSiteKeys">An optional list of Previous Identity Key (PIDK) key pairs to be appended to the client message.</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
-        public static SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, string encodedServerMessage=null, int count = 0, Dictionary<byte[], Tuple<byte[], KeyPair>> priorSiteKeys=null)
+        public static SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, string encodedServerMessage=null, int count = 0, Dictionary<byte[], PriorSiteKeysResult> priorSiteKeys=null)
         {
             SQRLServerResponse serverResponse = null;
             if(encodedServerMessage==null)
             {
-                encodedServerMessage = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(sqrl.OriginalString), Utilities.Base64Variant.UrlSafeNoPadding);
+                encodedServerMessage = Sodium.Utilities.BinaryToBase64(
+                    Encoding.UTF8.GetBytes(sqrl.OriginalString), 
+                    Utilities.Base64Variant.UrlSafeNoPadding);
             }
-            serverResponse = GenerateSQRLCommand(SQRLCommands.query, sqrl, siteKP, encodedServerMessage, null, opts, priorSiteKeys?.First().Value.Item2);
+            serverResponse = GenerateSQRLCommand(SQRLCommands.query, sqrl, siteKP, 
+                encodedServerMessage, null, opts, priorSiteKeys?.First().Value.KeyPair);
             if(serverResponse.CommandFailed && serverResponse.TransientError && count<=3)
             {
                 serverResponse = GenerateQueryCommand(serverResponse.NewNutURL, siteKP,opts, serverResponse.FullServerRequest,++count, priorSiteKeys);
@@ -1094,8 +1099,8 @@ namespace SQRLUtilsLib
         {
             var sukvuk = GetSukVuk(ilk);
             StringBuilder addClientData = new StringBuilder();
-            addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
-            addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Suk, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Vuk, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
             if (sin != null)
                 addClientData.Append(sin);
 
@@ -1114,12 +1119,12 @@ namespace SQRLUtilsLib
         /// <param name="opts">Optional SQRL options to be appended to the client message.</param>
         /// <param name="sin">Optional base64_url-encoded Secret Index (SIN) parameter to be appended to the client message.</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
-        public static SQRLServerResponse GenerateIdentCommandWithReplace(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk,byte[] ursKey, KeyPair priorKey, SQRLOptions opts = null, StringBuilder sin=null)
+        public static SQRLServerResponse GenerateIdentCommandWithReplace(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk, byte[] ursKey, KeyPair priorKey, SQRLOptions opts = null, StringBuilder sin=null)
         {
             var sukvuk = GetSukVuk(ilk);
             StringBuilder addClientData = new StringBuilder();
-            addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
-            addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Suk, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Vuk, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
             if (sin != null)
                 addClientData.Append(sin);
 
@@ -1257,35 +1262,37 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Generates a signature with the provided signatureID (urs, ids, pids... etc.)
-        /// for the given <c>server</c> and <c>client</c> parameter values, signed by the given key.
+        /// Generates a signature with the provided <paramref name="signatureID"/> (urs, ids, pids... etc.)
+        /// for the given <paramref name="encodedServer"/> and <paramref name="client"/> parameter values, 
+        /// signed by the given <paramref name="key"/>.
         /// </summary>
         /// <param name="signatureID">The type of the signature to be created (urs, ids, pids... etc.).</param>
         /// <param name="encodedServer">The base64_url-encoded contents for the server parameter.</param>
         /// <param name="client">The unencoded contents for the client parameter.</param>
         /// <param name="key">The private key for signing the message.</param>
-        /// <returns>Returns a <c>KeyValuePair</c>, where the key is the chosen signature id (urs, ids, pids... etc.), 
-        /// and the value is the generated, base64_url-encoded signature.</returns>
-        public static KeyValuePair<string,string> GenerateSignature(string signatureID, string encodedServer, string client, byte[] key)
+        /// <returns>Returns a <c>SignatureResult</c> object containing the chosen signature id (urs, ids, pids... etc.)
+        /// and the base64_url-encoded signature.</returns>
+        public static SignatureResult GenerateSignature(string signatureID, string encodedServer, string client, byte[] key)
         {
-            string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
+            string encodedClient = Sodium.Utilities.BinaryToBase64(
+                Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
             
             byte[] signature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), key);
             string encodedSignature = Sodium.Utilities.BinaryToBase64(signature, Utilities.Base64Variant.UrlSafeNoPadding);
 
-            return new KeyValuePair<string, string>(signatureID, encodedSignature);
+            return new SignatureResult(signatureID, encodedSignature);
         }
 
         /// <summary>
-        /// Generates an Unlock Request Signature (URS) for the given a <c>server</c> and <c>client</c>
-        /// parameter values, signed by <c>ursKey</c>.
+        /// Generates an Unlock Request Signature (URS) for the given a <paramref name="encodedServer"/> 
+        /// and <paramref name="client"/> parameter values, signed by <paramref name="ursKey"/>.
         /// </summary>
         /// <param name="encodedServer">The base64_url-encoded contents for the server parameter.</param>
         /// <param name="client">The unencoded contents for the client parameter.</param>
         /// <param name="ursKey">The Unlock Request Signing Key (URSK).</param>
-        /// <returns>Returns a <c>KeyValuePair</c>, where the key is the signature id "urs" 
-        /// and the value is the generated, base64_url-encoded signature.</returns>
-        public static KeyValuePair<string,string> GenerateURS(string encodedServer, string client, byte[] ursKey)
+        /// <returns>Returns a <c>SignatureResult</c> object containing the signature id ("urs") 
+        /// and the base64_url-encoded signature.</returns>
+        public static SignatureResult GenerateURS(string encodedServer, string client, byte[] ursKey)
         {
             return GenerateSignature("urs", encodedServer, client, ursKey);
         }
@@ -1297,9 +1304,9 @@ namespace SQRLUtilsLib
         /// <param name="encodedServer">The base64_url-encoded contents for the server parameter.</param>
         /// <param name="client">The unencoded contents for the client parameter.</param>
         /// <param name="pidkKey">The Previous Identity Key (PIDK).</param>
-        /// <returns>Returns a <c>KeyValuePair</c>, where the key is the signature id "pids" 
-        /// and the value is the generated, base64_url-encoded signature.</returns>
-        public static KeyValuePair<string, string> GeneratePIDS(string encodedServer, string client, byte[] pidkKey)
+        /// <returns>Returns a <c>SignatureResult</c> object, containing the signature id ("pids")
+        /// and the base64_url-encoded signature.</returns>
+        public static SignatureResult GeneratePIDS(string encodedServer, string client, byte[] pidkKey)
         {
             return GenerateSignature("pids", encodedServer, client, pidkKey);
         }
@@ -1311,9 +1318,9 @@ namespace SQRLUtilsLib
         /// <param name="encodedServer">The base64_url-encoded contents for the server parameter.</param>
         /// <param name="client">The unencoded contents for the client parameter.</param>
         /// <param name="idkKey">The site-specific private Identity Key (IDK).</param>
-        /// <returns>Returns a <c>KeyValuePair</c>, where the key is the signature id "ids" 
-        /// and the value is the generated, base64_url-encoded signature.</returns>
-        public static KeyValuePair<string, string> GenerateIDS(string encodedServer, string client, byte[] idkKey)
+        /// <returns>Returns a <c>SignatureResult</c> object, containing the signature id ("ids")
+        /// and the base64_url-encoded signature.</returns>
+        public static SignatureResult GenerateIDS(string encodedServer, string client, byte[] idkKey)
         {
             return GenerateSignature("ids", encodedServer, client, idkKey);
         }
@@ -1355,25 +1362,25 @@ namespace SQRLUtilsLib
 
             string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
 
-            KeyValuePair<string,string> ids = GenerateIDS(encodedServer, client.ToString(), currentSiteKeyPair.PrivateKey);
+            var ids = GenerateIDS(encodedServer, client.ToString(), currentSiteKeyPair.PrivateKey);
             Dictionary<string, string> strContent = new Dictionary<string, string>()
             {
                 {"client",encodedClient },
                 {"server",encodedServer },
             };
             //Add Ids
-            strContent.Add(ids.Key,ids.Value);
+            strContent.Add(ids.SignatureType, ids.Signature);
 
             if(priorKey!=null)
             {
                 var pids = GeneratePIDS(encodedServer, client.ToString(), priorKey.PrivateKey);
-                strContent.Add(pids.Key, pids.Value);
+                strContent.Add(pids.SignatureType, pids.Signature);
             }
 
             if(ursKey!=null)
             {
                 var urs = GenerateURS(encodedServer, client.ToString(), ursKey);
-                strContent.Add(urs.Key, urs.Value);
+                strContent.Add(urs.SignatureType, urs.Signature);
             }
             using (HttpClient wc = new HttpClient())
             {
@@ -1444,20 +1451,21 @@ namespace SQRLUtilsLib
         /// <param name="rescueCode">The rescue code for the given identity.</param>
         /// <param name="newPassword">The new master password for the rekeyed identity.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
-        /// <returns>Returns a <c>KeyValuePair</c>, where the key is the newly generated rescue code and the value is the rekeyed <c>SQRLIdentity</c>.</returns>
-        public static async Task<KeyValuePair<string,SQRLIdentity>> RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, IProgress<KeyValuePair<int,string>> progress)
+        /// <returns>Returns a <c>RekeyIdentityResult</c> object containingthe newly generated rescue code and the rekeyed <c>SQRLIdentity</c>.</returns>
+        public static async Task<RekeyIdentityResult> RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, IProgress<KeyValuePair<int,string>> progress)
         {
             SQRLIdentity newID = new SQRLIdentity();
             var oldIukData = await SQRL.DecryptBlock2(identity, rescueCode, progress);
             string newRescueCode = CreateRescueCode();
             byte[] newIUK = CreateIUK();
-            if (oldIukData.Item1)
+            
+            if (oldIukData.DecryptionSucceeded)
             {
                 newID= await GenerateIdentityBlock1(newIUK, newPassword, newID, progress);
                 newID= await GenerateIdentityBlock2(newIUK, newRescueCode, newID, progress);
-                GenerateIdentityBlock3(oldIukData.Item2, identity, newID, CreateIMK(oldIukData.Item2), CreateIMK(newIUK));
+                GenerateIdentityBlock3(oldIukData.Iuk, identity, newID, CreateIMK(oldIukData.Iuk), CreateIMK(newIUK));
             }
-            return new KeyValuePair<string, SQRLIdentity>(newRescueCode,newID);
+            return new RekeyIdentityResult(newRescueCode, newID);
         }
 
         /// <summary>
@@ -1517,26 +1525,26 @@ namespace SQRLUtilsLib
         /// <summary>
         /// Decrypts an identity's type 3 block using the provided Identity Master Key (IMK).
         /// </summary>
-        /// <param name="ikm">The identity's unencrypted Identity Master Key (IMK).</param>
+        /// <param name="imk">The identity's unencrypted Identity Master Key (IMK).</param>
         /// <param name="identity">The identity containing the type 3 block to be decrypted.</param>
-        /// <param name="boolAllGood">Indicates whether the operation complented successfully.</param>
+        /// <param name="allGood">Indicates whether the operation complented successfully.</param>
         /// <returns>Returns a contiguous block of all encrypted bytes from the identity's type 3 block, 
         /// which includes all the PIUKs as well as the authentication tag.</returns>
-        public static byte[] DecryptBlock3(byte[] ikm, SQRLIdentity identity, out bool boolAllGood)
+        public static byte[] DecryptBlock3(byte[] imk, SQRLIdentity identity, out bool allGood)
         {
             List<byte> plainText = new List<byte>();
             plainText.AddRange(GetBytes(identity.Block3.Length));
             plainText.AddRange(GetBytes(identity.Block3.Type));
             plainText.AddRange(GetBytes(identity.Block3.Edition));
             List<byte> encryptedKeys = new List<byte>();
-            boolAllGood = false;
+            allGood = false;
             identity.Block3.EncryptedPrevIUKs.ForEach(x => encryptedKeys.AddRange(x));
             encryptedKeys.AddRange(identity.Block3.VerificationTag);
             byte[] result = null;
             try
             {
-                result = Sodium.SecretAeadAes.Decrypt(encryptedKeys.ToArray(), new byte[12], ikm, plainText.ToArray());
-                boolAllGood = true;
+                result = Sodium.SecretAeadAes.Decrypt(encryptedKeys.ToArray(), new byte[12], imk, plainText.ToArray());
+                allGood = true;
             }
             catch(Exception ex)
             {
@@ -1555,6 +1563,179 @@ namespace SQRLUtilsLib
             {
                 key[i] = 0;
             }
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of decrypting a SQRL type 1 block.
+    /// </summary>
+    public class DecryptBlock1Result
+    {
+        /// <summary>
+        /// Indicates whether the decryption succeeded or not.
+        /// </summary>
+        public bool DecryptionSucceeded = false;
+
+        /// <summary>
+        /// If the decryption operation succeeded, this will hold the
+        /// unencrypted Identity Master Key (IMK).
+        /// </summary>
+        public byte[] Imk;
+
+        /// <summary>
+        /// If the decryption operation succeeded, this will hold the
+        /// unencrypted Identity Lock Key (ILK).
+        /// </summary>
+        public byte[] Ilk;
+
+        public DecryptBlock1Result(bool operationSucceeded, byte[] imk, byte[] ilk)
+        {
+            this.DecryptionSucceeded = operationSucceeded;
+            this.Imk = imk;
+            this.Ilk = ilk;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of decrypting a SQRL type 2 block.
+    /// </summary>
+    public class DecryptBlock2Result
+    {
+        /// <summary>
+        /// Indicates whether the decryption succeeded or not.
+        /// </summary>
+        public bool DecryptionSucceeded = false;
+
+        /// <summary>
+        /// If the decryption operation succeeded, this will hold the
+        /// unencrypted Identity Unlock Key (IUK).
+        /// </summary>
+        public byte[] Iuk;
+
+        /// <summary>
+        /// If the decryption operation failed, this will hold an
+        /// error message explaining the reason for the error.
+        /// </summary>
+        public string ErrorMessage;
+
+        public DecryptBlock2Result(bool operationSucceeded, byte[] iuk, string errorMessage)
+        {
+            this.DecryptionSucceeded = operationSucceeded;
+            this.Iuk = iuk;
+            this.ErrorMessage = errorMessage;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of creating a prior site key pair.
+    /// </summary>
+    public class PriorSiteKeysResult
+    {
+        /// <summary>
+        /// A binary value created using the site's domain/URL which 
+        /// is used as a seed for a number of cryptographic functions.
+        /// </summary>
+        public byte[] SiteSeed;
+
+        /// <summary>
+        /// The ECDH public-private key pair for a particular site/PIUK.
+        /// </summary>
+        public Sodium.KeyPair KeyPair;
+
+        public PriorSiteKeysResult(byte[] siteSeed, Sodium.KeyPair keyPair)
+        {
+            this.SiteSeed = siteSeed;
+            this.KeyPair = keyPair;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of rekeying an identity.
+    /// </summary>
+    public class RekeyIdentityResult
+    {
+        /// <summary>
+        /// The rescue code for the new, rekeyed identity.
+        /// </summary>
+        public string NewRescueCode;
+
+        /// <summary>
+        /// The new, rekeyed identity.
+        /// </summary>
+        public SQRLIdentity RekeyedIdentity;
+
+        public RekeyIdentityResult(string newRescueCode, SQRLIdentity rekeyedIdentity)
+        {
+            this.NewRescueCode = newRescueCode;
+            this.RekeyedIdentity= rekeyedIdentity;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of creting a Server Unlock Key (SUK) / 
+    /// Verification Unlock Key (VUK) key pair.
+    /// </summary>
+    public class SukVukResult
+    {
+        /// <summary>
+        /// The generated Server Unlock Key (SUK).
+        /// </summary>
+        public byte[] Suk;
+
+        /// <summary>
+        /// The generted Verification Unlock Key (VUK).
+        /// </summary>
+        public byte[] Vuk;
+
+        public SukVukResult(byte[] suk, byte[] vuk)
+        {
+            this.Suk = suk;
+            this.Vuk = vuk;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of creting a SQRL protocol signature.
+    /// </summary>
+    public class SignatureResult
+    {
+        /// <summary>
+        /// The type of the signature to be created (urs, ids, pids... etc.).
+        /// </summary>
+        public string SignatureType;
+
+        /// <summary>
+        /// The Base64URL-encoded signature.
+        /// </summary>
+        public string Signature;
+
+        public SignatureResult(string signatureType, string signature)
+        {
+            this.SignatureType = signatureType;
+            this.Signature = signature;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of a "timed" EnScrypt PBKDF operation.
+    /// </summary>
+    public class EnScryptTimeResult
+    {
+        /// <summary>
+        /// The scrypt iteration count that was determined by running the 
+        /// scrypt function for the specified amount of time.
+        /// </summary>
+        public int IterationCount;
+
+        /// <summary>
+        /// The key that was derived by running the input trough the EnScrypt PBKDF.
+        /// </summary>
+        public byte[] Key;
+
+        public EnScryptTimeResult(int iterationCount, byte[] key)
+        {
+            this.IterationCount = iterationCount;
+            this.Key = key;
         }
     }
 }

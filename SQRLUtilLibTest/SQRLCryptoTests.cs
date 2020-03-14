@@ -127,8 +127,8 @@ namespace SQRLUtilLibTest
                 byte[] imk = SQRL.CreateIMK(iuk);
                 byte[] ilk = SQRL.CreateILK(iuk);
                 var decryptedData = await SQRL.DecryptBlock1(identity, password);
-                Assert.Equal(Sodium.Utilities.BinaryToHex(imk), Sodium.Utilities.BinaryToHex(decryptedData.Item2));
-                Assert.Equal(Sodium.Utilities.BinaryToHex(ilk), Sodium.Utilities.BinaryToHex(decryptedData.Item3));
+                Assert.Equal(Sodium.Utilities.BinaryToHex(imk), Sodium.Utilities.BinaryToHex(decryptedData.Imk));
+                Assert.Equal(Sodium.Utilities.BinaryToHex(ilk), Sodium.Utilities.BinaryToHex(decryptedData.Ilk));
             }
         }
 
@@ -143,8 +143,8 @@ namespace SQRLUtilLibTest
                 string rescueCode = SQRL.CreateRescueCode();
                 identity= await SQRL.GenerateIdentityBlock2(iuk, rescueCode, identity);
 
-                var t = await SQRL.DecryptBlock2(identity, rescueCode);
-                Assert.Equal(Sodium.Utilities.BinaryToHex(iuk), Sodium.Utilities.BinaryToHex(t.Item2));
+                var decryptResult = await SQRL.DecryptBlock2(identity, rescueCode);
+                Assert.Equal(Sodium.Utilities.BinaryToHex(iuk), Sodium.Utilities.BinaryToHex(decryptResult.Iuk));
             }
         }
 

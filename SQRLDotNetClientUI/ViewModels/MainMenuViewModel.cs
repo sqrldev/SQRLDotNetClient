@@ -157,12 +157,10 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
-        public async void RekeyIdentity()
+        public void RekeyIdentity()
         {
 
-
             //TODO: Implement this
-
 
         }
     }
