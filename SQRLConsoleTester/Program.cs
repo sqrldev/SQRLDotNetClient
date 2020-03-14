@@ -47,7 +47,7 @@ namespace SQRLConsoleTester
 
 
                         var siteKvp = SQRL.CreateSiteKey(requestURI, AltID, block1Keys.Imk);
-                        Dictionary<byte[],Tuple<byte[],KeyPair>> priorKvps = null;
+                        Dictionary<byte[], PriorSiteKeysResult> priorSiteKeys = null;
                         if(newId.Block3!=null && newId.Block3.Edition>0)
                         {
                             byte[] decryptedBlock3 = SQRL.DecryptBlock3(block1Keys.Imk, newId, out bool allGood);
@@ -66,14 +66,14 @@ namespace SQRLConsoleTester
                                 }
                                 
                                 SQRL.ZeroFillByteArray(ref decryptedBlock3);
-                                priorKvps= SQRL.CreatePriorSiteKeys(oldIUKs, requestURI, AltID);
+                                priorSiteKeys= SQRL.CreatePriorSiteKeys(oldIUKs, requestURI, AltID);
                                 oldIUKs.Clear();
                             }
                         }
 
                         //SQRL.ZeroFillByteArray(ref decryptedData.Item2);
                         //decryptedData.Item2.ZeroFill();
-                        var serverRespose = SQRL.GenerateQueryCommand(requestURI, siteKvp, opts,null,0, priorKvps);
+                        var serverRespose = SQRL.GenerateQueryCommand(requestURI, siteKvp, opts, null, 0, priorSiteKeys);
                         
                         if (!serverRespose.CommandFailed)
                         {
@@ -107,13 +107,13 @@ namespace SQRLConsoleTester
                                     additionalData = new StringBuilder();
                                     byte[] ids = SQRL.CreateIndexedSecret(requestURI, AltID, block1Keys.Imk, Encoding.UTF8.GetBytes(serverRespose.SIN));
                                     additionalData.AppendLineWindows($"ins={Sodium.Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
-                                    byte[] pids = SQRL.CreateIndexedSecret(serverRespose.PriorMatchedKey.Value.Item1, Encoding.UTF8.GetBytes(serverRespose.SIN));
+                                    byte[] pids = SQRL.CreateIndexedSecret(serverRespose.PriorMatchedKey.Value.SiteSeed, Encoding.UTF8.GetBytes(serverRespose.SIN));
                                     additionalData.AppendLineWindows($"pins={Sodium.Utilities.BinaryToBase64(pids, Utilities.Base64Variant.UrlSafeNoPadding)}");
                                     
                                 }
                                 serverRespose = SQRL.GenerateIdentCommandWithReplace(
                                     serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, block1Keys.Ilk, 
-                                    ursKey,serverRespose.PriorMatchedKey.Value.Item2,opts, additionalData);
+                                    ursKey, serverRespose.PriorMatchedKey.Value.KeyPair, opts, additionalData);
                             }
                             else if (serverRespose.CurrentIDMatch)
                             {

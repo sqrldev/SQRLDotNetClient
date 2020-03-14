@@ -1058,14 +1058,17 @@ namespace SQRLUtilsLib
         /// <param name="count">The number of times this function was called successively.</param>
         /// <param name="priorSiteKeys">An optional list of Previous Identity Key (PIDK) key pairs to be appended to the client message.</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
-        public static SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, string encodedServerMessage=null, int count = 0, Dictionary<byte[], Tuple<byte[], KeyPair>> priorSiteKeys=null)
+        public static SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, string encodedServerMessage=null, int count = 0, Dictionary<byte[], PriorSiteKeysResult> priorSiteKeys=null)
         {
             SQRLServerResponse serverResponse = null;
             if(encodedServerMessage==null)
             {
-                encodedServerMessage = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(sqrl.OriginalString), Utilities.Base64Variant.UrlSafeNoPadding);
+                encodedServerMessage = Sodium.Utilities.BinaryToBase64(
+                    Encoding.UTF8.GetBytes(sqrl.OriginalString), 
+                    Utilities.Base64Variant.UrlSafeNoPadding);
             }
-            serverResponse = GenerateSQRLCommand(SQRLCommands.query, sqrl, siteKP, encodedServerMessage, null, opts, priorSiteKeys?.First().Value.Item2);
+            serverResponse = GenerateSQRLCommand(SQRLCommands.query, sqrl, siteKP, 
+                encodedServerMessage, null, opts, priorSiteKeys?.First().Value.KeyPair);
             if(serverResponse.CommandFailed && serverResponse.TransientError && count<=3)
             {
                 serverResponse = GenerateQueryCommand(serverResponse.NewNutURL, siteKP,opts, serverResponse.FullServerRequest,++count, priorSiteKeys);
