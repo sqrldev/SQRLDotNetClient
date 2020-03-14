@@ -1451,8 +1451,8 @@ namespace SQRLUtilsLib
         /// <param name="rescueCode">The rescue code for the given identity.</param>
         /// <param name="newPassword">The new master password for the rekeyed identity.</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
-        /// <returns>Returns a <c>KeyValuePair</c>, where the key is the newly generated rescue code and the value is the rekeyed <c>SQRLIdentity</c>.</returns>
-        public static async Task<KeyValuePair<string,SQRLIdentity>> RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, IProgress<KeyValuePair<int,string>> progress)
+        /// <returns>Returns a <c>RekeyIdentityResult</c> object containingthe newly generated rescue code and the rekeyed <c>SQRLIdentity</c>.</returns>
+        public static async Task<RekeyIdentityResult> RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, IProgress<KeyValuePair<int,string>> progress)
         {
             SQRLIdentity newID = new SQRLIdentity();
             var oldIukData = await SQRL.DecryptBlock2(identity, rescueCode, progress);
@@ -1465,7 +1465,7 @@ namespace SQRLUtilsLib
                 newID= await GenerateIdentityBlock2(newIUK, newRescueCode, newID, progress);
                 GenerateIdentityBlock3(oldIukData.Iuk, identity, newID, CreateIMK(oldIukData.Iuk), CreateIMK(newIUK));
             }
-            return new KeyValuePair<string, SQRLIdentity>(newRescueCode,newID);
+            return new RekeyIdentityResult(newRescueCode, newID);
         }
 
         /// <summary>
@@ -1646,6 +1646,28 @@ namespace SQRLUtilsLib
         {
             this.SiteSeed = siteSeed;
             this.KeyPair = keyPair;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of rekeying an identity.
+    /// </summary>
+    public class RekeyIdentityResult
+    {
+        /// <summary>
+        /// The rescue code for the new, rekeyed identity.
+        /// </summary>
+        public string NewRescueCode;
+
+        /// <summary>
+        /// The new, rekeyed identity.
+        /// </summary>
+        public SQRLIdentity RekeyedIdentity;
+
+        public RekeyIdentityResult(string newRescueCode, SQRLIdentity rekeyedIdentity)
+        {
+            this.NewRescueCode = newRescueCode;
+            this.RekeyedIdentity= rekeyedIdentity;
         }
     }
 }
