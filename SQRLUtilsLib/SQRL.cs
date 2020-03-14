@@ -230,9 +230,9 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Run the "Scrypt" memory hard key derivation function on the given 
-        /// password for a determined amount of time, using the given random 
-        /// salt and logNFactor.
+        /// Run the "Scrypt" memory hard key derivation function on the given <paramref name="password"/> 
+        /// for a determined amount of <paramref name="secondsToRun"/>, using the given <paramref name="randomSalt"/> 
+        /// and <paramref name="logNFactor"/>.
         /// </summary>
         /// <param name="password">The password to hash.</param>
         /// <param name="randomSalt">Random data which is being used as salt for Scrypt.</param>
@@ -240,7 +240,8 @@ namespace SQRLUtilsLib
         /// <param name="secondsToRun">Amount of time to run Scrypt (determines iteration count).</param>
         /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
         /// <param name="progressText">A string representing a text descrition for the progress indicator (optional).</param>
-        public static async Task<KeyValuePair<int, byte[]>> EnScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
+        public static async Task<EnScryptTimeResult> EnScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, 
+            IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
             if (!SodiumInitialized)
                 SodiumInit();
@@ -249,7 +250,8 @@ namespace SQRLUtilsLib
             DateTime startTime = DateTime.Now;
             byte[] xorKey = new byte[32];
             int count = 0;
-            var kvp =await Task.Run(() =>
+
+            return await Task.Run(() =>
             {
                 count = 0;
                 while (Math.Abs((DateTime.Now - startTime).TotalSeconds) < secondsToRun)
@@ -281,10 +283,8 @@ namespace SQRLUtilsLib
                     }
                     count++;
                 }
-                return new KeyValuePair<int, byte[]>(count, xorKey);
+                return new EnScryptTimeResult(count, xorKey);
             });
-
-            return kvp;
         }
 
         /// <summary>
@@ -1713,6 +1713,29 @@ namespace SQRLUtilsLib
         {
             this.SignatureType = signatureType;
             this.Signature = signature;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of a "timed" EnScrypt PBKDF operation.
+    /// </summary>
+    public class EnScryptTimeResult
+    {
+        /// <summary>
+        /// The scrypt iteration count that was determined by running the 
+        /// scrypt function for the specified amount of time.
+        /// </summary>
+        public int IterationCount;
+
+        /// <summary>
+        /// The key that was derived by running the input trough the EnScrypt PBKDF.
+        /// </summary>
+        public byte[] Key;
+
+        public EnScryptTimeResult(int iterationCount, byte[] key)
+        {
+            this.IterationCount = iterationCount;
+            this.Key = key;
         }
     }
 }
