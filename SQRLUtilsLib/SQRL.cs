@@ -1099,8 +1099,8 @@ namespace SQRLUtilsLib
         {
             var sukvuk = GetSukVuk(ilk);
             StringBuilder addClientData = new StringBuilder();
-            addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
-            addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Suk, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Vuk, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
             if (sin != null)
                 addClientData.Append(sin);
 
@@ -1123,8 +1123,8 @@ namespace SQRLUtilsLib
         {
             var sukvuk = GetSukVuk(ilk);
             StringBuilder addClientData = new StringBuilder();
-            addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Key, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
-            addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Value, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Suk, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
+            addClientData.AppendLineWindows($"vuk={Sodium.Utilities.BinaryToBase64(sukvuk.Vuk, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
             if (sin != null)
                 addClientData.Append(sin);
 
