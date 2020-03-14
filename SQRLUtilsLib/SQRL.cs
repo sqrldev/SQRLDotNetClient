@@ -1262,23 +1262,25 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Generates a signature with the provided signatureID (urs, ids, pids... etc.)
-        /// for the given <c>server</c> and <c>client</c> parameter values, signed by the given key.
+        /// Generates a signature with the provided <paramref name="signatureID"/> (urs, ids, pids... etc.)
+        /// for the given <paramref name="encodedServer"/> and <paramref name="client"/> parameter values, 
+        /// signed by the given <paramref name="key"/>.
         /// </summary>
         /// <param name="signatureID">The type of the signature to be created (urs, ids, pids... etc.).</param>
         /// <param name="encodedServer">The base64_url-encoded contents for the server parameter.</param>
         /// <param name="client">The unencoded contents for the client parameter.</param>
         /// <param name="key">The private key for signing the message.</param>
-        /// <returns>Returns a <c>KeyValuePair</c>, where the key is the chosen signature id (urs, ids, pids... etc.), 
-        /// and the value is the generated, base64_url-encoded signature.</returns>
-        public static KeyValuePair<string,string> GenerateSignature(string signatureID, string encodedServer, string client, byte[] key)
+        /// <returns>Returns a <c>SignatureResult</c> object containing the chosen signature id (urs, ids, pids... etc.)
+        /// and the base64_url-encoded signature.</returns>
+        public static SignatureResult GenerateSignature(string signatureID, string encodedServer, string client, byte[] key)
         {
-            string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
+            string encodedClient = Sodium.Utilities.BinaryToBase64(
+                Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
             
             byte[] signature = Sodium.PublicKeyAuth.SignDetached(Encoding.UTF8.GetBytes(encodedClient + encodedServer), key);
             string encodedSignature = Sodium.Utilities.BinaryToBase64(signature, Utilities.Base64Variant.UrlSafeNoPadding);
 
-            return new KeyValuePair<string, string>(signatureID, encodedSignature);
+            return new SignatureResult(signatureID, encodedSignature);
         }
 
         /// <summary>
@@ -1689,6 +1691,28 @@ namespace SQRLUtilsLib
         {
             this.Suk = suk;
             this.Vuk = vuk;
+        }
+    }
+
+    /// <summary>
+    /// Represents the results of creting a SQRL protocol signature.
+    /// </summary>
+    public class SignatureResult
+    {
+        /// <summary>
+        /// The type of the signature to be created (urs, ids, pids... etc.).
+        /// </summary>
+        public string SignatureType;
+
+        /// <summary>
+        /// The Base64URL-encoded signature.
+        /// </summary>
+        public string Signature;
+
+        public SignatureResult(string signatureType, string signature)
+        {
+            this.SignatureType = signatureType;
+            this.Signature = signature;
         }
     }
 }
