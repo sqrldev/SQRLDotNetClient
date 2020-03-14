@@ -1119,7 +1119,7 @@ namespace SQRLUtilsLib
         /// <param name="opts">Optional SQRL options to be appended to the client message.</param>
         /// <param name="sin">Optional base64_url-encoded Secret Index (SIN) parameter to be appended to the client message.</param>
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
-        public static SQRLServerResponse GenerateIdentCommandWithReplace(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk,byte[] ursKey, KeyPair priorKey, SQRLOptions opts = null, StringBuilder sin=null)
+        public static SQRLServerResponse GenerateIdentCommandWithReplace(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk, byte[] ursKey, KeyPair priorKey, SQRLOptions opts = null, StringBuilder sin=null)
         {
             var sukvuk = GetSukVuk(ilk);
             StringBuilder addClientData = new StringBuilder();

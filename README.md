@@ -176,19 +176,14 @@ var progress = new Progress<KeyValuePair<int, string>>(percent =>
 //Have an existing identity (somehow)
 SQRLIdentity existingIdentity = ...
 
-//Returns a tuple of 3 values a boolean indicating sucess, Item2 = IMK Item3 = ILK
+//Returns an object containing a boolean sucess indicator, the IMK and the ILK
 var block1DecryptedData = await SQRL.DecryptBlock1(existingIdentity, "My-Awesome-Password", progress);
 
-/*
-Note that bloc1DecryptedData returns a tuple as mentioned above 
-Item1 is a  boolean (sucess/not)
-Item2 is (IMK) Identity Master Key
-Item3 is (ILK) Identity Lock Key
-*/
-if (block1DecryptedData.Item1) //If success
+if (block1DecryptedData.DecryptionSucceeded)
 {
     //This is the site's Key-Pair for signing requests
-	Sodium.KeyPair siteKP = SQRL.CreateSiteKey(new Uri("sqrl://sqrl.grc.com/cli.sqrl?nut=fXkb4MBToCm7"), "Alt-ID-If-You-Want-One", block1DecryptedData.Item2); //Item2=IMK
+	Sodium.KeyPair siteKP = SQRL.CreateSiteKey(
+        new Uri("sqrl://sqrl.grc.com/cli.sqrl?nut=fXkb4MBToCm7"), "Alt-ID-If-You-Want-One", block1DecryptedData.Imk);
 }
 else
 	throw new Exception("Invalid password, failed to decrypt");
@@ -208,7 +203,7 @@ SQRLOptions opts = new SQRLOptions(SQRLOptions.SQRLOpts.CPS | SQRLOptions.SQRLOp
 Generates a query command and sends it to the server, requires that you have a  valid site keypair.
 Returns a "SQRLServerResponse" object which contains all pertinent data of the response from the server.
 */
-var serverRespose = SQRL.GenerateQueryCommand(requestURI, siteKvp, opts,null,0, priorKvps);
+var serverRespose = SQRL.GenerateQueryCommand(requestURI, siteKeyPair, opts, null, 0, priorSiteKeyPairs);
 ```
 
 
@@ -218,40 +213,41 @@ var serverRespose = SQRL.GenerateQueryCommand(requestURI, siteKvp, opts,null,0, 
 if (serverRespose.HasAsk) //Returns true if server sent "Ask"
 {
 	Console.WriteLine(serverRespose.AskMessage);
-	Console.WriteLine($"Enter 1 for {serverRespose.GetAskButtons[0]} or 2 for 	{serverRespose.GetAskButtons[1]}");
+	Console.WriteLine($"Enter 1 for {serverRespose.GetAskButtons[0]} or 2 for {serverRespose.GetAskButtons[1]}");
 	int resp;
-do
-{
-    string response = Console.ReadLine();
-    int.TryParse(response, out resp);
-    if (resp == 0)
+    do
     {
-    Console.WriteLine("Invalid Entry, please enter 1 or 2 as shown above");
-    }
+        string response = Console.ReadLine();
+        int.TryParse(response, out resp);
+        if (resp == 0)
+        {
+            Console.WriteLine("Invalid Entry, please enter 1 or 2 as shown above");
+        }
 
-} while (resp == 0);
-askResponse = resp;
+    } while (resp == 0);
 
+    askResponse = resp;
 }
 
-StringBuilder addClientData = null;
+StringBuilder additionalClientData = null;
 if (askResponse > 0)
 {
-    addClientData = new StringBuilder();
-    addClientData.AppendLineWindows($"btn={askResponse}");
+    additionalClientData = new StringBuilder();
+    additionalClientData.AppendLineWindows($"btn={askResponse}");
 }
-// addClientData now needs to be passed in to the next command (Ident)
+// additionalClientData now needs to be passed in to the next command (Ident)
 ```
+
 ##### Generate "Ident" (create) command
 
 Assumes you have a generated SiteKeyPair.
-Assumes you have a decrypted ILK (Identity Lock Key) (by decrypting block1).
+Assumes you have a decrypted ILK (Identity Lock Key) by decrypting block1.
 
 ```csharp
 if (!serverRespose.CurrentIDMatch) //New Account
 {
     //Generates a new identity with a new SUK/VUK generated from the decrypted block1
-    serverRespose = SQRL.GenerateNewIdentCommand(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3, opts);
+    serverRespose = SQRL.GenerateNewIdentCommand(serverRespose.NewNutURL, siteKeyPair, serverRespose.FullServerRequest, decryptedData.Ilk, opts);
 }
 ```
 
@@ -273,20 +269,18 @@ if (serverRespose.SQRLDisabled)
         {
             Console.WriteLine($"Decrypting with Rescue Code: {percent.Key}%");
         });
-        var iukData = await SQRL.DecryptBlock2(newId, rescueCode, progress);
-        if (iukData.Item1)
+        var decryptionResult = await SQRL.DecryptBlock2(newId, rescueCode, progress);
+        if (decryptionResult.DecryptionSucceeded)
         {
             byte[] ursKey = null;
-            ursKey = SQRL.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-
-            iukData.Item2.ZeroFill();
-            serverRespose = SQRL.GenerateEnableCommand(serverRespose.NewNutURL, siteKvp,serverRespose.FullServerRequest, ursKey,addClientData, opts);
+            ursKey = SQRL.GetURSKey(decryptionResult.Iuk, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+            decryptionResult.Iuk.ZeroFill(); // Overwrite IUK so that we leave no traces of it in RAM
+            serverRespose = SQRL.GenerateEnableCommand(serverRespose.NewNutURL, siteKeyPair, serverRespose.FullServerRequest, ursKey, additionalClientData, opts);
         }
         else
         {
-            throw new Exception("Failed to Decrypt Block 2, Invalid Rescue Code");
+            throw new Exception("Failed to decrypt block 2, invalid rescue code");
         }
-
     }
 }
 ```
@@ -300,7 +294,7 @@ SQRL sqrlInstance = SQRL.GetInstance(true);
 Console.WriteLine("This will disable all use of this SQRL identity on the server, are you sure you want to proceed?: (Y/N)");
 if (Console.ReadLine().StartsWith("Y", StringComparison.OrdinalIgnoreCase))
 {
-    serverRespose = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts);
+    serverRespose = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverRespose.NewNutURL, siteKeyPair, serverRespose.FullServerRequest, additionalClientData, opts);
     if (sqrlInstance.cps != null && sqrlInstance.cps.PendingResponse)
     {
         sqrlInstance.cps.cpsBC.Add(sqrlInstance.cps.Can);
@@ -315,25 +309,25 @@ if (Console.ReadLine().StartsWith("Y", StringComparison.OrdinalIgnoreCase))
 // CPS server functionality
 SQRL sqrlInstance = SQRL.GetInstance(true);
 
-Console.WriteLine("Enter your Rescue Code (No Sapces or Dashes)");
+Console.WriteLine("Enter your rescue code (no sapces or dashes)");
 string rescueCode = Console.ReadLine().Trim();
 progress = new Progress<KeyValuePair<int, string>>(percent =>
 {
-    Console.WriteLine($"Decrypting with Rescue Code: {percent.Key}%");
+    Console.WriteLine($"Decrypting with rescue code: {percent.Key}%");
 });
-var iukData = await SQRL.DecryptBlock2(newId, rescueCode);
-if (iukData.Item1)
+var decryptionResult = await SQRL.DecryptBlock2(newId, rescueCode);
+if (decryptionResult.DecryptionSucceeded)
 {
-    byte[] ursKey = SQRL.GetURSKey(iukData.Item2, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-    iukData.Item2.ZeroFill();
-    serverRespose = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts,null,ursKey);
+    byte[] ursKey = SQRL.GetURSKey(decryptionResult.Iuk, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+    decryptionResult.Iuk.ZeroFill(); // Overwrite IUK so that we leave no traces of it in RAM
+    serverRespose = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverRespose.NewNutURL, siteKeyPair, serverRespose.FullServerRequest, additionalClientData, opts, null, ursKey);
     if (sqrlInstance.cps != null && sqrlInstance.cps.PendingResponse)
     {
         sqrlInstance.cps.cpsBC.Add(sqrlInstance.cps.Can);
     }
 }
 else
-    throw new Exception("Failed to decrypt Block 2, invalid Rescue Code");
+    throw new Exception("Failed to decrypt block 2, invalid rescue code");
 ```
 
 ##### Send "Ident" with "Replace" (prior identity matched)
@@ -345,7 +339,7 @@ if(serverRespose.PreviousIDMatch)
 {                            
     byte[] ursKey = null;
     ursKey = SQRL.GetURSKey(serverRespose.PriorMatchedKey.Key, Sodium.Utilities.Base64ToBinary(serverRespose.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-    serverRespose = SQRL.GenerateIdentCommandWithReplace(serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, decryptedData.Item3,ursKey,serverRespose.PriorMatchedKey.Value,opts);
+    serverRespose = SQRL.GenerateIdentCommandWithReplace(serverRespose.NewNutURL, siteKeyPair, serverRespose.FullServerRequest, decryptedData.Ilk, ursKey, serverRespose.PriorMatchedKey.KeyPair, opts);
 }
 ```
 ##### Send "Ident" and deal with CPS
@@ -357,7 +351,7 @@ Any serverResponse can be dealt with via CPS, if CPS is enabled and has a "pendi
 // CPS server functionality
 SQRL sqrlInstance = SQRL.GetInstance(true);
 
-var serverRespose = SQRL.GenerateSQRLCommand(SQRLCommands.ident, serverRespose.NewNutURL, siteKvp, serverRespose.FullServerRequest, addClientData, opts);
+var serverRespose = SQRL.GenerateSQRLCommand(SQRLCommands.ident, serverRespose.NewNutURL, siteKeyPair, serverRespose.FullServerRequest, additionalClientData, opts);
 if (sqrlInstance.cps != null && sqrlInstance.cps.PendingResponse)
 {
     sqrlInstance.cps.cpsBC.Add(new Uri(serverRespose.SuccessUrl));
