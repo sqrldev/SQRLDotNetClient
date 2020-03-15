@@ -109,7 +109,13 @@
     { "QuickPassLabel": "QuickPass:" },
     { "NotifyIconContextMenuItemHeaderExit": "Exit" },
     { "NotifyIconContextMenuItemHeaderRestore": "Restore" },
-    { "NewPasswordMessage": "Enter the new password for your identity twice to avoid typos." }
+    { "NewPasswordMessage": "Enter the new password for your identity twice to avoid typos." },
+    { "ChangePasswordMenuHeader": "_Change Password" },
+    { "ChangePasswordDialogTitle": "Change Password" },
+    { "PasswordStrength": "Password strength:" },
+    { "PasswordStrengthRatingPoor": "Poor" },
+    { "PasswordStrengthRatingPoor": "Medium" },
+    { "PasswordStrengthRatingPoor": "Good" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -220,7 +226,13 @@
     { "QuickPassLabel": "QuickPass:" },
     { "NotifyIconContextMenuItemHeaderExit": "Exit" },
     { "NotifyIconContextMenuItemHeaderRestore": "Restore" },
-    { "NewPasswordMessage": "Enter the new password for your identity twice to avoid typos." }
+    { "NewPasswordMessage": "Enter the new password for your identity twice to avoid typos." },
+    { "ChangePasswordMenuHeader": "_Change Password" },
+    { "ChangePasswordDialogTitle": "Change Password" },
+    { "PasswordStrength": "Password strength:" },
+    { "PasswordStrengthRatingPoor": "Poor" },
+    { "PasswordStrengthRatingPoor": "Medium" },
+    { "PasswordStrengthRatingPoor": "Good" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -331,6 +343,12 @@
     { "QuickPassLabel": "QuickPass:" },
     { "NotifyIconContextMenuItemHeaderExit": "Beenden" },
     { "NotifyIconContextMenuItemHeaderRestore": "Wiederherstellen" },
-    { "NewPasswordMessage": "Geben Sie das neue Passwor für Ihre Identität zweimal ein, um Tippfehler auszuschließen." }
+    { "NewPasswordMessage": "Tippen Sie das neue Passwort für Ihre Identität bitte zwei Mal ein, um Tippfehler auszuschließen." },
+    { "ChangePasswordMenuHeader": "_Password ändern" },
+    { "ChangePasswordDialogTitle": "Password ändern" },
+    { "PasswordStrength": "Passwortstärke:" },
+    { "PasswordStrengthRatingPoor": "Gering" },
+    { "PasswordStrengthRatingPoor": "Medium" },
+    { "PasswordStrengthRatingPoor": "Gut" }
   ]
 }
