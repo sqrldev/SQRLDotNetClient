@@ -13,6 +13,10 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     class NewPasswordViewModel : ViewModelBase
     {
+        private static IBrush BRUSH_POOR = Brushes.LightSalmon;
+        private static IBrush BRUSH_MEDIUM = Brushes.LightGoldenrodYellow;
+        private static IBrush BRUSH_GOOD = Brushes.LightGreen;
+
         private PasswordStrengthMeter _pwdStrengthMeter = new PasswordStrengthMeter();
 
         private bool _canSave = true;
@@ -48,6 +52,34 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             get => _passwordRatingColor;
             set => this.RaiseAndSetIfChanged(ref _passwordRatingColor, value);
+        }
+
+        private IBrush _uppercaseIndicatorColor = Brushes.Crimson;
+        public IBrush UppercaseIndicatorColor
+        {
+            get => _uppercaseIndicatorColor;
+            set => this.RaiseAndSetIfChanged(ref _uppercaseIndicatorColor, value);
+        }
+
+        private IBrush _lowercaseIndicatorColor = Brushes.Crimson;
+        public IBrush LowercaseIndicatorColor
+        {
+            get => _lowercaseIndicatorColor;
+            set => this.RaiseAndSetIfChanged(ref _lowercaseIndicatorColor, value);
+        }
+
+        private IBrush _digitsIndicatorColor = Brushes.Crimson;
+        public IBrush DigitsIndicatorColor
+        {
+            get => _digitsIndicatorColor;
+            set => this.RaiseAndSetIfChanged(ref _digitsIndicatorColor, value);
+        }
+
+        private IBrush _symbolsIndicatorColor = Brushes.Crimson;
+        public IBrush SymbolsIndicatorColor
+        {
+            get => _symbolsIndicatorColor;
+            set => this.RaiseAndSetIfChanged(ref _symbolsIndicatorColor, value);
         }
 
         private string _passwordStrengthRating = "";
@@ -94,19 +126,24 @@ namespace SQRLDotNetClientUI.ViewModels
                 {
                     case PasswordRating.POOR:
                         ratingText += _loc.GetLocalizationValue("PasswordStrengthRatingPoor");
-                        this.PasswordRatingColor = Brushes.Crimson;
+                        this.PasswordRatingColor = BRUSH_POOR;
                         break;
 
                     case PasswordRating.MEDIUM:
                         ratingText += _loc.GetLocalizationValue("PasswordStrengthRatingMedium");
-                        this.PasswordRatingColor = Brushes.LightGoldenrodYellow;
+                        this.PasswordRatingColor = BRUSH_MEDIUM ;
                         break;
 
                     case PasswordRating.GOOD:
                         ratingText += _loc.GetLocalizationValue("PasswordStrengthRatingGood");
-                        this.PasswordRatingColor = Brushes.LightGreen;
+                        this.PasswordRatingColor = BRUSH_GOOD;
                         break;
                 }
+
+                this.UppercaseIndicatorColor = e.Score.UppercaseUsed ? BRUSH_GOOD : BRUSH_POOR;
+                this.LowercaseIndicatorColor = e.Score.LowercaseUsed ? BRUSH_GOOD : BRUSH_POOR;
+                this.DigitsIndicatorColor = e.Score.DigitsUsed ? BRUSH_GOOD : BRUSH_POOR;
+                this.SymbolsIndicatorColor = e.Score.SymbolsUsed ? BRUSH_GOOD : BRUSH_POOR;
 
                 this.PasswordStrengthRating = ratingText;
                 this.PasswordStrength = (double)e.Score.StrengthPoints;

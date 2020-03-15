@@ -115,7 +115,11 @@
     { "PasswordStrength": "Password strength" },
     { "PasswordStrengthRatingPoor": "Poor" },
     { "PasswordStrengthRatingMedium": "Medium" },
-    { "PasswordStrengthRatingGood": "Good" }
+    { "PasswordStrengthRatingGood": "Good" },
+    { "UppercaseIndicator": "UPPER" },
+    { "LowercaseIndicator": "LOWER" },
+    { "DigitsIndicator": "DIGITS" },
+    { "SymbolsIndicator": "SYMBOLS" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -232,7 +236,11 @@
     { "PasswordStrength": "Password strength" },
     { "PasswordStrengthRatingPoor": "Poor" },
     { "PasswordStrengthRatingMedium": "Medium" },
-    { "PasswordStrengthRatingGood": "Good" }
+    { "PasswordStrengthRatingGood": "Good" },
+    { "UppercaseIndicator": "UPPER" },
+    { "LowercaseIndicator": "LOWER" },
+    { "DigitsIndicator": "DIGITS" },
+    { "SymbolsIndicator": "SYMBOLS" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -349,6 +357,10 @@
     { "PasswordStrength": "Passwortstärke" },
     { "PasswordStrengthRatingPoor": "Gering" },
     { "PasswordStrengthRatingMedium": "Medium" },
-    { "PasswordStrengthRatingGood": "Gut" }
+    { "PasswordStrengthRatingGood": "Gut" },
+    { "UppercaseIndicator": "GROSS" },
+    { "LowercaseIndicator": "KLEIN" },
+    { "DigitsIndicator": "ZAHLEN" },
+    { "SymbolsIndicator": "SYMBOLE" }
   ]
 }
