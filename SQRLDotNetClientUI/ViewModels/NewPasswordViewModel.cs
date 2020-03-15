@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Threading;
 using ReactiveUI;
 using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
@@ -12,6 +13,8 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     class NewPasswordViewModel : ViewModelBase
     {
+        private PasswordStrengthMeter _pwdStrengthMeter = new PasswordStrengthMeter();
+
         private bool _canSave = true;
         public bool CanSave
         {
@@ -33,11 +36,11 @@ namespace SQRLDotNetClientUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _newPasswordVerify, value);
         }
 
-        private double _PasswordStrengh = 0;
+        private double _passwordStrength = 0;
         public double PasswordStrength
         {
-            get => _PasswordStrengh;
-            set => this.RaiseAndSetIfChanged(ref _PasswordStrengh, value);
+            get => _passwordStrength;
+            set => this.RaiseAndSetIfChanged(ref _passwordStrength, value);
         }
 
         private IBrush _passwordRatingColor = Brushes.Crimson;
@@ -54,7 +57,12 @@ namespace SQRLDotNetClientUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _passwordStrengthRating, value);
         }
 
-        public double PasswordStengthMax { get; set; } = 17;
+        private double _passwordStrengthMax = PasswordStrengthMeter.STRENGTH_POINTS_MIN_GOOD;
+        public double PasswordStrengthMax
+        {
+            get => _passwordStrengthMax;
+            set => this.RaiseAndSetIfChanged(ref _passwordStrengthMax, value);
+        }
 
         private string _progressText = string.Empty;
         public string ProgressText
@@ -69,12 +77,41 @@ namespace SQRLDotNetClientUI.ViewModels
             if (_identityManager.CurrentIdentity != null) 
                 this.Title += " (" + _identityManager.CurrentIdentity.IdentityName + ")";
 
-            this.WhenAnyValue(x => x.NewPassword).Subscribe(x => PasswordChanged(x));
+            this.PasswordStrength = 0;
+            _pwdStrengthMeter.ScoreUpdated += PaswordStrengthScoreUpdated;
+
+            this.WhenAnyValue(x => x.NewPassword).Subscribe(x => _pwdStrengthMeter.Update(x));
             this.WhenAnyValue(x => x.NewPasswordVerify).Subscribe(x => PasswordVerifyChanged(x));
         }
 
-        private void PasswordChanged(string newPassword)
+        private void PaswordStrengthScoreUpdated(object sender, ScoreUpdatedEventArgs e)
         {
+            Dispatcher.UIThread.Post(() =>
+            {
+                string ratingText = _loc.GetLocalizationValue("PasswordStrength") + ": ";
+
+                switch (e.Score.Rating)
+                {
+                    case PasswordRating.POOR:
+                        ratingText += _loc.GetLocalizationValue("PasswordStrengthRatingPoor");
+                        this.PasswordRatingColor = Brushes.Crimson;
+                        break;
+
+                    case PasswordRating.MEDIUM:
+                        ratingText += _loc.GetLocalizationValue("PasswordStrengthRatingMedium");
+                        this.PasswordRatingColor = Brushes.LightGoldenrodYellow;
+                        break;
+
+                    case PasswordRating.GOOD:
+                        ratingText += _loc.GetLocalizationValue("PasswordStrengthRatingGood");
+                        this.PasswordRatingColor = Brushes.LightGreen;
+                        break;
+                }
+
+                this.PasswordStrengthRating = ratingText;
+                this.PasswordStrength = (double)e.Score.StrengthPoints;
+            });
+
             
         }
 
