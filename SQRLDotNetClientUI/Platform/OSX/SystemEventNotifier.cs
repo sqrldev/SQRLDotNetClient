@@ -37,44 +37,43 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         public SystemEventNotifier(int maxIdleSeconds = 60 * 15)
         {
-            Task.Run(() =>
+            
+            var appleAppDelegate = AvaloniaLocator.Current.GetService<AppDelegate>();
+          
+            this._maxIdleSeconds = maxIdleSeconds;
+            ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screenIsLocked"), (obj) =>
             {
-                var appleAppDelegate = AvaloniaLocator.Current.GetService<AppDelegate>();
-                while (!appleAppDelegate.FinishedLaunching)
-                    Thread.Sleep(1000);
-                this._maxIdleSeconds = maxIdleSeconds;
-                ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screenIsLocked"), (obj) =>
-                {
-                    Log.Information("Detected Screen Saver");
-                    Screensaver?.Invoke(this, new SystemEventArgs("Screensaver"));
-                });
+                Log.Information("Detected session lock");
+                Screensaver?.Invoke(this, new SystemEventArgs("Session Lock"));
+            });
 
-                ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screensaver.didstart"), (obj) =>
-                {
-                    Log.Information("Detected session lock");
-                    Screensaver?.Invoke(this, new SystemEventArgs("Session Lock"));
+            ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screensaver.didstart"), (obj) =>
+            {
+                Log.Information("Detected Screen Saver");
+                Screensaver?.Invoke(this, new SystemEventArgs("Screensaver"));
+                
 
-                });
+            });
 
-                NSWorkspace.Notifications.ObserveWillSleep((s, e) =>
-                {
-                    Log.Information("Detected Standy");
-                    Standby?.Invoke(this, new SystemEventArgs("Stand By"));
-                });
+            NSWorkspace.Notifications.ObserveWillSleep((s, e) =>
+            {
+                Log.Information("Detected Standy");
+                Standby?.Invoke(this, new SystemEventArgs("Stand By"));
+            });
 
-                NSWorkspace.Notifications.ObserveWillPowerOff((s, e) =>
-                {
-                    Log.Information("Detected PowerOff / Reboot");
-                    ShutdownOrRestart?.Invoke(this, new SystemEventArgs("System ShutDown / Reboot"));
-                });
+            NSWorkspace.Notifications.ObserveWillPowerOff((s, e) =>
+            {
+                Log.Information("Detected PowerOff / Reboot");
+                ShutdownOrRestart?.Invoke(this, new SystemEventArgs("System ShutDown / Reboot"));
+            });
 
-                NSWorkspace.Notifications.ObserveSessionDidResignActive((s, e) =>
-                {
-                    Log.Information("Detected PowerOff / Reboot");
-                    SessionLogoff?.Invoke(this, new SystemEventArgs("Session Log Off"));
+            NSWorkspace.Notifications.ObserveSessionDidResignActive((s, e) =>
+            {
+                Log.Information("Detected PowerOff / Reboot");
+                SessionLogoff?.Invoke(this, new SystemEventArgs("Session Log Off"));
 
-                });
-            }).Start();
+            });
+            
 
 
             _pollTask = new Task(() =>
