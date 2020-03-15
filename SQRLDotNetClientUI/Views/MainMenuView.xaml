@@ -24,6 +24,7 @@
         <Separator/>
         <MenuItem Header="{loc:Localization DeleteIdentityMenuItemHeader}" Command="{Binding DeleteIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
         <Separator/>
+        <MenuItem Header="{loc:Localization ChangePasswordMenuHeader}"  Command="{Binding ChangePassword}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
         <MenuItem Header="{loc:Localization RekeyIdentityMenuItemHeader}"  Command="{Binding RekeyIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
         <Separator/>
         <MenuItem Header="{loc:Localization IdentitySettingsMenuItemHeader}"  Command="{Binding IdentitySettings}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
