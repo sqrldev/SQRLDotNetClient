@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace SQRLDotNetClientUI.Models
 {
     /// <summary>
-    /// Calculates and displays a password strength rating.
+    /// Calculates a password strength rating.
     /// </summary>
     public class PasswordStrengthMeter
     {
@@ -29,6 +29,14 @@ namespace SQRLDotNetClientUI.Models
             _ct = _cts.Token;
         }
 
+        /// <summary>
+        /// Calculates the strength of the given <paramref name="password"/> and
+        /// fires the <c>ScoreUpdated</c> event if the calculation succeeded.
+        /// The function protects against too frequent updates by cancelling 
+        /// calculations that are still running while a new calculation was already
+        /// started. It is therefore safe to call this method in quick succession.
+        /// </summary>
+        /// <param name="password"></param>
         private void CalculateResult(string password)
         {
             // This will avoid updating the UI too often on quick password input
@@ -109,7 +117,7 @@ namespace SQRLDotNetClientUI.Models
         }
 
         /// <summary>
-        /// Recalculates the score for <paramref name="password"/> and 
+        /// Recalculates the password strength score for <paramref name="password"/> and 
         /// finally fires the <c>ScoreUpdated</c> event.
         /// </summary>
         /// <param name="password">The password to calculate the rating for.</param>

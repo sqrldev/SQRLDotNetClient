@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace SQRLDotNetClientUI.Views
 {
-    public class NewPasswordView : UserControl
+    public class ChangePasswordView : UserControl
     {
-        public NewPasswordView()
+        public ChangePasswordView()
         {
             this.InitializeComponent();
         }

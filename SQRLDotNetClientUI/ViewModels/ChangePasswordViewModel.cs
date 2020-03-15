@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
-    class NewPasswordViewModel : ViewModelBase
+    class ChangePasswordViewModel : ViewModelBase
     {
         private static IBrush BRUSH_POOR = Brushes.LightSalmon;
         private static IBrush BRUSH_MEDIUM = Brushes.LightGoldenrodYellow;
@@ -103,7 +103,7 @@ namespace SQRLDotNetClientUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _progressText, value);
         }
 
-        public NewPasswordViewModel()
+        public ChangePasswordViewModel()
         {
             this.Title = _loc.GetLocalizationValue("ChangePasswordDialogTitle");
             if (_identityManager.CurrentIdentity != null) 

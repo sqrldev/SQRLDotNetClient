@@ -126,7 +126,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 _identityManager.CurrentIdentityUniqueId);
 
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
-                new NewPasswordViewModel();
+                new ChangePasswordViewModel();
         }
 
         public void Exit()
