@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Runtime.InteropServices;
+
 namespace SQRLDotNetClientUI.Platform.OSX
 {
     /// <summary>
@@ -21,9 +23,33 @@ namespace SQRLDotNetClientUI.Platform.OSX
     [Register("AppDelegate")]
     public class AppDelegate : NSApplicationDelegate
     {
+        [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
+        static extern int IOServiceGetMatchingServices(uint masterPort, IntPtr matching, ref int existing);
+
+        [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
+        static extern uint IOServiceGetMatchingService(uint masterPort, IntPtr matching);
+
+        [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
+        static extern IntPtr IOServiceMatching(string s);
+
+        [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
+        static extern IntPtr IORegistryEntryCreateCFProperty(uint entry, IntPtr key, IntPtr allocator, uint options);
+
+        [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
+        static extern int IOObjectRelease(int o);
+
+        [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
+        static extern int IOIteratorNext(int o);
+
+        [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
+        static extern int IORegistryEntryCreateCFProperties(int entry, out IntPtr eproperties, IntPtr allocator, uint options);
+
+        [DllImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
+        static extern bool CFNumberGetValue(IntPtr number, int theType, out long value);
+
 
         //public NSStatusItem statusBarItem;
-        
+
         // Instance Window of our App
         Window mainWindow = null;
 
@@ -87,12 +113,34 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         public override void DidFinishLaunching(NSNotification notification)
         {
-            
-            
-            ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screenIsLocked"), (obj) =>
+
+            long idlesecs = 0;
+            int iter = 0;
+            if (IOServiceGetMatchingServices(0, IOServiceMatching("IOHIDSystem"), ref iter) == 0)
             {
-                Console.WriteLine("Hello");
-            });
+                int entry = IOIteratorNext(iter);
+                if (entry != 0)
+                {
+                    IntPtr dictHandle;
+                    if (IORegistryEntryCreateCFProperties(entry, out dictHandle, IntPtr.Zero, 0) == 0)
+                    {
+                        NSDictionary dict =(NSDictionary) MonoMac.ObjCRuntime.Runtime.GetNSObject(dictHandle);
+                        NSObject value;
+                        dict.TryGetValue((NSString)"HIDIdleTime", out value);
+                        if (value != null)
+                        {
+                            long nanoseconds = 0;
+                            if (CFNumberGetValue(value.Handle, 4 /* kCFNumberSInt64Type = 4 */, out nanoseconds))
+                            {
+                                idlesecs = nanoseconds >> 30; // Divide by 10^9 to convert from nanoseconds to seconds.
+                                Console.WriteLine(idlesecs);
+                            }
+                        }
+                    }
+                    IOObjectRelease(entry);
+                }
+                IOObjectRelease(iter);
+            }
         }
 
 
