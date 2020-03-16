@@ -35,7 +35,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
         public event EventHandler<SystemEventArgs> SessionLock;
         public event EventHandler<SystemEventArgs> ShutdownOrRestart;
 
-        public  SystemEventNotifier(int maxIdleSeconds = 60 * 15)
+        public SystemEventNotifier(int maxIdleSeconds = 60 * 15)
         {
             Task.Run(() =>
             {
@@ -74,13 +74,13 @@ namespace SQRLDotNetClientUI.Platform.OSX
                     SessionLogoff?.Invoke(this, new SystemEventArgs("Session Log Off"));
 
                 });
-            });
+            }).Start();
 
 
             _pollTask = new Task(() =>
             {
                 Log.Information("SystemEventNotifier polling task started");
-
+                Thread.Sleep(POLL_INTERVAL); //Sleep at first to give Mac Delegate time
                 while (!_ct.IsCancellationRequested)
                 {
                     // Check system idle time
@@ -111,6 +111,6 @@ namespace SQRLDotNetClientUI.Platform.OSX
             _pollTask.Start();
         }
 
-        }
     }
+
 }
