@@ -94,7 +94,7 @@ namespace SQRLDotNetClientUI.Platform.Linux
                     //Since we can't check for Lock, Logout or Restart we are going to
                     //Do a bit of  a hack and assume that if our loop took longer than triple the standard time to run
                     //then we want to go ahead and clear the quick pass;
-                    if ((DateTime.Now -lastCheck).TotalSeconds > POLL_INTERVAL * 3)
+                    if ((DateTime.Now -lastCheck).TotalSeconds > (POLL_INTERVAL/1000) * 3)
                     {
                         Log.Information("Detected an Anommaly System Loop took > 3X to run, clearing quick pass");
                         Standby?.Invoke(this, new SystemEventArgs("System Hiccup Clearing QuickPass Just in Case"));
