@@ -23,7 +23,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
     [Register("AppDelegate")]
     public class AppDelegate : NSApplicationDelegate
     {
-        [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
+        /*[DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
         static extern int IOServiceGetMatchingServices(uint masterPort, IntPtr matching, ref int existing);
 
         [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
@@ -47,7 +47,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
         [DllImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
         static extern bool CFNumberGetValue(IntPtr number, int theType, out long value);
 
-
+        */
         //public NSStatusItem statusBarItem;
 
         // Instance Window of our App
@@ -113,10 +113,10 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         public override void DidFinishLaunching(NSNotification notification)
         {
-            CheckIdleTime();
+            //CheckIdleTime();
         }
 
-        public static TimeSpan CheckIdleTime()
+        /*public static TimeSpan CheckIdleTime()
         {
             long idlesecs = 0;
             int iter = 0;
@@ -135,7 +135,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
                         if (value != null)
                         {
                             long nanoseconds = 0;
-                            if (CFNumberGetValue(value.Handle, 4 /* kCFNumberSInt64Type = 4 */, out nanoseconds))
+                            if (CFNumberGetValue(value.Handle, 4 , out nanoseconds))
                             {
                                 idlesecs = nanoseconds >> 30; // Shift To Convert from nanoseconds to seconds.
                                 idleTime = DateTime.Now - DateTime.Now.AddSeconds(-idlesecs);
@@ -148,108 +148,10 @@ namespace SQRLDotNetClientUI.Platform.OSX
             }
 
             return idleTime;
-        }
+        }*/
     }
 
-    public class Observer : NSObject
-    {
-        // Fields
-        private Action<NSObservedChange> cback;
-        private NSString key;
-        private WeakReference obj;
-
-        // Methods
-        public Observer(NSObject obj, NSString key, Action<NSObservedChange> observer)
-        {
-            if (observer == null)
-            {
-                throw new ArgumentNullException("observer");
-            }
-            this.obj = new WeakReference(obj);
-            this.key = key;
-            this.cback = observer;
-            base.IsDirectBinding = false;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (this.obj != null)
-                {
-                    NSObject target = (NSObject)this.obj.Target;
-                    if (target != null)
-                    {
-                        target.RemoveObserver(this, this.key);
-                    }
-                }
-                this.obj = null;
-                this.cback = null;
-            }
-            else
-            {
-                Console.WriteLine("Warning: observer object was not disposed manually with Dispose()");
-            }
-            base.Dispose(disposing);
-        }
-
-        [Preserve(Conditional = true)]
-        public override void ObserveValue(NSString keyPath, NSObject ofObject, NSDictionary change, IntPtr context)
-        {
-            if ((keyPath == this.key) && (context == base.Handle))
-            {
-                this.cback(new NSObservedChange(change));
-            }
-            else
-            {
-                base.ObserveValue(keyPath, ofObject, change, context);
-            }
-        }
-    }
-
-
-    public class NSObservedChange
-    {
-        // Fields
-        private NSDictionary dict;
-
-        // Methods
-        public NSObservedChange(NSDictionary source)
-        {
-            this.dict = source;
-        }
-
-        // Properties
-        public NSKeyValueChange Change
-        {
-            get
-            {
-                NSNumber number = (NSNumber)this.dict[NSObject.ChangeKindKey];
-                return (NSKeyValueChange)number.Int32Value;
-            }
-        }
-
-        public NSIndexSet Indexes =>
-            ((NSIndexSet)this.dict[NSObject.ChangeIndexesKey]);
-
-        public bool IsPrior
-        {
-            get
-            {
-                NSNumber number = this.dict[NSObject.ChangeNotificationIsPriorKey] as NSNumber;
-                if (number == null)
-                    return false;
-                return number.BoolValue;
-            }
-        }
-
-        public NSObject NewValue =>
-            this.dict[NSObject.ChangeNewKey];
-
-        public NSObject OldValue =>
-            this.dict[NSObject.ChangeOldKey];
-    }
-
+    
 
 
 }
