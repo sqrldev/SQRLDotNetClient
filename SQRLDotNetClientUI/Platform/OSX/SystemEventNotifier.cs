@@ -50,12 +50,14 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
             });
 
-            NSWorkspace.Notifications.ObserveWillSleep((s, e) =>{
+            NSWorkspace.Notifications.ObserveWillSleep((s, e) =>
+            {
                 Log.Information("Detected Standy");
                 Standby?.Invoke(this, new SystemEventArgs("Stand By"));
             });
 
-            NSWorkspace.Notifications.ObserveWillPowerOff((s, e) => {
+            NSWorkspace.Notifications.ObserveWillPowerOff((s, e) =>
+            {
                 Log.Information("Detected PowerOff / Reboot");
                 ShutdownOrRestart?.Invoke(this, new SystemEventArgs("System ShutDown / Reboot"));
             });
@@ -75,7 +77,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
                 while (!_ct.IsCancellationRequested)
                 {
                     // Check system idle time
-                    TimeSpan idletime= AppDelegate.CheckIdleTime();
+                    TimeSpan idletime = AppDelegate.CheckIdleTime();
                     Log.Debug("Idle time: {IdleTime}", idletime.ToString());
                     if (idletime.TotalSeconds > _maxIdleSeconds)
                     {
@@ -101,6 +103,6 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
             _pollTask.Start();
         }
-    }
+
     }
 }
