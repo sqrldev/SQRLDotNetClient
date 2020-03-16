@@ -28,10 +28,20 @@ namespace SQRLDotNetClientUI.ViewModels
             this.PasswordStrength = 0;
             _pwdStrengthMeter.ScoreUpdated += PaswordStrengthScoreUpdated;
 
-            this.WhenAnyValue(x => x.NewPassword).Subscribe(x => _pwdStrengthMeter.Update(x));
-            this.WhenAnyValue(x => x.NewPasswordVerify).Subscribe(x => PasswordVerifyChanged(x));
+            this.WhenAnyValue(x => x.NewPassword).Subscribe(x =>
+            {
+                _pwdStrengthMeter.Update(x);
+                CheckPasswordVerification();
+            });
+            this.WhenAnyValue(x => x.NewPasswordVerify).Subscribe(x => CheckPasswordVerification());
         }
 
+        /// <summary>
+        /// Gets called if the <c>PasswordStrengthMeter</c> has calculated a new
+        /// password strength rating.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PaswordStrengthScoreUpdated(object sender, ScoreUpdatedEventArgs e)
         {
             Dispatcher.UIThread.Post(() =>
@@ -68,17 +78,32 @@ namespace SQRLDotNetClientUI.ViewModels
             
         }
 
-        private void PasswordVerifyChanged(string newPassword)
+        /// <summary>
+        /// Checks if the password verification matches the new password
+        /// and enables/disables UI controls accordingly.
+        /// </summary>
+        private void CheckPasswordVerification()
         {
-            
+            if (!string.IsNullOrEmpty(this.NewPassword) && this.NewPassword == this.NewPasswordVerify)
+            {
+                this.CanSave = true;
+            }
+            else this.CanSave = false;
         }
 
+        /// <summary>
+        /// Closes the current view and displays the main screen.
+        /// </summary>
         public void Close()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
                 ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
         }
 
+        /// <summary>
+        /// Decrypts the current identity's block 1 using the old password
+        /// and tries to re-encrypt it using the new password.
+        /// </summary>
         public async void SetNewPassword()
         {
             CanSave = false;
@@ -119,89 +144,89 @@ namespace SQRLDotNetClientUI.ViewModels
             CanSave = true;
             Close();
         }
-    }
 
-    private bool _canSave = true;
-    public bool CanSave
-    {
-        get => _canSave;
-        set => this.RaiseAndSetIfChanged(ref _canSave, value);
-    }
+        private bool _canSave = true;
+        public bool CanSave
+        {
+            get => _canSave;
+            set => this.RaiseAndSetIfChanged(ref _canSave, value);
+        }
 
-    private string _newPassword = "";
-    public string NewPassword
-    {
-        get => _newPassword;
-        set => this.RaiseAndSetIfChanged(ref _newPassword, value);
-    }
+        private string _newPassword = "";
+        public string NewPassword
+        {
+            get => _newPassword;
+            set => this.RaiseAndSetIfChanged(ref _newPassword, value);
+        }
 
-    private string _newPasswordVerify = "";
-    public string NewPasswordVerify
-    {
-        get => _newPasswordVerify;
-        set => this.RaiseAndSetIfChanged(ref _newPasswordVerify, value);
-    }
+        private string _newPasswordVerify = "";
+        public string NewPasswordVerify
+        {
+            get => _newPasswordVerify;
+            set => this.RaiseAndSetIfChanged(ref _newPasswordVerify, value);
+        }
 
-    private double _passwordStrength = 0;
-    public double PasswordStrength
-    {
-        get => _passwordStrength;
-        set => this.RaiseAndSetIfChanged(ref _passwordStrength, value);
-    }
+        private double _passwordStrength = 0;
+        public double PasswordStrength
+        {
+            get => _passwordStrength;
+            set => this.RaiseAndSetIfChanged(ref _passwordStrength, value);
+        }
 
-    private IBrush _passwordRatingColor = Brushes.Crimson;
-    public IBrush PasswordRatingColor
-    {
-        get => _passwordRatingColor;
-        set => this.RaiseAndSetIfChanged(ref _passwordRatingColor, value);
-    }
+        private IBrush _passwordRatingColor = Brushes.Crimson;
+        public IBrush PasswordRatingColor
+        {
+            get => _passwordRatingColor;
+            set => this.RaiseAndSetIfChanged(ref _passwordRatingColor, value);
+        }
 
-    private IBrush _uppercaseIndicatorColor = Brushes.Crimson;
-    public IBrush UppercaseIndicatorColor
-    {
-        get => _uppercaseIndicatorColor;
-        set => this.RaiseAndSetIfChanged(ref _uppercaseIndicatorColor, value);
-    }
+        private IBrush _uppercaseIndicatorColor = Brushes.Crimson;
+        public IBrush UppercaseIndicatorColor
+        {
+            get => _uppercaseIndicatorColor;
+            set => this.RaiseAndSetIfChanged(ref _uppercaseIndicatorColor, value);
+        }
 
-    private IBrush _lowercaseIndicatorColor = Brushes.Crimson;
-    public IBrush LowercaseIndicatorColor
-    {
-        get => _lowercaseIndicatorColor;
-        set => this.RaiseAndSetIfChanged(ref _lowercaseIndicatorColor, value);
-    }
+        private IBrush _lowercaseIndicatorColor = Brushes.Crimson;
+        public IBrush LowercaseIndicatorColor
+        {
+            get => _lowercaseIndicatorColor;
+            set => this.RaiseAndSetIfChanged(ref _lowercaseIndicatorColor, value);
+        }
 
-    private IBrush _digitsIndicatorColor = Brushes.Crimson;
-    public IBrush DigitsIndicatorColor
-    {
-        get => _digitsIndicatorColor;
-        set => this.RaiseAndSetIfChanged(ref _digitsIndicatorColor, value);
-    }
+        private IBrush _digitsIndicatorColor = Brushes.Crimson;
+        public IBrush DigitsIndicatorColor
+        {
+            get => _digitsIndicatorColor;
+            set => this.RaiseAndSetIfChanged(ref _digitsIndicatorColor, value);
+        }
 
-    private IBrush _symbolsIndicatorColor = Brushes.Crimson;
-    public IBrush SymbolsIndicatorColor
-    {
-        get => _symbolsIndicatorColor;
-        set => this.RaiseAndSetIfChanged(ref _symbolsIndicatorColor, value);
-    }
+        private IBrush _symbolsIndicatorColor = Brushes.Crimson;
+        public IBrush SymbolsIndicatorColor
+        {
+            get => _symbolsIndicatorColor;
+            set => this.RaiseAndSetIfChanged(ref _symbolsIndicatorColor, value);
+        }
 
-    private string _passwordStrengthRating = "";
-    public string PasswordStrengthRating
-    {
-        get => _passwordStrengthRating;
-        set => this.RaiseAndSetIfChanged(ref _passwordStrengthRating, value);
-    }
+        private string _passwordStrengthRating = "";
+        public string PasswordStrengthRating
+        {
+            get => _passwordStrengthRating;
+            set => this.RaiseAndSetIfChanged(ref _passwordStrengthRating, value);
+        }
 
-    private double _passwordStrengthMax = PasswordStrengthMeter.STRENGTH_POINTS_MIN_GOOD;
-    public double PasswordStrengthMax
-    {
-        get => _passwordStrengthMax;
-        set => this.RaiseAndSetIfChanged(ref _passwordStrengthMax, value);
-    }
+        private double _passwordStrengthMax = PasswordStrengthMeter.STRENGTH_POINTS_MIN_GOOD;
+        public double PasswordStrengthMax
+        {
+            get => _passwordStrengthMax;
+            set => this.RaiseAndSetIfChanged(ref _passwordStrengthMax, value);
+        }
 
-    private string _progressText = string.Empty;
-    public string ProgressText
-    {
-        get => _progressText;
-        set => this.RaiseAndSetIfChanged(ref _progressText, value);
+        private string _progressText = string.Empty;
+        public string ProgressText
+        {
+            get => _progressText;
+            set => this.RaiseAndSetIfChanged(ref _progressText, value);
+        }
     }
 }
