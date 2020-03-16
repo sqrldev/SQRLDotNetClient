@@ -23,14 +23,16 @@ namespace SQRLDotNetClientUI.Platform.OSX
     [Register("AppDelegate")]
     public class AppDelegate : NSApplicationDelegate
     {
-        public bool FinishedLaunching = false;
+        public bool IsFinishedLaunching = false;
         [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
         static extern int IOServiceGetMatchingServices(uint masterPort, IntPtr matching, ref int existing);
 
         [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
         static extern uint IOServiceGetMatchingService(uint masterPort, IntPtr matching);
 
+#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
         [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
+#pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
         static extern IntPtr IOServiceMatching(string s);
 
         [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
@@ -112,7 +114,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         public override void DidFinishLaunching(NSNotification notification)
         {
-            FinishedLaunching = true;
+            IsFinishedLaunching = true;
         }
 
 

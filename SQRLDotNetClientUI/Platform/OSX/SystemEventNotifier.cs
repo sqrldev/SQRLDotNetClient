@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace SQRLDotNetClientUI.Platform.OSX
 {
     /// <summary>
-    /// Provides access to Windows system events that are relevant to the 
+    /// Provides access to MacOSX system events that are relevant to the 
     /// clearing of QuickPass-related data from RAM, like entering
     /// an idle state, logging off or entering a sleep or hilbernation
     /// state etc.
@@ -35,7 +35,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
         private CancellationTokenSource _cts = null;
         private CancellationToken _ct;
         private Task _pollTask = null;
-        private bool _screensaverDetected = false;
+        
         private bool _idleDetected = false;
         private int _maxIdleSeconds = 60 * 15; // Set a sensible default, will be overwritten anyway
 
@@ -55,6 +55,8 @@ namespace SQRLDotNetClientUI.Platform.OSX
         /// <c>Idle</c> event is being raised.</param>
         public SystemEventNotifier(int maxIdleSeconds = 60 * 15)
         {
+            _cts = new CancellationTokenSource();
+            _ct = _cts.Token;
 
             this._maxIdleSeconds = maxIdleSeconds;
             
@@ -62,7 +64,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
             ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screenIsLocked"), (obj) =>
             {
                 Log.Information("Detected session lock");
-                Screensaver?.Invoke(this, new SystemEventArgs("Session Lock"));
+                SessionLock?.Invoke(this, new SystemEventArgs("Session Lock"));
             });
 
             //Subscribe to an apple notification fired when the screen saver starts
@@ -133,7 +135,13 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
             _pollTask.Start();
         }
-
+        ~SystemEventNotifier()
+        {
+            // Cancel the polling task
+            _cts.Cancel();
+        }
     }
+
+   
 
 }
