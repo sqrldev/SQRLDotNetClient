@@ -37,7 +37,7 @@ namespace SQRLDotNetClientUI.Platform
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     return typeof(Win.SystemEventNotifier);
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                    return null;
+                    return typeof(Linux.SystemEventNotifier);
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                     return typeof(OSX.SystemEventNotifier);
                 else return null;
