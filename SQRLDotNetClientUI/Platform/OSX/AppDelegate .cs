@@ -23,7 +23,8 @@ namespace SQRLDotNetClientUI.Platform.OSX
     [Register("AppDelegate")]
     public class AppDelegate : NSApplicationDelegate
     {
-        /*[DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
+        public bool FinishedLaunching = false;
+        [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
         static extern int IOServiceGetMatchingServices(uint masterPort, IntPtr matching, ref int existing);
 
         [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
@@ -47,7 +48,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
         [DllImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
         static extern bool CFNumberGetValue(IntPtr number, int theType, out long value);
 
-        */
+        
         //public NSStatusItem statusBarItem;
 
         // Instance Window of our App
@@ -70,7 +71,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
         /// </summary>
         private void Init()
         {
-            
+            AvaloniaLocator.CurrentMutable.Bind<AppDelegate>().ToConstant(this);
             NSAppleEventManager.SharedAppleEventManager.SetEventHandler(this, new MonoMac.ObjCRuntime.Selector("handleGetURLEvent:withReplyEvent:"), AEEventClass.Internet, AEEventID.GetUrl);
         }
         /// <summary>
@@ -114,9 +115,10 @@ namespace SQRLDotNetClientUI.Platform.OSX
         public override void DidFinishLaunching(NSNotification notification)
         {
             //CheckIdleTime();
+            FinishedLaunching = true;
         }
 
-        /*public static TimeSpan CheckIdleTime()
+        public static TimeSpan CheckIdleTime()
         {
             long idlesecs = 0;
             int iter = 0;
@@ -148,7 +150,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
             }
 
             return idleTime;
-        }*/
+        }
     }
 
     

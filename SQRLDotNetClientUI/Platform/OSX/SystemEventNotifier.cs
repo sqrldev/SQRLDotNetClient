@@ -1,4 +1,5 @@
-﻿using MonoMac.AppKit;
+﻿using Avalonia;
+using MonoMac.AppKit;
 using MonoMac.Foundation;
 using Serilog;
 using SQRLDotNetClientUI.Models;
@@ -34,43 +35,49 @@ namespace SQRLDotNetClientUI.Platform.OSX
         public event EventHandler<SystemEventArgs> SessionLock;
         public event EventHandler<SystemEventArgs> ShutdownOrRestart;
 
-        public SystemEventNotifier(int maxIdleSeconds = 60 * 15)
+        public  SystemEventNotifier(int maxIdleSeconds = 60 * 15)
         {
-            this._maxIdleSeconds = maxIdleSeconds;
-            ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screenIsLocked"), (obj) =>
+            Task.Run(() =>
             {
-                Log.Information("Detected Screen Saver");
-                Screensaver?.Invoke(this, new SystemEventArgs("Screensaver"));
+                var appleAppDelegate = AvaloniaLocator.Current.GetService<AppDelegate>();
+                while (!appleAppDelegate.FinishedLaunching)
+                    Thread.Sleep(1000);
+                this._maxIdleSeconds = maxIdleSeconds;
+                ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screenIsLocked"), (obj) =>
+                {
+                    Log.Information("Detected Screen Saver");
+                    Screensaver?.Invoke(this, new SystemEventArgs("Screensaver"));
+                });
+
+                ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screensaver.didstart"), (obj) =>
+                {
+                    Log.Information("Detected session lock");
+                    Screensaver?.Invoke(this, new SystemEventArgs("Session Lock"));
+
+                });
+
+                NSWorkspace.Notifications.ObserveWillSleep((s, e) =>
+                {
+                    Log.Information("Detected Standy");
+                    Standby?.Invoke(this, new SystemEventArgs("Stand By"));
+                });
+
+                NSWorkspace.Notifications.ObserveWillPowerOff((s, e) =>
+                {
+                    Log.Information("Detected PowerOff / Reboot");
+                    ShutdownOrRestart?.Invoke(this, new SystemEventArgs("System ShutDown / Reboot"));
+                });
+
+                NSWorkspace.Notifications.ObserveSessionDidResignActive((s, e) =>
+                {
+                    Log.Information("Detected PowerOff / Reboot");
+                    SessionLogoff?.Invoke(this, new SystemEventArgs("Session Log Off"));
+
+                });
             });
 
-            ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screensaver.didstart"), (obj) =>
-            {
-                Log.Information("Detected session lock");
-                Screensaver?.Invoke(this, new SystemEventArgs("Session Lock"));
 
-            });
-
-            NSWorkspace.Notifications.ObserveWillSleep((s, e) =>
-            {
-                Log.Information("Detected Standy");
-                Standby?.Invoke(this, new SystemEventArgs("Stand By"));
-            });
-
-            NSWorkspace.Notifications.ObserveWillPowerOff((s, e) =>
-            {
-                Log.Information("Detected PowerOff / Reboot");
-                ShutdownOrRestart?.Invoke(this, new SystemEventArgs("System ShutDown / Reboot"));
-            });
-
-            NSWorkspace.Notifications.ObserveSessionDidResignActive((s, e) =>
-            {
-                Log.Information("Detected PowerOff / Reboot");
-                SessionLogoff?.Invoke(this, new SystemEventArgs("Session Log Off"));
-
-            });
-
-
-            /*_pollTask = new Task(() =>
+            _pollTask = new Task(() =>
             {
                 Log.Information("SystemEventNotifier polling task started");
 
@@ -102,7 +109,8 @@ namespace SQRLDotNetClientUI.Platform.OSX
             }, _ct);
 
             _pollTask.Start();
-        }*/
+        }
 
+        }
     }
 }
