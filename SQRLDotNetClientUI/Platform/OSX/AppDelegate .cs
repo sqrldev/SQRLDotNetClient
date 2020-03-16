@@ -113,9 +113,14 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         public override void DidFinishLaunching(NSNotification notification)
         {
+            CheckIdleTime();
+        }
 
+        public static TimeSpan CheckIdleTime()
+        {
             long idlesecs = 0;
             int iter = 0;
+            TimeSpan idleTime = TimeSpan.Zero;
             if (IOServiceGetMatchingServices(0, IOServiceMatching("IOHIDSystem"), ref iter) == 0)
             {
                 int entry = IOIteratorNext(iter);
@@ -124,7 +129,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
                     IntPtr dictHandle;
                     if (IORegistryEntryCreateCFProperties(entry, out dictHandle, IntPtr.Zero, 0) == 0)
                     {
-                        NSDictionary dict =(NSDictionary) MonoMac.ObjCRuntime.Runtime.GetNSObject(dictHandle);
+                        NSDictionary dict = (NSDictionary)MonoMac.ObjCRuntime.Runtime.GetNSObject(dictHandle);
                         NSObject value;
                         dict.TryGetValue((NSString)"HIDIdleTime", out value);
                         if (value != null)
@@ -132,8 +137,8 @@ namespace SQRLDotNetClientUI.Platform.OSX
                             long nanoseconds = 0;
                             if (CFNumberGetValue(value.Handle, 4 /* kCFNumberSInt64Type = 4 */, out nanoseconds))
                             {
-                                idlesecs = nanoseconds >> 30; // Divide by 10^9 to convert from nanoseconds to seconds.
-                                Console.WriteLine(idlesecs);
+                                idlesecs = nanoseconds >> 30; // Shift To Convert from nanoseconds to seconds.
+                                idleTime = DateTime.Now - DateTime.Now.AddSeconds(-idlesecs);
                             }
                         }
                     }
@@ -141,9 +146,9 @@ namespace SQRLDotNetClientUI.Platform.OSX
                 }
                 IOObjectRelease(iter);
             }
+
+            return idleTime;
         }
-
-
     }
 
     public class Observer : NSObject
