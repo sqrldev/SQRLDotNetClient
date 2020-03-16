@@ -48,9 +48,6 @@ namespace SQRLDotNetClientUI.Platform.OSX
         [DllImport("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation")]
         static extern bool CFNumberGetValue(IntPtr number, int theType, out long value);
 
-        
-        //public NSStatusItem statusBarItem;
-
         // Instance Window of our App
         Window mainWindow = null;
 
@@ -71,6 +68,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
         /// </summary>
         private void Init()
         {
+            //Register this Apple Delegate globablly with Avalonia for Later Use
             AvaloniaLocator.CurrentMutable.Bind<AppDelegate>().ToConstant(this);
             NSAppleEventManager.SharedAppleEventManager.SetEventHandler(this, new MonoMac.ObjCRuntime.Selector("handleGetURLEvent:withReplyEvent:"), AEEventClass.Internet, AEEventID.GetUrl);
         }
@@ -114,10 +112,14 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         public override void DidFinishLaunching(NSNotification notification)
         {
-            //CheckIdleTime();
             FinishedLaunching = true;
         }
 
+
+        /// <summary>
+        /// Checks the System's Environment Variable HIDIdleTime which is maintained by apple to register last Keyboard or Mouse Input
+        /// </summary>
+        /// <returns></returns>
         public static TimeSpan CheckIdleTime()
         {
             long idlesecs = 0;
