@@ -70,7 +70,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
             });
 
 
-            _pollTask = new Task(() =>
+            /*_pollTask = new Task(() =>
             {
                 Log.Information("SystemEventNotifier polling task started");
 
@@ -102,7 +102,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
             }, _ct);
 
             _pollTask.Start();
-        }
+        }*/
 
     }
 }
