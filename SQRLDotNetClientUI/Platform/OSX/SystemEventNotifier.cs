@@ -12,6 +12,17 @@ using System.Threading.Tasks;
 
 namespace SQRLDotNetClientUI.Platform.OSX
 {
+    /// <summary>
+    /// Provides access to Windows system events that are relevant to the 
+    /// clearing of QuickPass-related data from RAM, like entering
+    /// an idle state, logging off or entering a sleep or hilbernation
+    /// state etc.
+    /// 
+    /// Most of the events are gathered by creating a native Apple App Delegate (at App Initialize) and 
+    /// registering and listening to event related window messages. Some
+    /// events require polling, so a low-impact polling thread is implemented
+    /// to peridodically check for those events.
+    /// </summary>
     public class SystemEventNotifier : ISystemEventNotifier
     {
 
@@ -35,47 +46,60 @@ namespace SQRLDotNetClientUI.Platform.OSX
         public event EventHandler<SystemEventArgs> SessionLock;
         public event EventHandler<SystemEventArgs> ShutdownOrRestart;
 
+
+        /// <summary>
+        /// Creates a new <c>SystemEventNotifier</c> instance and sets up some 
+        /// required resources.
+        /// </summary>
+        /// <param name="maxIdleSeconds">The maximum system idle time in seconds before the
+        /// <c>Idle</c> event is being raised.</param>
         public SystemEventNotifier(int maxIdleSeconds = 60 * 15)
         {
-            
-            var appleAppDelegate = AvaloniaLocator.Current.GetService<AppDelegate>();
-          
+
             this._maxIdleSeconds = maxIdleSeconds;
+            
+            //Subscribe to an apple notification fired when the screen is locked
             ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screenIsLocked"), (obj) =>
             {
                 Log.Information("Detected session lock");
                 Screensaver?.Invoke(this, new SystemEventArgs("Session Lock"));
             });
 
+            //Subscribe to an apple notification fired when the screen saver starts
             ((NSDistributedNotificationCenter)NSDistributedNotificationCenter.DefaultCenter).AddObserver(new NSString("com.apple.screensaver.didstart"), (obj) =>
             {
                 Log.Information("Detected Screen Saver");
                 Screensaver?.Invoke(this, new SystemEventArgs("Screensaver"));
-                
-
             });
 
+
+            //Subscribe to an apple notification fired when the System goes to Sleep
             NSWorkspace.Notifications.ObserveWillSleep((s, e) =>
             {
                 Log.Information("Detected Standy");
                 Standby?.Invoke(this, new SystemEventArgs("Stand By"));
             });
 
+
+            //Subscribe to an apple notification fired when the System goes to power off / reboot
             NSWorkspace.Notifications.ObserveWillPowerOff((s, e) =>
             {
                 Log.Information("Detected PowerOff / Reboot");
                 ShutdownOrRestart?.Invoke(this, new SystemEventArgs("System ShutDown / Reboot"));
             });
 
+
+
+            //Subscribe to an apple notification fired when the System goes to Log off the current User
             NSWorkspace.Notifications.ObserveSessionDidResignActive((s, e) =>
             {
                 Log.Information("Detected PowerOff / Reboot");
                 SessionLogoff?.Invoke(this, new SystemEventArgs("Session Log Off"));
 
             });
-            
 
 
+            // Start a task to poll Idle Time Global Environment Variable
             _pollTask = new Task(() =>
             {
                 Log.Information("SystemEventNotifier polling task started");
