@@ -1,0 +1,22 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
+        xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
+        mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="200"
+        Width="350" 
+        x:Class="SQRLDotNetClientUI.Views.ProgressDialog"
+        Title=""
+        CanResize="False"
+        SizeToContent="Height">
+
+  <DockPanel Margin="20">
+    <StackPanel DockPanel.Dock="Top" Margin="20" Orientation="Vertical">
+      <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="40" HorizontalAlignment="Center"></Image>
+      <TextBlock Name="lblMessage" TextAlignment="Center" Margin="0,20" TextWrapping="Wrap">Working...</TextBlock>
+      <ProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMax}" Margin="0,0,0,20" IsIndeterminate="False" Minimum="0"/>
+    </StackPanel>
+  </DockPanel>
+  
+</Window>
