@@ -119,7 +119,10 @@
     { "UppercaseIndicator": "UPPER" },
     { "LowercaseIndicator": "LOWER" },
     { "DigitsIndicator": "DIGITS" },
-    { "SymbolsIndicator": "SYMBOLS" }
+    { "SymbolsIndicator": "SYMBOLS" },
+    { "ProgressDialogTitle": "Working..." },
+    { "ProgressDialogInQueue": "In queue..." },
+    { "ProgressDialogMessage": "Operation in progress, please wait..." }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -237,10 +240,13 @@
     { "PasswordStrengthRatingPoor": "Poor" },
     { "PasswordStrengthRatingMedium": "Medium" },
     { "PasswordStrengthRatingGood": "Good" },
-    { "UppercaseIndicator": "UPPER" },
-    { "LowercaseIndicator": "LOWER" },
-    { "DigitsIndicator": "DIGITS" },
-    { "SymbolsIndicator": "SYMBOLS" }
+    { "UppercaseIndicator": "Upper" },
+    { "LowercaseIndicator": "Lower" },
+    { "DigitsIndicator": "Digits" },
+    { "SymbolsIndicator": "Symbols" },
+    { "ProgressDialogTitle": "Working..." },
+    { "ProgressDialogInQueue": "In queue..." },
+    { "ProgressDialogMessage": "Operation in progress, please wait..." }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -358,9 +364,12 @@
     { "PasswordStrengthRatingPoor": "Gering" },
     { "PasswordStrengthRatingMedium": "Medium" },
     { "PasswordStrengthRatingGood": "Gut" },
-    { "UppercaseIndicator": "GROSS" },
-    { "LowercaseIndicator": "KLEIN" },
-    { "DigitsIndicator": "ZAHLEN" },
-    { "SymbolsIndicator": "SYMBOLE" }
+    { "UppercaseIndicator": "Gross" },
+    { "LowercaseIndicator": "Klein" },
+    { "DigitsIndicator": "Zahlen" },
+    { "SymbolsIndicator": "Symbole" },
+    { "ProgressDialogTitle": "Arbeite..." },
+    { "ProgressDialogInQueue": "In der Warteschlange..." },
+    { "ProgressDialogMessage": "Vorgang läuft, bitte warten..." }
   ]
 }
