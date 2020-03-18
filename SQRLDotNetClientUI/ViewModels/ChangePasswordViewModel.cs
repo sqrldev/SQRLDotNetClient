@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
 using ReactiveUI;
+using Serilog;
 using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
@@ -120,6 +121,9 @@ namespace SQRLDotNetClientUI.ViewModels
             {
                 progressDialog.Close();
 
+                Log.Information("Bad password was supplied for identity id {IdentityUniqueId}",
+                _identityManager.CurrentIdentityUniqueId);
+
                 await new MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                     _loc.GetLocalizationValue("BadPasswordError"),
                     MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
@@ -132,13 +136,18 @@ namespace SQRLDotNetClientUI.ViewModels
             // Decryption succeeded, let's go ahead
             var currentId = _identityManager.CurrentIdentity;
             var idCopy = _identityManager.CurrentIdentity.Clone();
-
             await SQRL.GenerateIdentityBlock1(block1Keys.Imk, block1Keys.Ilk, this.NewPassword, currentId, progress, (int)currentId.Block1.PwdVerifySeconds);
-            
             progressDialog.Close();
 
             // Write the changes back to the db
             _identityManager.UpdateCurrentIdentity();
+
+            Log.Information("Password was changed for identity id {IdentityUniqueId}",
+                _identityManager.CurrentIdentityUniqueId);
+
+            // And finally clear the QuickPass for the current identity
+            QuickPassManager.Instance.ClearQuickPass(
+                _identityManager.CurrentIdentityUniqueId, QuickPassClearReason.PasswordChange);
 
             CanSave = true;
             Close();
