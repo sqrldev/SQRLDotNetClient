@@ -10,6 +10,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Reflection;
+using Avalonia.Data.Converters;
 
 namespace SQRLDotNetClientUI.AvaloniaExtensions
 {
@@ -45,6 +46,11 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
 
         private JObject Localization { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <c>IValueConverter</c> to use.
+        /// </summary>
+        public IValueConverter Converter { get; set; }
+
         public LocalizationExtension()
         {
             GetLocalization();
@@ -64,26 +70,35 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
         public string GetLocalizationValue(string resourceID)
         {
             var currentCulture = CultureInfo.CurrentCulture;
+            string localizedString = null;
+
             if (Localization.ContainsKey(currentCulture.Name))
             {
                 try
                 {
-                    return ResolveFormatting(
+                    localizedString = ResolveFormatting(
                         Localization[currentCulture.Name].Children()[resourceID].First().ToString());
                 }
                 catch { }
             }
 
-            try
+            if (localizedString == null)
             {
-                return ResolveFormatting(
-                    Localization["default"].Children()[resourceID].First().ToString());
+                try
+                {
+                    localizedString = ResolveFormatting(
+                        Localization["default"].Children()[resourceID].First().ToString());
+                }
+                catch
+                {
+                    return "Missing translation: " + resourceID;
+                }
             }
-            catch 
-            {
-                return "Missing translation: " + resourceID;
-            }
-            
+
+            if (Converter != null)
+                localizedString = (string)Converter.Convert(localizedString, typeof(string), null, currentCulture);
+
+            return localizedString;
         }
 
         private void GetLocalization()
