@@ -13,9 +13,9 @@ namespace SQRLDotNetClientUI.ViewModels
 {
     class ChangePasswordViewModel : ViewModelBase
     {
-        private static IBrush BRUSH_POOR = Brushes.LightSalmon;
-        private static IBrush BRUSH_MEDIUM = Brushes.LightGoldenrodYellow;
-        private static IBrush BRUSH_GOOD = Brushes.LightGreen;
+        private static IBrush BRUSH_POOR = new SolidColorBrush(new Color(0xFF, 0xF0, 0x80, 0x80));
+        private static IBrush BRUSH_MEDIUM = new SolidColorBrush(new Color(0xFF, 0xFF, 0xFA, 0xCD));
+        private static IBrush BRUSH_GOOD = new SolidColorBrush(new Color(0xFF, 0x32, 0xCD, 0x32));
 
         private PasswordStrengthMeter _pwdStrengthMeter = new PasswordStrengthMeter();
 
@@ -108,38 +108,37 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             CanSave = false;
 
-            var progress = new Progress<KeyValuePair<int, string>>(p =>
-            {
-                this.PasswordStrength = (double)p.Key;
-                this.ProgressText = p.Value + p.Key;
-            });
+            var progress = new Progress<KeyValuePair<int, string>>();
+            var progressDialog = new ProgressDialog(progress);
+            progressDialog.HideFinishedItems = false;
+            progressDialog.ShowDialog(_mainWindow);
 
             var block1Keys = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, 
-                this.NewPassword, progress);
+                this.Password, progress);
 
             if (!block1Keys.DecryptionSucceeded)
             {
+                progressDialog.Close();
 
-                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                           _loc.GetLocalizationValue("BadPasswordError"),
-                                           MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                           .ShowDialog<MessagBoxDialogResult>(_mainWindow);
-                ProgressText = "";
-                PasswordStrength = 0;
+                await new MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    _loc.GetLocalizationValue("BadPasswordError"),
+                    MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+
                 CanSave = true;
                 return;
             }
 
-            //SQRLIdentity id = await SQRL.GenerateIdentityBlock1(block1Keys.Imk, block1Keys.Ilk,
-            //    password, IdentityCopy, progress, IdentityCopy.Block1.PwdVerifySeconds);
+            // Decryption succeeded, let's go ahead
+            var currentId = _identityManager.CurrentIdentity;
+            var idCopy = _identityManager.CurrentIdentity.Clone();
 
-            //// Swap out the old type 1 block with the updated one
-            //// TODO: We should probably make sure that this is an atomic operation
-            //Identity.Blocks.Remove(Identity.Block1);
-            //Identity.Blocks.Insert(0, id.Block1);
+            await SQRL.GenerateIdentityBlock1(block1Keys.Imk, block1Keys.Ilk, this.NewPassword, currentId, progress, (int)currentId.Block1.PwdVerifySeconds);
+            
+            progressDialog.Close();
 
-            //// Finally, update the identity in the db
-            //_identityManager.UpdateIdentity(Identity);
+            // Write the changes back to the db
+            _identityManager.UpdateCurrentIdentity();
 
             CanSave = true;
             Close();
@@ -150,6 +149,13 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             get => _canSave;
             set => this.RaiseAndSetIfChanged(ref _canSave, value);
+        }
+
+        private string _password = "";
+        public string Password
+        {
+            get => _password;
+            set => this.RaiseAndSetIfChanged(ref _password, value);
         }
 
         private string _newPassword = "";
@@ -220,13 +226,6 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             get => _passwordStrengthMax;
             set => this.RaiseAndSetIfChanged(ref _passwordStrengthMax, value);
-        }
-
-        private string _progressText = string.Empty;
-        public string ProgressText
-        {
-            get => _progressText;
-            set => this.RaiseAndSetIfChanged(ref _progressText, value);
         }
     }
 }
