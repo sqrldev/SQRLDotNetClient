@@ -149,20 +149,20 @@ namespace SQRLDotNetClientUI.Views
             {
                 case MessageBoxButtons.OKCancel:
                 {
-                        AddButton("OK", _loc.GetLocalizationValue("BtnOK"), MessagBoxDialogResult.OK);
+                        AddButton("OK", _loc.GetLocalizationValue("BtnOK"), MessagBoxDialogResult.OK, isDefault: true);
                         AddButton("Cancel", _loc.GetLocalizationValue("BtnCancel"), MessagBoxDialogResult.CANCEL);
 
                 }
                 break;
                 case MessageBoxButtons.YesNo:
                     {
-                        AddButton("Yes", _loc.GetLocalizationValue("BtnYes"), MessagBoxDialogResult.YES);
+                        AddButton("Yes", _loc.GetLocalizationValue("BtnYes"), MessagBoxDialogResult.YES, isDefault: true);
                         AddButton("No", _loc.GetLocalizationValue("BtnNo"), MessagBoxDialogResult.NO);
                     }
                     break;
                 default:
                     {
-                        AddButton("OK", _loc.GetLocalizationValue("BtnOK"), MessagBoxDialogResult.OK);
+                        AddButton("OK", _loc.GetLocalizationValue("BtnOK"), MessagBoxDialogResult.OK, isDefault: true);
                     }
                     break;
 
@@ -177,7 +177,9 @@ namespace SQRLDotNetClientUI.Views
         /// <param name="name">name of the button</param>
         /// <param name="content">text to be shown on button</param>
         /// <param name="clickResult">Result to return when button is clicked</param>
-        private void AddButton(string name, string content, MessagBoxDialogResult clickResult)
+        /// <param name="isDefault">If set to <c>true</c>, the button will be marked as the default
+        /// button for the current form.</param>
+        private void AddButton(string name, string content, MessagBoxDialogResult clickResult, bool isDefault=false)
         {
             var msgWindow = AvaloniaLocator.Current.GetService<MessageBox>();
             var panel = msgWindow.FindControl<StackPanel>("pnlButtons").Children;
@@ -186,7 +188,8 @@ namespace SQRLDotNetClientUI.Views
                 Content = content,
                 Name = name,
                 Margin = new Thickness(10, 0),
-                Width = 60
+                Width = 60,
+                IsDefault = isDefault
             };
             btn.Click += (s,e) => msgWindow.Close(clickResult); 
             panel.Add(btn);
