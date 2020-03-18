@@ -121,16 +121,6 @@ namespace SQRLDotNetClientUI.Views
             _count++;
         }
 
-        /// <summary>
-        /// Destructs the object after doing some houskeeping.
-        /// </summary>
-        ~ProgressDialog()
-        {
-            // Unsubscribe from progress changes
-            foreach (var progress in _progDict)
-                progress.Key.ProgressChanged -= ProgressChanged;
-        }
-
         private ProgressItem CreateProgressInfo(Progress<KeyValuePair<int, string>> progress)
         {
             var progressPanel = new StackPanel()
@@ -166,12 +156,20 @@ namespace SQRLDotNetClientUI.Views
 
             Progress<KeyValuePair<int, string>> progress = (Progress<KeyValuePair<int, string>>)sender;
 
+            // Due to a threading race condition, the first progress event can come in before
+            // we've even had a chance to add the progress source to our dictionary.
+            // If that's the case, just ignore it, consequent updates should work fine.
+            if (!_progDict.ContainsKey(progress)) return;
+
+            // Make the progress container panel visible if it isn't already
             if (!_progDict[progress].ProgressPanel.IsVisible)
                 _progDict[progress].ProgressPanel.IsVisible = true;
 
+            // Set the values
             _progDict[progress].ProgressBar.Value = progressPercentage;
             _progDict[progress].TextBlock.Text = progressText;
 
+            // Check if to remove the item when progress is at 100%
             if (progressPercentage == 100 && this.HideFinishedItems)
                 _progDict[progress].ProgressPanel.IsVisible = false;
         }
@@ -179,6 +177,19 @@ namespace SQRLDotNetClientUI.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+
+            foreach (var p in _progDict.Values)
+            {
+                p.Progress.ProgressChanged -= ProgressChanged;
+                _MainPanel.Children.Remove(p.ProgressPanel);
+            }
+
+            _progDict.Clear();
         }
     }
 
