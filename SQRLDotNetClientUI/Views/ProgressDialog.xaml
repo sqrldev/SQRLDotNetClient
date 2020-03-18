@@ -4,18 +4,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
         xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
-        mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="200"
+        Icon="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico"
+        mc:Ignorable="d" d:DesignWidth="350"
         Width="350" 
         x:Class="SQRLDotNetClientUI.Views.ProgressDialog"
-        Title=""
+        Title="{loc:Localization ProgressDialogTitle}"
+        WindowStartupLocation="CenterOwner"
         CanResize="False"
         SizeToContent="Height">
 
-  <DockPanel Margin="20">
-    <StackPanel DockPanel.Dock="Top" Margin="20" Orientation="Vertical">
-      <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="40" HorizontalAlignment="Center"></Image>
-      <TextBlock Name="lblMessage" TextAlignment="Center" Margin="0,20" TextWrapping="Wrap">Working...</TextBlock>
-      <ProgressBar Value="{Binding ProgressValue}" Maximum="{Binding ProgressMax}" Margin="0,0,0,20" IsIndeterminate="False" Minimum="0"/>
+  <DockPanel Margin="20, 30, 20, 40">
+    <StackPanel Name="MainPanel" DockPanel.Dock="Top" Orientation="Vertical">
+      
+      <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Margin="0,0,0,20" Height="40" HorizontalAlignment="Center"></Image>
+
+      <TextBlock Text="{loc:Localization ProgressDialogMessage}" TextAlignment="Center" Margin="0,0,0,7" TextWrapping="Wrap" />
+      
+      <StackPanel Name="DummyPanel" DockPanel.Dock="Top" Margin="0,20,0,0" Orientation="Vertical">
+        <ProgressBar IsIndeterminate="True" Margin="0,0,0,20" />
+      </StackPanel>
+      
     </StackPanel>
   </DockPanel>
   
