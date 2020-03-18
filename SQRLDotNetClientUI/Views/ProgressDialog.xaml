@@ -13,7 +13,7 @@
         CanResize="False"
         SizeToContent="Height">
 
-  <DockPanel Margin="20, 30, 20, 40">
+  <DockPanel Margin="20,20,20,40">
     <StackPanel Name="MainPanel" DockPanel.Dock="Top" Orientation="Vertical">
       
       <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Margin="0,0,0,20" Height="40" HorizontalAlignment="Center"></Image>
