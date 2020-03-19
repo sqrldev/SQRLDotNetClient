@@ -21,22 +21,6 @@ namespace SQRLDotNetClientUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _canSave, value); 
         }
 
-        private double _ProgressPercentage = 0;
-        public double ProgressPercentage 
-        { 
-            get => _ProgressPercentage; 
-            set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); 
-        }
-
-        public double ProgressMax { get; set; } = 100;
-
-        private string _progressText = string.Empty;
-        public string ProgressText 
-        { 
-            get => _progressText; 
-            set => this.RaiseAndSetIfChanged(ref _progressText, value); 
-        }
-
         public IdentitySettingsViewModel()
         {
             this.Title = _loc.GetLocalizationValue("IdentitySettingsDialogTitle");
