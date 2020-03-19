@@ -506,6 +506,11 @@ namespace SQRLDotNetClientUI.Models
         IdentityChange,
 
         /// <summary>
+        /// The current SQRL identity's password was changed.
+        /// </summary>
+        PasswordChange,
+
+        /// <summary>
         /// The reason for clearing the QuickPass is unspecified.
         /// </summary>
         Unspecified

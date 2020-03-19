@@ -53,6 +53,7 @@
     <AvaloniaResource Remove="Assets\VL.png" />
     <AvaloniaResource Remove="Views\AskView.xaml" />
     <AvaloniaResource Remove="Views\AuthenticationView.xaml" />
+    <AvaloniaResource Remove="Views\ChangePasswordView.xaml" />
     <AvaloniaResource Remove="Views\ExportIdentityView.xaml" />
     <AvaloniaResource Remove="Views\IdentitySettingsView.xaml" />
     <AvaloniaResource Remove="Views\ImportIdentitySetupView.xaml" />
@@ -62,6 +63,8 @@
     <AvaloniaResource Remove="Views\MessageBox.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityVerifyView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityView.xaml" />
+    <AvaloniaResource Remove="Views\PasswordStrengthMeter.xaml" />
+    <AvaloniaResource Remove="Views\ProgressDialog.xaml" />
     <AvaloniaResource Remove="Views\SelectIdentityDialogView.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +92,7 @@
     <None Remove="Assets\VL.png" />
     <None Remove="Views\AskView.xaml" />
     <None Remove="Views\AuthenticationView.xaml" />
+    <None Remove="Views\ChangePasswordView.xaml" />
     <None Remove="Views\ExportIdentityView.xaml" />
     <None Remove="Views\IdentitySettingsView.xaml" />
     <None Remove="Views\ImportIdentitySetupView.xaml" />
@@ -98,6 +102,8 @@
     <None Remove="Views\MessageBox.xaml" />
     <None Remove="Views\NewIdentityVerifyView.xaml" />
     <None Remove="Views\NewIdentityView.xaml" />
+    <None Remove="Views\PasswordStrengthMeter.xaml" />
+    <None Remove="Views\ProgressDialog.xaml" />
     <None Remove="Views\SelectIdentityDialogView.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -215,6 +221,9 @@
     <Compile Update="Views\AskView.xaml.cs">
       <DependentUpon>AskView.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\ChangePasswordView.xaml.cs">
+      <DependentUpon>ChangePasswordView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />
@@ -226,6 +235,16 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\MessageBox.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ChangePasswordView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ProgressDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

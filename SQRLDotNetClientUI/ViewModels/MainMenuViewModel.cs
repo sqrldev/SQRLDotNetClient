@@ -120,6 +120,15 @@ namespace SQRLDotNetClientUI.ViewModels
                 new IdentitySettingsViewModel();
         }
 
+        public void ChangePassword()
+        {
+            Log.Information("Launching change password screen for identity id {IdentityUniqueId}",
+                _identityManager.CurrentIdentityUniqueId);
+
+            ((MainWindowViewModel)_mainWindow.DataContext).Content =
+                new ChangePasswordViewModel();
+        }
+
         public void Exit()
         {
             _mainWindow.Close();
