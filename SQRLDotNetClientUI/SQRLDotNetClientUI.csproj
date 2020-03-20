@@ -65,6 +65,7 @@
     <AvaloniaResource Remove="Views\NewIdentityView.xaml" />
     <AvaloniaResource Remove="Views\PasswordStrengthMeter.xaml" />
     <AvaloniaResource Remove="Views\ProgressDialog.xaml" />
+    <AvaloniaResource Remove="Views\ReKeyView.xaml" />
     <AvaloniaResource Remove="Views\SelectIdentityDialogView.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -104,6 +105,7 @@
     <None Remove="Views\NewIdentityView.xaml" />
     <None Remove="Views\PasswordStrengthMeter.xaml" />
     <None Remove="Views\ProgressDialog.xaml" />
+    <None Remove="Views\ReKeyView.xaml" />
     <None Remove="Views\SelectIdentityDialogView.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -245,6 +247,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\ProgressDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ReKeyView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

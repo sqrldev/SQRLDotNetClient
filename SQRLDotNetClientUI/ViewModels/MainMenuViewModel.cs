@@ -170,7 +170,11 @@ namespace SQRLDotNetClientUI.ViewModels
         {
 
             //TODO: Implement this
+            Log.Information("Launching Rekey Identity for Identity: {IdentityUniqueId}",
+                _identityManager.CurrentIdentityUniqueId);
 
+            ((MainWindowViewModel)_mainWindow.DataContext).Content =
+                new ReKeyViewModel();
         }
     }
 }

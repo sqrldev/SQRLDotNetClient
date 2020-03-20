@@ -122,7 +122,15 @@
     { "SymbolsIndicator": "SYMBOLS" },
     { "ProgressDialogTitle": "Working..." },
     { "ProgressDialogInQueue": "In queue..." },
-    { "ProgressDialogMessage": "Operation in progress, please wait..." }
+    { "ProgressDialogMessage": "Operation in progress, please wait..." },
+    { "ReKeyIdentityTitle": "Rekey current SQRL Identity: {0}" },
+    { "ReKeyIdentityHeading": "Rekey an Existing Identity" },
+    { "ReKeyIdentityExplanation": "You should ONLY rekey your SQRL Identity if you have a reason to believe that your Computer or Device has been compromissed. The master identity never leaves the device so there should be virtually no reason for this and most users should never need to do this.\r\n\r\nWith that said enter a new Identity Password to continue:" },
+    { "ExistingRescueCodeLabel": "Current Rescue Code" },
+    { "IdentityReKeyNewCode": "Identity ReKey Success" },
+    { "IdentityReKeyMessage": "Your Identity has been successfully ReKeyed\r\nPlease copy down your New Rescue Code Below.\r\nAfter you hit ok, you will be asked to Enter this code one last time to confirm you copied it down correctly.\r\n\r\nRescue Code: {0}" },
+    { "IdentityReKeyFailed": "Identity ReKey Failed, ensure you write the new Rescue Code accurately." },
+    { "SecretDialogError": "Please use the OK button to exit this dialog." }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -246,7 +254,15 @@
     { "SymbolsIndicator": "Symbols" },
     { "ProgressDialogTitle": "Working..." },
     { "ProgressDialogInQueue": "In queue..." },
-    { "ProgressDialogMessage": "Operation in progress, please wait..." }
+    { "ProgressDialogMessage": "Operation in progress, please wait..." },
+    { "ReKeyIdentityTitle": "Rekey current SQRL Identity: {0}" },
+    { "ReKeyIdentityHeading": "Rekey an Existing Identity" },
+    { "ReKeyIdentityExplanation": "You should ONLY rekey your SQRL Identity if you have a reason to believe that your Computer or Device has been compromissed. The master identity never leaves the device so there should be virtually no reason for this and most users should never need to do this.\r\n\r\nWith that said enter a new Identity Password to continue:" },
+    { "ExistingRescueCodeLabel": "Current Rescue Code" },
+    { "IdentityReKeyNewCode": "Identity ReKey Success" },
+    { "IdentityReKeyMessage": "Your Identity has been successfully ReKeyed\r\nPlease copy down your New Rescue Code Below.\r\nAfter you hit ok, you will be asked to Enter this code one last time to confirm you copied it down correctly.\r\n\r\nRescue Code: {0}" },
+    { "IdentityReKeyFailed": "Identity ReKey Failed, ensure you write the new Rescue Code accurately." },
+    { "SecretDialogError": "Please use the OK button to exit this dialog." }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -370,6 +386,14 @@
     { "SymbolsIndicator": "Symbole" },
     { "ProgressDialogTitle": "Arbeite..." },
     { "ProgressDialogInQueue": "In der Warteschlange..." },
-    { "ProgressDialogMessage": "Vorgang läuft, bitte warten..." }
+    { "ProgressDialogMessage": "Vorgang läuft, bitte warten..." },
+    { "ReKeyIdentityTitle": "Schlüssel für aktuelle SQRL-Identität neu generieren: {0}" },
+    { "ReKeyIdentityHeading": "Bestehende Identität neu generieren" },
+    { "ReKeyIdentityExplanation": "You should ONLY rekey your SQRL Identity if you have a reason to believe that your Computer or Device has been compromissed. The master identity never leaves the device so there should be virtually no reason for this and most users should never need to do this.\r\n\r\nWith that said enter a new Identity Password to continue:" },
+    { "ExistingRescueCodeLabel": "Current Rescue Code" },
+    { "IdentityReKeyNewCode": "Identity ReKey Success" },
+    { "IdentityReKeyMessage": "Your Identity has been successfully ReKeyed\r\nPlease copy down your New Rescue Code Below.\r\nAfter you hit ok, you will be asked to Enter this code one last time to confirm you copied it down correctly.\r\n\r\nRescue Code: {0}" },
+    { "IdentityReKeyFailed": "Identity ReKey Failed, ensure you write the new Rescue Code accurately." },
+    { "SecretDialogError": "Please use the OK button to exit this dialog." }
   ]
 }
