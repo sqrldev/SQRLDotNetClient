@@ -11,6 +11,9 @@ using System.Text;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
+    /// <summary>
+    /// ViewModel used for re-keying the current Identity Key
+    /// </summary>
     public class ReKeyViewModel : ViewModelBase
     {
         private static IBrush BRUSH_POOR = new SolidColorBrush(new Color(0xFF, 0xF0, 0x80, 0x80));
@@ -110,6 +113,10 @@ namespace SQRLDotNetClientUI.ViewModels
             get => _ReKeyIdentityExplanation;
             set => this.RaiseAndSetIfChanged(ref _ReKeyIdentityExplanation, value);
         }
+
+        /// <summary>
+        /// Called from Constructor(s) to initialize various things
+        /// </summary>
         public void Init()
         {
             if (_loc != null)
@@ -189,58 +196,79 @@ namespace SQRLDotNetClientUI.ViewModels
                 ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
         }
 
+        /// <summary>
+        /// Runs the Re-Key Logic
+        /// </summary>
         public async void Next()
         {
+            //Label used for retrying the rescue code if you type it wrong the first time
             RetryRescueCode:
+
+            //Dialog Box used to capture the user's current Rescue Code
             InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
             rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
             string rescueCode = await rescueCodeDlg.ShowDialog<string>(
                 _mainWindow);
-           var  progressList = new List<Progress<KeyValuePair<int, string>>>(){ new Progress<KeyValuePair<int, string>>(),new Progress<KeyValuePair<int, string>>() };
+
+            //List of Progress Reporters to be used during the re-key process (progress bar magic)
+            var  progressList = new List<Progress<KeyValuePair<int, string>>>(){ new Progress<KeyValuePair<int, string>>(),new Progress<KeyValuePair<int, string>>() };
+
+            //Progress Dialog will show our "Progress" as the Identity is Decrypted, and Re-Encrypted for Rekey
             var progressDialog = new ProgressDialog(progressList);
             progressDialog.HideFinishedItems = true;
             progressDialog.HideEnqueuedItems = true;
             _ = progressDialog.ShowDialog(_mainWindow);
+
+            //Actually do the Re-Key Work
             var result = await SQRL.RekeyIdentity(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode), NewPassword, progressList[0],progressList[1]);
             if(!result.Success)
             {
                 progressDialog.Close();
+                //Fail bad rescue code (something went wrong...) try again?
                 var answer = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                                                                    _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
                                                                    MessageBoxSize.Small, MessageBoxButtons.YesNo, MessageBoxIcons.ERROR)
                                                                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                 if (answer == MessagBoxDialogResult.YES)
                 {
-                    goto RetryRescueCode;
+                    goto RetryRescueCode; //Go back up and re-do it all, this time with passion!
                 }
             }
-            else if(result.Success)
+            else if(result.Success) //All Good
             {
                 progressDialog.Close();
 
+                //This label is used to re-share the new rescue code if it was copied incorrectly.
                 CopiedWrong:
+                //Message Box which displays the new Rescue Code to the user
                 await new Views.MessageBox(_loc.GetLocalizationValue("IdentityReKeyNewCode"),
                                                                    string.Format(_loc.GetLocalizationValue("IdentityReKeyMessage"),SQRL.FormatRescueCodeForDisplay((result.NewRescueCode))),
                                                                    MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.OK)
                                                                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+
+                //Ask the user to re-type their New Rescue Code to verify that they copied it correctly.
                 rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode)
                 {
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 };
                 rescueCode = await rescueCodeDlg.ShowDialog<string>(
                     _mainWindow);
+                
+                //New progress dialog for the verification step
                 progressDialog = new ProgressDialog(progressList[0]);
                 progressDialog.HideFinishedItems = false;
                 _ = progressDialog.ShowDialog(_mainWindow);
+
+                //Decrypt Block 2 to verify they copied their rescue code correctly.
                 var block2Results = await SQRL.DecryptBlock2(result.RekeyedIdentity, rescueCode, progressList[0]);
-                if (block2Results.DecryptionSucceeded)
+                if (block2Results.DecryptionSucceeded) //All Good , All Done
                 {
                     progressDialog.Close();
                     _identityManager.DeleteCurrentIdentity();
                     _identityManager.ImportIdentity(result.RekeyedIdentity, true);
                     ((MainWindowViewModel)_mainWindow.DataContext).Content = ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
                 }
-                else
+                else //Fail bad rescue code... try again?
                 {
                     progressDialog.Close();
                     var answer = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
@@ -249,9 +277,9 @@ namespace SQRLDotNetClientUI.ViewModels
                                                                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                     if (answer == MessagBoxDialogResult.YES)
                     {
-                        goto CopiedWrong;
+                        goto CopiedWrong; //Try Again
                     }
-                    else
+                    else //Abort the whole thing
                     {
                         _=await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                                                                    _loc.GetLocalizationValue("IdentityReKeyFailed"),
