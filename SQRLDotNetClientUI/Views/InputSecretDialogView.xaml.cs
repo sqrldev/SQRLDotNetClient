@@ -17,7 +17,7 @@ namespace SQRLDotNetClientUI.Views
         private Button _btnOK = null;
         private TextBlock _lblMessage = null;
         private SecretType _secretType;
-
+        private bool AllGood = false;
         /// <summary>
         /// Creates a new <c>InputSecretDialogView</c> instance and sets 
         /// the type of secret that the user will be asked to input to 
@@ -33,12 +33,16 @@ namespace SQRLDotNetClientUI.Views
         public InputSecretDialogView(SecretType secretType)
         {
             this.InitializeComponent();
+
+            //Prevent closing the dialog externally.
+            this.Closing += InputSecretDialogView_Closing;
             _txtSecret = this.FindControl<CopyPasteTextBox> ("txtSecret");
             _btnOK = this.FindControl<Button>("btnOK");
             _lblMessage = this.FindControl<TextBlock>("lblMessage");
-
+            _txtSecret.Text = "";
             _btnOK.Click += (object sender, RoutedEventArgs e) =>
             {
+                AllGood = true;
                 this.Close(_txtSecret.Text);
             };
 
@@ -61,6 +65,18 @@ namespace SQRLDotNetClientUI.Views
 #if DEBUG
             this.AttachDevTools();
 #endif
+        }
+
+        private  void InputSecretDialogView_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!AllGood)
+            {
+                new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                                                   _loc.GetLocalizationValue("SecretDialogError"),
+                                                                   MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                                                   .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                e.Cancel = true;
+            }
         }
 
         private void InitializeComponent()

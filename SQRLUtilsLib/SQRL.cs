@@ -1450,22 +1450,27 @@ namespace SQRLUtilsLib
         /// <param name="identity">The identity to get rekeyed.</param>
         /// <param name="rescueCode">The rescue code for the given identity.</param>
         /// <param name="newPassword">The new master password for the rekeyed identity.</param>
-        /// <param name="progress">An object implementing the IProgress interface for tracking the operation's progress (optional).</param>
+        /// <param name="progressBlock1">An objects implementing the IProgress interface for tracking the operation's progress for block 1 (optional).</param>
+        /// <param name="progressBlock2">An objects implementing the IProgress interface for tracking the operation's progress for block 2 (optional).</param>
         /// <returns>Returns a <c>RekeyIdentityResult</c> object containingthe newly generated rescue code and the rekeyed <c>SQRLIdentity</c>.</returns>
-        public static async Task<RekeyIdentityResult> RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, IProgress<KeyValuePair<int,string>> progress)
+        public static async Task<RekeyIdentityResult> RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, Progress<KeyValuePair<int,string>> progressBlock1=null, Progress<KeyValuePair<int, string>> progressBlock2=null)
         {
-            SQRLIdentity newID = new SQRLIdentity();
-            var oldIukData = await SQRL.DecryptBlock2(identity, rescueCode, progress);
+            SQRLIdentity newID = null;
+            var oldIukData = await SQRL.DecryptBlock2(identity, rescueCode, progressBlock1);
             string newRescueCode = CreateRescueCode();
             byte[] newIUK = CreateIUK();
             
             if (oldIukData.DecryptionSucceeded)
             {
-                newID= await GenerateIdentityBlock1(newIUK, newPassword, newID, progress);
-                newID= await GenerateIdentityBlock2(newIUK, newRescueCode, newID, progress);
+                newID = new SQRLIdentity();
+                newID = GenerateIdentityBlock0(CreateIMK(newIUK), newID);
+
+                var block1Task = GenerateIdentityBlock1(newIUK, newPassword, newID, progressBlock1);
+                var block2Task =  GenerateIdentityBlock2(newIUK, newRescueCode, newID, progressBlock2);
+                await Task.WhenAll(block1Task, block2Task);
                 GenerateIdentityBlock3(oldIukData.Iuk, identity, newID, CreateIMK(oldIukData.Iuk), CreateIMK(newIUK));
             }
-            return new RekeyIdentityResult(newRescueCode, newID);
+            return new RekeyIdentityResult(newRescueCode, newID, oldIukData.DecryptionSucceeded);
         }
 
         /// <summary>
@@ -1664,10 +1669,13 @@ namespace SQRLUtilsLib
         /// </summary>
         public SQRLIdentity RekeyedIdentity;
 
-        public RekeyIdentityResult(string newRescueCode, SQRLIdentity rekeyedIdentity)
+        public bool Success { get; set; } = false;
+
+        public RekeyIdentityResult(string newRescueCode, SQRLIdentity rekeyedIdentity, bool Success)
         {
             this.NewRescueCode = newRescueCode;
             this.RekeyedIdentity= rekeyedIdentity;
+            this.Success = Success;
         }
     }
 
