@@ -12,31 +12,16 @@ namespace SQRLDotNetClientUI.ViewModels
         public NewIdentityViewModel()
         {
             this.Title = _loc.GetLocalizationValue("NewIdentityWindowTitle");
-            this.rescueCode = SQRL.FormatRescueCodeForDisplay(SQRL.CreateRescueCode());
+            this.RescueCode = SQRL.FormatRescueCodeForDisplay(SQRL.CreateRescueCode());
         }
 
-        private string rescueCode;
-        public string RescueCode { get { return rescueCode; } }
+        public string RescueCode { get; }
 
         public string Password { get; set; } = string.Empty;
 
         public string PasswordConfirm { get; set; } = string.Empty;
 
         public string IdentityName { get; set; } = string.Empty;
-
-        private int _ProgressPercentage = 0;
-
-        public int ProgressPercentage 
-        { 
-            get => _ProgressPercentage; 
-            set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); 
-        }
-
-        public int ProgressMax { get; set; } = 100;
-
-        public string GenerationStep { get; set; }
-
-        private SQRLIdentity Identity { get; set; }
 
         public async void GenerateNewIdentity()
         {
@@ -47,38 +32,34 @@ namespace SQRLDotNetClientUI.ViewModels
                 byte[] iuk = SQRL.CreateIUK();
                 byte[] imk = SQRL.CreateIMK(iuk);
 
-                var progress = new Progress<KeyValuePair<int, string>>(percent =>
-                {
-                    this.ProgressPercentage = (int)percent.Key / 2;
-                    this.GenerationStep = percent.Value + percent.Key;
-                });
+                var progressBlock1 = new Progress<KeyValuePair<int, string>>();
+                var progressBlock2 = new Progress<KeyValuePair<int, string>>();
+                var progressDialog = new ProgressDialog(new List<Progress<KeyValuePair<int, string>>>() {
+                    progressBlock1, progressBlock2});
+                _ = progressDialog.ShowDialog(_mainWindow);
 
                 newId = SQRL.GenerateIdentityBlock0(imk, newId);
-                newId = await SQRL.GenerateIdentityBlock1(iuk, this.Password, newId, progress);
+                newId = await SQRL.GenerateIdentityBlock1(iuk, this.Password, newId, progressBlock1);
 
                 if (newId.Block1 != null)
                 {
-                    progress = new Progress<KeyValuePair<int, string>>(percent =>
-                    {
-                        this.ProgressPercentage = 50 + (int)(percent.Key / 2);
-                        this.GenerationStep = percent.Value + percent.Key;
-                    });
-                    newId = await SQRL.GenerateIdentityBlock2(iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progress);
+                    newId = await SQRL.GenerateIdentityBlock2(iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progressBlock2);
                     if (newId.Block2 != null)
                     {
-                        this.Identity = newId;
+                        progressDialog.Close();
+
                         ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                            new NewIdentityVerifyViewModel(newId);
+                            new NewIdentityVerifyViewModel(newId, this.Password);
                     }
                 }
+                progressDialog.Close();
             }
             else
             {
-                
                 await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                           _loc.GetLocalizationValue("PasswordsDontMatchErrorMessage"),
-                                           MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                           .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                    _loc.GetLocalizationValue("PasswordsDontMatchErrorMessage"),
+                    MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
             }
         }
 
