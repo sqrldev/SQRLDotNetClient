@@ -4,10 +4,8 @@ using Avalonia.Platform;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Linq;
 using System.Reflection;
 using Avalonia.Data.Converters;
@@ -51,14 +49,20 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
         /// </summary>
         public IValueConverter Converter { get; set; }
 
+        /// <summary>
+        /// Creates a new <c>LocalizationExtension</c> instance.
+        /// </summary>
         public LocalizationExtension()
         {
             GetLocalization();
         }
 
-        public LocalizationExtension(string resourceID) : base()
+        /// <summary>
+        /// Creates a new <c>LocalizationExtension</c> instance and sets the 
+        /// resource id to the given <paramref name="resourceID"/>.
+        /// </summary>
+        public LocalizationExtension(string resourceID) : this()
         {
-            GetLocalization();
             this.ResourceID = resourceID;
         }
 
@@ -67,6 +71,10 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
             return GetLocalizationValue(this.ResourceID);
         }
 
+        /// <summary>
+        /// Returns the localized string value for the given <paramref name="resourceID"/>
+        /// </summary>
+        /// <returns></returns>
         public string GetLocalizationValue(string resourceID)
         {
             var currentCulture = CultureInfo.CurrentCulture;
@@ -101,6 +109,9 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
             return localizedString;
         }
 
+        /// <summary>
+        /// Reads the project's localization .json file into a <c>JObject</c>.
+        /// </summary>
         private void GetLocalization()
         {
             Assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
@@ -109,6 +120,11 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
                 Assets.Open(new Uri($"resm:{assy.Name}.Assets.Localization.localization.json"))).ReadToEnd());
         }
 
+        /// <summary>
+        /// Finds any escaped control sequences like "\n" in the given <paramref name="input"/>
+        /// string and returns a string where any of such sequences are converted.
+        /// </summary>
+        /// <param name="input">The input string containing control sequences such as "\n".</param>
         private string ResolveFormatting(string input)
         {
             return input
