@@ -2,14 +2,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
+             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:behaviors="clr-namespace:SQRLDotNetClientUI.Behaviors;assembly=SQRLDotNetClientUI"
              xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
+             xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="SQRLDotNetClientUI.Views.ImportIdentitySetupView">
   
-  <Design.DataContext>
-    <vm:ImportIdentitySetupViewModel/>
-  </Design.DataContext>
   
   <StackPanel>
     <Grid ShowGridLines="False">
@@ -21,11 +20,12 @@
         <RowDefinition />
         <RowDefinition />
         <RowDefinition />
-        <RowDefinition  />
-        <RowDefinition  />
-        <RowDefinition  />
-        <RowDefinition  />
-        <RowDefinition  />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
+        <RowDefinition />
       </Grid.RowDefinitions>
       
       <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Right" 
@@ -35,50 +35,19 @@
 
       <TextBlock Margin="10" Text="{loc:Localization IdentityNameLabel}" Grid.Row="1" Grid.Column="0" />
       <loc:CopyPasteTextBox Margin="10" Text="{Binding IdentityName}" Width="250" HorizontalAlignment="Left" Grid.Row="1" Grid.Column="1"/>
-      
-      <TextBlock Margin="10" Text="{loc:Localization NewPasswordLabel}" Grid.Row="2" Grid.Column="0" />
-      <loc:CopyPasteTextBox Margin="10" Text="{Binding NewPassword}" Width="250" HorizontalAlignment="Left" PasswordChar="*" Grid.Row="2" Grid.Column="1"/>
 
-      <TextBlock Margin="10" Text="{loc:Localization RetypePasswordLabel}" Grid.Row="3" Grid.Column="0" />
-      <loc:CopyPasteTextBox Margin="10" Text="{Binding NewPasswordVerify}" Width="250" HorizontalAlignment="Left" PasswordChar="*" Grid.Row="3" Grid.Column="1"/>
-      
-      <TextBlock Margin="10" Text="{loc:Localization RescueCodeLabel}" Grid.Row="4" Grid.Column="0"/>
-      <loc:CopyPasteTextBox Margin="10" Text="{Binding RescueCode}" Width="250" HorizontalAlignment="Left" Grid.Row="4" Grid.Column="1"  />
-      
-      <Panel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="10">
-        <Grid ShowGridLines="False" >
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition />
-          </Grid.RowDefinitions>
-          <ProgressBar IsIndeterminate="False" Value="{Binding Block2DecryptProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true"  Height="20" MinWidth="10"  Grid.Row="0" Grid.Column="0" Foreground="LightGreen"/>
-          <ProgressBar IsIndeterminate="False" Value="{Binding Block1ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true"  Height="20"  MinWidth="10" Grid.Row="0" Grid.Column="1" Foreground="LightGreen" />
-          <ProgressBar IsIndeterminate="False" Value="{Binding Block2ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true"  Height="20" MinWidth="10"  Grid.Row="0" Grid.Column="2" Foreground="LightGreen"/>
-        </Grid>
-      </Panel>
-      <Panel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="10,-10,10,10">
+      <TextBlock Margin="10,0,10,10" Text="{loc:Localization RescueCodeLabel}" Grid.Row="2" Grid.Column="0"/>
+      <loc:CopyPasteTextBox Margin="10,0,10,10" Text="{Binding RescueCode}" Width="250" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1"  />
 
-        <Grid ShowGridLines="False">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-            <ColumnDefinition />
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition />
-          </Grid.RowDefinitions>
-          <TextBlock Text="{loc:Localization DecryptingBlock2Label}" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" FontWeight="DemiBold"/>
-          <TextBlock Text="{loc:Localization EncryptingBlock1Label}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" FontWeight="DemiBold" />
-          <TextBlock Text="{loc:Localization EncryptingBlock2Label}" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" FontWeight="DemiBold" />
-        </Grid>
-      </Panel>
+      <TextBlock Margin="10" Text="{loc:Localization NewPasswordLabel}" VerticalAlignment="Center" Grid.Row="3" Grid.Column="0" />
+      <loc:CopyPasteTextBox Margin="10" Text="{Binding NewPassword}" Width="250" HorizontalAlignment="Left" VerticalAlignment="Top" PasswordChar="*" Grid.Row="3" Grid.Column="1"/>
 
-      <Button Content="{loc:Localization BtnNext}" Margin="10" Command="{Binding VerifyAndImportIdentity}" Grid.Row="7" Grid.Column="0" Width="90" HorizontalAlignment="Left" />
-      <Button Content="{loc:Localization BtnCancel}" Margin="10,10,20,10" Command="{Binding Cancel}" Grid.Row="7" Grid.Column="1" Width="90" HorizontalAlignment="Right" />
+      <TextBlock Margin="10,0,10,10" Text="{loc:Localization RetypePasswordLabel}" VerticalAlignment="Center" Grid.Row="4" Grid.Column="0" />
+      <loc:CopyPasteTextBox Margin="10,0,10,10" Text="{Binding NewPasswordVerify}" Width="250" HorizontalAlignment="Left" VerticalAlignment="Top"
+                            PasswordChar="*" Grid.Row="4" Grid.Column="1"/>
+
+      <Button Content="{loc:Localization BtnCancel}" Margin="10" Command="{Binding Cancel}" Grid.Row="8" Grid.Column="0" Width="90" HorizontalAlignment="Left" />
+      <Button Content="{loc:Localization BtnNext}" IsDefault="True" Margin="10,10,20,10" Command="{Binding VerifyAndImportIdentity}" Grid.Row="8" Grid.Column="1" Width="90" HorizontalAlignment="Right" />
 
     </Grid>
   </StackPanel>
