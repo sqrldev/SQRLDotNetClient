@@ -17,32 +17,6 @@ namespace SQRLDotNetClientUI.ViewModels
         public string NewPassword { get; set; }
         public string NewPasswordVerify { get; set; }
 
-        private int _ProgressPercentage = 0;
-
-        private int _ProgressPercentage2 = 0;
-
-        private int _Block2DecryptProgressPercentage = 0;
-
-        public int Block1ProgressPercentage 
-        { 
-            get => _ProgressPercentage; 
-            set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); 
-        }
-
-        public int Block2ProgressPercentage 
-        { 
-            get => _ProgressPercentage2; 
-            set => this.RaiseAndSetIfChanged(ref _ProgressPercentage2, value); 
-        }
-
-        public int Block2DecryptProgressPercentage 
-        { 
-            get => _Block2DecryptProgressPercentage; 
-            set => this.RaiseAndSetIfChanged(ref _Block2DecryptProgressPercentage, value); 
-        }
-
-        public int ProgressMax { get; set; } = 100;
-
         public ImportIdentitySetupViewModel()
         {
             Init();
@@ -72,20 +46,13 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void VerifyAndImportIdentity()
         {
-            var progressBlock1 = new Progress<KeyValuePair<int, string>>(percent =>
-            {
-                this.Block1ProgressPercentage = (int)percent.Key;
-            });
+            var progressBlock1 = new Progress<KeyValuePair<int, string>>();
+            var progressBlock2 = new Progress<KeyValuePair<int, string>>();
+            var progressDecryptBlock2 = new Progress<KeyValuePair<int, string>>();
 
-            var progressBlock2 = new Progress<KeyValuePair<int, string>>(percent =>
-            {
-                this.Block2ProgressPercentage = ((int)percent.Key);
-            });
-
-            var progressDecryptBlock2 = new Progress<KeyValuePair<int, string>>(percent =>
-            {
-                this.Block2DecryptProgressPercentage = ((int)percent.Key);
-            });
+            var progressDialog = new ProgressDialog(new List<Progress<KeyValuePair<int, string>>>() { 
+                progressBlock1, progressBlock2, progressDecryptBlock2 });
+            _ = progressDialog.ShowDialog(_mainWindow);
 
             var iukData = await SQRL.DecryptBlock2(
                 this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressDecryptBlock2);
@@ -99,6 +66,9 @@ namespace SQRLDotNetClientUI.ViewModels
                 var block1 = SQRL.GenerateIdentityBlock1(iukData.Iuk, this.NewPassword, newId, progressBlock1);
                 var block2 = SQRL.GenerateIdentityBlock2(iukData.Iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progressBlock2);
                 await Task.WhenAll(block1, block2);
+
+                progressDialog.Close();
+
                 if (newId.HasBlock(3)) SQRL.GenerateIdentityBlock3(iukData.Iuk, this.Identity, newId, imk, imk); 
 
                 newId.IdentityName = this.IdentityName;
@@ -122,6 +92,8 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             else
             {
+                progressDialog.Close();
+
                 var btnRsult = await new Views.MessageBox(
                     _loc.GetLocalizationValue("ErrorTitleGeneric"),
                     _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
