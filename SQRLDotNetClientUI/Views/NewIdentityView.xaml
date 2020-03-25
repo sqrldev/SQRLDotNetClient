@@ -2,6 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:behaviors="clr-namespace:SQRLDotNetClientUI.Behaviors;assembly=SQRLDotNetClientUI"
              xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
              xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
@@ -27,22 +29,24 @@
              VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
       <TextBlock Margin="10" Text="{loc:Localization NewIdentityMessage}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
       
-      <TextBlock Margin="10" Text="{loc:Localization IdentityNameLabel}" Grid.Row="1" Grid.Column="0" TextAlignment="Left"/>
-      <loc:CopyPasteTextBox Margin="10" Text="{Binding IdentityName}" Grid.Row="1" Grid.Column="1"/>
+      <TextBlock Text="{loc:Localization IdentityNameLabel}" Margin="10" Grid.Row="1" Grid.Column="0" TextAlignment="Left"/>
+      <loc:CopyPasteTextBox Text="{Binding IdentityName}" Name="txtIdentityName" Margin="10" Grid.Row="1" Grid.Column="1">
+        <i:Interaction.Behaviors>
+          <behaviors:FocusOnAttached />
+        </i:Interaction.Behaviors>
+      </loc:CopyPasteTextBox>
        
       <TextBlock Margin="10" Text="{loc:Localization RescueCodeLabel}" Grid.Row="2" Grid.Column="0"/>
       <loc:CopyPasteTextBox Margin="10"  Text="{Binding RescueCode}" Grid.Row="2" Grid.Column="1" IsReadOnly="True"  />
        
       <TextBlock Margin="10" Text="{loc:Localization PasswordLabel}" Grid.Row="3" Grid.Column="0" />
-      <loc:CopyPasteTextBox Margin="10" Text="{Binding Password}" PasswordChar="*" Grid.Row="3" Grid.Column="1"/>
+      <loc:CopyPasteTextBox Margin="10,0,10,10" Text="{Binding Password}" PasswordChar="*" Grid.Row="3" Grid.Column="1"/>
       
       <TextBlock Margin="10" Text="{loc:Localization RetypePasswordLabel}" Grid.Row="4" Grid.Column="0" />
-      <loc:CopyPasteTextBox Margin="10" Text="{Binding PasswordConfirm}" PasswordChar="*" Grid.Row="4" Grid.Column="1"/>
+      <loc:CopyPasteTextBox Margin="10,0,10,20" Text="{Binding PasswordConfirm}" PasswordChar="*" Grid.Row="4" Grid.Column="1"/>
       
-      <ProgressBar Margin="10" IsIndeterminate="False" Value="{Binding ProgressPercentage}" Maximum="{Binding ProgressMax}" Minimum="0" IsEnabled="true" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Height="20"/>
-      
-      <Button Content="{loc:Localization BtnNext}" Margin="10" Command="{Binding GenerateNewIdentity}" Grid.Row="6" Grid.Column="0" Width="70" HorizontalAlignment="Left" />
-      <Button Content="{loc:Localization BtnCancel}" Margin="10" Command="{Binding Cancel}" Grid.Row="6" Grid.Column="1"  Width="70" HorizontalAlignment="Right" />
+      <Button Content="{loc:Localization BtnCancel}" Command="{Binding Cancel}" Margin="10" Grid.Row="6" Grid.Column="0"  Width="70" HorizontalAlignment="Left" />
+      <Button Content="{loc:Localization BtnNext}" Command="{Binding GenerateNewIdentity}" IsDefault="True" Margin="10" Grid.Row="6" Grid.Column="1" Width="70" HorizontalAlignment="Right" />
       
     </Grid>
   </StackPanel>

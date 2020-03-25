@@ -21,22 +21,6 @@ namespace SQRLDotNetClientUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _canSave, value); 
         }
 
-        private double _ProgressPercentage = 0;
-        public double ProgressPercentage 
-        { 
-            get => _ProgressPercentage; 
-            set => this.RaiseAndSetIfChanged(ref _ProgressPercentage, value); 
-        }
-
-        public double ProgressMax { get; set; } = 100;
-
-        private string _progressText = string.Empty;
-        public string ProgressText 
-        { 
-            get => _progressText; 
-            set => this.RaiseAndSetIfChanged(ref _progressText, value); 
-        }
-
         public IdentitySettingsViewModel()
         {
             this.Title = _loc.GetLocalizationValue("IdentitySettingsDialogTitle");
@@ -75,29 +59,28 @@ namespace SQRLDotNetClientUI.ViewModels
                 return;
             }
 
-            var progress = new Progress<KeyValuePair<int, string>>(p =>
-            {
-                this.ProgressPercentage = (double)p.Key;
-                this.ProgressText = p.Value + p.Key;
-            });
-
+            var progress = new Progress<KeyValuePair<int, string>>();
+            var progressDialog = new ProgressDialog(progress);
+            _ = progressDialog.ShowDialog(_mainWindow);
             var block1Keys = await SQRL.DecryptBlock1(Identity, password, progress);
 
             if (!block1Keys.DecryptionSucceeded)
             {
+                progressDialog.Close();
 
                 await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                           _loc.GetLocalizationValue("BadPasswordError"), 
-                                           MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                           .ShowDialog<MessagBoxDialogResult>(_mainWindow);
-                ProgressText = "";
-                ProgressPercentage = 0;
+                    _loc.GetLocalizationValue("BadPasswordError"), 
+                    MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+
                 CanSave = true;
                 return;
             }
 
             SQRLIdentity id = await SQRL.GenerateIdentityBlock1(block1Keys.Imk, block1Keys.Ilk, 
                 password, IdentityCopy, progress, IdentityCopy.Block1.PwdVerifySeconds);
+
+            progressDialog.Close();
 
             // Swap out the old type 1 block with the updated one
             // TODO: We should probably make sure that this is an atomic operation
