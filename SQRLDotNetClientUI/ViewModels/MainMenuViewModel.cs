@@ -123,11 +123,6 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             LocalizationExtension.CurrentLocalization = language;
 
-            //MainMenuView mmv = 
-            //MenuItem langMenu = mmv.FindControl<MenuItem>("menuLanguage");
-            //langMenu.Items = null;
-            //_mainWindow.DataContext = new MainWindowViewModel();
-
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
                 new MainMenuViewModel();
         }
