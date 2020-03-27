@@ -29,6 +29,9 @@
         <Separator/>
         <MenuItem Header="{loc:Localization IdentitySettingsMenuItemHeader}"  Command="{Binding IdentitySettings}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
       </MenuItem>
+      <MenuItem Header="{loc:Localization OptionsMenuHeader}" Name="menuOptions" >
+        <MenuItem Header="{loc:Localization LanguageMenuHeader}" Name="menuLanguage"/>
+      </MenuItem>
       <MenuItem Header="{loc:Localization HelpMenuItemHeader}" >
         <MenuItem Header="{loc:Localization AboutMenuItemHeader}" />
       </MenuItem>
