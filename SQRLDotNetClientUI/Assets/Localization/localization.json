@@ -130,7 +130,10 @@
     { "IdentityReKeyNewCode": "Identity ReKey Success" },
     { "IdentityReKeyMessage": "Your Identity has been successfully ReKeyed\r\nPlease copy down your New Rescue Code Below.\r\nAfter you hit ok, you will be asked to Enter this code one last time to confirm you copied it down correctly.\r\n\r\nRescue Code: {0}" },
     { "IdentityReKeyFailed": "Identity ReKey Failed, ensure you write the new Rescue Code accurately." },
-    { "SecretDialogError": "Please use the OK button to exit this dialog." }
+    { "SecretDialogError": "Please use the OK button to exit this dialog." },
+    { "OptionsMenuHeader": "_Options" },
+    { "LanguageMenuHeader": "_Language" },
+    { "DefaultLanguageMenuItemHeader": "_Default" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -262,7 +265,10 @@
     { "IdentityReKeyNewCode": "Identity ReKey Success" },
     { "IdentityReKeyMessage": "Your Identity has been successfully ReKeyed\r\nPlease copy down your New Rescue Code Below.\r\nAfter you hit ok, you will be asked to Enter this code one last time to confirm you copied it down correctly.\r\n\r\nRescue Code: {0}" },
     { "IdentityReKeyFailed": "Identity ReKey Failed, ensure you write the new Rescue Code accurately." },
-    { "SecretDialogError": "Please use the OK button to exit this dialog." }
+    { "SecretDialogError": "Please use the OK button to exit this dialog." },
+    { "OptionsMenuHeader": "_Options" },
+    { "LanguageMenuHeader": "_Language" },
+    { "DefaultLanguageMenuItemHeader": "_Default" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -394,6 +400,9 @@
     { "IdentityReKeyNewCode": "Identity ReKey Success" },
     { "IdentityReKeyMessage": "Your Identity has been successfully ReKeyed\r\nPlease copy down your New Rescue Code Below.\r\nAfter you hit ok, you will be asked to Enter this code one last time to confirm you copied it down correctly.\r\n\r\nRescue Code: {0}" },
     { "IdentityReKeyFailed": "Identity ReKey Failed, ensure you write the new Rescue Code accurately." },
-    { "SecretDialogError": "Please use the OK button to exit this dialog." }
+    { "SecretDialogError": "Please use the OK button to exit this dialog." },
+    { "OptionsMenuHeader": "_Optionen" },
+    { "LanguageMenuHeader": "_Sprache" },
+    { "DefaultLanguageMenuItemHeader": "_Standard" }
   ]
 }
