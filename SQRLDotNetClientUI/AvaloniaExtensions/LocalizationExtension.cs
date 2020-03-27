@@ -4,13 +4,13 @@ using Avalonia.Platform;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Linq;
 using System.Reflection;
 using Avalonia.Data.Converters;
+using System.Collections.Generic;
+using Avalonia.Media.Imaging;
 
 namespace SQRLDotNetClientUI.AvaloniaExtensions
 {
@@ -41,43 +41,133 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
     /// </summary>
     public class LocalizationExtension : MarkupExtension
     {
-        string ResourceID { get; set; }
-        private IAssetLoader Assets { get; set; }
+        /// <summary>
+        /// Magic string for marking the default localization.
+        /// </summary>
+        public static readonly string DEFAULT_LOC = "default";
 
-        private JObject Localization { get; set; }
+        private string _resourceId { get; set; }
+        private IAssetLoader _assets { get; set; }
+        private static string _assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+        private static JObject _localizationStrings { get; set; } = null;
+        private static string _currentLocalization = DEFAULT_LOC;
+        private static bool _initialized = false;
+
+        /// <summary>
+        /// Gets or sets the currently active localization using the
+        /// format languagecode2-country/regioncode2 (e.g. "en-US").
+        /// </summary>
+        public static string CurrentLocalization
+        {
+            get { return _currentLocalization; }
+            set
+            {
+                if (Localizations.ContainsKey(value))
+                {
+                    _currentLocalization = value;
+                }
+                else
+                {
+                    throw new ArgumentException("The specified localization is not yet supported!");
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the <c>IValueConverter</c> to use.
         /// </summary>
         public IValueConverter Converter { get; set; }
 
+        /// <summary>
+        /// Provides a list of available localizations and their resources.
+        /// </summary>
+        public static Dictionary<string, LocalizationInfo> Localizations { get; } = new Dictionary<string, LocalizationInfo>();
+
+        /// <summary>
+        /// Creates a new <c>LocalizationExtension</c> instance.
+        /// </summary>
         public LocalizationExtension()
         {
-            GetLocalization();
+            _assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+
+            if (!_initialized)
+            {
+                RegisterLocalizations();
+                GetLocalization();
+            }
+
+            _initialized = true;
         }
 
-        public LocalizationExtension(string resourceID) : base()
+        /// <summary>
+        /// Registers all the available localizations.
+        /// If a new translation language is added, it has to be added here.
+        /// </summary>
+        private void RegisterLocalizations()
         {
-            GetLocalization();
-            this.ResourceID = resourceID;
+            string uriPath = $"resm:{_assemblyName}.Assets.Localization.Flags.";
+
+            // Register new localizations in this list!
+            List<LocalizationInfo> localizations = new List<LocalizationInfo>()
+            {
+                new LocalizationInfo()
+                {
+                    CultureInfo = CultureInfo.CreateSpecificCulture("en-US"),
+                    Image = new Bitmap(_assets.Open(new Uri(uriPath + "united_states_16.png")))
+                },
+
+                new LocalizationInfo()
+                {
+                    CultureInfo = CultureInfo.CreateSpecificCulture("de-DE"),
+                    Image = new Bitmap(_assets.Open(new Uri(uriPath + "germany_16.png")))
+                }
+
+            };
+
+            // Create the default localization and add id
+            var defaultLoc = new LocalizationInfo()
+            {
+                CultureInfo = CultureInfo.CurrentCulture,
+                Image = new Bitmap(_assets.Open(new Uri(uriPath + "default_16.png")))
+            };
+
+            Localizations.Add(DEFAULT_LOC, defaultLoc);
+
+            // Now add the registered localizations
+            foreach (var localization in localizations)
+            {
+                Localizations.Add(localization.CultureInfo.Name, localization);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new <c>LocalizationExtension</c> instance and sets the 
+        /// resource id to the given <paramref name="resourceID"/>.
+        /// </summary>
+        public LocalizationExtension(string resourceID) : this()
+        {
+            this._resourceId = resourceID;
         }
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
-            return GetLocalizationValue(this.ResourceID);
+            return GetLocalizationValue(this._resourceId);
         }
 
+        /// <summary>
+        /// Returns the localized string value for the given <paramref name="resourceID"/>
+        /// </summary>
         public string GetLocalizationValue(string resourceID)
         {
-            var currentCulture = CultureInfo.CurrentCulture;
+            var activeCulture = Localizations[_currentLocalization].CultureInfo;
             string localizedString = null;
 
-            if (Localization.ContainsKey(currentCulture.Name))
+            if (_localizationStrings.ContainsKey(activeCulture.Name))
             {
                 try
                 {
                     localizedString = ResolveFormatting(
-                        Localization[currentCulture.Name].Children()[resourceID].First().ToString());
+                        _localizationStrings[activeCulture.Name].Children()[resourceID].First().ToString());
                 }
                 catch { }
             }
@@ -87,7 +177,7 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
                 try
                 {
                     localizedString = ResolveFormatting(
-                        Localization["default"].Children()[resourceID].First().ToString());
+                        _localizationStrings[DEFAULT_LOC].Children()[resourceID].First().ToString());
                 }
                 catch
                 {
@@ -96,19 +186,25 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
             }
 
             if (Converter != null)
-                localizedString = (string)Converter.Convert(localizedString, typeof(string), null, currentCulture);
+                localizedString = (string)Converter.Convert(localizedString, typeof(string), null, activeCulture);
 
             return localizedString;
         }
 
+        /// <summary>
+        /// Reads the project's localization .json file into a <c>JObject</c>.
+        /// </summary>
         private void GetLocalization()
         {
-            Assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            var assy = Assembly.GetExecutingAssembly().GetName();
-            Localization = (JObject)JsonConvert.DeserializeObject(new StreamReader(
-                Assets.Open(new Uri($"resm:{assy.Name}.Assets.Localization.localization.json"))).ReadToEnd());
+            _localizationStrings = (JObject)JsonConvert.DeserializeObject(new StreamReader(
+                _assets.Open(new Uri($"resm:{_assemblyName}.Assets.Localization.localization.json"))).ReadToEnd());
         }
 
+        /// <summary>
+        /// Finds any escaped control sequences like "\n" in the given <paramref name="input"/>
+        /// string and returns a string where any of such sequences are converted.
+        /// </summary>
+        /// <param name="input">The input string containing control sequences such as "\n".</param>
         private string ResolveFormatting(string input)
         {
             return input
@@ -116,5 +212,14 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
                 .Replace("\\n", Environment.NewLine)
                 .Replace("\\t", "\t");
         }
+    }
+
+    /// <summary>
+    /// Holds information about a particular localization.
+    /// </summary>
+    public class LocalizationInfo
+    {
+        public CultureInfo CultureInfo;
+        public Bitmap Image;
     }
 }
