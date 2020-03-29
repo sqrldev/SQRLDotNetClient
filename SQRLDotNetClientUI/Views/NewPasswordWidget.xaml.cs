@@ -74,6 +74,9 @@ namespace SQRLDotNetClientUI.Views
             set { this.SetValue(NewPasswordVerificationProperty, value); }
         }
 
+        /// <summary>
+        /// Creates a new <c>NewPasswordWidget</c> instance and initializes stuff.
+        /// </summary>
         public NewPasswordWidget()
         {
             this.InitializeComponent();
@@ -110,7 +113,7 @@ namespace SQRLDotNetClientUI.Views
 
         /// <summary>
         /// Checks if the password verification matches the new password
-        /// and enables/disables UI controls accordingly.
+        /// and sets the <c>PasswordsMatch</c> property accordingly.
         /// </summary>
         private void CheckPasswordVerification()
         {
@@ -123,11 +126,11 @@ namespace SQRLDotNetClientUI.Views
         }
 
         /// <summary>
-        /// Gets called if the <c>PasswordStrengthMeter</c> has calculated a new
+        /// Gets called when the <c>PasswordStrengthMeter</c> has calculated a new
         /// password strength rating.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">The <c>PasswordStrengthMeter</c> object posting the event.</param>
+        /// <param name="e">The parameter containing the updated password rating.</param>
         private void PasswordStrengthScoreUpdated(object sender, ScoreUpdatedEventArgs e)
         {
             Dispatcher.UIThread.Post(() =>

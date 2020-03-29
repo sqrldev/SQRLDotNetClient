@@ -15,6 +15,10 @@ namespace SQRLDotNetClientUI.ViewModels
     class ChangePasswordViewModel : ViewModelBase
     {
         private bool _canSave = true;
+        private bool _passwordsMatch = true;
+        private string _password = "";
+        private string _newPassword = "";
+        private string _newPasswordVerification = "";
 
         /// <summary>
         /// Gets or sets if its possible to hit the "OK" button on 
@@ -25,8 +29,6 @@ namespace SQRLDotNetClientUI.ViewModels
             get => _canSave;
             set => this.RaiseAndSetIfChanged(ref _canSave, value);
         }
-
-        private bool _passwordsMatch = true;
 
         /// <summary>
         /// Gets or sets if the new password and the password 
@@ -42,8 +44,6 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
-        private string _password = "";
-
         /// <summary>
         /// The current password entered by the user.
         /// </summary>
@@ -53,8 +53,6 @@ namespace SQRLDotNetClientUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _password, value);
         }
 
-        private string _newPassword = "";
-
         /// <summary>
         /// The new password entered by the user.
         /// </summary>
@@ -63,8 +61,6 @@ namespace SQRLDotNetClientUI.ViewModels
             get => _newPassword;
             set => this.RaiseAndSetIfChanged(ref _newPassword, value);
         }
-
-        private string _newPasswordVerification = "";
 
         /// <summary>
         /// The verification of the new password entered by the user.
@@ -76,7 +72,7 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         /// <summary>
-        /// Creates a new <c>ChangePasswordViewModel</c> instance, and sets the
+        /// Creates a new <c>ChangePasswordViewModel</c> instance and sets the
         /// dialog's window title.
         /// </summary>
         public ChangePasswordViewModel()
