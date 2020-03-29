@@ -39,6 +39,11 @@ namespace SQRLDotNetClientUI.Models
         /// <param name="password"></param>
         private void CalculateResult(string password)
         {
+            // The provided password will sometimes be null when the dialog was 
+            // closed before our calc thread got a chance to do its thing, so 
+            // we need to handle this case here.
+            if (password == null) return;
+
             // This will avoid updating the UI too often on quick password input
             for (int i = 0; i < 10; i++)
             {
@@ -46,8 +51,8 @@ namespace SQRLDotNetClientUI.Models
                 if (_cts.IsCancellationRequested) return;
             }
 
+            // Now we should be good to calculate
             PasswordStrengthResult result = new PasswordStrengthResult();
-
             result.PasswordLength = password.Length;
 
             if (result.PasswordLength > PW_MIN_LENGTH)

@@ -347,7 +347,7 @@
     { "IdentityCopiedToClipboardMessageBoxText": "Ihre Identität wurde in die Zwischenablage kopiert.\r\nSie können sie nun in einem anderen Client einfügen, um sie zu importieren.\r\nDazu benötigen Sie den Rettungscode!" },
     { "IdentityNameLabel": "Name der Identität:" },
     { "NewPasswordLabel": "Neues Passwort:" },
-    { "RetypePasswordLabel": "Passw. wiederholen:" },
+    { "RetypePasswordLabel": "Passw. wiederh.:" },
     { "RescueCodeLabel": "Rettungscode:" },
     { "ImportSetupMessage": "Geben Sie ihr Passwort und Ihren Rettungscode für die importierte Identität ein." },
     { "DecryptingBlock1Label": "Entschlüssle Block 1" },
