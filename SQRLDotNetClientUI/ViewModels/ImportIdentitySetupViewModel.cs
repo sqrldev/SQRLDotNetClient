@@ -9,41 +9,121 @@ using System.Threading.Tasks;
 
 namespace SQRLDotNetClientUI.ViewModels
 { 
+    /// <summary>
+    /// A viewmodel providing application logic for <c>ImportIdentitySetupView</c>.
+    /// </summary>
     public class ImportIdentitySetupViewModel : ViewModelBase
     {
-        public SQRLIdentity Identity { get; set; }
-        public string IdentityName { get; set; } = "";
-        public string RescueCode { get; set; }
-        public string NewPassword { get; set; }
-        public string NewPasswordVerify { get; set; }
+        private bool _canSave = true;
+        private bool _passwordsMatch = true;
+        private string _newPassword = "";
+        private string _newPasswordVerification = "";
 
+        /// <summary>
+        /// The SQRL identity to be imported.
+        /// </summary>
+        public SQRLIdentity Identity { get; set; }
+
+        /// <summary>
+        /// The identity name entered by the user.
+        /// </summary>
+        public string IdentityName { get; set; } = "";
+
+        /// <summary>
+        /// The rescue code entered by the user.
+        /// </summary>
+        public string RescueCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets if its possible to hit the "OK" button on 
+        /// the dialog to actually import the identity.
+        /// </summary>
+        public bool CanSave
+        {
+            get => _canSave;
+            set => this.RaiseAndSetIfChanged(ref _canSave, value);
+        }
+
+        /// <summary>
+        /// Gets or sets if the new password and the password 
+        /// verification are equal.
+        /// </summary>
+        public bool PasswordsMatch
+        {
+            get => _passwordsMatch;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _passwordsMatch, value);
+                this.CanSave = value;
+            }
+        }
+
+        /// <summary>
+        /// The new password entered by the user.
+        /// </summary>
+        public string NewPassword
+        {
+            get => _newPassword;
+            set => this.RaiseAndSetIfChanged(ref _newPassword, value);
+        }
+
+        /// <summary>
+        /// The verification of the new password entered by the user.
+        /// </summary>
+        public string NewPasswordVerification
+        {
+            get => _newPasswordVerification;
+            set => this.RaiseAndSetIfChanged(ref _newPasswordVerification, value);
+        }
+
+        /// <summary>
+        /// Creates a new <c>ImportIdentitySetupViewModel</c> instance.
+        /// </summary>
         public ImportIdentitySetupViewModel()
         {
             Init();
         }
+
+        /// <summary>
+        /// Creates a new <c>ImportIdentitySetupViewModel</c> instance
+        /// and sets the identity to be imorted.
+        /// </summary>
+        /// <param name="identity">The identity to be imported.</param>
         public ImportIdentitySetupViewModel(SQRLIdentity identity)
         {
             Init();
             this.Identity = identity;
         }
 
+        /// <summary>
+        /// Used by the c-tors to initialize stuff.
+        /// </summary>
         private void Init()
         {
             this.Title = _loc.GetLocalizationValue("ImportIdentitySetupWindowTitle");
         }
 
+        /// <summary>
+        /// Takes the user back to the previous screen.
+        /// </summary>
         public void Previous()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
                 ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
         }
 
+        /// <summary>
+        /// Takes the user back to the main screen.
+        /// </summary>
         public void Cancel()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
                 ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
         }
 
+        /// <summary>
+        /// Verifies and actually imports the identity.
+        /// </summary>
         public async void VerifyAndImportIdentity()
         {
             var progressBlock1 = new Progress<KeyValuePair<int, string>>();
