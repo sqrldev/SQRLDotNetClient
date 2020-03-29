@@ -5,50 +5,51 @@
              xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
              xmlns:behaviors="clr-namespace:SQRLDotNetClientUI.Behaviors;assembly=SQRLDotNetClientUI"
              xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
+             xmlns:v="clr-namespace:SQRLDotNetClientUI.Views;assembly=SQRLDotNetClientUI"
              xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+             Width="400" 
+             Height="450"
              x:Class="SQRLDotNetClientUI.Views.NewIdentityView">  
   
-  <StackPanel>
-    <Grid>
+  <DockPanel LastChildFill="False">
+    
+    <Grid DockPanel.Dock="Top">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="100"/>
-        <ColumnDefinition Width="275"/>
+        <ColumnDefinition Width="250"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition />
         <RowDefinition />
         <RowDefinition />
-        <RowDefinition />
-        <RowDefinition />
-        <RowDefinition  />
-        <RowDefinition  />
       </Grid.RowDefinitions>
+           
+      <TextBlock Margin="10" Text="{loc:Localization NewIdentityMessage}" FontSize="12" TextWrapping="Wrap" 
+                 Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
       
-      <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Right" 
-             VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
-      <TextBlock Margin="10" Text="{loc:Localization NewIdentityMessage}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
-      
-      <TextBlock Text="{loc:Localization IdentityNameLabel}" Margin="10" Grid.Row="1" Grid.Column="0" TextAlignment="Left"/>
-      <loc:CopyPasteTextBox Text="{Binding IdentityName}" Name="txtIdentityName" Margin="10" Grid.Row="1" Grid.Column="1">
+      <TextBlock Text="{loc:Localization IdentityNameLabel}" Margin="10,10,0,10" Grid.Row="1" Grid.Column="0" TextAlignment="Left" Width="90"/>
+      <loc:CopyPasteTextBox Text="{Binding IdentityName}" Name="txtIdentityName" Width="250" Margin="10" Grid.Row="1" Grid.Column="1">
         <i:Interaction.Behaviors>
           <behaviors:FocusOnAttached />
         </i:Interaction.Behaviors>
       </loc:CopyPasteTextBox>
        
-      <TextBlock Margin="10" Text="{loc:Localization RescueCodeLabel}" Grid.Row="2" Grid.Column="0"/>
-      <loc:CopyPasteTextBox Margin="10"  Text="{Binding RescueCode}" Grid.Row="2" Grid.Column="1" IsReadOnly="True"  />
-       
-      <TextBlock Margin="10" Text="{loc:Localization PasswordLabel}" Grid.Row="3" Grid.Column="0" />
-      <loc:CopyPasteTextBox Margin="10,0,10,10" Text="{Binding Password}" PasswordChar="*" Grid.Row="3" Grid.Column="1"/>
-      
-      <TextBlock Margin="10" Text="{loc:Localization RetypePasswordLabel}" Grid.Row="4" Grid.Column="0" />
-      <loc:CopyPasteTextBox Margin="10,0,10,20" Text="{Binding PasswordConfirm}" PasswordChar="*" Grid.Row="4" Grid.Column="1"/>
-      
-      <Button Content="{loc:Localization BtnCancel}" Command="{Binding Cancel}" Margin="10" Grid.Row="6" Grid.Column="0"  Width="70" HorizontalAlignment="Left" />
-      <Button Content="{loc:Localization BtnNext}" Command="{Binding GenerateNewIdentity}" IsDefault="True" Margin="10" Grid.Row="6" Grid.Column="1" Width="70" HorizontalAlignment="Right" />
+      <TextBlock Margin="10,10,0,10" Text="{loc:Localization RescueCodeLabel}" Grid.Row="2" Grid.Column="0" Width="90"/>
+      <loc:CopyPasteTextBox Margin="10" Text="{Binding RescueCode}" Width="250" Grid.Row="2" Grid.Column="1" IsReadOnly="True"/>
       
     </Grid>
-  </StackPanel>
+
+    <v:NewPasswordWidget DockPanel.Dock="Top" Margin="10"
+                           NewPassword="{Binding NewPassword}"
+                           NewPasswordVerification="{Binding NewPasswordVerification}"
+                           PasswordsMatch="{Binding PasswordsMatch}" />
+
+    <DockPanel DockPanel.Dock="Bottom" Margin="10">
+      <Button Content="{loc:Localization BtnCancel}" Command="{Binding Cancel}" DockPanel.Dock="Left" Margin="10" Width="70" HorizontalAlignment="Left" />
+      <Button Content="{loc:Localization BtnNext}" Command="{Binding GenerateNewIdentity}" IsEnabled="{Binding CanSave}" IsDefault="True" Margin="10" Width="70" DockPanel.Dock="Right" HorizontalAlignment="Right" />
+    </DockPanel>
+    
+  </DockPanel>
   
 </UserControl>
