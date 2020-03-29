@@ -64,15 +64,15 @@ namespace SQRLDotNetClientUI.ViewModels
             set => this.RaiseAndSetIfChanged(ref _newPassword, value);
         }
 
-        private string _newPasswordVerify = "";
+        private string _newPasswordVerification = "";
 
         /// <summary>
         /// The verification of the new password entered by the user.
         /// </summary>
-        public string NewPasswordVerify
+        public string NewPasswordVerification
         {
-            get => _newPasswordVerify;
-            set => this.RaiseAndSetIfChanged(ref _newPasswordVerify, value);
+            get => _newPasswordVerification;
+            set => this.RaiseAndSetIfChanged(ref _newPasswordVerification, value);
         }
 
         /// <summary>

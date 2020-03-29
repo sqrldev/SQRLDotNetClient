@@ -12,6 +12,10 @@ using Avalonia.Data;
 
 namespace SQRLDotNetClientUI.Views
 {
+    /// <summary>
+    /// Represents a collection of UI controls for entering and verifying 
+    /// a new password . It also displays a "password strength meter".
+    /// </summary>
     public class NewPasswordWidget : UserControl
     {
         private static IBrush BRUSH_POOR = new SolidColorBrush(new Color(0xFF, 0xF0, 0x80, 0x80));
@@ -31,7 +35,15 @@ namespace SQRLDotNetClientUI.Views
         private Ellipse _shapeSymbolsIndicator = null;
 
         public static readonly AvaloniaProperty<bool> PasswordsMatchProperty =
-            AvaloniaProperty.Register<NewPasswordWidget, bool>("PasswordsMatch", defaultValue: false, 
+            AvaloniaProperty.Register<NewPasswordWidget, bool>(nameof(PasswordsMatch), defaultValue: false, 
+                defaultBindingMode: BindingMode.TwoWay);
+
+        public static readonly AvaloniaProperty<string> PasswordProperty =
+            AvaloniaProperty.Register<NewPasswordWidget, string>(nameof(Password),
+                defaultBindingMode: BindingMode.TwoWay);
+
+        public static readonly AvaloniaProperty<string> PasswordVerificationProperty =
+            AvaloniaProperty.Register<NewPasswordWidget, string>(nameof(PasswordVerification),
                 defaultBindingMode: BindingMode.TwoWay);
 
         /// <summary>
@@ -42,6 +54,24 @@ namespace SQRLDotNetClientUI.Views
         {
             get { return this.GetValue(PasswordsMatchProperty); }
             set { this.SetValue(PasswordsMatchProperty, value); }
+        }
+
+        /// <summary>
+        /// The password entered by the user.
+        /// </summary>
+        public string Password
+        {
+            get { return this.GetValue(PasswordProperty); }
+            set { this.SetValue(PasswordProperty, value); }
+        }
+
+        /// <summary>
+        /// The password verification entered by the user.
+        /// </summary>
+        public string PasswordVerification
+        {
+            get { return this.GetValue(PasswordVerificationProperty); }
+            set { this.SetValue(PasswordVerificationProperty, value); }
         }
 
         public NewPasswordWidget()
@@ -62,11 +92,13 @@ namespace SQRLDotNetClientUI.Views
             _txtNewPassword.GetObservable(CopyPasteTextBox.TextProperty).Subscribe(value =>
             {
                 _pwdStrengthMeter.Update(value);
+                this.Password = value;
                 CheckPasswordVerification();
             });
 
             _txtNewPasswordVerify.GetObservable(CopyPasteTextBox.TextProperty).Subscribe(value =>
             {
+                this.PasswordVerification = value;
                 CheckPasswordVerification();
             });
         }
