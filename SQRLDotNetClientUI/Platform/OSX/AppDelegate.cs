@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Serilog;
 using SQRLDotNetClientUI.Views;
+using Avalonia.Threading;
 
 namespace SQRLDotNetClientUI.Platform.OSX
 {
@@ -110,6 +111,10 @@ namespace SQRLDotNetClientUI.Platform.OSX
                             mmvm.AuthVM = new AuthenticationViewModel(new Uri(innerDesc.StringValue));
                             mwvm.PriorContent = mwvm.Content;
                             mwvm.Content = mmvm.AuthVM;
+                            Dispatcher.UIThread.Post(() =>
+                            {
+                                ((MainWindow)this.mainWindow).RestoreWindow();
+                            });
                         }
 
                     }
