@@ -11,6 +11,7 @@ using System.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Serilog;
+using SQRLDotNetClientUI.Views;
 
 namespace SQRLDotNetClientUI.Platform.OSX
 {
