@@ -10,8 +10,8 @@
       <TrimmerRootAssembly Include="mscorlib" />
 	  <TrimmerRootAssembly Include="System.Net.WebClient" />
     <TrimmerRootAssembly Include="ToolBox" />
-    <TrimmerRootAssembly Include="dein.ToolBox" />
-    
+ 
+    <TrimmerRootAssembly Include="System.IO.Compression" />
     
   </ItemGroup>
   <ItemGroup>

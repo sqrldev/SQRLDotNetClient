@@ -14,10 +14,6 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using ToolBox.Bridge;
 using System.Reflection;
-using System.IO.Compression;
-using MessageBox.Avalonia;
-using MessageBox.Avalonia.Enums;
-using Avalonia.Threading;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Security.AccessControl;
@@ -211,7 +207,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         {
             string fileName = Path.GetTempFileName().Replace(".tmp", ".zip");
             wc.DownloadFile("https://github.com/sqrldev/SQRLDotNetClient/raw/PlatformInstaller/Installers/MacOsX/SQRL.app.zip", fileName);
-            System.IO.Compression.ZipFile.ExtractToDirectory(fileName, this.InstallationPath,true);
+            //System.IO.Compression.ZipFile.ExtractToDirectory(fileName, this.InstallationPath,true);
+            ExtractZipFile(fileName,string.Empty,this.InstallationPath);
             Executable = Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", "SQRLDotNetClientUI");
             this.DownloadPercentage = 20;
             ExtractZipFile(downloadedFileName, string.Empty, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS"));
