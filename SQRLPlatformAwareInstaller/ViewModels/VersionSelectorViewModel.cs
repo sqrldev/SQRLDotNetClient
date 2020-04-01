@@ -225,7 +225,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         {
             
             this.InstallStatus ="Installing...";
-            Executable = Path.Combine(this.InstallationPath, "SQRLDotNetClient");
+            Executable = Path.Combine(this.InstallationPath, "SQRLDotNetClientUI");
             await Task.Run(() =>
             {
                 if (!Directory.Exists(this.InstallationPath))
@@ -233,7 +233,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                     Directory.CreateDirectory(this.InstallationPath);
                 }
                 this.DownloadPercentage = 20;
-                File.Move(downloadedFileName, Executable, true);
+                //File.Move(downloadedFileName, Executable, true);
+                ExtractZipFile(downloadedFileName, string.Empty, this.InstallationPath);
                 File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, Path.GetFileName(Assembly.GetExecutingAssembly().Location)),true);
                 this.DownloadPercentage += 20;
             });
@@ -252,7 +253,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             sb.AppendLine("Terminal=false");
             sb.AppendLine("MimeType=x-scheme-handler/sqrl");
             File.WriteAllText(Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop"), sb.ToString());
-            _shell.Term($"chmod -R 755 {this.InstallationPath}", Output.Internal);
+            _shell.Term($"chmod -R 777 {this.InstallationPath}", Output.Internal);
             _shell.Term($"chmod a+x {Executable}",Output.Internal);
             _shell.Term($"chmod +x {Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop")}",Output.Internal);
             _shell.Term($"xdg-desktop-menu install {Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop")}",Output.Internal);
