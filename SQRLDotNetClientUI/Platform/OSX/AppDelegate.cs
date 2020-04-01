@@ -94,6 +94,8 @@ namespace SQRLDotNetClientUI.Platform.OSX
                 if (!string.IsNullOrEmpty(innerDesc.StringValue))
                 {
                     //Get a hold of the Main Application View Model
+                    Log.Information($"Got URL:{innerDesc.StringValue}");
+                    this.mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
                     var mwvm = (MainWindowViewModel)this.mainWindow.DataContext;
 
                     //Get a hold of the currently loaded Model (main menu)

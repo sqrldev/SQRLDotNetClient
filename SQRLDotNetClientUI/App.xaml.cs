@@ -30,7 +30,7 @@ namespace SQRLDotNetClientUI
                 {
                     Log.Information("Initialializing Apple Delegate");
                     NSApplication.Init();
-                    NSApplication.SharedApplication.Delegate = new  SQRLDotNetClientUI.Platform.OSX.AppDelegate((MainWindow)desktop.MainWindow);
+                    NSApplication.SharedApplication.Delegate = new  SQRLDotNetClientUI.Platform.OSX.AppDelegate();
                 }
 
                   // Set up the app's main window
