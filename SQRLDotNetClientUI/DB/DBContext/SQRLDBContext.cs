@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Serilog;
 using SQRLDotNetClientUI.DB.Models;
 using System;
 using System.IO;
@@ -20,9 +21,11 @@ namespace SQRLDotNetClientUI.DB.DBContext
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             var directory = Path.GetDirectoryName(AppContext.BaseDirectory);
+            Log.Information($"DB Directory: {directory}");
             if (!File.Exists(Path.Combine(directory, "sqrl.db")))
                 directory = "";
             Console.WriteLine($"{directory}: {File.Exists(Path.Combine(directory, "sqrl.db"))}");
+
             options.UseSqlite($"Data Source={Path.Combine(directory,"sqrl.db")}");
         }
     }

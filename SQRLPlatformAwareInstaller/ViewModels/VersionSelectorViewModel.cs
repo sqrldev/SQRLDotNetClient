@@ -18,6 +18,10 @@ using System.IO.Compression;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Enums;
 using Avalonia.Threading;
+using ICSharpCode.SharpZipLib.Core;
+using ICSharpCode.SharpZipLib.Zip;
+using System.Security.AccessControl;
+using System.Security.Principal;
 
 namespace SQRLPlatformAwareInstaller.ViewModels 
 {
@@ -142,22 +146,22 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
                 case "MacOSX":
                     {
-                        this.DownloadSize=Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("osx64")).First().size / 1024M ) / 1024M,2);
-                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("osx64")).First().browser_download_url;
+                        this.DownloadSize=Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("osx-x64.zip")).First().size / 1024M ) / 1024M,2);
+                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("osx-x64.zip")).First().browser_download_url;
                     }
                     break;
                 case "Linux":
                     {
-                        this.DownloadSize = Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("linux64")).First().size / 1024M) / 1024M,2);
-                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("linux64")).First().browser_download_url;
+                        this.DownloadSize = Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("linux-x64.zip")).First().size / 1024M) / 1024M,2);
+                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("linux-x64.zip")).First().browser_download_url;
                         
                     }
                     break;
                 case "WINDOWS":
                 default:
                     {
-                        this.DownloadSize=Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("win64")).First().size / 1024M) / 1024M, 2);
-                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("win64")).First().browser_download_url;
+                        this.DownloadSize=Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().size / 1024M) / 1024M, 2);
+                        this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().browser_download_url;
                     }
                     break;
             }
@@ -197,7 +201,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 case "WINDOWS":
                 default:
                     {
-                        InstallinWindodows(downloadedFileName);
+                        InstallingOnWindows(downloadedFileName);
                     }
                     break;
             }
@@ -207,9 +211,10 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         {
             string fileName = Path.GetTempFileName().Replace(".tmp", ".zip");
             wc.DownloadFile("https://github.com/sqrldev/SQRLDotNetClient/raw/PlatformInstaller/Installers/MacOsX/SQRL.app.zip", fileName);
-            ZipFile.ExtractToDirectory(fileName, this.InstallationPath,true);
+            System.IO.Compression.ZipFile.ExtractToDirectory(fileName, this.InstallationPath,true);
             Executable = Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", "SQRLDotNetClientUI");
             this.DownloadPercentage = 20;
+            ExtractZipFile(downloadedFileName, string.Empty, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS"));
             File.Move(downloadedFileName, Executable, true);
             File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Assembly.GetExecutingAssembly().Location)), true);
             this.DownloadPercentage += 20;
@@ -260,21 +265,18 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
         }
 
-        private async void InstallinWindodows(string downloadedFileName)
+        private async void InstallingOnWindows(string downloadedFileName)
         {
             this.InstallStatus = "Installing...";
-            Executable = Path.Combine(this.InstallationPath, "SQRLDotNetClient.exe");
-            await Task.Run(() =>
+            Executable = Path.Combine(this.InstallationPath, "SQRLDotNetClientUI.exe");
+            Task.Run(() =>
             {
-                if (!Directory.Exists(this.InstallationPath))
-                {
-                    Directory.CreateDirectory(this.InstallationPath);
-                }
-                this.DownloadPercentage = 20;
-                File.Move(downloadedFileName, Executable, true);
+                
+                ExtractZipFile(downloadedFileName, string.Empty, this.InstallationPath);
+                
                 File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, Path.GetFileName(Assembly.GetExecutingAssembly().Location)), true);
                 this.DownloadPercentage += 20;
-            });
+            }).Wait();
            
             bool cont = true;
         
@@ -358,6 +360,82 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         public void Cancel()
         {
             ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).PriorContent;
+        }
+
+        public void ExtractZipFile(string archivePath, string password, string outFolder)
+        {
+
+            using (Stream fsInput = File.OpenRead(archivePath))
+            using (var zf = new ICSharpCode.SharpZipLib.Zip.ZipFile(fsInput))
+            {
+                if (!String.IsNullOrEmpty(password))
+                {
+                    // AES encrypted entries are handled automatically
+                    zf.Password = password;
+                }
+                long fileCt = zf.Count;
+                int ct = 0;
+                foreach (ZipEntry zipEntry in zf)
+                {
+                    ct++;
+                    this.DownloadPercentage = (int)((ct / fileCt) * 20M);
+                    if (!zipEntry.IsFile)
+                    {
+                        // Ignore directories
+                        continue;
+                    }
+                    String entryFileName = zipEntry.Name;
+                    // to remove the folder from the entry:
+                    //entryFileName = Path.GetFileName(entryFileName);
+                    // Optionally match entrynames against a selection list here
+                    // to skip as desired.
+                    // The unpacked length is available in the zipEntry.Size property.
+
+                    // Manipulate the output filename here as desired.
+                    var fullZipToPath = Path.Combine(outFolder, entryFileName);
+                    if(entryFileName.Equals("sqrl.db", StringComparison.OrdinalIgnoreCase) && File.Exists(entryFileName) )
+                    {
+                        continue;
+                    }
+                    var directoryName = Path.GetDirectoryName(fullZipToPath);
+                    if (directoryName.Length > 0)
+                    {
+                        if (!Directory.Exists(directoryName))
+                        {
+                            Directory.CreateDirectory(directoryName);
+                            if (this.platform == "WINDOWS")
+                            {
+                                var fi = new System.IO.FileInfo(directoryName);
+                                var ac = fi.GetAccessControl();
+                                var fileAccessRule = new FileSystemAccessRule(new NTAccount("", "Everyone"), FileSystemRights.FullControl, AccessControlType.Allow);
+                                ac.AddAccessRule(fileAccessRule);
+                                fi.SetAccessControl(ac);
+                            }
+                        }
+                    }
+
+                    // 4K is optimum
+                    var buffer = new byte[4096];
+
+                    // Unzip file in buffered chunks. This is just as fast as unpacking
+                    // to a buffer the full size of the file, but does not waste memory.
+                    // The "using" will close the stream even if an exception occurs.
+                    using (var zipStream = zf.GetInputStream(zipEntry))
+                    using (Stream fsOutput = File.Create(fullZipToPath))
+                    {
+                        
+                        StreamUtils.Copy(zipStream, fsOutput, buffer);
+                        if (this.platform == "WINDOWS")
+                        {
+                            var fi = new System.IO.FileInfo(fullZipToPath);
+                            var ac = fi.GetAccessControl();
+                            var fileAccessRule = new FileSystemAccessRule(new NTAccount("", "Everyone"), FileSystemRights.FullControl, AccessControlType.Allow);
+                            ac.AddAccessRule(fileAccessRule);
+                            fi.SetAccessControl(ac);
+                        }
+                    }
+                }
+            }
         }
 
     }
