@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Serilog;
 
 namespace SQRLDotNetClientUI.Platform.OSX
 {
@@ -70,6 +71,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
         /// </summary>
         private void Init()
         {
+            Log.Information("Initializing Mac App Delegate");
             //Register this Apple Delegate globablly with Avalonia for Later Use
             AvaloniaLocator.CurrentMutable.Bind<AppDelegate>().ToConstant(this);
             NSAppleEventManager.SharedAppleEventManager.SetEventHandler(this, new MonoMac.ObjCRuntime.Selector("handleGetURLEvent:withReplyEvent:"), AEEventClass.Internet, AEEventID.GetUrl);
@@ -83,6 +85,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
         [Export("handleGetURLEvent:withReplyEvent:")]
         private void HandleOpenURL(NSAppleEventDescriptor evt, NSAppleEventDescriptor replyEvent)
         {
+            Log.Information("Handling Open URL Event");
             for (int i = 1; i <= evt.NumberOfItems; i++)
             {
                 var innerDesc = evt.DescriptorAtIndex(i);
@@ -100,6 +103,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
                         //If there is a Loaded Identity then Invoke the Authentication Dialog
                         if (mmvm.CurrentIdentity != null)
                         {
+                            Log.Information($"Open URL Data: {innerDesc.StringValue}");
                             mmvm.AuthVM = new AuthenticationViewModel(new Uri(innerDesc.StringValue));
                             mwvm.PriorContent = mwvm.Content;
                             mwvm.Content = mmvm.AuthVM;

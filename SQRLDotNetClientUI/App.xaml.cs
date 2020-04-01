@@ -28,6 +28,7 @@ namespace SQRLDotNetClientUI
                 // This also handles System Events and notifications, it gives us a native foothold on a Mac.
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
+                    Log.Information("Initialializing Apple Delegate");
                     NSApplication.Init();
                     NSApplication.SharedApplication.Delegate = new  SQRLDotNetClientUI.Platform.OSX.AppDelegate((MainWindow)desktop.MainWindow);
                 }
