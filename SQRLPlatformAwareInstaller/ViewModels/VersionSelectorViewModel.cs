@@ -215,7 +215,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             Executable = Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", "SQRLDotNetClientUI");
             this.DownloadPercentage = 20;
             ExtractZipFile(downloadedFileName, string.Empty, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS"));
-            File.Move(downloadedFileName, Executable, true);
+            //File.Move(downloadedFileName, Executable, true);
             File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Assembly.GetExecutingAssembly().Location)), true);
             this.DownloadPercentage += 20;
                  _bridgeSystem = BridgeSystem.Bash;
