@@ -8,7 +8,7 @@ This project has 2 main parts: A **SQRL client** and a **SQRL library**. Below i
 ### SQRL Dot Net Core Client
 
 An implementation of a fully-featured SQRL client, along with a cross-platform user interface (using the Avalonia UI framework).
-
+# STOP --- A DO NOT DONWLOAD THIS VERSION, A NEW RELEASE IS COMING THE VERSION BELOW IS PRE-ALPHA ---
 #### Installing the Client on Linux (desktop environment / xdg-desktop is required)
 
 ```shell
