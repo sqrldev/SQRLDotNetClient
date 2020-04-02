@@ -11,7 +11,7 @@
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/SQRLDotNetClientUI/bin/Debug/netcoreapp3.1/SQRLDotNetClientUI.dll",
-            "args": ["sqrl://www.grc.com/sqrl?nut=SZNWC8znDcvovhbaT8anQg"],
+            "args": [],
             "cwd": "${workspaceFolder}/SQRLDotNetClientUI",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
