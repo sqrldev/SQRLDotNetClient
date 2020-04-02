@@ -154,7 +154,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                     }
                     break;
                 case "WINDOWS":
-                default:
+                default: 
                     {
                         this.DownloadSize=Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().size / 1024M) / 1024M, 2);
                         this.DownloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().browser_download_url;
@@ -215,6 +215,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             //File.Move(downloadedFileName, Executable, true);
             
             File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), true);
+            
+            
             this.DownloadPercentage += 20;
                  _bridgeSystem = BridgeSystem.Bash;
             _shell = new ShellConfigurator(_bridgeSystem);
