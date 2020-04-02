@@ -413,7 +413,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
                     // Manipulate the output filename here as desired.
                     var fullZipToPath = Path.Combine(outFolder, entryFileName);
-                    if(entryFileName.Equals("sqrl.db", StringComparison.OrdinalIgnoreCase) && File.Exists(entryFileName) )
+                    if(entryFileName.Equals("sqrl.db", StringComparison.OrdinalIgnoreCase) && File.Exists(fullZipToPath) )
                     {
                         continue;
                     }
