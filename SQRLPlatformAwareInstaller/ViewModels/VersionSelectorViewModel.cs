@@ -403,11 +403,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                             Directory.CreateDirectory(directoryName);
                             if (this.platform == "WINDOWS")
                             {
-                                var fi = new System.IO.FileInfo(directoryName);
-                                var ac = fi.GetAccessControl();
-                                var fileAccessRule = new FileSystemAccessRule(new NTAccount("", "Everyone"), FileSystemRights.FullControl, AccessControlType.Allow);
-                                ac.AddAccessRule(fileAccessRule);
-                                fi.SetAccessControl(ac);
+                                SetFileAccess(directoryName);
                             }
                         }
                     }
@@ -425,15 +421,22 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                         StreamUtils.Copy(zipStream, fsOutput, buffer);
                         if (this.platform == "WINDOWS")
                         {
-                            var fi = new System.IO.FileInfo(fullZipToPath);
-                            var ac = fi.GetAccessControl();
-                            var fileAccessRule = new FileSystemAccessRule(new NTAccount("", "Everyone"), FileSystemRights.FullControl, AccessControlType.Allow);
-                            ac.AddAccessRule(fileAccessRule);
-                            fi.SetAccessControl(ac);
+                            SetFileAccess(fullZipToPath);
                         }
                     }
                 }
             }
+        }
+
+        public void SetFileAccess(string file)
+        {
+            var fi = new System.IO.FileInfo(file);
+            var ac = fi.GetAccessControl();
+            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+            var account = (NTAccount)sid.Translate(typeof(NTAccount));
+            var fileAccessRule = new FileSystemAccessRule(account, FileSystemRights.FullControl, AccessControlType.Allow);
+            ac.AddAccessRule(fileAccessRule);
+            fi.SetAccessControl(ac);
         }
 
     }
