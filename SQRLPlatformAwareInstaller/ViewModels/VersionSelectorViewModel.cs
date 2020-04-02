@@ -213,7 +213,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             this.DownloadPercentage = 20;
             ExtractZipFile(downloadedFileName, string.Empty, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS"));
             //File.Move(downloadedFileName, Executable, true);
-            File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Assembly.GetExecutingAssembly().Location)), true);
+            
+            File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), true);
             this.DownloadPercentage += 20;
                  _bridgeSystem = BridgeSystem.Bash;
             _shell = new ShellConfigurator(_bridgeSystem);
@@ -235,7 +236,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 this.DownloadPercentage = 20;
                 //File.Move(downloadedFileName, Executable, true);
                 ExtractZipFile(downloadedFileName, string.Empty, this.InstallationPath);
-                File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, Path.GetFileName(Assembly.GetExecutingAssembly().Location)),true);
+                
+                File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), true);
                 this.DownloadPercentage += 20;
             });
 
@@ -271,8 +273,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             {
                 
                 ExtractZipFile(downloadedFileName, string.Empty, this.InstallationPath);
-                
-                File.Copy(Assembly.GetExecutingAssembly().Location, Path.Combine(this.InstallationPath, Path.GetFileName(Assembly.GetExecutingAssembly().Location)), true);
+                //var x = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), true);
                 this.DownloadPercentage += 20;
             }).Wait();
            
