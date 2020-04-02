@@ -26,7 +26,8 @@ namespace SQRLDotNetClientUI.Views
             MenuItem languageMenu = this.FindControl<MenuItem>("menuLanguage");
 
             List<MenuItem> items = new List<MenuItem>();
-            foreach (var lang in new MainMenuViewModel().LanguageMenuItems)
+            var newMenuView = new MainMenuViewModel();
+            foreach (var lang in newMenuView.LanguageMenuItems)
             {
                 MenuItem item = new MenuItem()
                 {
@@ -40,6 +41,9 @@ namespace SQRLDotNetClientUI.Views
             }
 
             languageMenu.Items = items;
+
+            //Derreference for GC
+            newMenuView = null;
         }
 
         private void InitializeComponent()

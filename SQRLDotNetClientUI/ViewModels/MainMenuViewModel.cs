@@ -10,11 +10,23 @@ using System.Collections.Generic;
 using System.Windows.Input;
 using SQRLDotNetClientUI.AvaloniaExtensions;
 using Avalonia;
+using System.Reflection;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
     public class MainMenuViewModel : ViewModelBase
     {
+
+        private bool _NewUpdateAvailable = true;
+        public bool NewUpdateAvailable
+        {
+            get => _NewUpdateAvailable;
+            set => this.RaiseAndSetIfChanged(ref _NewUpdateAvailable, value);
+        }
+
         private string _siteUrl = "";
         public string SiteUrl
         {
@@ -111,6 +123,9 @@ namespace SQRLDotNetClientUI.ViewModels
                 _mainWindow.Height = 450;
                 _mainWindow.Width = 400;
             }
+
+            //Checks for New Version on Main Menu Start
+            CheckForUpdates();
         }
 
         private void OnIdentityChanged(object sender, IdentityChangedEventArgs e)
@@ -132,6 +147,8 @@ namespace SQRLDotNetClientUI.ViewModels
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
                 new NewIdentityViewModel();
         }
+
+     
 
         public void ExportIdentity()
         {
@@ -211,6 +228,85 @@ namespace SQRLDotNetClientUI.ViewModels
                     ((MainWindowViewModel)_mainWindow.DataContext).Content = AuthVM;
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks for new version in github and enables the Alert Button
+        /// </summary>
+        public void CheckForUpdates()
+        {
+
+            this.NewUpdateAvailable = GitAPIHubHelper.GitHubHelper.CheckForUpdates();
+        }
+
+
+        /// <summary>
+        /// Launches the installer to install a new update
+        /// </summary>
+        public async void InstallUpdate()
+        {
+            var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string installer = GetInstallerByPlatform();
+            if(File.Exists(Path.Combine(directory,installer)))
+            {
+                var tempFile = Path.GetTempPath();
+                File.Copy(installer, Path.Combine(tempFile, Path.GetFileName(installer)), true);
+                Process.Start(Path.Combine(tempFile, Path.GetFileName(installer)));
+                this._mainWindow.Exit();
+            }
+            else
+            {
+                var result = await new Views.MessageBox(_loc.GetLocalizationValue("GenericQuestionTitle"),
+                string.Format(_loc.GetLocalizationValue("MissingInstaller"), this.IdentityName, Environment.NewLine),
+                MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+                .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                if(result == MessagBoxDialogResult.YES)
+                {
+                    OpenUrl("https://github.com/sqrldev/SQRLDotNetClient/releases");
+                    this._mainWindow.Exit();
+                }
+            }
+        }
+
+        private void OpenUrl(string url)
+        {
+            try
+            {
+                Process.Start(url);
+            }
+            catch
+            {
+                // hack because of this: https://github.com/dotnet/corefx/issues/10361
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    url = url.Replace("&", "^&");
+                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    Process.Start("xdg-open", url);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    Process.Start("open", url);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        private string GetInstallerByPlatform()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return "SQRLPlatformAwareInstaller_win.exe";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return "SQRLPlatformAwareInstaller_osx";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return "SQRLPlatformAwareInstaller_linux";
+
+            return "";
         }
 
         public void RekeyIdentity()

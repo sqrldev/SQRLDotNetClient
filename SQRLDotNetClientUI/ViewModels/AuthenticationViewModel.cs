@@ -23,6 +23,14 @@ namespace SQRLDotNetClientUI.ViewModels
             Remove
         };
 
+        private bool _NewUpdateAvailable=false;
+        public bool NewUpdateAvailable
+        {
+            get => _NewUpdateAvailable;
+            set { this.RaiseAndSetIfChanged(ref _NewUpdateAvailable, value); }
+        }
+
+
         private LoginAction action = LoginAction.Login;
         public LoginAction Action
         {
@@ -141,6 +149,14 @@ namespace SQRLDotNetClientUI.ViewModels
             });
 
             CheckForQuickPass();
+
+            CheckForUpdate();
+
+        }
+
+        private void CheckForUpdate()
+        {
+            this.NewUpdateAvailable = this.NewUpdateAvailable = GitAPIHubHelper.GitHubHelper.CheckForUpdates();
         }
 
         /// <summary>

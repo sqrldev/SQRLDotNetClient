@@ -50,6 +50,8 @@
     { "IdentitySettingsMenuItemHeader": "Identity _Settings" },
     { "HelpMenuItemHeader": "_Help" },
     { "AboutMenuItemHeader": "_About" },
+    { "NewUpdateAvailable": "New Version Available!" },
+    { "NewUpdateAvailableRunApp": "New SQRL version Available, run main application to update" },
     { "LoadedIdentityLabel": "Loaded Identity:" },
     { "BtnNewIdentity": "New Identity" },
     { "BtnNewIdentity": "New Identity" },
@@ -133,7 +135,9 @@
     { "SecretDialogError": "Please use the OK button to exit this dialog." },
     { "OptionsMenuHeader": "_Options" },
     { "LanguageMenuHeader": "_Language" },
-    { "DefaultLanguageMenuItemHeader": "_Default" }
+    { "DefaultLanguageMenuItemHeader": "_Default" },
+    { "MissingInstaller": "The installer file is missing so we can't auto update, would you like to go to the downloads page to get the latest installer?'" }
+
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -186,6 +190,8 @@
     { "IdentitySettingsMenuItemHeader": "Identity _Settings" },
     { "HelpMenuItemHeader": "_Help" },
     { "AboutMenuItemHeader": "_About" },
+    { "NewUpdateAvailable": "New Version Available!" },
+    { "NewUpdateAvailableRunApp": "New SQRL version Available, run main application to update" },
     { "LoadedIdentityLabel": "Loaded Identity:" },
     { "BtnNewIdentity": "New Identity" },
     { "BtnImportIdentity": "Import Identity" },
@@ -268,7 +274,8 @@
     { "SecretDialogError": "Please use the OK button to exit this dialog." },
     { "OptionsMenuHeader": "_Options" },
     { "LanguageMenuHeader": "_Language" },
-    { "DefaultLanguageMenuItemHeader": "_Default" }
+    { "DefaultLanguageMenuItemHeader": "_Default" },
+    { "MissingInstaller": "The installer file is missing so we can't auto update, would you like to go to the downloads page to get the latest installer?'" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -321,6 +328,8 @@
     { "IdentitySettingsMenuItemHeader": "Identitäts-Ein_stellungen" },
     { "HelpMenuItemHeader": "_Hilfe" },
     { "AboutMenuItemHeader": "Ü_ber" },
+    { "NewUpdateAvailable": "Neue Aktualisierung Verfügbar" },
+    { "NewUpdateAvailableRunApp": "Neue SQRL-Version verfügbar. Führen Sie die Hauptanwendung aus, um ein Upgrade durchzuführen" },
     { "LoadedIdentityLabel": "Aktuelle Identität:" },
     { "BtnNewIdentity": "Neue Identität" },
     { "BtnImportIdentity": "Identität importieren" },
@@ -403,6 +412,7 @@
     { "SecretDialogError": "Bitte benützen Sie den OK-Button, um diesen Dialog zu schließen." },
     { "OptionsMenuHeader": "_Optionen" },
     { "LanguageMenuHeader": "_Sprache" },
-    { "DefaultLanguageMenuItemHeader": "_Standard" }
+    { "DefaultLanguageMenuItemHeader": "_Standard" },
+    { "MissingInstaller": "The installer file is missing so we can't auto update, would you like to go to the downloads page to get the latest installer?'" }
   ]
 }

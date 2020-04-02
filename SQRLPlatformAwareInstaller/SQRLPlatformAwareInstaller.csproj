@@ -137,4 +137,7 @@
   <ItemGroup>
     <Resource Include="Assets\sqrl_icon_normal_256.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GitAPIHubHelper\GitAPIHubHelper.csproj" />
+  </ItemGroup>
 </Project>

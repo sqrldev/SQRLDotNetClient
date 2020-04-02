@@ -1,7 +1,8 @@
 {
   "profiles": {
     "SQRLDotNetClientUI": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "https://grc.com/asdasd"
     }
   }
 }
