@@ -250,8 +250,18 @@ namespace SQRLDotNetClientUI.ViewModels
             if(File.Exists(Path.Combine(directory,installer)))
             {
                 var tempFile = Path.GetTempPath();
-                File.Copy(installer, Path.Combine(tempFile, Path.GetFileName(installer)), true);
-                Process.Start(Path.Combine(tempFile, Path.GetFileName(installer)));
+                File.Copy(Path.Combine(directory, installer), Path.Combine(tempFile, Path.GetFileName(installer)), true);
+                if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    Process proc = new Process();
+                    proc.StartInfo.FileName = Path.Combine(tempFile, Path.GetFileName(installer));
+                    proc.StartInfo.UseShellExecute = true;
+                    proc.StartInfo.Verb = "runas";
+                    proc.Start();
+                }
+                else
+                    Process.Start(Path.Combine(tempFile, Path.GetFileName(installer)));
+
                 this._mainWindow.Exit();
             }
             else

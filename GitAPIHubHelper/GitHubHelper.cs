@@ -23,7 +23,7 @@ namespace GitAPIHubHelper
             }
             catch(Exception ex)
             {
-                Console.WriteLine("Error Downloading Releases");
+                Console.WriteLine($"Error Downloading Releases. Error: {ex}");
             }
             return (Newtonsoft.Json.JsonConvert.DeserializeObject<List<GithubRelease>>(jsonData)).ToArray();
         }
@@ -43,7 +43,7 @@ namespace GitAPIHubHelper
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error Downloading: {url}");
+                Console.WriteLine($"Error Downloading: {url} Error: {ex}");
                 success = false;
             }
             return success;

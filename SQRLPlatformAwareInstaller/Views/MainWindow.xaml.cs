@@ -16,6 +16,7 @@ namespace SQRLPlatformAwareInstaller.Views
                 AvaloniaLocator.CurrentMutable.Bind<MainWindow>().ToConstant(this);
             }
             this.LocalizationService = new LocalizationExtension();
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 #if DEBUG
             this.AttachDevTools();
 #endif
