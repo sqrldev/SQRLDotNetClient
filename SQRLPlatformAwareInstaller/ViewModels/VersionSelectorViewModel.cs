@@ -233,51 +233,50 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             _shell.Term($"chmod a+x {Executable}",Output.Internal);
         }
 
-        private async void InstallinLinux(string downloadedFileName)
+        private void InstallinLinux(string downloadedFileName)
         {
-            
-            this.InstallStatus ="Installing...";
+
+            this.InstallStatus = "Installing...";
             Executable = Path.Combine(this.InstallationPath, "SQRLDotNetClientUI");
-            await Task.Run(() =>
+
+            if (!Directory.Exists(this.InstallationPath))
             {
-                if (!Directory.Exists(this.InstallationPath))
-                {
-                    Directory.CreateDirectory(this.InstallationPath);
-                }
-                this.DownloadPercentage = 20;
-                //File.Move(downloadedFileName, Executable, true);
-                ExtractZipFile(downloadedFileName, string.Empty, this.InstallationPath);
-                
-                File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), true);
-                using (StreamWriter sw = new StreamWriter(Path.Combine(this.InstallationPath, "sqrlversion.json")))
-                {
-                    sw.Write(Newtonsoft.Json.JsonConvert.SerializeObject(this.SelectedRelease.tag_name));
-                    sw.Close();
-                }
-                this.DownloadPercentage += 20;
-            });
+                Directory.CreateDirectory(this.InstallationPath);
+            }
+            this.DownloadPercentage = 20;
+            //File.Move(downloadedFileName, Executable, true);
+            ExtractZipFile(downloadedFileName, string.Empty, this.InstallationPath);
+
+            File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), true);
+            using (StreamWriter sw = new StreamWriter(Path.Combine(this.InstallationPath, "sqrlversion.json")))
+            {
+                sw.Write(Newtonsoft.Json.JsonConvert.SerializeObject(this.SelectedRelease.tag_name));
+                sw.Close();
+            }
+            this.DownloadPercentage += 20;
+
 
             _bridgeSystem = BridgeSystem.Bash;
             _shell = new ShellConfigurator(_bridgeSystem);
 
-            GitHubHelper.DownloadFile(@"https://github.com/sqrldev/SQRLDotNetClient/raw/master/SQRLDotNetClientUI/Assets/SQRL_icon_normal_64.png",Path.Combine(this.InstallationPath,"SQRL.png"));
+            GitHubHelper.DownloadFile(@"https://github.com/sqrldev/SQRLDotNetClient/raw/master/SQRLDotNetClientUI/Assets/SQRL_icon_normal_64.png", Path.Combine(this.InstallationPath, "SQRL.png"));
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"[Desktop Entry]");
             sb.AppendLine("Name=SQRL");
             sb.AppendLine("Type=Application");
-            sb.AppendLine($"Icon={(Path.Combine(this.InstallationPath,"SQRL.png"))}");
+            sb.AppendLine($"Icon={(Path.Combine(this.InstallationPath, "SQRL.png"))}");
             sb.AppendLine($"Exec={Executable} %u");
             sb.AppendLine("Categories=Internet");
             sb.AppendLine("Terminal=false");
             sb.AppendLine("MimeType=x-scheme-handler/sqrl");
-            File.WriteAllText(Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop"), sb.ToString());
+            File.WriteAllText(Path.Combine(this.InstallationPath, "sqrldev-sqrl.desktop"), sb.ToString());
             _shell.Term($"chmod -R 777 {this.InstallationPath}", Output.Internal);
-            _shell.Term($"chmod a+x {Executable}",Output.Internal);
-            _shell.Term($"chmod +x {Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop")}",Output.Internal);
-            _shell.Term($"xdg-desktop-menu install {Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop")}",Output.Internal);
-            _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop",Output.Internal);
-            _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl",Output.Internal);
-            _shell.Term($"update-desktop-database ~/.local/share/applications/",Output.Internal);
+            _shell.Term($"chmod a+x {Executable}", Output.Internal);
+            _shell.Term($"chmod +x {Path.Combine(this.InstallationPath, "sqrldev-sqrl.desktop")}", Output.Internal);
+            _shell.Term($"xdg-desktop-menu install {Path.Combine(this.InstallationPath, "sqrldev-sqrl.desktop")}", Output.Internal);
+            _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop", Output.Internal);
+            _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl", Output.Internal);
+            _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
 
         }
 
