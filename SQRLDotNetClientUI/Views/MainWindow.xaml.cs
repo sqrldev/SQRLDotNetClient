@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using ReactiveUI;
 using System.Runtime.InteropServices;
-
+using Avalonia.Threading;
 namespace SQRLDotNetClientUI.Views
 {
     public class MainWindow : Window
@@ -84,13 +84,19 @@ namespace SQRLDotNetClientUI.Views
                 if (NotifyIcon != null)
                 {
                     Log.Information("Hiding main window");
-                    ((Window)s).Hide();
+                    Dispatcher.UIThread.Post(() =>
+                            {
+                                ((Window)s).Hide();
+                            });
                     NotifyIcon.Visible = true;
                 }
                 else
                 {
                     Log.Information("Minimizing main window");
+                    Dispatcher.UIThread.Post(() =>
+                            {
                     ((Window)s).WindowState = WindowState.Minimized;
+                            });
                 }
                 e.Cancel = true;
             };
@@ -102,7 +108,7 @@ namespace SQRLDotNetClientUI.Views
             };
         }
 
-        private void RestoreWindow()
+        public void RestoreWindow()
         {
             Log.Information("Restoring main window from notification icon");
             this.WindowState = WindowState.Normal;

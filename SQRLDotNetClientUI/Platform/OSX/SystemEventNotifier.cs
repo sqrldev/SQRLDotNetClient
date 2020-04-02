@@ -55,6 +55,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
         /// <c>Idle</c> event is being raised.</param>
         public SystemEventNotifier(int maxIdleSeconds = 60 * 15)
         {
+            Log.Information($"Instanciating System Event Notifier");
             _cts = new CancellationTokenSource();
             _ct = _cts.Token;
 
@@ -134,6 +135,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
             }, _ct);
 
             _pollTask.Start();
+            Log.Information($"System Event Notifier was Innitialized Successfully");
         }
         ~SystemEventNotifier()
         {
