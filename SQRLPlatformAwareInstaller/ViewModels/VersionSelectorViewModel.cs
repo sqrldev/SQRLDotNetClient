@@ -54,7 +54,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private void InitObj(string platform ="WINDOWS")
         {
             //Handle certificate trust Issue from Issue #80
-            ServicePointManager.ServerCertificateValidationCallback = (a, b, c, d) => true;
+            //ServicePointManager.ServerCertificateValidationCallback = (a, b, c, d) => true;
             this.Title = "SQRL Client Installer - Version Selector";
             this.platform = platform;
             wc = new WebClient
