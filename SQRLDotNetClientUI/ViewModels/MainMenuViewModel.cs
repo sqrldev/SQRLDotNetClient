@@ -233,10 +233,10 @@ namespace SQRLDotNetClientUI.ViewModels
         /// <summary>
         /// Checks for new version in github and enables the Alert Button
         /// </summary>
-        public void CheckForUpdates()
+        public async void CheckForUpdates()
         {
 
-            this.NewUpdateAvailable = GitAPIHubHelper.GitHubHelper.CheckForUpdates();
+            this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates();
         }
 
 

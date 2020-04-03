@@ -18,7 +18,7 @@ using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using GitAPIHubHelper;
+using GitHubApi;
 
 namespace SQRLPlatformAwareInstaller.ViewModels 
 {
@@ -51,7 +51,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             InitObj();
         }
 
-        private void InitObj(string platform ="WINDOWS")
+        private  void InitObj(string platform ="WINDOWS")
         {
             //Handle certificate trust Issue from Issue #80
             //ServicePointManager.ServerCertificateValidationCallback = (a, b, c, d) => true;
@@ -62,9 +62,9 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
             };
 
-            wc.Headers.Add("User-Agent", "SQRL-Intaller");
+            wc.Headers.Add("User-Agent", GitHubHelper.UserAgent);
 
-            this.Releases = GitHubHelper.GetReleases();
+            this.Releases =  GitHubHelper.GetReleases().Result;
             this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
             
             PathByPlatForm(this.platform);

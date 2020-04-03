@@ -154,9 +154,9 @@ namespace SQRLDotNetClientUI.ViewModels
 
         }
 
-        private void CheckForUpdate()
+        private async void CheckForUpdate()
         {
-            this.NewUpdateAvailable = this.NewUpdateAvailable = GitAPIHubHelper.GitHubHelper.CheckForUpdates();
+            this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates();
         }
 
         /// <summary>
