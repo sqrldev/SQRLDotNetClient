@@ -140,7 +140,7 @@ namespace SQRLDotNetClientUI.Views
         /// <summary>
         /// Exits the app by closing the main window.
         /// </summary>
-        private void Exit()
+        public void Exit()
         {
             _reallyClose = true;
             this.Close();

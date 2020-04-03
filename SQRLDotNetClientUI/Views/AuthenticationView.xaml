@@ -14,8 +14,10 @@
   <DockPanel Margin="0">
 
     <!-- Header image -->
-    <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Margin="20" Height="50" DockPanel.Dock="Top" HorizontalAlignment="Center"></Image>
-
+    
+    <TextBlock IsVisible="{Binding NewUpdateAvailable}" HorizontalAlignment="Center" Foreground="Red" FontWeight="Bold"  Margin="10" Text="{loc:Localization NewUpdateAvailableRunApp}" TextWrapping="Wrap" Width="370" DockPanel.Dock="Top" />
+    <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Margin="10" Height="50" DockPanel.Dock="Top" HorizontalAlignment="Center"></Image>
+    
     <!-- Login message and site id -->
       <TextBlock HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="10, 0, 10, 5" Text="{loc:Localization AuthMessage}" FontSize="13" TextWrapping="Wrap" />
       <TextBlock HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="10, 0, 10, 0" Text="www.grc.com" FontSize="22" FontFamily="Consolas" Foreground="#007cc3" TextWrapping="Wrap"/>
@@ -90,6 +92,7 @@
     <!-- Progress indicator -->
     <ProgressBar  DockPanel.Dock="Bottom" Margin="10" IsIndeterminate="False" Value="{Binding Block1Progress}" Maximum="{Binding MaxProgress}"
                  Minimum="0" IsEnabled="true"  Height="20"  MinWidth="10"/>
+    
 
   </DockPanel>
 

@@ -33,6 +33,7 @@
         <MenuItem Header="{loc:Localization LanguageMenuHeader}" Name="menuLanguage"/>
       </MenuItem>
       <MenuItem Header="{loc:Localization HelpMenuItemHeader}" >
+        <MenuItem Header="{loc:Localization CheckForUpdates}" IsEnabled="True" Command="{Binding CheckForUpdates}" />
         <MenuItem Header="{loc:Localization AboutMenuItemHeader}" />
       </MenuItem>
     </Menu>
@@ -90,7 +91,8 @@
       <Button Content="{loc:Localization BtnExportIdentity}" Name="btnExport" Command="{Binding ExportIdentity}" Height="30" Width="130" Margin="10" Grid.Row="2" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}" HorizontalAlignment="Left"/>
       <Button Content="{loc:Localization BtnDeleteIdentity}" Name="btnDeleteIdentity" Command="{Binding DeleteIdentity}" Height="30" Width="130" Margin="10" Grid.Row="3" Grid.Column="1" IsEnabled="{Binding CurrentIdentityLoaded}" HorizontalAlignment="Left"/>
       <Button Content="{loc:Localization BtnIdentitySettings}" Name="btnIdentitySettings" Command="{Binding IdentitySettings}" Height="30" Width="130" Margin="10" Grid.Row="3" Grid.Column="0" IsEnabled="{Binding CurrentIdentityLoaded}" />
-      
+
+      <Button Content="{loc:Localization NewUpdateAvailable}" Foreground="Red" FontWeight="Bold" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Margin="10" Width="200" HorizontalAlignment="Center" Command="{Binding InstallUpdate}"  IsVisible="{Binding NewUpdateAvailable}" />
       <!-- Login form (hidden) -->
       <StackPanel Margin="20,15,20,10" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" IsVisible="False">
       <TextBlock FontSize="15" FontWeight="Bold" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center">Site URL</TextBlock>

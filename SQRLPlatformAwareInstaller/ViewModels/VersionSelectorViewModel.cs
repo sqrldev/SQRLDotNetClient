@@ -1,5 +1,5 @@
 ﻿using ReactiveUI;
-using SQRLPlatformAwareInstaller.Models;
+
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -18,6 +18,7 @@ using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using GitHubApi;
 
 namespace SQRLPlatformAwareInstaller.ViewModels 
 {
@@ -50,18 +51,20 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             InitObj();
         }
 
-        private void InitObj(string platform ="WINDOWS")
+        private  void InitObj(string platform ="WINDOWS")
         {
+            //Handle certificate trust Issue from Issue #80
+            //ServicePointManager.ServerCertificateValidationCallback = (a, b, c, d) => true;
             this.Title = "SQRL Client Installer - Version Selector";
             this.platform = platform;
-            this.wc = new WebClient
+            wc = new WebClient
             {
                 CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
             };
-            
-            this.wc.Headers.Add("User-Agent", "SQRL-Intaller");
-            
-            this.Releases = (Newtonsoft.Json.JsonConvert.DeserializeObject<List<GithubRelease>>(wc.DownloadString("https://api.github.com/repos/sqrldev/SQRLDotNetClient/releases"))).ToArray();
+
+            wc.Headers.Add("User-Agent", GitHubHelper.UserAgent);
+
+            this.Releases =  GitHubHelper.GetReleases().Result;
             this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
             
             PathByPlatForm(this.platform);
@@ -201,12 +204,14 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                     }
                     break;
             }
+            
         }
 
         private void InstallinMac(string downloadedFileName)
         {
             string fileName = Path.GetTempFileName().Replace(".tmp", ".zip");
-            wc.DownloadFile("https://github.com/sqrldev/SQRLDotNetClient/raw/PlatformInstaller/Installers/MacOsX/SQRL.app.zip", fileName);
+            
+            GitHubHelper.DownloadFile("https://github.com/sqrldev/SQRLDotNetClient/raw/PlatformInstaller/Installers/MacOsX/SQRL.app.zip", fileName);
             //System.IO.Compression.ZipFile.ExtractToDirectory(fileName, this.InstallationPath,true);
             ExtractZipFile(fileName,string.Empty,this.InstallationPath);
             Executable = Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", "SQRLDotNetClientUI");
@@ -215,55 +220,63 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             //File.Move(downloadedFileName, Executable, true);
             
             File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), true);
-            
-            
-            this.DownloadPercentage += 20;
+            using (StreamWriter sw = new StreamWriter(Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", "sqrlversion.json")))
+            {
+                sw.Write(Newtonsoft.Json.JsonConvert.SerializeObject(this.SelectedRelease.tag_name));
+                sw.Close();
+            }
+
+                this.DownloadPercentage += 20;
                  _bridgeSystem = BridgeSystem.Bash;
             _shell = new ShellConfigurator(_bridgeSystem);
             
             _shell.Term($"chmod a+x {Executable}",Output.Internal);
         }
 
-        private async void InstallinLinux(string downloadedFileName)
+        private void InstallinLinux(string downloadedFileName)
         {
-            
-            this.InstallStatus ="Installing...";
+
+            this.InstallStatus = "Installing...";
             Executable = Path.Combine(this.InstallationPath, "SQRLDotNetClientUI");
-            await Task.Run(() =>
+
+            if (!Directory.Exists(this.InstallationPath))
             {
-                if (!Directory.Exists(this.InstallationPath))
-                {
-                    Directory.CreateDirectory(this.InstallationPath);
-                }
-                this.DownloadPercentage = 20;
-                //File.Move(downloadedFileName, Executable, true);
-                ExtractZipFile(downloadedFileName, string.Empty, this.InstallationPath);
-                
-                File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), true);
-                this.DownloadPercentage += 20;
-            });
+                Directory.CreateDirectory(this.InstallationPath);
+            }
+            this.DownloadPercentage = 20;
+            //File.Move(downloadedFileName, Executable, true);
+            ExtractZipFile(downloadedFileName, string.Empty, this.InstallationPath);
+
+            File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), true);
+            using (StreamWriter sw = new StreamWriter(Path.Combine(this.InstallationPath, "sqrlversion.json")))
+            {
+                sw.Write(Newtonsoft.Json.JsonConvert.SerializeObject(this.SelectedRelease.tag_name));
+                sw.Close();
+            }
+            this.DownloadPercentage += 20;
+
 
             _bridgeSystem = BridgeSystem.Bash;
             _shell = new ShellConfigurator(_bridgeSystem);
-            
-            wc.DownloadFile(@"https://github.com/sqrldev/SQRLDotNetClient/raw/master/SQRLDotNetClientUI/Assets/SQRL_icon_normal_64.png",Path.Combine(this.InstallationPath,"SQRL.png"));
+
+            GitHubHelper.DownloadFile(@"https://github.com/sqrldev/SQRLDotNetClient/raw/master/SQRLDotNetClientUI/Assets/SQRL_icon_normal_64.png", Path.Combine(this.InstallationPath, "SQRL.png"));
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"[Desktop Entry]");
             sb.AppendLine("Name=SQRL");
             sb.AppendLine("Type=Application");
-            sb.AppendLine($"Icon={(Path.Combine(this.InstallationPath,"SQRL.png"))}");
+            sb.AppendLine($"Icon={(Path.Combine(this.InstallationPath, "SQRL.png"))}");
             sb.AppendLine($"Exec={Executable} %u");
             sb.AppendLine("Categories=Internet");
             sb.AppendLine("Terminal=false");
             sb.AppendLine("MimeType=x-scheme-handler/sqrl");
-            File.WriteAllText(Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop"), sb.ToString());
+            File.WriteAllText(Path.Combine(this.InstallationPath, "sqrldev-sqrl.desktop"), sb.ToString());
             _shell.Term($"chmod -R 777 {this.InstallationPath}", Output.Internal);
-            _shell.Term($"chmod a+x {Executable}",Output.Internal);
-            _shell.Term($"chmod +x {Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop")}",Output.Internal);
-            _shell.Term($"xdg-desktop-menu install {Path.Combine(this.InstallationPath,"sqrldev-sqrl.desktop")}",Output.Internal);
-            _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop",Output.Internal);
-            _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl",Output.Internal);
-            _shell.Term($"update-desktop-database ~/.local/share/applications/",Output.Internal);
+            _shell.Term($"chmod a+x {Executable}", Output.Internal);
+            _shell.Term($"chmod +x {Path.Combine(this.InstallationPath, "sqrldev-sqrl.desktop")}", Output.Internal);
+            _shell.Term($"xdg-desktop-menu install {Path.Combine(this.InstallationPath, "sqrldev-sqrl.desktop")}", Output.Internal);
+            _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop", Output.Internal);
+            _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl", Output.Internal);
+            _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
 
         }
 
@@ -277,6 +290,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 ExtractZipFile(downloadedFileName, string.Empty, this.InstallationPath);
                 //var x = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
                 File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), true);
+                using (StreamWriter sw = new StreamWriter(Path.Combine(this.InstallationPath, "sqrlversion.json")))
+                {
+                    sw.Write(Newtonsoft.Json.JsonConvert.SerializeObject(this.SelectedRelease.tag_name));
+                    sw.Close();
+                }
                 this.DownloadPercentage += 20;
             }).Wait();
            
@@ -395,7 +413,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
                     // Manipulate the output filename here as desired.
                     var fullZipToPath = Path.Combine(outFolder, entryFileName);
-                    if(entryFileName.Equals("sqrl.db", StringComparison.OrdinalIgnoreCase) && File.Exists(entryFileName) )
+                    if(entryFileName.Equals("sqrl.db", StringComparison.OrdinalIgnoreCase) && File.Exists(fullZipToPath) )
                     {
                         continue;
                     }

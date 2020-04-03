@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SQRLPlatformAwareInstaller.Models
+namespace GitHubApi
 {
 
     public class GithubRelease

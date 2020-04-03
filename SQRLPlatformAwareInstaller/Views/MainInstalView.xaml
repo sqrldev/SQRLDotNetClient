@@ -27,7 +27,7 @@
     <TextBlock Grid.Column="0" Margin="10" FontWeight="Bold" Grid.Row="2" Text="{loc:Localization DetectedPlatform}"/>
     <Image Grid.Row="2" Grid.Column="1" Source="{Binding PlatformImg}" Stretch="None" HorizontalAlignment="Left" ToolTip.Tip="{Binding Platform}" />
     <Button VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10" Command="{Binding Next}">Next</Button>
-    <Button VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10">Cancel</Button>
+    <Button VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10" Command="{Binding Cancel}">Cancel</Button>
   </Grid>
 
 </UserControl>

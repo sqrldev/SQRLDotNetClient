@@ -222,6 +222,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GitAPIHubHelper\GitAPIHubHelper.csproj" />
     <ProjectReference Include="..\SQRLUtilsLib\SQRLUtilsLib.csproj" />
   </ItemGroup>
   <ItemGroup>
