@@ -137,7 +137,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GitAPIHubHelper\GithubAPI.csproj" />
+    <ProjectReference Include="..\GithubAPI\GithubAPI.csproj" />
     <ProjectReference Include="..\SQRLCommonUI\SQRLCommonUI.csproj" />
   </ItemGroup>
   <ItemGroup>
