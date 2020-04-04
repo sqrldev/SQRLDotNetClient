@@ -1,13 +1,12 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform;
-
 using QRCoder;
 using ReactiveUI;
-using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
+using System.Linq;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -49,26 +48,24 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.Identity.WriteToFile(file);
                 
                 await new Views.MessageBox(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
-                                            string.Format(_loc.GetLocalizationValue("IdentityExportedMessageBoxText"), file),
-                                            MessageBoxSize.Small, MessageBoxButtons.OK,MessageBoxIcons.OK)
-                                            .ShowDialog<MessagBoxDialogResult>(_mainWindow);
-            }
-            else
-            {
-                
+                    string.Format(_loc.GetLocalizationValue("IdentityExportedMessageBoxText"), file),
+                    MessageBoxSize.Small, MessageBoxButtons.OK,MessageBoxIcons.OK)
+                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
             }
         }
 
         public async void CopyToClipboard()
         {
-            string identity = SQRL.GenerateTextualIdentityBase56(this.Identity.ToByteArray());
-            await Application.Current.Clipboard.SetTextAsync(identity);
+            var textualIdentityBytes = this.Identity.Block2.ToByteArray();
+            if (this.Identity.HasBlock(3)) textualIdentityBytes = textualIdentityBytes.Concat(this.Identity.Block3.ToByteArray()).ToArray();
 
+            string identity = SQRL.GenerateTextualIdentityBase56(textualIdentityBytes);
+            await Application.Current.Clipboard.SetTextAsync(identity);
             
             await new Views.MessageBox(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
-                                       _loc.GetLocalizationValue("IdentityCopiedToClipboardMessageBoxText"),
-                                       MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.OK)
-                                       .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                _loc.GetLocalizationValue("IdentityCopiedToClipboardMessageBoxText"),
+                MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.OK)
+                .ShowDialog<MessagBoxDialogResult>(_mainWindow);
         }
 
         public void Back()
