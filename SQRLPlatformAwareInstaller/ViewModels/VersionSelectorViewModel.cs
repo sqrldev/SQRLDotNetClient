@@ -62,7 +62,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
             };
 
-            wc.Headers.Add("User-Agent", GitHubHelper.UserAgent);
+            wc.Headers.Add("User-Agent", GitHubHelper.SQRLInstallerUserAgent);
 
             this.Releases =  GitHubHelper.GetReleases().Result;
             this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
