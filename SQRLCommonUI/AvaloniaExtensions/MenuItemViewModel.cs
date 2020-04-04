@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Input;
 
-namespace SQRLDotNetClientUI.AvaloniaExtensions
+namespace SQRLCommonUI.AvaloniaExtensions
 {
     public class MenuItemViewModel
     {

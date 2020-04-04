@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SQRLDotNetClientUI.AvaloniaExtensions
+namespace SQRLCommonUI.AvaloniaExtensions
 {
-    class StringUppercaseConverter : IValueConverter
+    public class StringUppercaseConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

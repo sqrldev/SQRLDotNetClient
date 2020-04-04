@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using SQRLDotNetClientUI.AvaloniaExtensions;
+using SQRLCommonUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.ViewModels;
 
 namespace SQRLDotNetClientUI.Views

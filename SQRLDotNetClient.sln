@@ -5,19 +5,17 @@ VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLUtilsLib", "SQRLUtilsLib\SQRLUtilsLib.csproj", "{93BD94E4-B982-44BF-8C06-57411E1EEB15}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLConsoleTester", "SQRLConsoleTester\SQRLConsoleTester.csproj", "{6A8B0B36-86F1-4577-BC2E-210D66B44372}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sodium.Core.ForSqrl", "Sodium.Core\Sodium.Core.ForSqrl.csproj", "{16AA4068-F64B-43B2-BBB6-0E4324FE289C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLUtilLibTest", "SQRLUtilLibTest\SQRLUtilLibTest.csproj", "{3A039539-3128-413E-AB5C-531DEED89609}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLDotNetClientUI", "SQRLDotNetClientUI\SQRLDotNetClientUI.csproj", "{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLIPCTestClient", "SQRLIPCTestClient\SQRLIPCTestClient.csproj", "{C8A66E27-ED37-49A9-9465-8EF761FD51AD}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLPlatformAwareInstaller", "SQRLPlatformAwareInstaller\SQRLPlatformAwareInstaller.csproj", "{6FC399D8-72A5-4517-8DE6-1B4D8B335997}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitAPIHubHelper", "GitAPIHubHelper\GitAPIHubHelper.csproj", "{9AC34E1E-B531-4179-8832-B4E113E312D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GithubAPI", "GitAPIHubHelper\GithubAPI.csproj", "{9AC34E1E-B531-4179-8832-B4E113E312D9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQRLCommonUI", "SQRLCommonUI\SQRLCommonUI.csproj", "{B66915C0-82AA-48DD-AC6E-FE1CC2A7C934}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +27,6 @@ Global
 		{93BD94E4-B982-44BF-8C06-57411E1EEB15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93BD94E4-B982-44BF-8C06-57411E1EEB15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93BD94E4-B982-44BF-8C06-57411E1EEB15}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6A8B0B36-86F1-4577-BC2E-210D66B44372}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6A8B0B36-86F1-4577-BC2E-210D66B44372}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6A8B0B36-86F1-4577-BC2E-210D66B44372}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6A8B0B36-86F1-4577-BC2E-210D66B44372}.Release|Any CPU.Build.0 = Release|Any CPU
 		{16AA4068-F64B-43B2-BBB6-0E4324FE289C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{16AA4068-F64B-43B2-BBB6-0E4324FE289C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16AA4068-F64B-43B2-BBB6-0E4324FE289C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,10 +39,6 @@ Global
 		{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5257AD14-6E12-4D8F-8A1D-974B1FA4DD88}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C8A66E27-ED37-49A9-9465-8EF761FD51AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C8A66E27-ED37-49A9-9465-8EF761FD51AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C8A66E27-ED37-49A9-9465-8EF761FD51AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C8A66E27-ED37-49A9-9465-8EF761FD51AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6FC399D8-72A5-4517-8DE6-1B4D8B335997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6FC399D8-72A5-4517-8DE6-1B4D8B335997}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FC399D8-72A5-4517-8DE6-1B4D8B335997}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -57,6 +47,10 @@ Global
 		{9AC34E1E-B531-4179-8832-B4E113E312D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AC34E1E-B531-4179-8832-B4E113E312D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AC34E1E-B531-4179-8832-B4E113E312D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B66915C0-82AA-48DD-AC6E-FE1CC2A7C934}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B66915C0-82AA-48DD-AC6E-FE1CC2A7C934}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B66915C0-82AA-48DD-AC6E-FE1CC2A7C934}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B66915C0-82AA-48DD-AC6E-FE1CC2A7C934}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

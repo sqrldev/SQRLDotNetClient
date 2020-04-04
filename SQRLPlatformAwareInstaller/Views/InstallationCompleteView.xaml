@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
              xmlns:vm="clr-namespace:SQRLPlatformAwareInstaller.ViewModels;assembly=SQRLPlatformAwareInstaller"
-             xmlns:loc="clr-namespace:SQRLPlatformAwareInstaller.AvaloniaExtensions;assembly=SQRLPlatformAwareInstaller"
+             xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
              x:Class="SQRLPlatformAwareInstaller.Views.InstallationCompleteView">
   <Design.DataContext>
     <vm:InstallationCompleteViewModel/>

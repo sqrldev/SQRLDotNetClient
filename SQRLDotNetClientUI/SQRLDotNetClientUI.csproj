@@ -34,8 +34,6 @@
     <AvaloniaResource Remove="Assets\Icons\error.png" />
     <AvaloniaResource Remove="Assets\Icons\ok.png" />
     <AvaloniaResource Remove="Assets\Icons\warning.png" />
-    <AvaloniaResource Remove="Assets\Localization\Flags\germany_16.png" />
-    <AvaloniaResource Remove="Assets\Localization\Flags\united_states_16.png" />
     <AvaloniaResource Remove="Assets\Localization\localization.json" />
     <AvaloniaResource Remove="Assets\SQRL_icon_light_128.png" />
     <AvaloniaResource Remove="Assets\SQRL_icon_light_16.png" />
@@ -79,9 +77,6 @@
     <None Remove="Assets\Icons\ok.png" />
     <None Remove="Assets\Icons\question.png" />
     <None Remove="Assets\Icons\warning.png" />
-    <None Remove="Assets\Localization\Flags\default_16.png" />
-    <None Remove="Assets\Localization\Flags\germany_16.png" />
-    <None Remove="Assets\Localization\Flags\united_states_16.png" />
     <None Remove="Assets\Localization\localization.json" />
     <None Remove="Assets\SQRL_icon_light_128.png" />
     <None Remove="Assets\SQRL_icon_light_16.png" />
@@ -119,9 +114,6 @@
     <EmbeddedResource Include="Assets\Fonts\SpaceMono-Italic.ttf" />
     <EmbeddedResource Include="Assets\Fonts\SpaceMono-Regular.ttf" />
     <EmbeddedResource Include="Assets\Icons\question.png" />
-    <EmbeddedResource Include="Assets\Localization\Flags\default_16.png" />
-    <EmbeddedResource Include="Assets\Localization\Flags\germany_16.png" />
-    <EmbeddedResource Include="Assets\Localization\Flags\united_states_16.png" />
     <EmbeddedResource Include="Assets\Localization\localization.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -140,9 +132,9 @@
     <Content Include="Assets\SQRL_icon_normal_64.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.9.4" />
-    <PackageReference Include="Avalonia.Desktop" Version="0.9.4" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.4" />
+    <PackageReference Include="Avalonia" Version="0.9.7" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.9.7" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.7" />
     <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.9.4" />
     <PackageReference Include="Avalonia.Xaml.Interactions.Custom" Version="0.9.4" />
     <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.9.4" />
@@ -222,7 +214,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GitAPIHubHelper\GitAPIHubHelper.csproj" />
+    <ProjectReference Include="..\GitAPIHubHelper\GithubAPI.csproj" />
+    <ProjectReference Include="..\SQRLCommonUI\SQRLCommonUI.csproj" />
     <ProjectReference Include="..\SQRLUtilsLib\SQRLUtilsLib.csproj" />
   </ItemGroup>
   <ItemGroup>

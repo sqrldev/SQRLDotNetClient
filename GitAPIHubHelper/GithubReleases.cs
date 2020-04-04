@@ -4,7 +4,9 @@ using System.Text;
 
 namespace GitHubApi
 {
-
+    /// <summary>
+    /// Represents a Github release for the use with the Github API.
+    /// </summary>
     public class GithubRelease
     {
         public string url { get; set; }
@@ -32,6 +34,9 @@ namespace GitHubApi
         }
     }
 
+    /// <summary>
+    /// Represents a Github author for the use with the Github API.
+    /// </summary>
     public class Author
     {
         public string login { get; set; }
@@ -54,6 +59,9 @@ namespace GitHubApi
         public bool site_admin { get; set; }
     }
 
+    /// <summary>
+    /// Represents a Github release asset for the use with the Github API.
+    /// </summary>
     public class Asset
     {
         public string url { get; set; }
@@ -71,6 +79,9 @@ namespace GitHubApi
         public string browser_download_url { get; set; }
     }
 
+    /// <summary>
+    /// Represents a user uploading Github assets for the use with the Github API.
+    /// </summary>
     public class Uploader
     {
         public string login { get; set; }

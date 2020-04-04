@@ -3,17 +3,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SQRLPlatformAwareInstaller.ViewModels;assembly=SQRLPlatformAwareInstaller"
-             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
-             xmlns:loc="clr-namespace:SQRLPlatformAwareInstaller.AvaloniaExtensions;assembly=SQRLPlatformAwareInstaller"
-             x:Class="SQRLPlatformAwareInstaller.Views.MainInstalView"
-            
-             >
-  <Design.DataContext>
-    <vm:MainInstalViewModel/>
-  </Design.DataContext>
-  <Grid>
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="525"
+             xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
+             x:Class="SQRLPlatformAwareInstaller.Views.MainInstalView">
+   
+  <Grid Width="580">
     <Grid.ColumnDefinitions>
-      <ColumnDefinition  Width="Auto"/>
+      <ColumnDefinition Width="Auto"/>
       <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
@@ -22,12 +18,16 @@
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-  <Image Margin="10" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Source="resm:SQRLPlatformAwareInstaller.Assets.SQRL_icon_normal_32.png" Stretch="None" HorizontalAlignment="Left"/>
-  <TextBlock Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="10" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0" Text="{Binding Greeting}"/>
+    
+    <Image Margin="10" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Source="resm:SQRLPlatformAwareInstaller.Assets.SQRL_icon_normal_32.png" 
+           Stretch="None" HorizontalAlignment="Left"/>
+    
+    <TextBlock Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="10" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0" Text="{Binding Greeting}"/>
     <TextBlock Grid.Column="0" Margin="10" FontWeight="Bold" Grid.Row="2" Text="{loc:Localization DetectedPlatform}"/>
     <Image Grid.Row="2" Grid.Column="1" Source="{Binding PlatformImg}" Stretch="None" HorizontalAlignment="Left" ToolTip.Tip="{Binding Platform}" />
-    <Button VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10" Command="{Binding Next}">Next</Button>
-    <Button VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10" Command="{Binding Cancel}">Cancel</Button>
+    <Button VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10,20" Command="{Binding Next}">Next</Button>
+    <Button VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10,20" Command="{Binding Cancel}">Cancel</Button>
+    
   </Grid>
 
 </UserControl>

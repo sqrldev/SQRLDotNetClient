@@ -1,6 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using SQRLDotNetClientUI.AvaloniaExtensions;
+using SQRLCommonUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.ViewModels;
 using System.Collections.Generic;
 

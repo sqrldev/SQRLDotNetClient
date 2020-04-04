@@ -8,7 +8,7 @@ using Serilog;
 using Avalonia.Controls.ApplicationLifetimes;
 using System.Collections.Generic;
 using System.Windows.Input;
-using SQRLDotNetClientUI.AvaloniaExtensions;
+using SQRLCommonUI.AvaloniaExtensions;
 using Avalonia;
 using System.Reflection;
 using System.IO;

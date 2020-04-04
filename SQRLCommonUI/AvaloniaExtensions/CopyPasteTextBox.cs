@@ -1,15 +1,11 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Styling;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using System.Reflection;
 
-namespace SQRLDotNetClientUI.AvaloniaExtensions
+namespace SQRLCommonUI.AvaloniaExtensions
 {
     public class CopyPasteTextBox : TextBox, IStyleable
     {

@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
-        xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
+        xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
         Icon="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico"
         mc:Ignorable="d" d:DesignWidth="350"
         Width="350" 

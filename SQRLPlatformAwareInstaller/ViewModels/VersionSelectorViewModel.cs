@@ -51,7 +51,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             InitObj();
         }
 
-        private  void InitObj(string platform ="WINDOWS")
+        private async void InitObj(string platform ="WINDOWS")
         {
             //Handle certificate trust Issue from Issue #80
             //ServicePointManager.ServerCertificateValidationCallback = (a, b, c, d) => true;
@@ -62,9 +62,9 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
             };
 
-            wc.Headers.Add("User-Agent", GitHubHelper.UserAgent);
+            wc.Headers.Add("User-Agent", GitHubHelper.SQRLInstallerUserAgent);
 
-            this.Releases =  GitHubHelper.GetReleases().Result;
+            this.Releases = await GitHubHelper.GetReleases();
             this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
             
             PathByPlatForm(this.platform);
@@ -89,13 +89,15 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 break;
                 case "Linux":
                     {
-                        this.InstallationPath = Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.None), "SQRL");
+                        this.InstallationPath = Path.Combine(System.Environment.GetFolderPath(
+                            Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.None), "SQRL");
                     }
                     break;
                 case "WINDOWS":
                 default:
                     {
-                        this.InstallationPath = Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "SQRL");
+                        this.InstallationPath = Path.Combine(System.Environment.GetFolderPath(
+                            Environment.SpecialFolder.ProgramFiles), "SQRL");
                     }
                     break;
             }
@@ -140,6 +142,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
         public void SetDownloadSize()
         {
+            if (SelectedRelease == null) return;
+
             switch (this.platform)
             {
 
@@ -168,6 +172,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
         public void DownloadInstall()
         {
+            if (string.IsNullOrEmpty(this.DownloadUrl)) return;
+
             this.InstallStatus = "Downloading...";
             wc.DownloadProgressChanged += Wc_DownloadProgressChanged;
             wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
