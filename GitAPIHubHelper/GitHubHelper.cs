@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -37,7 +38,7 @@ namespace GitHubApi
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error Downloading Releases. Error: {ex}");
+                    Log.Error($"Error Downloading Releases. Error: {ex}");
                 }
                 return !string.IsNullOrEmpty(jsonData) ? 
                     (Newtonsoft.Json.JsonConvert.DeserializeObject<List<GithubRelease>>(jsonData)).ToArray() :
@@ -68,7 +69,7 @@ namespace GitHubApi
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error Downloading: {url} Error: {ex}");
+                Log.Error($"Error Downloading: {url} Error: {ex}");
                 success = false;
             }
             return success;

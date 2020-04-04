@@ -249,7 +249,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             }
             catch (Exception fc)
             {
-                Console.WriteLine($"File Copy Exception: {fc}");
+                Log.Error($"File Copy Exception: {fc}");
             }
             using (StreamWriter sw = new StreamWriter(Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", "sqrlversion.json")))
             {
@@ -286,7 +286,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             }
             catch (Exception fc)
             {
-                Console.WriteLine($"File Copy Exception: {fc}");
+                Log.Warning($"File Copy Exception: {fc}");
             }
             using (StreamWriter sw = new StreamWriter(Path.Combine(this.InstallationPath, "sqrlversion.json")))
             {
@@ -337,7 +337,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 }
                 catch (Exception fc)
                 {
-                    Console.WriteLine($"File Copy Exception {fc}");
+                    Log.Warning($"File Copy Exception {fc}");
                 }
                 using (StreamWriter sw = new StreamWriter(Path.Combine(this.InstallationPath, "sqrlversion.json")))
                 {
