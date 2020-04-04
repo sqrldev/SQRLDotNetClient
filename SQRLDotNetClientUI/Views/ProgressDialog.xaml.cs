@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace SQRLDotNetClientUI.Views
 {
-    /// <summary>
+    /// <summary> 
     /// A dialog window to display an arbitrary number of progess indicators.
     /// Progress items can be added through the constructor or passed in
     /// using the <c>AddProgressItem()</c> method.
