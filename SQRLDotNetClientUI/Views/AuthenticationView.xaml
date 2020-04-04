@@ -6,7 +6,7 @@
              xmlns:behaviors="clr-namespace:SQRLDotNetClientUI.Behaviors;assembly=SQRLDotNetClientUI"
              xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
              xmlns:util="clr-namespace:SQRLDotNetClientUI.ViewModels.AuthenticationViewModel;assembly=SQRLDotNetClientUI"
-             xmlns:loc="clr-namespace:SQRLDotNetClientUI.AvaloniaExtensions;assembly=SQRLDotNetClientUI"
+             xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
              mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="500"
              x:Class="SQRLDotNetClientUI.Views.AuthenticationView">
 

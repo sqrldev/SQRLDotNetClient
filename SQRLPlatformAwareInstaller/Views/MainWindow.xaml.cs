@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using SQRLPlatformAwareInstaller.AvaloniaExtensions;
+using SQRLCommonUI.AvaloniaExtensions;
 
 namespace SQRLPlatformAwareInstaller.Views
 {

@@ -12,7 +12,7 @@ using Avalonia.Data.Converters;
 using System.Collections.Generic;
 using Avalonia.Media.Imaging;
 
-namespace SQRLDotNetClientUI.AvaloniaExtensions
+namespace SQRLCommonUI.AvaloniaExtensions
 {
     /// <summary>
     /// This extension allows you to have strings in different languages based on
@@ -48,6 +48,9 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
 
         private string _resourceId { get; set; }
         private IAssetLoader _assets { get; set; }
+        private static Assembly _entryAssembly = Assembly.GetEntryAssembly();
+        private static string _entryAssemblyName = Assembly.GetEntryAssembly().GetName().Name;
+        private static Assembly _assembly = Assembly.GetExecutingAssembly();
         private static string _assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
         private static JObject _localizationStrings { get; set; } = null;
         private static string _currentLocalization = DEFAULT_LOC;
@@ -105,7 +108,7 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
         /// </summary>
         private void RegisterLocalizations()
         {
-            string uriPath = $"resm:{_assemblyName}.Assets.Localization.Flags.";
+            string uriPath = $"{_assemblyName}.Assets.Localization.Flags.";
 
             // Register new localizations in this list!
             List<LocalizationInfo> localizations = new List<LocalizationInfo>()
@@ -113,13 +116,13 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
                 new LocalizationInfo()
                 {
                     CultureInfo = CultureInfo.CreateSpecificCulture("en-US"),
-                    Image = new Bitmap(_assets.Open(new Uri(uriPath + "united_states_16.png")))
+                    Image = new Bitmap(_assembly.GetManifestResourceStream(uriPath + "united_states_16.png"))
                 },
 
                 new LocalizationInfo()
                 {
                     CultureInfo = CultureInfo.CreateSpecificCulture("de-DE"),
-                    Image = new Bitmap(_assets.Open(new Uri(uriPath + "germany_16.png")))
+                    Image = new Bitmap(_assembly.GetManifestResourceStream(uriPath + "germany_16.png"))
                 }
 
             };
@@ -128,7 +131,7 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
             var defaultLoc = new LocalizationInfo()
             {
                 CultureInfo = CultureInfo.CurrentCulture,
-                Image = new Bitmap(_assets.Open(new Uri(uriPath + "default_16.png")))
+                Image = new Bitmap(_assembly.GetManifestResourceStream(uriPath + "default_16.png"))
             };
 
             Localizations.Add(DEFAULT_LOC, defaultLoc);
@@ -197,7 +200,7 @@ namespace SQRLDotNetClientUI.AvaloniaExtensions
         private void GetLocalization()
         {
             _localizationStrings = (JObject)JsonConvert.DeserializeObject(new StreamReader(
-                _assets.Open(new Uri($"resm:{_assemblyName}.Assets.Localization.localization.json"))).ReadToEnd());
+                _entryAssembly.GetManifestResourceStream($"{_entryAssemblyName}.Assets.Localization.localization.json")).ReadToEnd());
         }
 
         /// <summary>

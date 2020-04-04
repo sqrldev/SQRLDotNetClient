@@ -108,11 +108,10 @@
     <EmbeddedResource Include="Assets\VL.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.9.4" />
-    <PackageReference Include="Avalonia.Desktop" Version="0.9.4" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.4" />
+    <PackageReference Include="Avalonia" Version="0.9.7" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.9.7" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.7" />
     <PackageReference Include="dein.ToolBox" Version="1.5.4" />
-    <PackageReference Include="MessageBox.Avalonia" Version="0.9.0" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="SharpZipLib" Version="1.2.0" />
@@ -135,9 +134,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\sqrl_icon_normal_256.ico" />
+    <ProjectReference Include="..\GitAPIHubHelper\GithubAPI.csproj" />
+    <ProjectReference Include="..\SQRLCommonUI\SQRLCommonUI.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GitAPIHubHelper\GitAPIHubHelper.csproj" />
+    <Resource Include="Assets\sqrl_icon_normal_256.ico" />
   </ItemGroup>
 </Project>

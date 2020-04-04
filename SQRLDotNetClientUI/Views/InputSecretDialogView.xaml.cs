@@ -2,7 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using SQRLDotNetClientUI.AvaloniaExtensions;
+using SQRLCommonUI.AvaloniaExtensions;
 
 namespace SQRLDotNetClientUI.Views
 {
