@@ -6,6 +6,7 @@ using ReactiveUI;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
+using System.Linq;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -55,7 +56,10 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void CopyToClipboard()
         {
-            string identity = SQRL.GenerateTextualIdentityBase56(this.Identity.Block2.ToByteArray());
+            var textualIdentityBytes = this.Identity.Block2.ToByteArray();
+            if (this.Identity.HasBlock(3)) textualIdentityBytes = textualIdentityBytes.Concat(this.Identity.Block3.ToByteArray()).ToArray();
+
+            string identity = SQRL.GenerateTextualIdentityBase56(textualIdentityBytes);
             await Application.Current.Clipboard.SetTextAsync(identity);
             
             await new Views.MessageBox(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
