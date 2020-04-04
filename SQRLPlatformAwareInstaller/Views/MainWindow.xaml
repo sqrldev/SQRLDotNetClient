@@ -9,9 +9,11 @@
         Title="{Binding Content.Title}"
         Content="{Binding Content}"
         Width="600"
-        Height="525"
+        MinWidth="600"
         MaxWidth="600"
-        MaxHeight="525">
+        Height="525"
+        MaxHeight="525"
+        MinHeight="525">
   
   <Design.DataContext>
     <vm:MainWindowViewModel/>

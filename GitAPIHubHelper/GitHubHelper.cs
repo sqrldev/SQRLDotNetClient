@@ -33,13 +33,15 @@ namespace GitHubApi
                 wc.Headers.Add("User-Agent", SQRLInstallerUserAgent);
                 try
                 {
-                    jsonData = wc.DownloadString(@"https://api.github.com/repos/{SQRLGithubProjectOwner}/{SQRLGithubProjectName}/releases");
+                    jsonData = wc.DownloadString($"https://api.github.com/repos/{SQRLGithubProjectOwner}/{SQRLGithubProjectName}/releases");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error Downloading Releases. Error: {ex}");
                 }
-                return (Newtonsoft.Json.JsonConvert.DeserializeObject<List<GithubRelease>>(jsonData)).ToArray();
+                return !string.IsNullOrEmpty(jsonData) ? 
+                    (Newtonsoft.Json.JsonConvert.DeserializeObject<List<GithubRelease>>(jsonData)).ToArray() :
+                    new GithubRelease[] { };
             });
             return releases;
         }
