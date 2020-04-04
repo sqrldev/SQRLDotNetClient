@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using ReactiveUI;
+using Serilog;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -15,10 +16,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         public string Greeting { get; set; }
         public MainInstalViewModel()
         {
+            Log.Information("Installer Launched");
             this.Title = "SQRL Client Installer - Platform Selector";
             this.Greeting = AvaloniaLocator.Current.GetService<MainWindow>()==null?"Greeting": AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService.GetLocalizationValue("InstallerGreeting");
             SetPlatformImage();
-
+            Log.Information($"Deltected Platform: {Platform}");
         }
 
         public string Platform { get
