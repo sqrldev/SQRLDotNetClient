@@ -341,3 +341,4 @@ healthchecksdb
 
 # Misc project-specific files
 packages-microsoft-prod.deb
+.DS_Store
