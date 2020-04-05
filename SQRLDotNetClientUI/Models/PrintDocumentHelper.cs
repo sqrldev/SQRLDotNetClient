@@ -14,13 +14,15 @@ namespace SQRLDotNetClientUI.Models
     {
         private static readonly int HEADER_ICON_SIZE = 64;
         private static readonly int FOOTER_ICON_SIZE = 32;
-        private static readonly int MARGIN_LEFT = 32;
+        private static readonly int MARGIN_LEFT = 50;
         private static readonly int MARGIN_TOP = 64;
 
-        private static readonly Font _headlineFont = new Font("Consolas", 20, FontStyle.Bold);
-        private static readonly Font _warningFont = new Font("Consolas", 16, FontStyle.Bold);
-        private static readonly Font _textFont = new Font("Consolas", 12);
-        private static readonly Font _footerFont = new Font("Consolas", 8);
+        private static readonly string _fontFace = "Consolas";
+        private static readonly Font _headlineFont = new Font(_fontFace, 20, FontStyle.Bold);
+        private static readonly Font _warningFont = new Font(_fontFace, 16, FontStyle.Bold);
+        private static readonly Font _textFont = new Font(_fontFace, 12);
+        private static readonly Font _underlinedTextFont = new Font(_fontFace, 12, FontStyle.Underline);
+        private static readonly Font _footerFont = new Font(_fontFace, 8);
 
         private static Assembly _assembly = Assembly.GetExecutingAssembly();
         private static string _assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
@@ -66,16 +68,16 @@ namespace SQRLDotNetClientUI.Models
         /// <param name="ev">The PrintPageEventArgs representing the document to be printed.</param>
         private static void PrintRescueCodePage(object sender, PrintPageEventArgs ev)
         {
-            float yPos = MARGIN_TOP + HEADER_ICON_SIZE + 50;
+            float yPos = MARGIN_TOP + HEADER_ICON_SIZE + 90;
 
             DrawHeader(ev);
             yPos += 30 + DrawTextBlock(ev, _loc.GetLocalizationValue("RescueCodeDocumentTitle"), yPos, _headlineFont, Brushes.Black);
-            yPos += 30 + DrawTextBlock(ev, _loc.GetLocalizationValue("RescueCodeDocumentDiscardWarning"), yPos, _warningFont, Brushes.DarkRed);
-            yPos += 50 + DrawTextBlock(ev, _loc.GetLocalizationValue("RescueCodeDocumentText"), yPos);
-            yPos += 15 + DrawTextBlock(ev, _loc.GetLocalizationValue("IdentityNameLabel"), yPos);
-            yPos += 50 + DrawTextBlock(ev, _identityName, yPos, _warningFont, Brushes.Black);
-            yPos += 15 + DrawTextBlock(ev, _loc.GetLocalizationValue("RescueCodeLabel"), yPos);
-            yPos += 50 + DrawTextBlock(ev, _rescueCode, yPos, _warningFont, Brushes.Black);
+            yPos += 30 + DrawTextBlock(ev, _loc.GetLocalizationValue("RescueCodeDocumentDiscardWarning"), yPos, _warningFont, Brushes.Red);
+            yPos += 30 + DrawTextBlock(ev, _loc.GetLocalizationValue("RescueCodeDocumentText"), yPos);
+            yPos += 15 + DrawTextBlock(ev, _loc.GetLocalizationValue("IdentityNameLabel"), yPos, _underlinedTextFont);
+            yPos += 20 + DrawTextBlock(ev, _identityName, yPos, _warningFont, Brushes.Black);
+            yPos += 15 + DrawTextBlock(ev, _loc.GetLocalizationValue("RescueCodeLabel"), yPos, _underlinedTextFont);
+            yPos += 50 + DrawTextBlock(ev, _rescueCode, yPos, _headlineFont, Brushes.Black);
             DrawFooter(ev);
 
             ev.HasMorePages = false;
@@ -94,6 +96,10 @@ namespace SQRLDotNetClientUI.Models
                 HEADER_ICON_SIZE,
                 HEADER_ICON_SIZE
             );
+
+            float yPos = MARGIN_TOP + HEADER_ICON_SIZE + 20;
+
+            DrawTextBlock(ev, _loc.GetLocalizationValue("SQRLTag"), yPos, _textFont, Brushes.CornflowerBlue);
         }
 
         /// <summary>
@@ -111,6 +117,7 @@ namespace SQRLDotNetClientUI.Models
             );
 
             float yPos = ev.PageBounds.Height - MARGIN_TOP;
+
             string footerText = string.Format(
                 _loc.GetLocalizationValue("PrintDocumentFooterMessage"),
                 _assemblyName + " v " + _assembly.GetName().Version,

@@ -203,7 +203,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void DeleteIdentity()
         {
-            PrintDocumentHelper.CreateRescueCodeDocument("asdf");
+            PrintDocumentHelper.CreateRescueCodeDocument("1234-5678-9012-3456-7890", "AlexTestDev1");
 
             return;
 
