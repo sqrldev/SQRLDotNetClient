@@ -203,6 +203,9 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void DeleteIdentity()
         {
+            PrintDocumentHelper.CreateRescueCodeDocument("asdf");
+
+            return;
 
             var result = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
                 string.Format(_loc.GetLocalizationValue("DeleteIdentityMessageBoxText"), this.IdentityName, Environment.NewLine),
