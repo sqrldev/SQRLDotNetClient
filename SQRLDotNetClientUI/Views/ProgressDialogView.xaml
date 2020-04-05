@@ -1,17 +1,14 @@
-﻿<Window xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
         xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
-        Icon="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico"
+        
         mc:Ignorable="d" d:DesignWidth="350"
-        Width="350" 
-        x:Class="SQRLDotNetClientUI.Views.ProgressDialog"
-        Title="{loc:Localization ProgressDialogTitle}"
-        WindowStartupLocation="CenterOwner"
-        CanResize="False"
-        SizeToContent="Height">
+        x:Class="SQRLDotNetClientUI.Views.ProgressDialogView"
+        
+        >
 
   <DockPanel Margin="20,20,20,40">
     <StackPanel Name="MainPanel" DockPanel.Dock="Top" Orientation="Vertical">
@@ -27,4 +24,4 @@
     </StackPanel>
   </DockPanel>
   
-</Window>
+</UserControl>

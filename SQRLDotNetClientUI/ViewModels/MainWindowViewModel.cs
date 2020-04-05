@@ -22,7 +22,11 @@ namespace SQRLDotNetClientUI.ViewModels
         public ViewModelBase Content
         {
             get => content;
-            set { PriorContent = Content; this.RaiseAndSetIfChanged(ref content, value); }
+            set { 
+                // Don't want PriorContent to be messed up because of the progress indicator so we aren't counting those
+                PriorContent = (value.GetType() != typeof(ProgressDialogViewModel) && Content!=null && Content.GetType() != typeof(ProgressDialogViewModel) ? Content : PriorContent); 
+                this.RaiseAndSetIfChanged(ref content, value); 
+            }
         }
 
         public ViewModelBase PriorContent

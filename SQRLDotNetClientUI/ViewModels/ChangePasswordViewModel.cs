@@ -100,17 +100,17 @@ namespace SQRLDotNetClientUI.ViewModels
             CanSave = false;
 
             var progress = new Progress<KeyValuePair<int, string>>();
-            var progressDialog = new ProgressDialog(progress);
-            progressDialog.HideFinishedItems = false;
-            _= progressDialog.ShowDialog(_mainWindow);
+            
+            var progressDialog = new ProgressDialogViewModel(progress,this,false);
+            progressDialog.ShowDialog();
 
             var block1Keys = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, 
                 this.Password, progress);
 
             if (!block1Keys.DecryptionSucceeded)
             {
+                
                 progressDialog.Close();
-
                 Log.Information("Bad password was supplied for identity id {IdentityUniqueId}",
                 _identityManager.CurrentIdentityUniqueId);
 
@@ -127,6 +127,7 @@ namespace SQRLDotNetClientUI.ViewModels
             var currentId = _identityManager.CurrentIdentity;
             var idCopy = _identityManager.CurrentIdentity.Clone();
             await SQRL.GenerateIdentityBlock1(block1Keys.Imk, block1Keys.Ilk, this.NewPassword, currentId, progress, (int)currentId.Block1.PwdVerifySeconds);
+            
             progressDialog.Close();
 
             // Write the changes back to the db

@@ -130,9 +130,10 @@ namespace SQRLDotNetClientUI.ViewModels
             var progressBlock2 = new Progress<KeyValuePair<int, string>>();
             var progressDecryptBlock2 = new Progress<KeyValuePair<int, string>>();
 
-            var progressDialog = new ProgressDialog(new List<Progress<KeyValuePair<int, string>>>() { 
-                progressBlock1, progressBlock2, progressDecryptBlock2 });
-            _ = progressDialog.ShowDialog(_mainWindow);
+            var progressDialog = new ProgressDialogViewModel(new List<Progress<KeyValuePair<int, string>>>() { 
+                progressBlock1, progressBlock2, progressDecryptBlock2 }, this);
+            progressDialog.ShowDialog();
+            
 
             var iukData = await SQRL.DecryptBlock2(
                 this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressDecryptBlock2);
@@ -146,7 +147,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 var block1 = SQRL.GenerateIdentityBlock1(iukData.Iuk, this.NewPassword, newId, progressBlock1);
                 var block2 = SQRL.GenerateIdentityBlock2(iukData.Iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progressBlock2);
                 await Task.WhenAll(block1, block2);
-
+                
                 progressDialog.Close();
 
                 if (newId.HasBlock(3)) SQRL.GenerateIdentityBlock3(iukData.Iuk, this.Identity, newId, imk, imk); 
@@ -172,6 +173,7 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             else
             {
+                
                 progressDialog.Close();
 
                 var btnRsult = await new Views.MessageBox(
