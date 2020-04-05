@@ -1,1 +1,0 @@
-These can be unziped, the EXE file modifyied then use 7zip to Tar GZ onece again
