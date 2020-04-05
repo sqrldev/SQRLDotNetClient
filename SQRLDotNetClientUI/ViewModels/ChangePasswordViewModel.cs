@@ -101,7 +101,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
             var progress = new Progress<KeyValuePair<int, string>>();
             
-            var progressDialog = new ProgressDialogViewModel(progress,this);
+            var progressDialog = new ProgressDialogViewModel(progress,this,false);
             progressDialog.ShowDialog();
 
             var block1Keys = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, 
