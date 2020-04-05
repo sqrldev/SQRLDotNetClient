@@ -87,6 +87,11 @@ namespace SQRLDotNetClientUI.Views
             this.DataContextChanged += ProgressDialog_DataContextChanged;
         }
 
+        /// <summary>
+        /// When the Progress Dialog View Model is attached to the ProgresDialogView we need to iterate and add the Progress Items
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ProgressDialog_DataContextChanged(object sender, EventArgs e)
         {
             if (this.DataContext != null)
