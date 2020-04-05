@@ -338,3 +338,7 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Misc project-specific files
+packages-microsoft-prod.deb
+.DS_Store
