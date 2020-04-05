@@ -4,6 +4,7 @@ using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using ReactiveUI;
 using SQRLCommonUI.AvaloniaExtensions;
+using SQRLDotNetClientUI.ViewModels;
 using System;
 using System.Collections.Generic;
 
@@ -17,7 +18,7 @@ namespace SQRLDotNetClientUI.Views
     /// The behaviour of the dialog can be adjusted using the <c>HideFinishedItems</c>
     /// and <c>HideEnqueuedItems</c> properties.
     /// </summary>
-    public class ProgressDialog : Window
+    public class ProgressDialogView: UserControl
     {
         private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
         private Dictionary<Progress<KeyValuePair<int, string>>, ProgressItem> _progDict;
@@ -75,16 +76,30 @@ namespace SQRLDotNetClientUI.Views
         /// <summary>
         /// Creates a new <c>ProgressDialog</c> instance and sets up some required resources.
         /// </summary>
-        public ProgressDialog()
+        public ProgressDialogView()
         {
             this.InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
+            AvaloniaXamlLoader.Load(this);
 
             _progDict = new Dictionary<Progress<KeyValuePair<int, string>>, ProgressItem>();
             _MainPanel = this.FindControl<StackPanel>("MainPanel");
             _DummyPanel = this.FindControl<StackPanel>("DummyPanel");
+            this.DataContextChanged += ProgressDialog_DataContextChanged;
+        }
+
+        private void ProgressDialog_DataContextChanged(object sender, EventArgs e)
+        {
+            if (this.DataContext != null)
+            {
+                List<Progress<KeyValuePair<int, string>>> progressList = ((ProgressDialogViewModel)this.DataContext).ProgressList;
+                foreach (var progress in progressList)
+                {
+                    AddProgressItem(progress);
+                }
+                this.HideEnqueuedItems = ((ProgressDialogViewModel)this.DataContext).HideEnqueuedItems;
+                this.HideFinishedItems = ((ProgressDialogViewModel)this.DataContext).HideFinishedItems;
+
+            }
         }
 
         /// <summary>
@@ -92,7 +107,7 @@ namespace SQRLDotNetClientUI.Views
         /// containted in <paramref name="progressList"/>.
         /// </summary>
         /// <param name="progressList">A list of progress items to track.</param>
-        public ProgressDialog(List<Progress<KeyValuePair<int, string>>> progressList) : this()
+        public ProgressDialogView(List<Progress<KeyValuePair<int, string>>> progressList) : this()
         {
             foreach(var progress in progressList)
             {
@@ -105,7 +120,7 @@ namespace SQRLDotNetClientUI.Views
         /// <paramref name="progress"/>.
         /// </summary>
         /// <param name="progressList">The progress item to track.</param>
-        public ProgressDialog(Progress<KeyValuePair<int, string>> progress) : this()
+        public ProgressDialogView(Progress<KeyValuePair<int, string>> progress) : this()
         {
             AddProgressItem(progress);
         }
@@ -179,18 +194,7 @@ namespace SQRLDotNetClientUI.Views
             AvaloniaXamlLoader.Load(this);
         }
 
-        protected override void OnClosed(EventArgs e)
-        {
-            base.OnClosed(e);
-
-            foreach (var p in _progDict.Values)
-            {
-                p.Progress.ProgressChanged -= ProgressChanged;
-                _MainPanel.Children.Remove(p.ProgressPanel);
-            }
-
-            _progDict.Clear();
-        }
+       
     }
 
     /// <summary>

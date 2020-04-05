@@ -89,9 +89,12 @@ namespace SQRLDotNetClientUI.ViewModels
 
             var progressBlock1 = new Progress<KeyValuePair<int, string>>();
             var progressBlock2 = new Progress<KeyValuePair<int, string>>();
-            var progressDialog = new ProgressDialog(new List<Progress<KeyValuePair<int, string>>>() {
-                progressBlock1, progressBlock2});
-            _ = progressDialog.ShowDialog(_mainWindow);
+
+            var progressDialog = new ProgressDialogViewModel(new List<Progress<KeyValuePair<int, string>>>() {
+                progressBlock1, progressBlock2}, this);
+            
+            
+            progressDialog.ShowDialog();
 
             newId = SQRL.GenerateIdentityBlock0(imk, newId);
             newId = await SQRL.GenerateIdentityBlock1(iuk, this.NewPassword, newId, progressBlock1);
@@ -101,12 +104,15 @@ namespace SQRLDotNetClientUI.ViewModels
                 newId = await SQRL.GenerateIdentityBlock2(iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progressBlock2);
                 if (newId.Block2 != null)
                 {
+                    
                     progressDialog.Close();
+                    
 
                     ((MainWindowViewModel)_mainWindow.DataContext).Content = 
                         new NewIdentityVerifyViewModel(newId, this.NewPassword);
                 }
             }
+            
             progressDialog.Close();
         }
 

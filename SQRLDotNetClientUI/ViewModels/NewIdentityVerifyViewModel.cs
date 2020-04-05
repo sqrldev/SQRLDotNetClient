@@ -44,14 +44,16 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             var progressBlock1 = new Progress<KeyValuePair<int, string>>();
             var progressBlock2 = new Progress<KeyValuePair<int, string>>();
-            var progressDialog = new ProgressDialog(new List<Progress<KeyValuePair<int, string>>>() {
-                    progressBlock1, progressBlock2});
-            _ = progressDialog.ShowDialog(_mainWindow);
+            var progressDialog = new ProgressDialogViewModel(new List<Progress<KeyValuePair<int, string>>>() {
+                    progressBlock1, progressBlock2},this);
+            progressDialog.ShowDialog();
+            
 
             var block1Task = SQRL.DecryptBlock1(this.Identity, this.Password, progressBlock1);
             var block2Task = SQRL.DecryptBlock2(this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressBlock2);
             await Task.WhenAll(block1Task, block2Task);
 
+            
             progressDialog.Close();
 
             string msg = "";

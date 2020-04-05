@@ -108,10 +108,11 @@ namespace SQRLDotNetClientUI.ViewModels
                 new Progress<KeyValuePair<int, string>>(), new Progress<KeyValuePair<int, string>>() };
 
             //Progress Dialog will show our "Progress" as the Identity is Decrypted, and Re-Encrypted for Rekey
-            var progressDialog = new ProgressDialog(progressList);
+            var progressDialog = new ProgressDialogViewModel(progressList,this,true,true);
             progressDialog.HideFinishedItems = true;
             progressDialog.HideEnqueuedItems = true;
-            _ = progressDialog.ShowDialog(_mainWindow);
+            
+            progressDialog.ShowDialog();
 
             //Actually do the Re-Key Work
             var result = await SQRL.RekeyIdentity(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode), 
@@ -119,6 +120,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if(!result.Success)
             {
+                
                 progressDialog.Close();
 
                 //Fail bad rescue code (something went wrong...) try again?
@@ -134,10 +136,11 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             else if(result.Success) //All Good
             {
+                
                 progressDialog.Close();
 
-            //This label is used to re-share the new rescue code if it was copied incorrectly.
-            CopiedWrong:
+                //This label is used to re-share the new rescue code if it was copied incorrectly.
+                CopiedWrong:
                 //Message Box which displays the new Rescue Code to the user
                 await new Views.MessageBox(_loc.GetLocalizationValue("IdentityReKeyNewCode"),
                     string.Format(_loc.GetLocalizationValue("IdentityReKeyMessage"), SQRL.FormatRescueCodeForDisplay(result.NewRescueCode)),
@@ -150,14 +153,15 @@ namespace SQRLDotNetClientUI.ViewModels
                 rescueCode = await rescueCodeDlg.ShowDialog<string>(_mainWindow);
                 
                 //New progress dialog for the verification step
-                progressDialog = new ProgressDialog(progressList[0]);
-                progressDialog.HideFinishedItems = false;
-                _ = progressDialog.ShowDialog(_mainWindow);
+                progressDialog = new ProgressDialogViewModel(progressList[0],this,false);
+                
+                progressDialog.ShowDialog();
 
                 //Decrypt Block 2 to verify they copied their rescue code correctly.
                 var block2Results = await SQRL.DecryptBlock2(result.RekeyedIdentity, rescueCode, progressList[0]);
                 if (block2Results.DecryptionSucceeded) //All Good, All Done
                 {
+                    
                     progressDialog.Close();
                     _identityManager.DeleteCurrentIdentity();
                     _identityManager.ImportIdentity(result.RekeyedIdentity, true);
@@ -167,6 +171,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 else //Fail bad rescue code... try again?
                 {
+                    
                     progressDialog.Close();
                     var answer = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                         _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
