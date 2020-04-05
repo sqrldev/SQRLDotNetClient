@@ -102,28 +102,7 @@ namespace SQRLDotNetClientUI.Views
             }
         }
 
-        /// <summary>
-        /// Creates a new <c>ProgressDialog</c> instance and adds the provided progress items
-        /// containted in <paramref name="progressList"/>.
-        /// </summary>
-        /// <param name="progressList">A list of progress items to track.</param>
-        public ProgressDialogView(List<Progress<KeyValuePair<int, string>>> progressList) : this()
-        {
-            foreach(var progress in progressList)
-            {
-                AddProgressItem(progress);
-            }
-        }
-
-        /// <summary>
-        /// Creates a new <c>ProgressDialog</c> instance and adds the provided progress item
-        /// <paramref name="progress"/>.
-        /// </summary>
-        /// <param name="progressList">The progress item to track.</param>
-        public ProgressDialogView(Progress<KeyValuePair<int, string>> progress) : this()
-        {
-            AddProgressItem(progress);
-        }
+        
 
         /// <summary>
         /// Adds a progress item to the progress dialog.

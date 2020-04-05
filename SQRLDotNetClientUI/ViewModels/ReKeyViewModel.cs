@@ -109,8 +109,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
             //Progress Dialog will show our "Progress" as the Identity is Decrypted, and Re-Encrypted for Rekey
             var progressDialog = new ProgressDialogViewModel(progressList,this,true,true);
-            progressDialog.HideFinishedItems = true;
-            progressDialog.HideEnqueuedItems = true;
+            
             
             progressDialog.ShowDialog();
 
