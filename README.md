@@ -59,15 +59,18 @@ brew install mono-libgdiplus
   ```
 
 - You may get a security prompt at this point about unknown developer
+
   ![image-20200406103148991](/SQRLDotNetClientUI/Assets/Mac_Error1.png)
 
 - Click Cancel
 
 - Open System Preferences and Click Security and Privacy
+
   ![image-20200406103317325](/SQRLDotNetClientUI/Assets/Mac_SecurityAndPrivacy.png)
 
 - You should see a message at the bottom regarding Blocked SQRL and a button that says Allow Anyways click that
-  ![image-20200406103421405](/SQRLDotNetClientUI/Assets/image-20200406103421405.png)
+
+  ![image-20200406103421405](/SQRLDotNetClientUI/Assets/Mac_AllowAnyways.png)
 
 - Go back to the Terminal and Launch the Installer again
 
@@ -80,18 +83,28 @@ brew install mono-libgdiplus
   ![image-20200406103539966](/SQRLDotNetClientUI/Assets/MacOsx_Error2.png)
 
 - Follow the Installer Prompts
+
   ![image-20200406103648963](/SQRLDotNetClientUI/Assets/MacOsx_InstallerPrompt.png)
 
 #### Install Client on Windows OS
 
 - Download the latest Windows Client binary from the Github releases: [https://github.com/sqrldev/SQRLDotNetClient/releases](https://github.com/sqrldev/SQRLDotNetClient/releases)
+
 - Download: SQRLPlatformAwareInstaller_win.exe
+
   ![image-20200406103803339](/SQRLDotNetClientUI/Assets/WinInstaller.png)
+
 - Run SQRLPlatformAwareInstaller_win.exe
+
 - If Prompted by UAC Click Run Anyway
+
   ![image-20200406103923048](/SQRLDotNetClientUI/Assets/WinRunAnyways.png)
+
 - Follow Installer Prompts
+
   ![image-20200406104037042](/SQRLDotNetClientUI/Assets/WinInstallerPrompt.png)
+
+  
 
 ![](/SQRLDotNetClientUI/Assets/NewIdentitySetup.gif)
 
