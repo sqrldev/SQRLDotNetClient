@@ -104,7 +104,7 @@ brew install mono-libgdiplus
 
   ![image-20200406104037042](/SQRLDotNetClientUI/Assets/WinInstallerPrompt.png)
 
-  
+### Enjoy your new SQRL Client
 
 ![](/SQRLDotNetClientUI/Assets/NewIdentitySetup.gif)
 
