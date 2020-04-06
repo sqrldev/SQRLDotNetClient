@@ -332,30 +332,31 @@ namespace SQRLDotNetClientUI.ViewModels
                     if (btResult == MessagBoxDialogResult.YES)
                     {
                         RetryRescueCode:
-                        InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode);
-                        rescueCodeDlg.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                        string rescueCode = await rescueCodeDlg.ShowDialog<string>(
-                            _mainWindow);
-                                
-                        var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode),progressBlock1);
-                        if (iukData.DecryptionSucceeded)
-                        {
-                            byte[] ursKey = null;
-                            ursKey = SQRL.GetURSKey(iukData.Iuk, Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Utilities.Base64Variant.UrlSafeNoPadding));
+                        InputSecretDialogViewModel rescueCodeDlg = new InputSecretDialogViewModel(SecretType.RescueCode);
+                        var dialogClosed = await rescueCodeDlg.ShowDialog(this);
 
-                            iukData.Iuk.ZeroFill();
-                            serverResponse = SQRL.GenerateEnableCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, ursKey, addClientData, sqrlOpts);
-                        }
-                        else
+                        if (dialogClosed)
                         {
-                            
-                            var answer = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), 
-                                                                    _loc.GetLocalizationValue("InvalidRescueCodeMessage"), 
-                                                                    MessageBoxSize.Small, MessageBoxButtons.YesNo, MessageBoxIcons.ERROR)
-                                                                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
-                            if (answer == MessagBoxDialogResult.YES)
+                            var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCodeDlg.Secret), progressBlock1);
+                            if (iukData.DecryptionSucceeded)
                             {
-                                goto RetryRescueCode;
+                                byte[] ursKey = null;
+                                ursKey = SQRL.GetURSKey(iukData.Iuk, Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Utilities.Base64Variant.UrlSafeNoPadding));
+
+                                iukData.Iuk.ZeroFill();
+                                serverResponse = SQRL.GenerateEnableCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, ursKey, addClientData, sqrlOpts);
+                            }
+                            else
+                            {
+
+                                var answer = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                                                        _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                                                                        MessageBoxSize.Small, MessageBoxButtons.YesNo, MessageBoxIcons.ERROR)
+                                                                        .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                                if (answer == MessagBoxDialogResult.YES)
+                                {
+                                    goto RetryRescueCode;
+                                }
                             }
                         }
                     }
@@ -401,34 +402,35 @@ namespace SQRLDotNetClientUI.ViewModels
                         break;
                     case LoginAction.Remove:
                         {
-                            InputSecretDialogView rescueCodeDlg = new InputSecretDialogView(SecretType.RescueCode)
+                            InputSecretDialogViewModel rescueCodeDlg = new InputSecretDialogViewModel(SecretType.RescueCode);
+                            
+                            var dialogClosed = await rescueCodeDlg.ShowDialog(this);
+                            if (dialogClosed)
                             {
-                                WindowStartupLocation = WindowStartupLocation.CenterOwner
-                            };
-                            string rescueCode = await rescueCodeDlg.ShowDialog<string>(
-                                _mainWindow);
-                            var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCode), progressBlock1);
-                            if (iukData.DecryptionSucceeded)
-                            {
-                                byte[] ursKey = SQRL.GetURSKey(iukData.Iuk, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
-
-                                serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts, null, ursKey);
-                                if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
+                                var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCodeDlg.Secret), progressBlock1);
+                                if (iukData.DecryptionSucceeded)
                                 {
-                                    _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
+                                    byte[] ursKey = SQRL.GetURSKey(iukData.Iuk, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+
+                                    serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts, null, ursKey);
+                                    if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
+                                    {
+                                        _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
+                                    }
+                                    while (_sqrlInstance.cps.PendingResponse)
+                                        ;
+                                    ShowMainScreenAndClose();
                                 }
-                                while (_sqrlInstance.cps.PendingResponse)
-                                    ;
-                                ShowMainScreenAndClose();
-                            }
-                            else
-                            {
+                                else
+                                {
+
+
+                                    await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                                               _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                                                               MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                                               .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                                }
                                 
-                                
-                                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                                           _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
-                                                           MessageBoxSize.Small, MessageBoxButtons.OK,MessageBoxIcons.ERROR)
-                                                           .ShowDialog<MessagBoxDialogResult>(_mainWindow);
                             }
                         }
                         break;

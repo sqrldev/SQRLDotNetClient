@@ -17,6 +17,7 @@
         WindowStartupLocation="CenterScreen"
         CanResize="False"
         FontFamily="Arial,Helvetica,DejaVu Sans"
+        FontSize="12"
         >
     
   <Design.DataContext>
