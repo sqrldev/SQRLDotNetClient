@@ -14,7 +14,7 @@ using System.Reflection;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-
+using ToolBox.Bridge;
 namespace SQRLDotNetClientUI.ViewModels
 {
     public class MainMenuViewModel : ViewModelBase
@@ -245,13 +245,19 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public async void InstallUpdate()
         {
+
+
+            IBridgeSystem _bridgeSystem = BridgeSystem.Bash;
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string installer = GetInstallerByPlatform();
             if(File.Exists(Path.Combine(directory,installer)))
             {
                 var tempFile = Path.GetTempPath();
                 File.Copy(Path.Combine(directory, installer), Path.Combine(tempFile, Path.GetFileName(installer)), true);
-                if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                var _shell = new ShellConfigurator(_bridgeSystem);
+                Log.Information("Changing Executable File to be Executable a+x");
+                _shell.Term($"chmod a+x {Path.Combine(tempFile, Path.GetFileName(installer))}", Output.Internal);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     Process proc = new Process();
                     proc.StartInfo.FileName = Path.Combine(tempFile, Path.GetFileName(installer));
