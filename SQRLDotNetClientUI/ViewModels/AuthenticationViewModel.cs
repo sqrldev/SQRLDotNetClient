@@ -240,12 +240,15 @@ namespace SQRLDotNetClientUI.ViewModels
                 var block1Keys = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, this.Password, progressBlock1);
                 if (!block1Keys.DecryptionSucceeded)
                 {
-                    await new Views.MessageBox(_loc.GetLocalizationValue("BadPasswordErrorTitle"), 
+                    var dialogResult = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("BadPasswordErrorTitle"), 
                                                _loc.GetLocalizationValue("BadPasswordError"), 
                                                MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                               .ShowDialog(_mainWindow);
-                    this.IsBusy = false;
-                    return;
+                                               .ShowDialog(this);
+                    if (dialogResult ==MessagBoxDialogResult.OK)
+                    {
+                        this.IsBusy = false;
+                        return;
+                    }
                 }
                 imk = block1Keys.Imk;
                 ilk = block1Keys.Ilk;
@@ -264,13 +267,16 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (serverResponse.CommandFailed)
             {
-                
-                await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                //TODO: Fix Dialog
+                var dialogResult = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                                            _loc.GetLocalizationValue("SQRLCommandFailedUnknown"), 
                                            MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                           .ShowDialog(_mainWindow);
-                this.IsBusy = false;
-                return;
+                                           .ShowDialog(this);
+                if (dialogResult == MessagBoxDialogResult.OK)
+                {
+                    this.IsBusy = false;
+                    return;
+                }
             }
 
             // New account, ask if they want to create one
@@ -325,10 +331,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 {
                     var disabledAccountAlert = string.Format(_loc.GetLocalizationValue("SqrlDisabledAlert"), this.SiteID, Environment.NewLine);
                     
-                    var btResult =await new Views.MessageBox(_loc.GetLocalizationValue("ReEnableSQRLTitle").ToUpper(),
+                    var btResult =await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ReEnableSQRLTitle").ToUpper(),
                                                              disabledAccountAlert,
                                                              MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
-                                                            .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                                                            .ShowDialog(this);
                     if (btResult == MessagBoxDialogResult.YES)
                     {
                         RetryRescueCode:
@@ -349,10 +355,10 @@ namespace SQRLDotNetClientUI.ViewModels
                             else
                             {
 
-                                var answer = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                var answer = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                                                                         _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
                                                                         MessageBoxSize.Small, MessageBoxButtons.YesNo, MessageBoxIcons.ERROR)
-                                                                        .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                                                                        .ShowDialog(this);
                                 if (answer == MessagBoxDialogResult.YES)
                                 {
                                     goto RetryRescueCode;
@@ -382,10 +388,10 @@ namespace SQRLDotNetClientUI.ViewModels
                         {
                             var disableAccountAlert = string.Format(_loc.GetLocalizationValue("DisableAccountAlert"), this.SiteID, Environment.NewLine);
                             
-                            var btResult = await new Views.MessageBox(_loc.GetLocalizationValue("WarningMessageBoxTitle").ToUpper(),
+                            var btResult = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("WarningMessageBoxTitle").ToUpper(),
                                                                      disableAccountAlert, 
                                                                      MessageBoxSize.Large, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
-                                                                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                                                                    .ShowDialog(this);
                             if (btResult == MessagBoxDialogResult.YES)
                             {
                                 GenerateSIN(imk, serverResponse, addClientData);
@@ -425,10 +431,10 @@ namespace SQRLDotNetClientUI.ViewModels
                                 {
 
 
-                                    await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                    _ = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                                                                _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
                                                                MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                                               .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                                                               .ShowDialog(this);
                                 }
                                 
                             }
@@ -459,10 +465,10 @@ namespace SQRLDotNetClientUI.ViewModels
             string genericQuestionTitle = string.Format(_loc.GetLocalizationValue("GenericQuestionTitle"), this.SiteID);
 
             
-            var btnRsult = await new Views.MessageBox(genericQuestionTitle,
+            var btnRsult = await new Views.MessageBoxViewModel(genericQuestionTitle,
                                                       newAccountQuestion, 
                                                       MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
-                                                      .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                                                      .ShowDialog(this);
             if (btnRsult == MessagBoxDialogResult.YES)
             {
                 StringBuilder additionalData = null;

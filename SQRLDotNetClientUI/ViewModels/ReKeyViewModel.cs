@@ -123,10 +123,10 @@ namespace SQRLDotNetClientUI.ViewModels
                     progressDialog.Close();
 
                     //Fail bad rescue code (something went wrong...) try again?
-                    var answer = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    var answer = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                         _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
                         MessageBoxSize.Small, MessageBoxButtons.YesNo, MessageBoxIcons.ERROR)
-                        .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                        .ShowDialog(this);
 
                     if (answer == MessagBoxDialogResult.YES)
                     {
@@ -141,10 +141,10 @@ namespace SQRLDotNetClientUI.ViewModels
                     //This label is used to re-share the new rescue code if it was copied incorrectly.
                     CopiedWrong:
                     //Message Box which displays the new Rescue Code to the user
-                    await new Views.MessageBox(_loc.GetLocalizationValue("IdentityReKeyNewCode"),
+                   _= await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("IdentityReKeyNewCode"),
                         string.Format(_loc.GetLocalizationValue("IdentityReKeyMessage"), SQRL.FormatRescueCodeForDisplay(result.NewRescueCode)),
                         MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.OK)
-                        .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                        .ShowDialog(this);
 
                     //Ask the user to re-type their New Rescue Code to verify that they copied it correctly.
                     rescueCodeDlg = new InputSecretDialogViewModel(SecretType.RescueCode);
@@ -173,10 +173,10 @@ namespace SQRLDotNetClientUI.ViewModels
                         {
 
                             progressDialog.Close();
-                            var answer = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                            var answer = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                                 _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
                                 MessageBoxSize.Small, MessageBoxButtons.YesNo, MessageBoxIcons.ERROR)
-                                .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                                .ShowDialog(this);
 
                             if (answer == MessagBoxDialogResult.YES)
                             {
@@ -184,10 +184,10 @@ namespace SQRLDotNetClientUI.ViewModels
                             }
                             else //Abort the whole thing
                             {
-                                _ = await new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                _ = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                                     _loc.GetLocalizationValue("IdentityReKeyFailed"),
                                     MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                                    .ShowDialog(this);
                             }
                         }
                     }

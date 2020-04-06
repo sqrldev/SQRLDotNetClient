@@ -4,6 +4,9 @@ using Avalonia.Markup.Xaml;
 using System;
 using ReactiveUI;
 using Avalonia.Platform;
+using System.Collections.Concurrent;
+using SQRLDotNetClientUI.ViewModels;
+using System.Threading.Tasks;
 
 namespace SQRLDotNetClientUI.Views
 {
@@ -11,7 +14,7 @@ namespace SQRLDotNetClientUI.Views
     /// This is a class which implements a message box to be used throughout the project
     /// it supports localization of buttons and dynamic re-sizing where allowed.
     /// </summary>
-    public class MessageBox : Window
+    public class MessageBoxView : UserControl
     {
         /// <summary>
         /// Instanciates a new MessageBoxWindow
@@ -21,29 +24,37 @@ namespace SQRLDotNetClientUI.Views
         /// <param name="messageBoxSize"> Optional Size Parameter changes the width of the window presented</param>
         /// <param name="messageBoxButtons">Optional (default OK) Allows you to select which buttons to give the user</param>
         /// <param name="messageBoxIcon"> Optioal (default OK) Allows you to select which Icon to present the user with the message</param>
-        public MessageBox(string Title, string Message, MessageBoxSize messageBoxSize = MessageBoxSize.Medium, MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK, MessageBoxIcons messageBoxIcon = MessageBoxIcons.OK)
+        public MessageBoxView(string Title, string Message, MessageBoxSize messageBoxSize = MessageBoxSize.Medium, MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK, MessageBoxIcons messageBoxIcon = MessageBoxIcons.OK)
         {
             Init();
-            this.DataContext = new MessageBoxModel(Title, Message, messageBoxSize, messageBoxButtons, messageBoxIcon);
+            //this.DataContext = new MessageBoxViewModel(Title, Message, messageBoxSize, messageBoxButtons, messageBoxIcon);
         }
 
-        public MessageBox()
+        public MessageBoxView()
         {
             Init();
-            this.DataContext = new MessageBoxModel();
+            //this.DataContext = new MessageBoxViewModel();
         }
         private void Init()
         {
-            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            
 
-            AvaloniaLocator.CurrentMutable.Bind<MessageBox>().ToConstant(this);
+            AvaloniaLocator.CurrentMutable.Bind<MessageBoxView>().ToConstant(this);
 
             this.InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
+            this.DataContextChanged += MessageBoxView_DataContextChanged;
+
             
         }
+
+        private void MessageBoxView_DataContextChanged(object sender, EventArgs e)
+        {
+            if(this.DataContext !=null)
+            {
+                ((MessageBoxViewModel)this.DataContext).AddButtons();
+            }
+        }
+
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
@@ -98,8 +109,13 @@ namespace SQRLDotNetClientUI.Views
     /// <summary>
     /// This Class is used as the binding model for the MessageBoxWindow 
     /// </summary>
-    public class MessageBoxModel : ViewModelBase
+    public class MessageBoxViewModel : ViewModelBase
     {
+
+
+        BlockingCollection<MessagBoxDialogResult> dialogResultCollection;
+        ViewModelBase Parent;
+        MessageBoxButtons messageBoxButtons;
         /// <summary>
         /// Instanciates a new MessageBoxModel
         /// </summary>
@@ -108,35 +124,12 @@ namespace SQRLDotNetClientUI.Views
         /// <param name="messageBoxSize">MessageBox Size (Widht) Default Medium</param>
         /// <param name="messageBoxButtons">MessageBox Button Combiniation to Display (default OK)</param>
         /// <param name="messageBoxIcon">MessageBox Icon to Display (Default OK)</param>
-        public MessageBoxModel(string Title, string Message,MessageBoxSize messageBoxSize = MessageBoxSize.Medium, MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK, MessageBoxIcons messageBoxIcon = MessageBoxIcons.OK)
+        public MessageBoxViewModel(string Title, string Message,MessageBoxSize messageBoxSize = MessageBoxSize.Medium, MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK, MessageBoxIcons messageBoxIcon = MessageBoxIcons.OK)
         {
+            dialogResultCollection = new BlockingCollection<MessagBoxDialogResult>();
             this.Title = Title;
             this.Message = Message;
-            switch (messageBoxSize)
-            {
-                case MessageBoxSize.XLarge:
-                    
-                    this.Width = 800;
-                    
-                    break;
-                case MessageBoxSize.Large:
-                    
-                    this.Width = 600;
-                    
-                    break;
-                case MessageBoxSize.Small:
-                    
-                    this.Width = 200;
-                    
-                    break;
-                default:
-                    {
-                        
-                        this.Width = 400;
-                        
-                    }
-                    break;
-            }
+            this.messageBoxButtons = messageBoxButtons;
 
             internalIcon = messageBoxIcon switch
             {
@@ -145,28 +138,7 @@ namespace SQRLDotNetClientUI.Views
                 MessageBoxIcons.QUESTION => "resm:SQRLDotNetClientUI.Assets.Icons.question.png",
                 _ => "resm:SQRLDotNetClientUI.Assets.Icons.ok.png",
             };
-            switch (messageBoxButtons)
-            {
-                case MessageBoxButtons.OKCancel:
-                {
-                        AddButton("OK", _loc.GetLocalizationValue("BtnOK"), MessagBoxDialogResult.OK, isDefault: true);
-                        AddButton("Cancel", _loc.GetLocalizationValue("BtnCancel"), MessagBoxDialogResult.CANCEL);
-
-                }
-                break;
-                case MessageBoxButtons.YesNo:
-                    {
-                        AddButton("Yes", _loc.GetLocalizationValue("BtnYes"), MessagBoxDialogResult.YES, isDefault: true);
-                        AddButton("No", _loc.GetLocalizationValue("BtnNo"), MessagBoxDialogResult.NO);
-                    }
-                    break;
-                default:
-                    {
-                        AddButton("OK", _loc.GetLocalizationValue("BtnOK"), MessagBoxDialogResult.OK, isDefault: true);
-                    }
-                    break;
-
-            }
+            
 
             Init();
         }
@@ -181,7 +153,7 @@ namespace SQRLDotNetClientUI.Views
         /// button for the current form.</param>
         private void AddButton(string name, string content, MessagBoxDialogResult clickResult, bool isDefault=false)
         {
-            var msgWindow = AvaloniaLocator.Current.GetService<MessageBox>();
+            var msgWindow = AvaloniaLocator.Current.GetService<MessageBoxView>();
             var panel = msgWindow.FindControl<StackPanel>("pnlButtons").Children;
             Button btn = new Button
             {
@@ -191,13 +163,40 @@ namespace SQRLDotNetClientUI.Views
                 Width = 60,
                 IsDefault = isDefault
             };
-            btn.Click += (s,e) => msgWindow.Close(clickResult); 
+            btn.Click += (s,e) => { 
+                                    ((MainWindowViewModel)this._mainWindow.DataContext).Content = Parent;
+                                    dialogResultCollection.Add(clickResult);
+                                   }; 
             panel.Add(btn);
         }
 
-        
+        public void AddButtons()
+        {
+            switch (messageBoxButtons)
+            {
+                case MessageBoxButtons.OKCancel:
+                    {
+                        AddButton("OK", _loc.GetLocalizationValue("BtnOK"), MessagBoxDialogResult.OK, isDefault: true);
+                        AddButton("Cancel", _loc.GetLocalizationValue("BtnCancel"), MessagBoxDialogResult.CANCEL);
 
-        public MessageBoxModel()
+                    }
+                    break;
+                case MessageBoxButtons.YesNo:
+                    {
+                        AddButton("Yes", _loc.GetLocalizationValue("BtnYes"), MessagBoxDialogResult.YES, isDefault: true);
+                        AddButton("No", _loc.GetLocalizationValue("BtnNo"), MessagBoxDialogResult.NO);
+                    }
+                    break;
+                default:
+                    {
+                        AddButton("OK", _loc.GetLocalizationValue("BtnOK"), MessagBoxDialogResult.OK, isDefault: true);
+                    }
+                    break;
+
+            }
+        }
+
+        public MessageBoxViewModel()
         {
             Init();
         }
@@ -227,6 +226,19 @@ namespace SQRLDotNetClientUI.Views
         private string internalIcon { get; set; } = "resm:SQRLDotNetClientUI.Assets.Icons.ok.png";
 
         public Avalonia.Media.Imaging.Bitmap IconSource { get; set; }
+
+        public async Task<MessagBoxDialogResult> ShowDialog(ViewModelBase Parent)
+        {
+            this.Parent = Parent;
+            ((MainWindowViewModel)this._mainWindow.DataContext).Content = this;
+
+            return await Task.Run(() =>
+            {
+                foreach (var x in this.dialogResultCollection.GetConsumingEnumerable())
+                    return x;
+                return MessagBoxDialogResult.CANCEL;
+            });
+        }
 
     }
 }
