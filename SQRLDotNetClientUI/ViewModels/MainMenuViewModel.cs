@@ -254,9 +254,12 @@ namespace SQRLDotNetClientUI.ViewModels
             {
                 var tempFile = Path.GetTempPath();
                 File.Copy(Path.Combine(directory, installer), Path.Combine(tempFile, Path.GetFileName(installer)), true);
-                var _shell = new ShellConfigurator(_bridgeSystem);
-                Log.Information("Changing Executable File to be Executable a+x");
-                _shell.Term($"chmod a+x {Path.Combine(tempFile, Path.GetFileName(installer))}", Output.Internal);
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    var _shell = new ShellConfigurator(_bridgeSystem);
+                    Log.Information("Changing Executable File to be Executable a+x");
+                    _shell.Term($"chmod a+x {Path.Combine(tempFile, Path.GetFileName(installer))}", Output.Internal);
+                }
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     Process proc = new Process();
