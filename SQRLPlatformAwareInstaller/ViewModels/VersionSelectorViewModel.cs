@@ -263,6 +263,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             _shell = new ShellConfigurator(_bridgeSystem);
             Log.Information("Changing Executable File to be Executable a+x");
             _shell.Term($"chmod a+x {Executable}", Output.Internal);
+            _shell.Term($"chmod a+x {Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
         }
 
         private void InstallinLinux(string downloadedFileName)
@@ -314,6 +315,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             _shell.Term($"chmod -R 755 {this.InstallationPath}", Output.Internal);
             _shell.Term($"chmod a+x {Executable}", Output.Internal);
             _shell.Term($"chmod +x {Path.Combine(this.InstallationPath, "sqrldev-sqrl.desktop")}", Output.Internal);
+            _shell.Term($"chmod a+x {Path.Combine(this.InstallationPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
             _shell.Term($"xdg-desktop-menu install {Path.Combine(this.InstallationPath, "sqrldev-sqrl.desktop")}", Output.Internal);
             _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop", Output.Internal);
             _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl", Output.Internal);
