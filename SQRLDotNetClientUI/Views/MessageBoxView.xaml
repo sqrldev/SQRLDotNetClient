@@ -1,0 +1,23 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="150"
+        x:Class="SQRLDotNetClientUI.Views.MessageBoxView"
+        xmlns:vm="clr-namespace:SQRLDotNetClientUI.Views;assembly=SQRLDotNetClientUI"
+        Width="{Binding Width}"
+        
+        
+        >
+  <DockPanel LastChildFill="True" >
+    <StackPanel  DockPanel.Dock="Top" Orientation="Vertical" VerticalAlignment="Bottom" Margin="10" >
+      <Image Stretch="None" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Source="{Binding IconSource}" />
+      <TextBlock   Margin="10"  Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0" Text="{Binding Message}" />
+
+
+    </StackPanel>
+    <StackPanel Margin="10" DockPanel.Dock="Bottom" Name="pnlButtons" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+
+  </DockPanel>
+</UserControl>

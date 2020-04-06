@@ -114,10 +114,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 Log.Information("Bad password was supplied for identity id {IdentityUniqueId}",
                 _identityManager.CurrentIdentityUniqueId);
 
-                await new MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                _ = await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                     _loc.GetLocalizationValue("BadPasswordError"),
                     MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                    .ShowDialog(this);
 
                 CanSave = true;
                 return;

@@ -47,10 +47,10 @@ namespace SQRLDotNetClientUI.ViewModels
             {
                 this.Identity.WriteToFile(file);
                 
-                await new Views.MessageBox(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
+                await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
                     string.Format(_loc.GetLocalizationValue("IdentityExportedMessageBoxText"), file),
                     MessageBoxSize.Small, MessageBoxButtons.OK,MessageBoxIcons.OK)
-                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                    .ShowDialog(this);
             }
         }
 
@@ -62,10 +62,10 @@ namespace SQRLDotNetClientUI.ViewModels
             string identity = SQRL.GenerateTextualIdentityBase56(textualIdentityBytes);
             await Application.Current.Clipboard.SetTextAsync(identity);
             
-            await new Views.MessageBox(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
+            await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
                 _loc.GetLocalizationValue("IdentityCopiedToClipboardMessageBoxText"),
                 MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.OK)
-                .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                .ShowDialog(this);
         }
 
         public void Back()

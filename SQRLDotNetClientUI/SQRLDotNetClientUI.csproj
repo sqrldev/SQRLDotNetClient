@@ -60,7 +60,7 @@
     <AvaloniaResource Remove="Views\ImportIdentityView.xaml" />
     <AvaloniaResource Remove="Views\InputSecretDialogView.xaml" />
     <AvaloniaResource Remove="Views\MainMenuView.xaml" />
-    <AvaloniaResource Remove="Views\MessageBox.xaml" />
+    <AvaloniaResource Remove="Views\MessageBoxView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityVerifyView.xaml" />
     <AvaloniaResource Remove="Views\NewIdentityView.xaml" />
     <AvaloniaResource Remove="Views\NewPasswordWidget.xaml" />
@@ -100,7 +100,7 @@
     <None Remove="Views\ImportIdentityView.xaml" />
     <None Remove="Views\InputSecretDialogView.xaml" />
     <None Remove="Views\MainMenuView.xaml" />
-    <None Remove="Views\MessageBox.xaml" />
+    <None Remove="Views\MessageBoxView.xaml" />
     <None Remove="Views\NewIdentityVerifyView.xaml" />
     <None Remove="Views\NewIdentityView.xaml" />
     <None Remove="Views\NewPasswordWidget.xaml" />
@@ -228,6 +228,9 @@
     <Compile Update="Views\ChangePasswordView.xaml.cs">
       <DependentUpon>ChangePasswordView.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\MessageBoxView.xaml.cs">
+      <DependentUpon>MessageBoxView.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\NewPasswordWidget.xaml.cs">
       <DependentUpon>NewPasswordWidget.xaml</DependentUpon>
     </Compile>
@@ -244,7 +247,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Views\MessageBox.xaml">
+    <EmbeddedResource Include="Views\MessageBoxView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

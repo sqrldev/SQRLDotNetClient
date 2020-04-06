@@ -3,21 +3,21 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using SQRLCommonUI.AvaloniaExtensions;
+using SQRLDotNetClientUI.ViewModels;
 
 namespace SQRLDotNetClientUI.Views
 {
     /// <summary>
     /// A dialog window that prompts the user to input a secret.
     /// </summary>
-    public class InputSecretDialogView : Window
+    public class InputSecretDialogView : UserControl
     {
         private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
         private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
         private TextBox _txtSecret = null;
         private Button _btnOK = null;
         private TextBlock _lblMessage = null;
-        private SecretType _secretType;
-        private bool AllGood = false;
+        
         /// <summary>
         /// Creates a new <c>InputSecretDialogView</c> instance and sets 
         /// the type of secret that the user will be asked to input to 
@@ -33,56 +33,46 @@ namespace SQRLDotNetClientUI.Views
         public InputSecretDialogView(SecretType secretType)
         {
             this.InitializeComponent();
-
+            this.DataContextChanged += InputSecretDialogView_DataContextChanged;
             //Prevent closing the dialog externally.
-            this.Closing += InputSecretDialogView_Closing;
+            
             _txtSecret = this.FindControl<CopyPasteTextBox> ("txtSecret");
             _btnOK = this.FindControl<Button>("btnOK");
             _lblMessage = this.FindControl<TextBlock>("lblMessage");
-            _txtSecret.Text = "";
-            _btnOK.Click += (object sender, RoutedEventArgs e) =>
-            {
-                AllGood = true;
-                this.Close(_txtSecret.Text);
-            };
+            
 
-            this._secretType = secretType;
-            switch (secretType)
-            {
-                case SecretType.Password:
-                    _lblMessage.Text = _loc.GetLocalizationValue("EnterPasswordMessage");
-                    _txtSecret.PasswordChar = '*';
-                    break;
-
-                case SecretType.RescueCode:
-                    _lblMessage.Text = _loc.GetLocalizationValue("EnterRescueCodeMessage");
-                    break;
-
-                default:
-                    break;
-            }
-
-#if DEBUG
-            this.AttachDevTools();
-#endif
         }
 
-        private  void InputSecretDialogView_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void InputSecretDialogView_DataContextChanged(object sender, System.EventArgs e)
         {
-            if (!AllGood)
+            if(this.DataContext!=null)
             {
-                new Views.MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                                                   _loc.GetLocalizationValue("SecretDialogError"),
-                                                                   MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                                                   .ShowDialog<MessagBoxDialogResult>(_mainWindow);
-                e.Cancel = true;
+                var ipdm = (InputSecretDialogViewModel)this.DataContext;
+                switch (ipdm.SecretType)
+                {
+                    case SecretType.Password:
+                        _lblMessage.Text = _loc.GetLocalizationValue("EnterPasswordMessage");
+                        _txtSecret.PasswordChar = '*';
+                        break;
+
+                    case SecretType.RescueCode:
+                        _lblMessage.Text = _loc.GetLocalizationValue("EnterRescueCodeMessage");
+                        break;
+
+                    default:
+                        break;
+                }
             }
         }
+
+        
 
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
         }
+
+      
     }
 
     /// <summary>
@@ -94,4 +84,6 @@ namespace SQRLDotNetClientUI.Views
         Password,
         RescueCode
     }
+
+    
 }

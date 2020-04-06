@@ -204,10 +204,10 @@ namespace SQRLDotNetClientUI.ViewModels
         public async void DeleteIdentity()
         {
 
-            var result = await new Views.MessageBox(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
+            var result = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
                 string.Format(_loc.GetLocalizationValue("DeleteIdentityMessageBoxText"), this.IdentityName, Environment.NewLine),
                 MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
-                .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                .ShowDialog(this);
 
             if (result == MessagBoxDialogResult.YES)
             {
@@ -266,10 +266,10 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             else
             {
-                var result = await new Views.MessageBox(_loc.GetLocalizationValue("GenericQuestionTitle"),
+                var result = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("GenericQuestionTitle"),
                 string.Format(_loc.GetLocalizationValue("MissingInstaller"), this.IdentityName, Environment.NewLine),
                 MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
-                .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                .ShowDialog(this);
                 if(result == MessagBoxDialogResult.YES)
                 {
                     OpenUrl("https://github.com/sqrldev/SQRLDotNetClient/releases");

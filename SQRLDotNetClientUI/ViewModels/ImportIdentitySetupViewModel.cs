@@ -160,10 +160,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (InvalidOperationException e)
                 {
-                    var btnRsult = await new Views.MessageBox(
+                    var btnRsult = await new Views.MessageBoxViewModel(
                         _loc.GetLocalizationValue("ErrorTitleGeneric"), e.Message,
                         MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                        .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                        .ShowDialog(this);
                 }
                 finally
                 {
@@ -176,11 +176,11 @@ namespace SQRLDotNetClientUI.ViewModels
                 
                 progressDialog.Close();
 
-                var btnRsult = await new Views.MessageBox(
+                var btnRsult = await new Views.MessageBoxViewModel(
                     _loc.GetLocalizationValue("ErrorTitleGeneric"),
                     _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
                     MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+                    .ShowDialog(this);
             }
         }
     }
