@@ -509,8 +509,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         {
             var fi = new System.IO.FileInfo(file);
             var ac = fi.GetAccessControl();
+            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
+            var account = (NTAccount)sid.Translate(typeof(NTAccount));
             Log.Information("Give Full Control to Current User");
-            var fileAccessRule = new FileSystemAccessRule(WindowsIdentity.GetCurrent().User, FileSystemRights.FullControl, AccessControlType.Allow);
+            var fileAccessRule = new FileSystemAccessRule(account, FileSystemRights.FullControl, AccessControlType.Allow);
+            
             ac.AddAccessRule(fileAccessRule);
             fi.SetAccessControl(ac);
         }
