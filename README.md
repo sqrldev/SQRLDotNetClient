@@ -8,18 +8,32 @@ This project has 2 main parts: A **SQRL client** and a **SQRL library**. Below i
 ### SQRL Dot Net Core Client
 
 An implementation of a fully-featured SQRL client, along with a cross-platform user interface (using the Avalonia UI framework).
-# STOP --- A DO NOT DONWLOAD THIS VERSION, A NEW RELEASE IS COMING THE VERSION BELOW IS PRE-ALPHA ---
+
+
+
 #### Installing the Client on Linux (desktop environment / xdg-desktop is required)
 
 ```shell
 sudo apt-get install -y libgdiplus
-wget https://raw.githubusercontent.com/sqrldev/SQRLDotNetClient/master/Installers/Linux/SQRL.sh
-chmod a+x SQRL.sh
-./SQRL.sh
 ```
+
+
+- Go to the Latest Releases Page at: https://github.com/sqrldev/SQRLDotNetClient/releases
+- Select Assets
+- Download SQRLPlatformAwareInstaller_linux
+  ![image-20200406102440688](/SQRLDotNetClientUI/Assets/Linux_Installer.png)
+- Open Terminal and CD into your Download Location
+
+```shell
+chmod a+x ./SQRLPlatformAwareInstaller_linux
+./SQRLPlatformAwareInstaller_linux
+```
+
+- Follow the Installer Prompts
+
 #### Installing Client on MacOSX
 
-###### Install Pre-Reqs
+- Open Terminal
 
 ```shell
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -27,21 +41,59 @@ chmod a+x SQRL.sh
 brew install mono-libgdiplus
 ```
 
+- Go to the Latest Releases at: https://github.com/sqrldev/SQRLDotNetClient/releases
 
+- Select Assets
 
-- Download File https://client.sqrloauth.com/osx-x64/SQRLHelper.app.tar.bz2
-- Double Click on the File this will expand it and will extract the SQRLHelper app
-- Double Click the SQRL Helper App to download the SQRL Client
-- This may take a few minutes to download and setup
+- Download: SQRLPlatformAwareInstaller_osx
+
+  ![image-20200406102814087](/SQRLDotNetClientUI/Assets/MacOsx_Installer.png)
+
+- Open Terminal
+
+- CD into the Downloads Folder
+
+  ```shell
+  chmod a+x ./SQRLPlatformAwareInstaller_osx.dms
+  ./SQRLPlatformAwareInstaller_osx.dms
+  ```
+
+- You may get a security prompt at this point about unknown developer
+  ![image-20200406103148991](/SQRLDotNetClientUI/Assets/Mac_Error1.png)
+
+- Click Cancel
+
+- Open System Preferences and Click Security and Privacy
+  ![image-20200406103317325](/SQRLDotNetClientUI/Assets/Mac_SecurityAndPrivacy.png)
+
+- You should see a message at the bottom regarding Blocked SQRL and a button that says Allow Anyways click that
+  ![image-20200406103421405](/SQRLDotNetClientUI/Assets/image-20200406103421405.png)
+
+- Go back to the Terminal and Launch the Installer again
+
+  ```shell
+  ./SQRLPlatformAwareInstaller_osx.dms
+  ```
+
+- This time, on the message, click Open
+
+  ![image-20200406103539966](/SQRLDotNetClientUI/Assets/MacOsx_Error2.png)
+
+- Follow the Installer Prompts
+  ![image-20200406103648963](/SQRLDotNetClientUI/Assets/MacOsx_InstallerPrompt.png)
 
 #### Install Client on Windows OS
 
 - Download the latest Windows Client binary from the Github releases: [https://github.com/sqrldev/SQRLDotNetClient/releases](https://github.com/sqrldev/SQRLDotNetClient/releases)
-- Save the file in the `C:\SQRL\` folder
-- Download the registry file from: https://github.com/sqrldev/SQRLDotNetClient/blob/master/Installers/Windows/WindowsRegEx.reg
-- Run the downloaded file to register the sqrl schema. If your Client isn't in the `C:\SQRL` folder, you'll have to adjust the script.
+- Download: SQRLPlatformAwareInstaller_win.exe
+  ![image-20200406103803339](/SQRLDotNetClientUI/Assets/WinInstaller.png)
+- Run SQRLPlatformAwareInstaller_win.exe
+- If Prompted by UAC Click Run Anyway
+  ![image-20200406103923048](/SQRLDotNetClientUI/Assets/WinRunAnyways.png)
+- Follow Installer Prompts
+  ![image-20200406104037042](/SQRLDotNetClientUI/Assets/WinInstallerPrompt.png)
 
-![](/SQRLDotNetClientUI/Assets/SQRL_InAction.gif)
+![](/SQRLDotNetClientUI/Assets/NewIdentitySetup.gif)
 
 
 
