@@ -4,6 +4,11 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Reflection;
+using SkiaSharp;
+using System.IO;
+using System.Diagnostics;
+using System.Text;
+using System.Collections.Generic;
 
 namespace SQRLDotNetClientUI.Models
 {
@@ -12,23 +17,23 @@ namespace SQRLDotNetClientUI.Models
     /// </summary>
     public static class PrintDocumentHelper
     {
-        private static readonly int HEADER_ICON_SIZE = 64;
-        private static readonly int FOOTER_ICON_SIZE = 32;
-        private static readonly int MARGIN_LEFT = 50;
-        private static readonly int MARGIN_TOP = 64;
-
-        private static readonly string _fontFace = "Consolas";
-        private static readonly Font _headlineFont = new Font(_fontFace, 20, FontStyle.Bold);
-        private static readonly Font _warningFont = new Font(_fontFace, 16, FontStyle.Bold);
-        private static readonly Font _textFont = new Font(_fontFace, 12);
-        private static readonly Font _underlinedTextFont = new Font(_fontFace, 12, FontStyle.Underline);
-        private static readonly Font _footerFont = new Font(_fontFace, 8);
+        private static readonly float PDF_MM_SCALE_FACTOR = 127f / 360f;
+        private static readonly float HEADER_ICON_SIZE = 20f / PDF_MM_SCALE_FACTOR;
+        private static readonly float FOOTER_ICON_SIZE = 10f / PDF_MM_SCALE_FACTOR;
+        private static readonly float MARGIN_LEFT = 15f / PDF_MM_SCALE_FACTOR;
+        private static readonly float MARGIN_TOP = 20f / PDF_MM_SCALE_FACTOR;
+        private static readonly float PAGE_WIDTH = 210f / PDF_MM_SCALE_FACTOR;
+        private static readonly float PAGE_HEIGHT = 297f / PDF_MM_SCALE_FACTOR;
 
         private static Assembly _assembly = Assembly.GetExecutingAssembly();
         private static string _assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
         private static string _assetsPath = $"{_assemblyName}.Assets.";
-        private static Image _sqrlLogo = new Bitmap(_assembly.GetManifestResourceStream(_assetsPath + "SQRL_icon_normal_256.png"));
         private static LocalizationExtension _loc = new LocalizationExtension();
+
+        private static readonly SKTypeface _fontRegular = SKTypeface.FromStream(
+            _assembly.GetManifestResourceStream(_assetsPath + "Fonts.Inconsolata-Regular.ttf"));
+        private static readonly SKTypeface _fontBold = SKTypeface.FromStream(
+            _assembly.GetManifestResourceStream(_assetsPath + "Fonts.Inconsolata-Bold.ttf"));
 
         private static string _rescueCode = "";
         private static string _identityName = "";
@@ -40,8 +45,7 @@ namespace SQRLDotNetClientUI.Models
         /// <param name="rescueCode">The rescue code to print to the document.</param>
         /// <param name="identityName">The name of the identity. This is optional, just
         /// pass <c>null</c> if no identity name should be printed to the pdf file.</param>
-        /// <returns></returns>
-        public static PrintDocument CreateRescueCodeDocument(string rescueCode, string identityName = null)
+        public static void CreateRescueCodeDocument(string rescueCode, string identityName = null)
         {
             var printerList = PrinterSettings.InstalledPrinters.Cast<string>().ToList();
             //bool printerFound = printerList.Any(p => p == printerName);
@@ -49,123 +53,199 @@ namespace SQRLDotNetClientUI.Models
             _rescueCode = rescueCode;
             _identityName = identityName;
 
-            PrintDocument pd = new PrintDocument();
-            pd.PrintPage += new PrintPageEventHandler(PrintRescueCodePage);
-            pd.DocumentName = "SQRL Rescue Code Document";
-            pd.PrinterSettings.PrinterName = "Microsoft Print to PDF";
-            pd.PrinterSettings.PrintFileName = @"C:\Temp\test.pdf";
-            pd.PrinterSettings.PrintToFile = true;
-            
-            pd.Print();
-            return pd;
+            var metadata = new SKDocumentPdfMetadata
+            {
+                Author = _assemblyName,
+                Creation = DateTime.Now,
+                Creator = _assemblyName,
+                Keywords = "SQRL,Rescue code",
+                Modified = DateTime.Now,
+                Producer = "SkiaSharp",
+                Subject = "SQRL Rescue Code Document",
+                Title = "SQRL Rescue Code Document"
+            };
+
+            string filePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                @"RescueCodeTest.pdf");
+
+            using (var stream = new SKFileWStream(filePath))
+            using (var document = SKDocument.CreatePdf(stream, metadata))
+            {
+                PrintRescueCodePage(document);
+                document.Close();
+            }
+
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = filePath,
+                UseShellExecute = true
+            };
+            Process.Start(psi);
         }
 
         /// <summary>
-        /// This is the print callback that does the actual drawing of the 
-        /// rescue code document.
+        /// This does the actual drawing of the rescue code document.
         /// </summary>
-        /// <param name="sender">The sender of the print event.</param>
-        /// <param name="ev">The PrintPageEventArgs representing the document to be printed.</param>
-        private static void PrintRescueCodePage(object sender, PrintPageEventArgs ev)
+        /// <param name="doc">The skia document to write to.</param>
+        private static void PrintRescueCodePage(SKDocument doc)
         {
-            float yPos = MARGIN_TOP + HEADER_ICON_SIZE + 90;
+            float yPos = MARGIN_TOP + HEADER_ICON_SIZE + 80;
+            string title = _loc.GetLocalizationValue("RescueCodeDocumentTitle");
+            string warning = _loc.GetLocalizationValue("RescueCodeDocumentDiscardWarning");
+            string text = _loc.GetLocalizationValue("RescueCodeDocumentText");
+            string identityLabel = _loc.GetLocalizationValue("IdentityNameLabel");
+            string rescueCodeLabel = _loc.GetLocalizationValue("RescueCodeLabel");
 
-            DrawHeader(ev);
-            yPos += 30 + DrawTextBlock(ev, _loc.GetLocalizationValue("RescueCodeDocumentTitle"), yPos, _headlineFont, Brushes.Black);
-            yPos += 30 + DrawTextBlock(ev, _loc.GetLocalizationValue("RescueCodeDocumentDiscardWarning"), yPos, _warningFont, Brushes.Red);
-            yPos += 30 + DrawTextBlock(ev, _loc.GetLocalizationValue("RescueCodeDocumentText"), yPos);
-            yPos += 15 + DrawTextBlock(ev, _loc.GetLocalizationValue("IdentityNameLabel"), yPos, _underlinedTextFont);
-            yPos += 20 + DrawTextBlock(ev, _identityName, yPos, _warningFont, Brushes.Black);
-            yPos += 15 + DrawTextBlock(ev, _loc.GetLocalizationValue("RescueCodeLabel"), yPos, _underlinedTextFont);
-            yPos += 50 + DrawTextBlock(ev, _rescueCode, yPos, _headlineFont, Brushes.Black);
-            DrawFooter(ev);
+            using (var canvas = doc.BeginPage(PAGE_WIDTH, PAGE_HEIGHT))
+            {
+                DrawHeader(canvas);
+                yPos += 10 + DrawTextBlock(canvas, title, yPos, _fontBold, 25, SKColors.Black);
+                yPos += 20 + DrawTextBlock(canvas, warning, yPos, _fontBold, 20, SKColors.Red);
+                yPos += 30 + DrawTextBlock(canvas, text, yPos, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
+                yPos += 10 + DrawTextBlock(canvas, identityLabel, yPos, _fontRegular, 12, SKColors.DarkGray);
+                yPos += 20 + DrawTextBlock(canvas, _identityName, yPos, _fontBold, 16, SKColors.Black);
+                yPos += 10 + DrawTextBlock(canvas, rescueCodeLabel, yPos, _fontRegular, 12, SKColors.DarkGray);
+                yPos += 00 + DrawTextBlock(canvas, _rescueCode, yPos, _fontBold, 24, SKColors.Black);
+                DrawFooter(canvas);
 
-            ev.HasMorePages = false;
+                doc.EndPage();
+            }
         }
 
         /// <summary>
-        /// Draws the header logo onto the document.
+        /// Draws the header logo and text onto the document.
         /// </summary>
-        /// <param name="ev">The PrintPageEventArgs representing the document to be printed.</param>
-        private static void DrawHeader(PrintPageEventArgs ev)
+        /// <param name="canvas">The skia canvas to draw to.</param>
+        private static void DrawHeader(SKCanvas canvas)
         {
-            ev.Graphics.DrawImage(
-                _sqrlLogo,
-                ev.PageBounds.Width / 2 - HEADER_ICON_SIZE / 2,
-                MARGIN_TOP,
-                HEADER_ICON_SIZE,
-                HEADER_ICON_SIZE
-            );
+            float imgX = PAGE_WIDTH / 2 - HEADER_ICON_SIZE / 2;
+            float imgY = MARGIN_TOP;
 
-            float yPos = MARGIN_TOP + HEADER_ICON_SIZE + 20;
+            var logoStream = _assembly.GetManifestResourceStream(_assetsPath + "SQRL_icon_normal_256.png");
+            logoStream.Seek(0, SeekOrigin.Begin);
 
-            DrawTextBlock(ev, _loc.GetLocalizationValue("SQRLTag"), yPos, _textFont, Brushes.CornflowerBlue);
+            canvas.DrawBitmap(SKBitmap.Decode(logoStream), 
+                new SKRect(imgX, imgY, imgX + HEADER_ICON_SIZE, imgY + HEADER_ICON_SIZE));
+
+            DrawTextBlock(canvas, 
+                _loc.GetLocalizationValue("SQRLTag"), 
+                imgY + HEADER_ICON_SIZE + 20, 
+                _fontBold, 12, SKColors.Black);
         }
 
         /// <summary>
         /// Draws the footer logo and text onto the document.
         /// </summary>
-        /// <param name="ev">The PrintPageEventArgs representing the document to be printed.</param>
-        private static void DrawFooter(PrintPageEventArgs ev)
+        /// <param name="canvas">The skia canvas to draw to.</param>
+        private static void DrawFooter(SKCanvas canvas)
         {
-            ev.Graphics.DrawImage(
-                _sqrlLogo,
-                ev.PageBounds.Width / 2 - FOOTER_ICON_SIZE / 2,
-                ev.PageBounds.Height - FOOTER_ICON_SIZE - MARGIN_TOP - 10,
-                FOOTER_ICON_SIZE,
-                FOOTER_ICON_SIZE
-            );
+            float imgX = PAGE_WIDTH / 2 - FOOTER_ICON_SIZE / 2;
+            float imgY = PAGE_HEIGHT - MARGIN_TOP - FOOTER_ICON_SIZE;
 
-            float yPos = ev.PageBounds.Height - MARGIN_TOP;
+            var logoStream = _assembly.GetManifestResourceStream(_assetsPath + "SQRL_icon_normal_256.png");
+            logoStream.Seek(0, SeekOrigin.Begin);
+
+            canvas.DrawBitmap(SKBitmap.Decode(logoStream),
+                new SKRect(imgX, imgY, imgX + FOOTER_ICON_SIZE, imgY + FOOTER_ICON_SIZE));
 
             string footerText = string.Format(
                 _loc.GetLocalizationValue("PrintDocumentFooterMessage"),
                 _assemblyName + " v " + _assembly.GetName().Version,
                 DateTime.Now.ToLongDateString());
 
-            DrawTextBlock(ev, footerText, yPos, _footerFont);
+            DrawTextBlock(canvas, footerText,
+                imgY + FOOTER_ICON_SIZE + 20,
+                _fontRegular, 8, SKColors.DarkGray);
         }
 
         /// <summary>
         /// Draws a block of text onto the document and returns the height of that block.
         /// </summary>
-        /// <param name="ev">The PrintPageEventArgs representing the document to be printed.</param>
+        /// <param name="canvas">The skia canvas to draw onto.</param>
         /// <param name="text">The text to be printed onto the document.</param>
         /// <param name="y">The y position of the text block.</param>
-        /// <param name="font">The font to be used for drawing the text.</param>
-        /// <param name="brush">The brush to be used for drawing the text.</param>
-        /// <param name="format">The string format to be used for drawing the text.</param>
+        /// <param name="typeface">The font to be used for drawing the text.</param>
+        /// <param name="textSize">The size of the text.</param>
+        /// <param name="color">The color to be used for drawing the text.</param>
+        /// <param name="textAlign">The alignment for the text to be drawn.</param>
+        /// <param name="lineHeightFactor">A value indicating the line heigt. The default line heigt factor is 1.</param>
         /// <returns>Returns the height of the text block which was drawn to the document.</returns>
-        private static float DrawTextBlock(PrintPageEventArgs ev, string text, float y, Font font = null, 
-            Brush brush = null, StringFormat format = null)
+        private static float DrawTextBlock(SKCanvas canvas, string text, float y, SKTypeface typeface, float textSize,
+            SKColor color, SKTextAlign textAlign = SKTextAlign.Center, float lineHeightFactor = 1.0f)
         {
-            if (font == null) font = _textFont;
-            if (brush == null) brush = Brushes.Gray;
-            if (format == null)
+            List<string> lineBreakSequences = new List<string>() {"\r", "\n", "\r\n" };
+
+            using (var paint = new SKPaint())
             {
-                format = new StringFormat();
-                format.LineAlignment = StringAlignment.Center;
-                format.Alignment = StringAlignment.Center;
+                paint.Typeface = typeface;
+                paint.TextSize = textSize;
+                paint.IsAntialias = true;
+                paint.Color = color;
+                paint.TextAlign = textAlign;
+
+                float blockWidth = PAGE_WIDTH - (MARGIN_LEFT * 2);
+
+                // Define x position according to chosen text alignment
+                float xPos = 0f;
+                switch (textAlign)
+                {
+                    case SKTextAlign.Left:
+                        xPos = MARGIN_LEFT;
+                        break;
+
+                    case SKTextAlign.Center:
+                        xPos = PAGE_WIDTH / 2;
+                        break;
+
+                    case SKTextAlign.Right:
+                        xPos = PAGE_WIDTH - MARGIN_LEFT;
+                        break;
+                }
+
+                // Measure the height of one line of text
+                SKRect bounds = new SKRect();
+                paint.MeasureText(text, ref bounds);
+                float lineHeight = bounds.Height * lineHeightFactor;
+
+                int lines = 1;
+                StringBuilder line = new StringBuilder();
+                var words = text.Split(new char[] { ' ' });
+
+                for (int i=0; i < words.Length; i++)
+                {
+                StartLine:
+                    var word = words[i];
+
+                    float totalLineWidth = line.Length > 0 ?
+                        paint.MeasureText(line.ToString()) + paint.MeasureText(" ") + paint.MeasureText(word) :
+                        paint.MeasureText(word);
+
+                    if (totalLineWidth >= blockWidth)
+                    {
+                        canvas.DrawText(line.ToString(), xPos, y, paint);
+                        line.Clear();
+                        lines++;
+                        y += lineHeight;
+                        goto StartLine;
+                    }
+                    else
+                    {
+                        if (line.Length != 0) line.Append(" ");
+                        line.Append(word);
+
+                        if (i == words.Length - 1) // Last word
+                        {
+                            canvas.DrawText(line.ToString(), xPos, y, paint);
+                            line.Clear();
+                            lines++;
+                            y += lineHeight;
+                        }
+                    }
+                }                
+
+                return lines * lineHeight;
             }
-
-            float textBoxWidth = ev.PageBounds.Width - (MARGIN_LEFT * 2);
-
-            // Measure text
-            var size = ev.Graphics.MeasureString(
-                text,
-                font,
-                new SizeF(textBoxWidth, 500),
-                format);
-
-            // Draw text
-            ev.Graphics.DrawString(
-                text,
-                font,
-                brush,
-                new RectangleF(MARGIN_LEFT, y, textBoxWidth, size.Height),
-                format);
-
-            return size.Height;
         }
     }
 }
