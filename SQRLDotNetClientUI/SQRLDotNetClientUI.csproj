@@ -69,6 +69,8 @@
     <AvaloniaResource Remove="Views\SelectIdentityDialogView.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Assets\Fonts\Inconsolata-Bold.ttf" />
+    <None Remove="Assets\Fonts\Inconsolata-Regular.ttf" />
     <None Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
     <None Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
     <None Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
@@ -109,6 +111,8 @@
     <None Remove="Views\SelectIdentityDialogView.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets\Fonts\Inconsolata-Bold.ttf" />
+    <EmbeddedResource Include="Assets\Fonts\Inconsolata-Regular.ttf" />
     <EmbeddedResource Include="Assets\Fonts\SpaceMono-Bold.ttf" />
     <EmbeddedResource Include="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
     <EmbeddedResource Include="Assets\Fonts\SpaceMono-Italic.ttf" />
@@ -157,6 +161,7 @@
     <PackageReference Include="Serilog" Version="2.9.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+    <PackageReference Include="SkiaSharp" Version="1.68.1.1" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.IO.Pipes.AccessControl" Version="4.5.1" />
     <PackageReference Include="X11" Version="1.0.6" />
