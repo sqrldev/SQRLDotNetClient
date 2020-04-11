@@ -208,6 +208,10 @@ namespace SQRLDotNetClientUI.Models
                 paint.MeasureText(text, ref bounds);
                 float lineHeight = bounds.Height * lineHeightFactor;
 
+                // Now loop through all the tokens and build the 
+                // text block, adding new lines when we're either
+                // out of space or when a newline if forced in the 
+                // token list.
                 int lines = 1;
                 StringBuilder line = new StringBuilder();
                 var tokens = Tokenize(text);
@@ -248,6 +252,7 @@ namespace SQRLDotNetClientUI.Models
                     }
                 }                
 
+                // Return the total height of the text block
                 return lines * lineHeight;
             }
         }
