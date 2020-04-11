@@ -210,31 +210,35 @@ namespace SQRLDotNetClientUI.Models
 
                 int lines = 1;
                 StringBuilder line = new StringBuilder();
-                var words = text.Split(new char[] { ' ' });
+                var tokens = Tokenize(text);
 
-                for (int i=0; i < words.Length; i++)
+                for (int i=0; i < tokens.Count; i++)
                 {
-                StartLine:
-                    var word = words[i];
+                    StartLine:
+                    var token = tokens[i];
+                    float totalLineWidth = 0;
+                    
+                    if (token != null)
+                    {
+                        totalLineWidth = line.Length > 0 ?
+                        paint.MeasureText(line + " " + token) :
+                        paint.MeasureText(token);
+                    }
 
-                    float totalLineWidth = line.Length > 0 ?
-                        paint.MeasureText(line.ToString()) + paint.MeasureText(" ") + paint.MeasureText(word) :
-                        paint.MeasureText(word);
-
-                    if (totalLineWidth >= blockWidth)
+                    if (totalLineWidth >= blockWidth || token == null)
                     {
                         canvas.DrawText(line.ToString(), xPos, y, paint);
                         line.Clear();
                         lines++;
                         y += lineHeight;
-                        goto StartLine;
+                        if (token != null) goto StartLine;
                     }
                     else
                     {
                         if (line.Length != 0) line.Append(" ");
-                        line.Append(word);
+                        line.Append(token);
 
-                        if (i == words.Length - 1) // Last word
+                        if (i == tokens.Count - 1) // Last word
                         {
                             canvas.DrawText(line.ToString(), xPos, y, paint);
                             line.Clear();
@@ -246,6 +250,55 @@ namespace SQRLDotNetClientUI.Models
 
                 return lines * lineHeight;
             }
+        }
+
+        /// <summary>
+        /// Splits up text into tokens (mostly words) and adds null entries
+        /// to signal line breaks.
+        /// </summary>
+        /// <param name="text">The text to be tokenized.</param>
+        /// <returns>Returns a list of tokens, with null values representing line breaks.</returns>
+        private static List<string> Tokenize(string text)
+        {
+            char[] separators = new char[] { ' ', '\r', '\n' };
+            List<string> result = new List<string>();
+            StringBuilder word = new StringBuilder();
+
+            for (int i=0; i<text.Length; i++)
+            {
+                char c = text[i];
+
+                if (separators.Contains(c))
+                {
+                    result.Add(word.ToString());
+                    word.Clear();
+
+                    if (c == '\r' || c == '\n')
+                    {
+                        // Add null to indicate a line break
+                        result.Add(null);
+
+                        // If the \r is followed by \n, then skip the \n
+                        if (c == '\r' && i != text.Length-1)
+                        {
+                            if (text[i + 1] == '\n') i += 1;
+                        }
+                    }
+                }
+                else
+                {
+                    word.Append(c);
+
+                    // If we're at the last character, we need to add
+                    // what we've got to the result as well.
+                    if (i == text.Length - 1)
+                    {
+                        result.Add(word.ToString());
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }
