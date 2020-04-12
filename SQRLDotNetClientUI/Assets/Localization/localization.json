@@ -55,7 +55,7 @@
     { "LoadedIdentityLabel": "Loaded Identity:" },
     { "BtnNewIdentity": "New Identity" },
     { "BtnNewIdentity": "New Identity" },
-    { "BtnImportIdentity": "Impot Identity" },
+    { "BtnImportIdentity": "Import Identity" },
     { "BtnExportIdentity": "Export Identity" },
     { "BtnSwitchIdentity": "Switch Identity" },
     { "BtnDeleteIdentity": "Delete Identity" },
@@ -136,8 +136,15 @@
     { "OptionsMenuHeader": "_Options" },
     { "LanguageMenuHeader": "_Language" },
     { "DefaultLanguageMenuItemHeader": "_Default" },
-    { "MissingInstaller": "The installer file is missing so we can't auto update, would you like to go to the downloads page to get the latest installer?'" }
-
+    { "MissingInstaller": "The installer file is missing so we can't auto update, would you like to go to the downloads page to get the latest installer?'" },
+    { "RescueCodeDocumentTitle": "This is your Identity‘s Rescue Code" },
+    { "RescueCodeDocumentDiscardWarning": "!! DO NOT DISCARD THIS PAGE !!" },
+    { "RescueCodeDocumentText": "This is the irreplaceable SQRL Rescue Code for the SQRL identity you are creating. This code cannot be recreated and must not be lost, misplaced or destroyed. It will allow you to recover from any disaster that might occur. If your identity‘s password is forgotten, or if your SQRL identity should become compromised, this Rescue Code allows you to recover from any situation.\r\n\r\n(Some situations may also require your SQRL identity. So be sure to also keep a backup of your identity.)\r\n\r\nThis printout should be stored in a safe and secure place where it cannot be found by others, but CAN be retrieved if you should ever need it. That need may never arise. But if it does, you‘ll be glad that you kept it safe and secure." },
+    { "PrintDocumentFooterMessage": "This page was created using {0} on {1}." },
+    { "IdentityDocumentQRCodeMessage": "This printed identity was encrypted with the password it had at the time, and also with its permanent Rescue Code. Since either the correct Password, or the identity's Rescue Code, will allow this identity to be used by anyone, neither of those should be stored with, or in any way available with, this printed identity:" },
+    { "IdentityDocumentTextualIdentityMessage": "As an additional recovery measure, a textual version of this identity is provided below. If a camera is not available to scan and import the QR code above, the text below may be entered for full identity recovery. However, this is a Rescue Code ONLY version, so this identity's Rescue Code will be required for its decryption:" },
+    { "IdentityDocumentGuidanceMessage": "Please retain and protect this printed version of your identity. With SQRL's “two-party” operation, no one can compromise your SQRL logon security. But this also means that there is no one to turn to if your identity is somehow lost or misplaced. Please treat this identity with the care it deserves. It is your secure and private key to the Internet." },
+    { "BtnSaveAsPdf": "Save as PDF" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -275,7 +282,15 @@
     { "OptionsMenuHeader": "_Options" },
     { "LanguageMenuHeader": "_Language" },
     { "DefaultLanguageMenuItemHeader": "_Default" },
-    { "MissingInstaller": "The installer file is missing so we can't auto update, would you like to go to the downloads page to get the latest installer?'" }
+    { "MissingInstaller": "The installer file is missing so we can't auto update, would you like to go to the downloads page to get the latest installer?'" },
+    { "RescueCodeDocumentTitle": "This is your Identity‘s Rescue Code" },
+    { "RescueCodeDocumentDiscardWarning": "!! DO NOT DISCARD THIS PAGE !!" },
+    { "RescueCodeDocumentText": "This is the irreplaceable SQRL Rescue Code for the SQRL identity you are creating. This code cannot be recreated and must not be lost, misplaced or destroyed. It will allow you to recover from any disaster that might occur. If your identity‘s password is forgotten, or if your SQRL identity should become compromised, this Rescue Code allows you to recover from any situation.\r\n\r\n(Some situations may also require your SQRL identity. So be sure to also keep a backup of your identity.)\r\n\r\nThis printout should be stored in a safe and secure place where it cannot be found by others, but CAN be retrieved if you should ever need it. That need may never arise. But if it does, you‘ll be glad that you kept it safe and secure." },
+    { "PrintDocumentFooterMessage": "This page was created using {0} on {1}." },
+    { "IdentityDocumentQRCodeMessage": "This printed identity was encrypted with the password it had at the time, and also with its permanent Rescue Code. Since either the correct Password, or the identity's Rescue Code, will allow this identity to be used by anyone, neither of those should be stored with, or in any way available with, this printed identity:" },
+    { "IdentityDocumentTextualIdentityMessage": "As an additional recovery measure, a textual version of this identity is provided below. If a camera is not available to scan and import the QR code above, the text below may be entered for full identity recovery. However, this is a Rescue Code ONLY version, so this identity's Rescue Code will be required for its decryption:" },
+    { "IdentityDocumentGuidanceMessage": "Please retain and protect this printed version of your identity. With SQRL's “two-party” operation, no one can compromise your SQRL logon security. But this also means that there is no one to turn to if your identity is somehow lost or misplaced. Please treat this identity with the care it deserves. It is your secure and private key to the Internet." },
+    { "BtnSaveAsPdf": "Save as PDF" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -413,6 +428,14 @@
     { "OptionsMenuHeader": "_Optionen" },
     { "LanguageMenuHeader": "_Sprache" },
     { "DefaultLanguageMenuItemHeader": "_Standard" },
-    { "MissingInstaller": "The installer file is missing so we can't auto update, would you like to go to the downloads page to get the latest installer?'" }
+    { "MissingInstaller": "The installer file is missing so we can't auto update, would you like to go to the downloads page to get the latest installer?'" },
+    { "RescueCodeDocumentTitle": "This is your Identity‘s Rescue Code" },
+    { "RescueCodeDocumentDiscardWarning": "!! DO NOT DISCARD THIS PAGE !!" },
+    { "RescueCodeDocumentText": "This is the irreplaceable SQRL Rescue Code for the SQRL identity you are creating. This code cannot be recreated and must not be lost, misplaced or destroyed. It will allow you to recover from any disaster that might occur. If your identity‘s password is forgotten, or if your SQRL identity should become compromised, this Rescue Code allows you to recover from any situation.\r\n\r\n(Some situations may also require your SQRL identity. So be sure to also keep a backup of your identity.)\r\n\r\nThis printout should be stored in a safe and secure place where it cannot be found by others, but CAN be retrieved if you should ever need it. That need may never arise. But if it does, you‘ll be glad that you kept it safe and secure." },
+    { "PrintDocumentFooterMessage": "Dieses Dokument wurde erzeugt von {0} am {1}." },
+    { "IdentityDocumentQRCodeMessage": "This printed identity was encrypted with the password it had at the time, and also with its permanent Rescue Code. Since either the correct Password, or the identity's Rescue Code, will allow this identity to be used by anyone, neither of those should be stored with, or in any way available with, this printed identity:" },
+    { "IdentityDocumentTextualIdentityMessage": "As an additional recovery measure, a textual version of this identity is provided below. If a camera is not available to scan and import the QR code above, the text below may be entered for full identity recovery. However, this is a Rescue Code ONLY version, so this identity's Rescue Code will be required for its decryption:" },
+    { "IdentityDocumentGuidanceMessage": "Please retain and protect this printed version of your identity. With SQRL's “two-party” operation, no one can compromise your SQRL logon security. But this also means that there is no one to turn to if your identity is somehow lost or misplaced. Please treat this identity with the care it deserves. It is your secure and private key to the Internet." },
+    { "BtnSaveAsPdf": "Als PDF speichern" }
   ]
 }

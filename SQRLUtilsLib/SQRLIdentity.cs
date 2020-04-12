@@ -93,13 +93,24 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Returns the raw byte representation of the entire identity,
+        /// Returns the raw byte representation of the identity, optionally
         /// including the plaintext "sqrldata" SQRL header.
         /// </summary>
-        public byte[] ToByteArray()
+        /// <param name="includeHeader">If set to true, the resulting byte array will include the 
+        /// plaintext "sqrldata" header</param>
+        /// <param name="minimumSize">If set to true, only block 2 (and block 3 if available)
+        /// will be included in the resulting byte array. Please note that decrypting the resulting
+        /// identity will require the secret rescue code.</param>
+        public byte[] ToByteArray(bool includeHeader = true, bool minimumSize = false)
         {
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(SQRLHEADER);
-            foreach(var block in Blocks) data = data.Concat(block.ToByteArray()).ToArray();
+            byte[] data = includeHeader ? 
+                Encoding.UTF8.GetBytes(SQRLHEADER) : new byte[] { };
+
+            foreach (var block in Blocks)
+            {
+                if (minimumSize && block.Type != 2 && block.Type != 3) continue;
+                data = data.Concat(block.ToByteArray()).ToArray();
+            }
             return data;
         }
 

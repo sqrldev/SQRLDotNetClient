@@ -4,29 +4,28 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
              xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="SQRLDotNetClientUI.Views.ExportIdentityView">
-  <Design.DataContext>
-    <vm:ExportIdentityViewModel/>
-  </Design.DataContext>
-  <Grid ShowGridLines="False">
-  <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="100"/>
-    <ColumnDefinition Width="300"/>
-  </Grid.ColumnDefinitions>
-  <Grid.RowDefinitions>
-    <RowDefinition />
-    <RowDefinition Height="200" />
-    <RowDefinition />
-    <RowDefinition />
- 
-  </Grid.RowDefinitions>
-    <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
-    <TextBlock Margin="10" Text="{loc:Localization ExportIdentityMessage}" FontSize="15" TextWrapping="Wrap" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"/>
-    <Image Source="{Binding QRImage}" Stretch="Uniform" Width="200" Height="200" Grid.Row="1" Grid.ColumnSpan="2"/>
-    <Button Content="{loc:Localization BtnSaveToFile}" Command="{Binding SaveToFile}" Grid.Row="2" Grid.ColumnSpan="2" Width="120" Grid.Column="0" HorizontalAlignment="Left" Margin="10" />
-    <Button Content="{loc:Localization BtnCopyToClipboard}" Command="{Binding CopyToClipboard}" Grid.Row="2" Grid.ColumnSpan="2" Width="120" Grid.Column="0" HorizontalAlignment="Right" Margin="10" />
-    <Button Content="{loc:Localization BtnBack}" Command="{Binding Back}" Grid.Row="3" Grid.ColumnSpan="2" Width="120" Grid.Column="0" HorizontalAlignment="Left" Margin="10" />
-    <Button Content="{loc:Localization BtnDone}" Command="{Binding Done}" Grid.Row="3" Grid.ColumnSpan="2" Width="120" Grid.Column="0" HorizontalAlignment="Right" Margin="10" />
-  </Grid>
+
+  <DockPanel LastChildFill="False" Margin="20,10,20,20">
+    
+    <StackPanel DockPanel.Dock="Top">
+      <TextBlock Text="{loc:Localization ExportIdentityMessage}" Margin="0,0,0,5" FontSize="12" TextWrapping="Wrap" />
+      <Image Source="{Binding QRImage}" Stretch="Uniform" Margin="0,0,0,5" Width="200" Height="200" HorizontalAlignment="Center"/>
+      <Button Content="{loc:Localization BtnSaveToFile}" Margin="0,0,0,10" Command="{Binding SaveToFile}" Width="220" HorizontalAlignment="Center" />
+      <Button Content="{loc:Localization BtnCopyToClipboard}" Margin="0,0,0,10" Command="{Binding CopyToClipboard}" Width="220" HorizontalAlignment="Center" />
+      <Button Content="{loc:Localization BtnSaveAsPdf}" Margin="0,0,0,10" Command="{Binding SaveAsPdf}" Width="220" HorizontalAlignment="Center" />
+    </StackPanel>
+
+    <StackPanel DockPanel.Dock="Bottom">
+      
+      <DockPanel>
+        <Button Content="{loc:Localization BtnBack}" Command="{Binding Back}" DockPanel.Dock="Left" Width="120" HorizontalAlignment="Left" />
+        <Button Content="{loc:Localization BtnDone}" Command="{Binding Done}" DockPanel.Dock="Right" Width="120" HorizontalAlignment="Right" />
+      </DockPanel>
+
+    </StackPanel>
+    
+  </DockPanel>
+  
 </UserControl>

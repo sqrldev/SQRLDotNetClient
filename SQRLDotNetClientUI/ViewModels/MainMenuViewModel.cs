@@ -148,8 +148,6 @@ namespace SQRLDotNetClientUI.ViewModels
                 new NewIdentityViewModel();
         }
 
-     
-
         public void ExportIdentity()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
@@ -203,8 +201,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void DeleteIdentity()
         {
-
-            var result = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
+            var result = await new MessageBoxViewModel(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
                 string.Format(_loc.GetLocalizationValue("DeleteIdentityMessageBoxText"), this.IdentityName, Environment.NewLine),
                 MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
                 .ShowDialog(this);
