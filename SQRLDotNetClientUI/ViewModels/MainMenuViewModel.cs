@@ -148,8 +148,6 @@ namespace SQRLDotNetClientUI.ViewModels
                 new NewIdentityViewModel();
         }
 
-     
-
         public void ExportIdentity()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
@@ -203,32 +201,15 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void DeleteIdentity()
         {
-            string fileName = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                @"IdentityTest.pdf");
+            var result = await new MessageBoxViewModel(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
+                string.Format(_loc.GetLocalizationValue("DeleteIdentityMessageBoxText"), this.IdentityName, Environment.NewLine),
+                MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+                .ShowDialog(this);
 
-            try
+            if (result == MessagBoxDialogResult.YES)
             {
-                //PdfHelper.CreateRescueCodeDocument(fileName, "1234-5678-9012-3456-7890", "AlexDev1");
-                PdfHelper.CreateIdentityDocument(fileName, _identityManager.CurrentIdentity);
-                ProcessStartInfo psi = new ProcessStartInfo
-                {
-                    FileName = fileName,
-                    UseShellExecute = true
-                };
-                Process.Start(psi);
+                _identityManager.DeleteCurrentIdentity();
             }
-            catch (Exception) { }
-
-            //var result = await new Views.MessageBox(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
-            //    string.Format(_loc.GetLocalizationValue("DeleteIdentityMessageBoxText"), this.IdentityName, Environment.NewLine),
-            //    MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
-            //    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
-
-            //if (result == MessagBoxDialogResult.YES)
-            //{
-            //    _identityManager.DeleteCurrentIdentity();
-            //}
         }
 
         public void Login()
