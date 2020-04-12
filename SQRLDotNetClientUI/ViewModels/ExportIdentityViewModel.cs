@@ -3,9 +3,12 @@ using Avalonia.Controls;
 using Avalonia.Platform;
 using QRCoder;
 using ReactiveUI;
+using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SQRLDotNetClientUI.ViewModels
@@ -66,6 +69,40 @@ namespace SQRLDotNetClientUI.ViewModels
                 _loc.GetLocalizationValue("IdentityCopiedToClipboardMessageBoxText"),
                 MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.OK)
                 .ShowDialog(this);
+        }
+
+        public async void SaveAsPdf()
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            FileDialogFilter fdf = new FileDialogFilter
+            {
+                Name = "PDF files (.pdf)",
+                Extensions = new List<string> { "pdf" }
+            };
+
+            sfd.Title = _loc.GetLocalizationValue("SaveIdentityDialogTitle");
+            sfd.InitialFileName = $"{(string.IsNullOrEmpty(this.Identity.IdentityName) ? "Identity" : this.Identity.IdentityName)}.pdf";
+            sfd.Filters.Add(fdf);
+            var file = await sfd.ShowAsync(_mainWindow);
+
+            if (string.IsNullOrEmpty(file)) return;
+
+            try
+            {
+                PdfHelper.CreateIdentityDocument(file, this.Identity); 
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = file,
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex) 
+            {
+                await new MessageBox(_loc.GetLocalizationValue("ErrorTitleGeneric"), ex.Message,
+                    MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.OK)
+                    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+            }
         }
 
         public void Back()
