@@ -203,19 +203,32 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void DeleteIdentity()
         {
-            PrintDocumentHelper.CreateRescueCodeDocument("1234-5678-9012-3456-7890", "AlexTestDev1");
+            string fileName = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                @"IdentityTest.pdf");
 
-            return;
-
-            var result = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
-                string.Format(_loc.GetLocalizationValue("DeleteIdentityMessageBoxText"), this.IdentityName, Environment.NewLine),
-                MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
-                .ShowDialog(this);
-
-            if (result == MessagBoxDialogResult.YES)
+            try
             {
-                _identityManager.DeleteCurrentIdentity();
+                //PdfHelper.CreateRescueCodeDocument(fileName, "1234-5678-9012-3456-7890", "AlexDev1");
+                PdfHelper.CreateIdentityDocument(fileName, _identityManager.CurrentIdentity);
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
             }
+            catch (Exception) { }
+
+            //var result = await new Views.MessageBox(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
+            //    string.Format(_loc.GetLocalizationValue("DeleteIdentityMessageBoxText"), this.IdentityName, Environment.NewLine),
+            //    MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+            //    .ShowDialog<MessagBoxDialogResult>(_mainWindow);
+
+            //if (result == MessagBoxDialogResult.YES)
+            //{
+            //    _identityManager.DeleteCurrentIdentity();
+            //}
         }
 
         public void Login()
