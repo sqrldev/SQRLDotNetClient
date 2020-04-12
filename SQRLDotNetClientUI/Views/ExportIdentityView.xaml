@@ -4,11 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
              xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="400"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="SQRLDotNetClientUI.Views.ExportIdentityView">
-  <Design.DataContext>
-    <vm:ExportIdentityViewModel/>
-  </Design.DataContext>
+  
   <Grid ShowGridLines="False">
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="100"/>

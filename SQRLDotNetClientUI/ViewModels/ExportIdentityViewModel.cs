@@ -23,12 +23,13 @@ namespace SQRLDotNetClientUI.ViewModels
             this.Title = _loc.GetLocalizationValue("ExportIdentityWindowTitle");
             this.Identity = _identityManager.CurrentIdentity;
 
+            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, minimumSize: true);
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(this.Identity.ToByteArray(), QRCodeGenerator.ECCLevel.H);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(textualIdentityBytes, QRCodeGenerator.ECCLevel.H);
             QRCode qrCode = new QRCode(qrCodeData);
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
             var bpm = new System.Drawing.Bitmap(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_32.png")));
-            var bitMap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, bpm,15,1);
+            var bitMap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, bpm, 15, 1);
             
             var temp = System.IO.Path.GetTempFileName();
             bitMap.Save(temp);
@@ -47,7 +48,7 @@ namespace SQRLDotNetClientUI.ViewModels
             {
                 this.Identity.WriteToFile(file);
                 
-                await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
+                await new MessageBox(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
                     string.Format(_loc.GetLocalizationValue("IdentityExportedMessageBoxText"), file),
                     MessageBoxSize.Small, MessageBoxButtons.OK,MessageBoxIcons.OK)
                     .ShowDialog(this);
@@ -56,13 +57,12 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public async void CopyToClipboard()
         {
-            var textualIdentityBytes = this.Identity.Block2.ToByteArray();
-            if (this.Identity.HasBlock(3)) textualIdentityBytes = textualIdentityBytes.Concat(this.Identity.Block3.ToByteArray()).ToArray();
+            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, minimumSize: true);
 
             string identity = SQRL.GenerateTextualIdentityBase56(textualIdentityBytes);
             await Application.Current.Clipboard.SetTextAsync(identity);
             
-            await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
+            await new MessageBox(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
                 _loc.GetLocalizationValue("IdentityCopiedToClipboardMessageBoxText"),
                 MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.OK)
                 .ShowDialog(this);
