@@ -55,7 +55,7 @@
     { "LoadedIdentityLabel": "Loaded Identity:" },
     { "BtnNewIdentity": "New Identity" },
     { "BtnNewIdentity": "New Identity" },
-    { "BtnImportIdentity": "Impot Identity" },
+    { "BtnImportIdentity": "Import Identity" },
     { "BtnExportIdentity": "Export Identity" },
     { "BtnSwitchIdentity": "Switch Identity" },
     { "BtnDeleteIdentity": "Delete Identity" },
