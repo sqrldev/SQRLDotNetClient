@@ -31,9 +31,12 @@ namespace SQRLDotNetClientUI.Models
         private static LocalizationExtension _loc = new LocalizationExtension();
 
         private static readonly SKTypeface _fontRegular = SKTypeface.FromStream(
-            _assembly.GetManifestResourceStream(_assetsPath + "Fonts.Inconsolata-Regular.ttf"));
+            _assembly.GetManifestResourceStream(_assetsPath + "Fonts.UbuntuMono-Regular.ttf"));
         private static readonly SKTypeface _fontBold = SKTypeface.FromStream(
-            _assembly.GetManifestResourceStream(_assetsPath + "Fonts.Inconsolata-Bold.ttf"));
+            _assembly.GetManifestResourceStream(_assetsPath + "Fonts.UbuntuMono-Bold.ttf"));
+
+        //private static readonly SKTypeface _fontRegular = SKTypeface.FromFamilyName("Arial");
+        //private static readonly SKTypeface _fontBold = SKTypeface.FromFamilyName("Arial");
 
         private static string _rescueCode = "";
         private static string _identityName = "";
@@ -222,7 +225,7 @@ namespace SQRLDotNetClientUI.Models
                     var token = tokens[i];
                     float totalLineWidth = 0;
                     
-                    if (token != null)
+                    if (token != null && token != "")
                     {
                         totalLineWidth = line.Length > 0 ?
                         paint.MeasureText(line + " " + token) :
