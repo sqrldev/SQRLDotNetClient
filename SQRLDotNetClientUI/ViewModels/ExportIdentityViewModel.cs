@@ -9,17 +9,26 @@ using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
+    /// <summary>
+    /// A view model which handles various different ways of exporting 
+    /// the currently active SQRL identity.
+    /// </summary>
     public class ExportIdentityViewModel: ViewModelBase
     {
+        /// <summary>
+        /// The currently active identity.
+        /// </summary>
         public SQRLIdentity Identity { get; }
 
         private Avalonia.Media.Imaging.Bitmap _qrImg;
-        Avalonia.Media.Imaging.Bitmap QRImage { get { return _qrImg; } set { this.RaiseAndSetIfChanged(ref _qrImg, value); } }
+        private Avalonia.Media.Imaging.Bitmap QRImage { get { return _qrImg; } set { this.RaiseAndSetIfChanged(ref _qrImg, value); } }
 
+        /// <summary>
+        /// Creates a new instance and initializes.
+        /// </summary>
         public ExportIdentityViewModel()
         {
             this.QRImage = null;
@@ -31,15 +40,18 @@ namespace SQRLDotNetClientUI.ViewModels
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(textualIdentityBytes, QRCodeGenerator.ECCLevel.H);
             QRCode qrCode = new QRCode(qrCodeData);
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            var bpm = new System.Drawing.Bitmap(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_32.png")));
-            var bitMap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, bpm, 15, 1);
+            var logo = new System.Drawing.Bitmap(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_32.png")));
+            var qrCodeBitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, logo, 15, 1);
             
             var temp = System.IO.Path.GetTempFileName();
-            bitMap.Save(temp);
+            qrCodeBitmap.Save(temp);
             
             this.QRImage = new Avalonia.Media.Imaging.Bitmap(temp);
         }
 
+        /// <summary>
+        /// Saves the current identity as a file in the S4 storage format.
+        /// </summary>
         public async void SaveToFile()
         {
             SaveFileDialog ofd = new SaveFileDialog();
@@ -58,6 +70,9 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
+        /// <summary>
+        /// Copies the textual version of the current identity to the clipboard.
+        /// </summary>
         public async void CopyToClipboard()
         {
             var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, minimumSize: true);
@@ -71,6 +86,9 @@ namespace SQRLDotNetClientUI.ViewModels
                 .ShowDialog(this);
         }
 
+        /// <summary>
+        /// Saves the current identity as a PDF file.
+        /// </summary>
         public async void SaveAsPdf()
         {
             SaveFileDialog sfd = new SaveFileDialog();
@@ -105,12 +123,18 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
+        /// <summary>
+        /// Navigates back to the previous screen.
+        /// </summary>
         public void Back()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
                 ((MainWindowViewModel)_mainWindow.DataContext).PriorContent;
         }
 
+        /// <summary>
+        /// Displays the main screen.
+        /// </summary>
         public void Done()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
