@@ -9,6 +9,7 @@ using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -43,10 +44,12 @@ namespace SQRLDotNetClientUI.ViewModels
             var logo = new System.Drawing.Bitmap(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_32.png")));
             var qrCodeBitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, logo, 15, 1);
             
-            var temp = System.IO.Path.GetTempFileName();
-            qrCodeBitmap.Save(temp);
-            
-            this.QRImage = new Avalonia.Media.Imaging.Bitmap(temp);
+            using (var stream = new MemoryStream())
+            {
+                qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                stream.Seek(0, SeekOrigin.Begin);
+                this.QRImage = new Avalonia.Media.Imaging.Bitmap(stream);
+            }
         }
 
         /// <summary>
