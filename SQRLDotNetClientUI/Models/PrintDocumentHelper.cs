@@ -30,13 +30,14 @@ namespace SQRLDotNetClientUI.Models
         private static string _assetsPath = $"{_assemblyName}.Assets.";
         private static LocalizationExtension _loc = new LocalizationExtension();
 
-        private static readonly SKTypeface _fontRegular = SKTypeface.FromStream(
+        /* private static readonly SKTypeface _fontRegular = SKTypeface.FromStream(
             _assembly.GetManifestResourceStream(_assetsPath + "Fonts.UbuntuMono-Regular.ttf"));
         private static readonly SKTypeface _fontBold = SKTypeface.FromStream(
-            _assembly.GetManifestResourceStream(_assetsPath + "Fonts.UbuntuMono-Bold.ttf"));
+            _assembly.GetManifestResourceStream(_assetsPath + "Fonts.UbuntuMono-Bold.ttf")); */
 
-        //private static readonly SKTypeface _fontRegular = SKTypeface.FromFamilyName("Arial");
-        //private static readonly SKTypeface _fontBold = SKTypeface.FromFamilyName("Arial");
+        private static readonly SKTypeface _fontRegular = SKTypeface.FromFamilyName("Arial");
+        private static readonly SKTypeface _fontBold = SKTypeface.FromFamilyName("Arial",
+            SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
 
         private static string _rescueCode = "";
         private static string _identityName = "";
@@ -106,10 +107,10 @@ namespace SQRLDotNetClientUI.Models
                 yPos += 10 + DrawTextBlock(canvas, title, yPos, _fontBold, 25, SKColors.Black);
                 yPos += 20 + DrawTextBlock(canvas, warning, yPos, _fontBold, 20, SKColors.Red);
                 yPos += 30 + DrawTextBlock(canvas, text, yPos, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
-                yPos += 10 + DrawTextBlock(canvas, identityLabel, yPos, _fontRegular, 12, SKColors.DarkGray);
-                yPos += 20 + DrawTextBlock(canvas, _identityName, yPos, _fontBold, 16, SKColors.Black);
-                yPos += 10 + DrawTextBlock(canvas, rescueCodeLabel, yPos, _fontRegular, 12, SKColors.DarkGray);
-                yPos += 00 + DrawTextBlock(canvas, _rescueCode, yPos, _fontBold, 24, SKColors.Black);
+                yPos += 05 + DrawTextBlock(canvas, identityLabel, yPos, _fontRegular, 12, SKColors.DarkGray);
+                yPos += 15 + DrawTextBlock(canvas, _identityName, yPos, _fontBold, 16, SKColors.Black);
+                yPos += 05 + DrawTextBlock(canvas, rescueCodeLabel, yPos, _fontRegular, 12, SKColors.DarkGray);
+                yPos += 15 + DrawTextBlock(canvas, _rescueCode, yPos, _fontBold, 24, SKColors.Black);
                 DrawFooter(canvas);
 
                 doc.EndPage();
