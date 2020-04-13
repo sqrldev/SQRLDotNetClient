@@ -7,10 +7,6 @@
              xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
              x:Class="SQRLPlatformAwareInstaller.Views.VersionSelectorView">
   
-  <Design.DataContext>
-    <vm:VersionSelectorViewModel/>
-  </Design.DataContext>
-
   <DockPanel LastChildFill="False" Margin="20">
     
     <Grid DockPanel.Dock="Top">
@@ -33,22 +29,22 @@
       <Image VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Source="resm:SQRLPlatformAwareInstaller.Assets.SQRL_icon_normal_32.png" 
              Stretch="None" HorizontalAlignment="Left"/>
     
-      <TextBlock VerticalAlignment="Center" Grid.Row="1" Margin="0,10" Grid.Column="0" FontWeight="Bold">Select Version to Install:</TextBlock>
+      <TextBlock Text="{loc:Localization SelectInstallVersionLabel}" VerticalAlignment="Center" Grid.Row="1" Margin="0,10" Grid.Column="0" FontWeight="Bold" />
       <DropDown Width="300" HorizontalAlignment="Left" Margin="10" Grid.Row="1" Grid.Column="1" Items="{Binding Releases}" SelectedItem="{Binding SelectedRelease}"/>
       
-      <TextBlock Grid.Row="2" Margin="0,10" Grid.Column="0" FontWeight="Bold" TextWrapping="Wrap">Description:</TextBlock>
+      <TextBlock Text="{loc:Localization DescriptionLabel}" Grid.Row="2" Margin="0,10" Grid.Column="0" FontWeight="Bold" TextWrapping="Wrap" />
       <TextBox Grid.Row="2" HorizontalAlignment="Left" MaxWidth="400" Text="{Binding SelectedRelease.body}" Margin="10" Grid.Column="1" MaxHeight="80" AcceptsReturn="True" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
-      <TextBlock Grid.Row="3" Margin="0,10" Grid.Column="0" FontWeight="Bold">Production Ready:</TextBlock>
+      <TextBlock Text="{loc:Localization ProductionReadyLabel}" Grid.Row="3" Margin="0,10" Grid.Column="0" FontWeight="Bold" />
       <TextBlock Grid.Row="3" Margin="10" Grid.Column="1" Text="{Binding !SelectedRelease.prerelease}" TextWrapping="Wrap"/>
-      <TextBlock Grid.Row="4" Margin="0,10" Grid.Column="0" FontWeight="Bold">Released Date:</TextBlock>
-      <TextBlock Grid.Row="4" Margin="10" Grid.Column="1"  Text="{Binding SelectedRelease.published_at}" TextWrapping="Wrap"/>
-      <TextBlock Grid.Row="5" Margin="0,10" Grid.Column="0" FontWeight="Bold">Size:</TextBlock>
+      <TextBlock Text="{loc:Localization ReleaseDateLabel}" Grid.Row="4" Margin="0,10" Grid.Column="0" FontWeight="Bold"/>
+      <TextBlock Grid.Row="4" Margin="10" Grid.Column="1" Text="{Binding SelectedRelease.published_at}" TextWrapping="Wrap"/>
+      <TextBlock Text="{loc:Localization SizeLabel}" Grid.Row="5" Margin="0,10" Grid.Column="0" FontWeight="Bold"/>
       <StackPanel Margin="10" Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
         <TextBlock Text="{Binding DownloadSize}" TextWrapping="Wrap"/>
         <TextBlock TextWrapping="Wrap" Margin="3,0,0,0">MB</TextBlock>
       </StackPanel>
     
-      <Button Margin="0,10" Grid.Row="6" Grid.Column="0" Command="{Binding FolderPicker}">Install Path...</Button>
+      <Button Content="{loc:Localization BtnInstallPath}" Margin="0,10" Grid.Row="6" Grid.Column="0" Command="{Binding FolderPicker}" />
       <TextBox Margin="10" Width="400" MaxWidth="400" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="1" Text="{Binding InstallationPath}" IsReadOnly="True"/>
       <StackPanel Margin="0,10" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
         <TextBlock Text="{Binding InstallStatus}" FontWeight="Bold" />
@@ -58,8 +54,8 @@
     </Grid>
 
     <DockPanel DockPanel.Dock="Bottom">
-      <Button DockPanel.Dock="Left" Height="25" Width="100" HorizontalAlignment="Left" Command="{Binding Cancel}">Cancel</Button>
-      <Button DockPanel.Dock="Right" Height="25" Width="100" HorizontalAlignment="Right" Command="{Binding DownloadInstall}">Next</Button>
+      <Button Content="{loc:Localization BtnBack}" Command="{Binding Back}" DockPanel.Dock="Left" Height="25" Width="100" HorizontalAlignment="Left" />
+      <Button Content="{loc:Localization BtnInstall}" Command="{Binding DownloadInstall}" DockPanel.Dock="Right" Height="25" Width="100" HorizontalAlignment="Right" />
     </DockPanel>
     
   </DockPanel>

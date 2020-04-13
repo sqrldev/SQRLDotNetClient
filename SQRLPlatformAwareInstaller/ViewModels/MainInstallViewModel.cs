@@ -49,6 +49,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// </summary>
         public MainInstallViewModel()
         {
+            Log.Information("Installer main screen launched");
+
             this.Title = _loc.GetLocalizationValue("TitleMainInstall");
             DetectPlatform();
             Log.Information($"Deltected Platform: {Platform}");
@@ -75,7 +77,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         public void Next()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                new VersionSelectorViewModel(this.Platform);
+                new VersionSelectorViewModel();
         }
 
         /// <summary>
