@@ -35,7 +35,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// </summary>
         public MainWindowViewModel()
         {
-            this.Content = new MainInstalViewModel();
+            this.Content = new MainInstallViewModel();
         }
     }
 }

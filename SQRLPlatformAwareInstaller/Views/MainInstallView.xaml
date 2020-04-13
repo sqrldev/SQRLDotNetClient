@@ -5,7 +5,7 @@
              xmlns:vm="clr-namespace:SQRLPlatformAwareInstaller.ViewModels;assembly=SQRLPlatformAwareInstaller"
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="525"
              xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
-             x:Class="SQRLPlatformAwareInstaller.Views.MainInstalView">
+             x:Class="SQRLPlatformAwareInstaller.Views.MainInstallView">
    
   <Grid Width="580">
     <Grid.ColumnDefinitions>

@@ -11,10 +11,10 @@ using Serilog;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
-    public class MainInstalViewModel: ViewModelBase
+    public class MainInstallViewModel: ViewModelBase
     {
         public string Greeting { get; set; }
-        public MainInstalViewModel()
+        public MainInstallViewModel()
         {
             Log.Information("Installer Launched");
             this.Title = "SQRL Client Installer - Platform Selector";
