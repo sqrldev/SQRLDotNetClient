@@ -440,18 +440,28 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// </summary>
         public async void FolderPicker()
         {
-            OpenFolderDialog ofd = new OpenFolderDialog
+            try
             {
-                Directory = Path.GetDirectoryName(this.InstallationPath),
-                Title = _loc.GetLocalizationValue("TitleChooseInstallFolderDialog")
-            };
-            var result = await ofd.ShowAsync(_mainWindow);
-            if (!string.IsNullOrEmpty(result))
+                OpenFolderDialog ofd = new OpenFolderDialog
+                {
+                    Directory = Path.GetDirectoryName(this.InstallationPath),
+                    Title = _loc.GetLocalizationValue("TitleChooseInstallFolderDialog")
+                };
+                var result = await ofd.ShowAsync(_mainWindow);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                        this.InstallationPath = Path.Combine(result);
+                    else
+                        this.InstallationPath = Path.Combine(result, "SQRL");
+                }
+            }
+            catch (Exception ex)
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                    this.InstallationPath = Path.Combine(result);
-                else
-                    this.InstallationPath = Path.Combine(result, "SQRL");
+                Log.Error("Error showing install folder selection dialog!");
+                Log.Error(ex.Message);
+                Log.Error(ex.StackTrace);
+                throw (ex);
             }
         }
 
