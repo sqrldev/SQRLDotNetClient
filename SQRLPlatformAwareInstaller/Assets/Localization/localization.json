@@ -7,11 +7,13 @@
       "TitleMainInstall": "SQRL Client Installer",
       "TitleVersionSelector": "SQRL Client Installer - Version Selection",
       "TitleChooseInstallFolderDialog": "Select installation folder",
+      "TitleInstallationCompleteDialog": "SQRL Client Installer - Installation Complete",
       "BtnNext": "Next",
       "BtnCancel": "Cancel",
       "BtnBack": "Back",
       "BtnInstall": "Install",
       "BtnInstallPath": "Install Path...",
+      "BtnFinish": "Finish",
       "InstallStatusInstalling": "Installing...",
       "InstallStatusDownloading": "Downloading...",
       "SchemaRegistrationWarning": "WARNING: Exising sqrl:// schema registration found, if you proceed, it will be overwritten!",
@@ -19,7 +21,9 @@
       "DescriptionLabel": "Description:",
       "ProductionReadyLabel": "Production-ready:",
       "ReleaseDateLabel": "Release date:",
-      "SizeLabel": "Size:"
+      "SizeLabel": "Size:",
+      "InstallSuccessMessage": "The SQRL client has been successfully installed!",
+      "LaunchClientCheckBox": "Launch SQRL client on finish"
     }
   ],
   "en-US": [
@@ -30,11 +34,13 @@
       "TitleMainInstall": "SQRL Client Installer",
       "TitleVersionSelector": "SQRL Client Installer - Version Selection",
       "TitleChooseInstallFolderDialog": "Select installation folder",
+      "TitleInstallationCompleteDialog": "SQRL Client Installer - Installation Complete",
       "BtnNext": "Next",
       "BtnCancel": "Cancel",
       "BtnBack": "Back",
       "BtnInstall": "Install",
       "BtnInstallPath": "Install Path...",
+      "BtnFinish": "Finish",
       "InstallStatusInstalling": "Installing...",
       "InstallStatusDownloading": "Downloading...",
       "SchemaRegistrationWarning": "WARNING: Exising sqrl:// schema registration found, if you proceed, it will be overwritten!",
@@ -42,7 +48,9 @@
       "DescriptionLabel": "Description:",
       "ProductionReadyLabel": "Production-ready:",
       "ReleaseDateLabel": "Release date:",
-      "SizeLabel": "Size:"
+      "SizeLabel": "Size:",
+      "InstallSuccessMessage": "The SQRL client has been successfully installed!",
+      "LaunchClientCheckBox": "Launch SQRL client on finish"
     }
   ],
   "de-DE": [
@@ -53,11 +61,13 @@
       "TitleMainInstall": "SQRL Client Installer",
       "TitleVersionSelector": "SQRL Client Installer - Versions-Auswahl",
       "TitleChooseInstallFolderDialog": "Installations-Ordner wählen",
+      "TitleInstallationCompleteDialog": "SQRL Client Installer - Installation beendet",
       "BtnNext": "Weiter",
       "BtnCancel": "Abbrechen",
       "BtnBack": "Zurück",
       "BtnInstall": "Installieren",
       "BtnInstallPath": "Install.-Pfad...",
+      "BtnFinish": "Fertig",
       "InstallStatusInstalling": "Installiere...",
       "InstallStatusDownloading": "Lade herunter...",
       "SchemaRegistrationWarning": "WARNUNG: Existierende sqrl:// Schema-Registrierung gefunden, diese wird überschrieben!",
@@ -65,7 +75,9 @@
       "DescriptionLabel": "Beschreibung:",
       "ProductionReadyLabel": "Produktiveinsatz:",
       "ReleaseDateLabel": "Release-Datum:",
-      "SizeLabel": "Größe:"
+      "SizeLabel": "Größe:",
+      "InstallSuccessMessage": "Der SQRL-Client wurde erfolgreich installiert!",
+      "LaunchClientCheckBox": "SQRL Client beim Fertigstellen starten"
     }
   ]
 }

@@ -33,7 +33,7 @@
       <DropDown Width="300" HorizontalAlignment="Left" Margin="10" Grid.Row="1" Grid.Column="1" Items="{Binding Releases}" SelectedItem="{Binding SelectedRelease}"/>
       
       <TextBlock Text="{loc:Localization DescriptionLabel}" Grid.Row="2" Margin="0,10" Grid.Column="0" FontWeight="Bold" TextWrapping="Wrap" />
-      <TextBox Grid.Row="2" HorizontalAlignment="Left" MaxWidth="400" Text="{Binding SelectedRelease.body}" Margin="10" Grid.Column="1" MaxHeight="80" AcceptsReturn="True" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
+      <TextBox Grid.Row="2" HorizontalAlignment="Left" Width="400" MaxWidth="400" Text="{Binding SelectedRelease.body}" Margin="10" Grid.Column="1" Height="80" MaxHeight="80" AcceptsReturn="True" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
       <TextBlock Text="{loc:Localization ProductionReadyLabel}" Grid.Row="3" Margin="0,10" Grid.Column="0" FontWeight="Bold" />
       <TextBlock Grid.Row="3" Margin="10" Grid.Column="1" Text="{Binding !SelectedRelease.prerelease}" TextWrapping="Wrap"/>
       <TextBlock Text="{loc:Localization ReleaseDateLabel}" Grid.Row="4" Margin="0,10" Grid.Column="0" FontWeight="Bold"/>

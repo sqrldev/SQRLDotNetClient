@@ -6,9 +6,6 @@
              xmlns:vm="clr-namespace:SQRLPlatformAwareInstaller.ViewModels;assembly=SQRLPlatformAwareInstaller"
              xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
              x:Class="SQRLPlatformAwareInstaller.Views.InstallationCompleteView">
-  <Design.DataContext>
-    <vm:InstallationCompleteViewModel/>
-  </Design.DataContext>
 
   <Grid Margin="10">
     <Grid.ColumnDefinitions>
@@ -21,12 +18,12 @@
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-    <Image Margin="10" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Source="resm:SQRLPlatformAwareInstaller.Assets.SQRL_icon_normal_32.png" Stretch="None" HorizontalAlignment="Left"/>
-
-    <TextBlock Grid.Row="1" Margin="10" TextWrapping="Wrap" Grid.Column="0" Grid.ColumnSpan="2" FontWeight="Bold">SQRL Dot Net Client has been successfully Installed. Click finish to close the installer and launch the SQRL client (if checked)</TextBlock>
-    <CheckBox Margin="10" Grid.Row="2" IsChecked="{Binding LaunchOnFinish}" >Launch SQRL Client on Finish</CheckBox>
     
-    <Button Grid.Row="3" Height="25" VerticalAlignment="Bottom" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10" Command="{Binding Finish}">Finish</Button>
+    <Image Margin="10" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Source="resm:SQRLPlatformAwareInstaller.Assets.SQRL_icon_normal_32.png" Stretch="None" HorizontalAlignment="Left"/>
+    <TextBlock Text="{loc:Localization InstallSuccessMessage}" Grid.Row="1" Margin="10" TextWrapping="Wrap" Grid.Column="0" Grid.ColumnSpan="2" FontWeight="Bold" />
+    <CheckBox Content="{loc:Localization LaunchClientCheckBox}" Margin="10" Grid.Row="2" IsChecked="{Binding LaunchOnFinish}" />
+    
+    <Button Content="{loc:Localization BtnFinish}" Grid.Row="3" Height="25" VerticalAlignment="Bottom" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10" Command="{Binding Finish}" />
     
   </Grid>
 
