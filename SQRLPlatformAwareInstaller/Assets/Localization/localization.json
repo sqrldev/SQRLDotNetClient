@@ -3,15 +3,81 @@
     {
       "SQRLTag": "Secure Quick Reliable Login",
       "InstallerGreeting": "Welcome to the SQRL (Secure Quick Reliable Login) Client Installer.\r\n\r\nIn a nutshell, SQRL is an Authentication Protocol which allows you to log in to Websites and Services which support it without using a standard username and password.\r\n\r\nInstead, SQRL relies on state-of-the-art cryptography to accomplish a much more secure, and much more convenient way of authenticating.\r\n\r\nThere is a lot of fancy math involved and the technology has been proven, suffice it to say that with SQRL you can login to any site with the push of a button and you will not have to know your username or password for any of it.\r\n\r\nSQRL takes care of it all in a convenient yet extremely secure package. To learn more about SQRL please visit: https://sqrl.grc.com/pages/what_is_sqrl/",
-      "DetectedPlatform":  "Detected Platform:"
+      "DetectedPlatform": "Detected Platform:",
+      "TitleMainInstall": "SQRL Client Installer",
+      "TitleVersionSelector": "SQRL Client Installer - Version Selection",
+      "TitleChooseInstallFolderDialog": "Select installation folder",
+      "TitleInstallationCompleteDialog": "SQRL Client Installer - Installation Complete",
+      "BtnNext": "Next",
+      "BtnCancel": "Cancel",
+      "BtnBack": "Back",
+      "BtnInstall": "Install",
+      "BtnInstallPath": "Install Path...",
+      "BtnFinish": "Finish",
+      "InstallStatusInstalling": "Installing...",
+      "InstallStatusDownloading": "Downloading...",
+      "SchemaRegistrationWarning": "WARNING: Exising sqrl:// schema registration found, if you proceed, it will be overwritten!",
+      "SelectInstallVersionLabel": "Select version to install:",
+      "DescriptionLabel": "Description:",
+      "ProductionReadyLabel": "Production-ready:",
+      "ReleaseDateLabel": "Release date:",
+      "SizeLabel": "Size:",
+      "InstallSuccessMessage": "The SQRL client has been successfully installed!",
+      "LaunchClientCheckBox": "Launch SQRL client on finish"
     }
   ],
   "en-US": [
     {
       "SQRLTag": "Secure Quick Reliable Login",
       "InstallerGreeting": "Welcome to the SQRL (Secure Quick Reliable Login) Client Installer.\r\n\r\nIn a nutshell, SQRL is an Authentication Protocol which allows you to log in to Websites and Services which support it without using a standard username and password.\r\n\r\nInstead, SQRL relies on state-of-the-art cryptography to accomplish a much more secure, and much more convenient way of authenticating.\r\n\r\nThere is a lot of fancy math involved and the technology has been proven, suffice it to say that with SQRL you can login to any site with the push of a button and you will not have to know your username or password for any of it.\r\n\r\nSQRL takes care of it all in a convenient yet extremely secure package. To learn more about SQRL please visit: https://sqrl.grc.com/pages/what_is_sqrl/",
-      "DetectedPlatform": "Detected Platform:"
+      "DetectedPlatform": "Detected Platform:",
+      "TitleMainInstall": "SQRL Client Installer",
+      "TitleVersionSelector": "SQRL Client Installer - Version Selection",
+      "TitleChooseInstallFolderDialog": "Select installation folder",
+      "TitleInstallationCompleteDialog": "SQRL Client Installer - Installation Complete",
+      "BtnNext": "Next",
+      "BtnCancel": "Cancel",
+      "BtnBack": "Back",
+      "BtnInstall": "Install",
+      "BtnInstallPath": "Install Path...",
+      "BtnFinish": "Finish",
+      "InstallStatusInstalling": "Installing...",
+      "InstallStatusDownloading": "Downloading...",
+      "SchemaRegistrationWarning": "WARNING: Exising sqrl:// schema registration found, if you proceed, it will be overwritten!",
+      "SelectInstallVersionLabel": "Select version to install:",
+      "DescriptionLabel": "Description:",
+      "ProductionReadyLabel": "Production-ready:",
+      "ReleaseDateLabel": "Release date:",
+      "SizeLabel": "Size:",
+      "InstallSuccessMessage": "The SQRL client has been successfully installed!",
+      "LaunchClientCheckBox": "Launch SQRL client on finish"
     }
-
+  ],
+  "de-DE": [
+    {
+      "SQRLTag": "Secure Quick Reliable Login",
+      "InstallerGreeting": "Willkommen zum Installations-Programm für SQRL (Secure Quick Reliable Login).\r\n\r\nKurz gesagt handelt es sich bei SQRL um ein Authentifizierungs-Protokoll, das es Ihnen erlaubt, sich bei unterstützten Webseiten und Diensten ohne Benutzername und Passwort einzuloggen.\r\n\r\nStattdessen setzt SQRL auf moderne Kryptographie, um eine deutlich sicherere und beqemere Art der Authentifizierung zu ermöglichen.\r\n\r\nUm mehr über SQRL zu erfahren, besuchen Sie einfach https://sqrl.grc.com/pages/what_is_sqrl/",
+      "DetectedPlatform": "Erkannte Plattform:",
+      "TitleMainInstall": "SQRL Client Installer",
+      "TitleVersionSelector": "SQRL Client Installer - Versions-Auswahl",
+      "TitleChooseInstallFolderDialog": "Installations-Ordner wählen",
+      "TitleInstallationCompleteDialog": "SQRL Client Installer - Installation beendet",
+      "BtnNext": "Weiter",
+      "BtnCancel": "Abbrechen",
+      "BtnBack": "Zurück",
+      "BtnInstall": "Installieren",
+      "BtnInstallPath": "Install.-Pfad...",
+      "BtnFinish": "Fertig",
+      "InstallStatusInstalling": "Installiere...",
+      "InstallStatusDownloading": "Lade herunter...",
+      "SchemaRegistrationWarning": "WARNUNG: Existierende sqrl:// Schema-Registrierung gefunden, diese wird überschrieben!",
+      "SelectInstallVersionLabel": "Version auswählen:",
+      "DescriptionLabel": "Beschreibung:",
+      "ProductionReadyLabel": "Produktiveinsatz:",
+      "ReleaseDateLabel": "Release-Datum:",
+      "SizeLabel": "Größe:",
+      "InstallSuccessMessage": "Der SQRL-Client wurde erfolgreich installiert!",
+      "LaunchClientCheckBox": "SQRL Client beim Fertigstellen starten"
+    }
   ]
 }

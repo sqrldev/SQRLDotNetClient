@@ -5,7 +5,7 @@
              xmlns:vm="clr-namespace:SQRLPlatformAwareInstaller.ViewModels;assembly=SQRLPlatformAwareInstaller"
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="525"
              xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
-             x:Class="SQRLPlatformAwareInstaller.Views.MainInstalView">
+             x:Class="SQRLPlatformAwareInstaller.Views.MainInstallView">
    
   <Grid Width="580">
     <Grid.ColumnDefinitions>
@@ -22,11 +22,16 @@
     <Image Margin="10" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Source="resm:SQRLPlatformAwareInstaller.Assets.SQRL_icon_normal_32.png" 
            Stretch="None" HorizontalAlignment="Left"/>
     
-    <TextBlock Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="10" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0" Text="{Binding Greeting}"/>
-    <TextBlock Grid.Column="0" Margin="10" FontWeight="Bold" Grid.Row="2" Text="{loc:Localization DetectedPlatform}"/>
-    <Image Grid.Row="2" Grid.Column="1" Source="{Binding PlatformImg}" Stretch="None" HorizontalAlignment="Left" ToolTip.Tip="{Binding Platform}" />
-    <Button VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10,20" Command="{Binding Next}">Next</Button>
-    <Button VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10,20" Command="{Binding Cancel}">Cancel</Button>
+    <TextBlock Text="{loc:Localization InstallerGreeting}" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="10" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0" />
+    <TextBlock Text="{loc:Localization DetectedPlatform}" Grid.Column="0" Margin="10" FontWeight="Bold" Grid.Row="2" VerticalAlignment="Center" />
+
+    <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1">
+      <Image Source="{Binding PlatformImg}" ToolTip.Tip="{Binding Platform}" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Center" />
+      <TextBlock Text="{Binding Platform}" Margin="15,0" FontStyle="Italic" VerticalAlignment="Center"/>
+    </StackPanel>
+    
+    <Button Content="{loc:Localization BtnNext}" Command="{Binding Next}" VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Width="100" HorizontalAlignment="Right" Margin="10,20" />
+    <Button Content="{loc:Localization BtnCancel}" Command="{Binding Cancel}" VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="0" Width="100" HorizontalAlignment="Left" Margin="10,20" />
     
   </Grid>
 

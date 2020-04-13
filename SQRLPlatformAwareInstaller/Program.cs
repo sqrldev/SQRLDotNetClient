@@ -18,6 +18,7 @@ namespace SQRLPlatformAwareInstaller
         // yet and stuff might break.
         public static void Main(string[] args)
         {
+            // Set up logging
             string currentDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
             string logFilePath = Path.Combine(currentDir, "SQRLInstallerLog.log");
 
@@ -25,6 +26,9 @@ namespace SQRLPlatformAwareInstaller
                 .WriteTo.Console()
                 .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day)
                 .CreateLogger();
+
+            Log.Information("New app instance is being launched on {OSDescription}",
+                RuntimeInformation.OSDescription);
 
             BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);

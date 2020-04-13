@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace SQRLPlatformAwareInstaller.Views
 {
-    public class MainInstalView : UserControl
+    public class MainInstallView : UserControl
     {
-        public MainInstalView()
+        public MainInstallView()
         {
             this.InitializeComponent();
         }
