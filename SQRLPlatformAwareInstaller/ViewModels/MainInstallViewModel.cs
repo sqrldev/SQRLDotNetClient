@@ -53,7 +53,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
             this.Title = _loc.GetLocalizationValue("TitleMainInstall");
             DetectPlatform();
-            Log.Information($"Deltected Platform: {Platform}");
+            Log.Information($"Detected platform: {Platform}");
         }
 
         /// <summary>
