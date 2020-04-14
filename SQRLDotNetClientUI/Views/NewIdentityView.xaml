@@ -28,22 +28,27 @@
       <TextBlock Margin="10" Text="{loc:Localization NewIdentityMessage}" FontSize="12" TextWrapping="Wrap" 
                  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
       
-      <TextBlock Text="{loc:Localization IdentityNameLabel}" Margin="10,10,0,10" Grid.Row="1" Grid.Column="0" TextAlignment="Left" Width="90"/>
+      <TextBlock Text="{loc:Localization IdentityNameLabel}" Margin="10,10,0,10" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" TextAlignment="Left" Width="90"/>
       <loc:CopyPasteTextBox Text="{Binding IdentityName}" Name="txtIdentityName" Width="250" Margin="10" Grid.Row="1" Grid.Column="1">
         <i:Interaction.Behaviors>
           <behaviors:FocusOnAttached />
         </i:Interaction.Behaviors>
       </loc:CopyPasteTextBox>
        
-      <TextBlock Margin="10,10,0,10" Text="{loc:Localization RescueCodeLabel}" Grid.Row="2" Grid.Column="0" Width="90"/>
-      <loc:CopyPasteTextBox Margin="10" Text="{Binding RescueCode}" Width="250" Grid.Row="2" Grid.Column="1" IsReadOnly="True"/>
+      <TextBlock Margin="10,10,0,10" Text="{loc:Localization RescueCodeLabel}" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0" Width="90"/>
+      <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1">
+        <loc:CopyPasteTextBox Text="{Binding RescueCode}" Margin="10,10,0,10" Width="220" HorizontalAlignment="Left" IsReadOnly="True"/>
+        <Button Command="{Binding SaveRescueCodePdf}" ToolTip.Tip="{loc:Localization BtnSaveAsPdf}" HorizontalAlignment="Right" Margin="2,0" Width="25" Height="25">
+          <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.pdf_16.png" Width="16" Height="16"/>
+        </Button>
+      </StackPanel>
       
     </Grid>
 
     <v:NewPasswordWidget DockPanel.Dock="Top" Margin="10"
-                           NewPassword="{Binding NewPassword}"
-                           NewPasswordVerification="{Binding NewPasswordVerification}"
-                           PasswordsMatch="{Binding PasswordsMatch}" />
+                         NewPassword="{Binding NewPassword}"
+                         NewPasswordVerification="{Binding NewPasswordVerification}"
+                         PasswordsMatch="{Binding PasswordsMatch}" />
 
     <DockPanel DockPanel.Dock="Bottom" Margin="10">
       <Button Content="{loc:Localization BtnCancel}" Command="{Binding Cancel}" DockPanel.Dock="Left" Margin="10" Width="70" HorizontalAlignment="Left" />
