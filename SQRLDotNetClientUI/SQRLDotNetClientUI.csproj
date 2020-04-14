@@ -4,8 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <ApplicationIcon>Assets\sqrl_icon_normal_256.ico</ApplicationIcon>
     <Version>0.0.1</Version>
-    <AssemblyVersion>0.0.1.1</AssemblyVersion>
-    <FileVersion>0.0.1.1</FileVersion>
+    <AssemblyVersion>0.1.1.0</AssemblyVersion>
+    <FileVersion>0.1.1.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <TrimmerRootAssembly Include="mscorlib" />
@@ -51,6 +51,7 @@
     <AvaloniaResource Remove="Assets\SQRL_icon_normal_64.png" />
     <AvaloniaResource Remove="Assets\SQRL_InAction.gif" />
     <AvaloniaResource Remove="Assets\VL.png" />
+    <AvaloniaResource Remove="Views\AboutView.xaml" />
     <AvaloniaResource Remove="Views\AskView.xaml" />
     <AvaloniaResource Remove="Views\AuthenticationView.xaml" />
     <AvaloniaResource Remove="Views\ChangePasswordView.xaml" />
@@ -93,6 +94,7 @@
     <None Remove="Assets\sqrl_icon_normal_48_icon.ico" />
     <None Remove="Assets\SQRL_icon_normal_64.png" />
     <None Remove="Assets\VL.png" />
+    <None Remove="Views\AboutView.xaml" />
     <None Remove="Views\AskView.xaml" />
     <None Remove="Views\AuthenticationView.xaml" />
     <None Remove="Views\ChangePasswordView.xaml" />
@@ -274,6 +276,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\NewPasswordWidget.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\AboutView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>
