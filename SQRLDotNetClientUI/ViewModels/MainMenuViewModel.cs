@@ -190,6 +190,14 @@ namespace SQRLDotNetClientUI.ViewModels
                 new ChangePasswordViewModel();
         }
 
+        public void About()
+        {
+            Log.Information("Launching about screen");
+
+            ((MainWindowViewModel)_mainWindow.DataContext).Content =
+                new AboutViewModel();
+        }
+
         public void Exit()
         {
             _mainWindow.Close();
