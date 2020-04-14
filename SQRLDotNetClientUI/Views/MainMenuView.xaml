@@ -34,7 +34,7 @@
       </MenuItem>
       <MenuItem Header="{loc:Localization HelpMenuItemHeader}" >
         <MenuItem Header="{loc:Localization CheckForUpdates}" IsEnabled="True" Command="{Binding CheckForUpdates}" />
-        <MenuItem Header="{loc:Localization AboutMenuItemHeader}" />
+        <MenuItem Header="{loc:Localization AboutMenuItemHeader}" Command="{Binding About}"/>
       </MenuItem>
     </Menu>
 
