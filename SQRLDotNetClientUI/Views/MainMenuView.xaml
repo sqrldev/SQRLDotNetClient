@@ -13,28 +13,76 @@
   <DockPanel>
     <Menu DockPanel.Dock="Top" Margin="0,5,0,0">
       <MenuItem Header="{loc:Localization FileMenuItemHeader}">
-        <MenuItem Header="{loc:Localization ExitMenuItemHeader}" Command="{Binding Exit}"/>
+        <MenuItem Header="{loc:Localization ExitMenuItemHeader}" Command="{Binding Exit}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.Exit_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
       </MenuItem>
       <MenuItem Header="{loc:Localization IdentityMenuItemHeader}">
-        <MenuItem Header="{loc:Localization NewIdentityMenuItemHeader}" Command="{Binding OnNewIdentityClick}"/>
-        <MenuItem Header="{loc:Localization ImportIdentityMenuItemHeader}" Command="{Binding ImportIdentity}"/>
-        <MenuItem Header="{loc:Localization ExportIdentityMenuItemHeader}" Command="{Binding ExportIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
+        <MenuItem Header="{loc:Localization NewIdentityMenuItemHeader}" Command="{Binding OnNewIdentityClick}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.AddUser_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="{loc:Localization ImportIdentityMenuItemHeader}" Command="{Binding ImportIdentity}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.Import_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="{loc:Localization ExportIdentityMenuItemHeader}" Command="{Binding ExportIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.Export_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
         <Separator/>
-        <MenuItem Header="{loc:Localization SwitchIdentityMenuItemHeader}" Command="{Binding SwitchIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
+        <MenuItem Header="{loc:Localization SwitchIdentityMenuItemHeader}" Command="{Binding SwitchIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.SwitchIdentity_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
         <Separator/>
-        <MenuItem Header="{loc:Localization DeleteIdentityMenuItemHeader}" Command="{Binding DeleteIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
+        <MenuItem Header="{loc:Localization DeleteIdentityMenuItemHeader}" Command="{Binding DeleteIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.DeleteUser_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
         <Separator/>
-        <MenuItem Header="{loc:Localization ChangePasswordMenuHeader}"  Command="{Binding ChangePassword}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
-        <MenuItem Header="{loc:Localization RekeyIdentityMenuItemHeader}"  Command="{Binding RekeyIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
+        <MenuItem Header="{loc:Localization ChangePasswordMenuHeader}" Command="{Binding ChangePassword}" IsEnabled="{Binding CurrentIdentityLoaded}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.Password_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="{loc:Localization RekeyIdentityMenuItemHeader}"  Command="{Binding RekeyIdentity}" IsEnabled="{Binding CurrentIdentityLoaded}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.Key_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
         <Separator/>
-        <MenuItem Header="{loc:Localization IdentitySettingsMenuItemHeader}"  Command="{Binding IdentitySettings}" IsEnabled="{Binding CurrentIdentityLoaded}"/>
+        <MenuItem Header="{loc:Localization IdentitySettingsMenuItemHeader}"  Command="{Binding IdentitySettings}" IsEnabled="{Binding CurrentIdentityLoaded}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.IdentitySettings_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
       </MenuItem>
       <MenuItem Header="{loc:Localization OptionsMenuHeader}" Name="menuOptions" >
-        <MenuItem Header="{loc:Localization LanguageMenuHeader}" Name="menuLanguage"/>
+        <MenuItem Header="{loc:Localization LanguageMenuHeader}" Name="menuLanguage">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.Localize_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
       </MenuItem>
       <MenuItem Header="{loc:Localization HelpMenuItemHeader}" >
-        <MenuItem Header="{loc:Localization CheckForUpdates}" IsEnabled="True" Command="{Binding CheckForUpdates}" />
-        <MenuItem Header="{loc:Localization AboutMenuItemHeader}" Command="{Binding About}"/>
+        <MenuItem Header="{loc:Localization CheckForUpdates}" IsEnabled="True" Command="{Binding CheckForUpdates}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.CheckOut_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="{loc:Localization AboutMenuItemHeader}" Command="{Binding About}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.About_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
       </MenuItem>
     </Menu>
 
@@ -43,16 +91,10 @@
     
     <!-- Header banner -->
     <Border DockPanel.Dock="Top" BorderBrush="LightBlue" BorderThickness="0,1,0,1">
-      <Grid Background="AliceBlue" ShowGridLines="True">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition />
-        </Grid.RowDefinitions>
-        <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Margin="50,20,10,20" Height="40" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0"></Image>
-        <TextBlock Text="{loc:Localization SQRLTag}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="10" Grid.Row="0" Grid.Column="0" FontFamily="resm:SQRLDotNetClientUI.Assets.Fonts.SpaceMono-Regular.ttf" />
-      </Grid>
+      <StackPanel Orientation="Horizontal" Background="AliceBlue">
+        <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Margin="50,20,10,20" Height="40" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+        <TextBlock Text="{loc:Localization SQRLTag}" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Margin="10" FontFamily="resm:SQRLDotNetClientUI.Assets.Fonts.SpaceMono-Regular.ttf" />
+      </StackPanel>
     </Border>
 
     <!-- Button layout grid -->
