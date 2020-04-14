@@ -54,7 +54,6 @@
     { "NewUpdateAvailableRunApp": "New SQRL version Available, run main application to update" },
     { "LoadedIdentityLabel": "Loaded Identity:" },
     { "BtnNewIdentity": "New Identity" },
-    { "BtnNewIdentity": "New Identity" },
     { "BtnImportIdentity": "Import Identity" },
     { "BtnExportIdentity": "Export Identity" },
     { "BtnSwitchIdentity": "Switch Identity" },
@@ -150,7 +149,8 @@
     { "AboutText": "This program is Open Source Software and released under an open license.\r\n\r\nYou can find the source code as well as the license on Github:" },
     { "BtnViewRepository": "View Repository" },
     { "BtnViewLicense": "View License" },
-    { "OpenSourceLicenses": "Open source licenses / used libraries:" }
+    { "OpenSourceLicenses": "Open source licenses / used libraries:" },
+    { "SaveRescueCodeDialogTitle": "Select a location and name to save your rescue code" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -302,7 +302,8 @@
     { "AboutText": "This program is Open Source Software and released under an open license.\r\n\r\nYou can find the source code as well as the license on Github:" },
     { "BtnViewRepository": "View Repository" },
     { "BtnViewLicense": "View License" },
-    { "OpenSourceLicenses": "Open source licenses / used libraries:" }
+    { "OpenSourceLicenses": "Open source licenses / used libraries:" },
+    { "SaveRescueCodeDialogTitle": "Select a location and name to save your rescue code" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -454,6 +455,7 @@
     { "AboutText": "Dieses Programm ist Open Source Software und wird unter einer offenen Lizenz veröffentlicht.\r\n\r\nSie finden sowohl den Quellcode als auch die Lizenz auf Github:" },
     { "BtnViewRepository": "Zum Repository" },
     { "BtnViewLicense": "Lizenz anzeigen" },
-    { "OpenSourceLicenses": "Open-Source-Lizenzen / Libraries:" }
+    { "OpenSourceLicenses": "Open-Source-Lizenzen / Libraries:" },
+    { "SaveRescueCodeDialogTitle": "Wählen Sie einen Namen und Speicherort für Ihren Rettungsschlüssel" }
   ]
 }
