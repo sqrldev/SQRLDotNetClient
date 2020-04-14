@@ -49,6 +49,7 @@
     <AvaloniaResource Remove="Assets\unknown.png" />
     <AvaloniaResource Remove="Assets\VL.png" />
     <AvaloniaResource Remove="Assets\windows.png" />
+    <AvaloniaResource Remove="Views\AboutView.xaml" />
     <AvaloniaResource Remove="Views\InstallationCompleteView.xaml" />
     <AvaloniaResource Remove="Views\MainInstallView.xaml" />
     <AvaloniaResource Remove="Views\VersionSelectorView.xaml" />
@@ -76,6 +77,7 @@
     <None Remove="Assets\unknown.png" />
     <None Remove="Assets\VL.png" />
     <None Remove="Assets\windows.png" />
+    <None Remove="Views\AboutView.xaml" />
     <None Remove="Views\InstallationCompleteView.xaml" />
     <None Remove="Views\MainInstallView.xaml" />
     <None Remove="Views\VersionSelectorView.xaml" />
@@ -137,6 +139,11 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Views\AboutView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\GithubAPI\GithubAPI.csproj" />
     <ProjectReference Include="..\SQRLCommonUI\SQRLCommonUI.csproj" />
   </ItemGroup>
@@ -146,6 +153,9 @@
   <ItemGroup>
     <Compile Update="Views\MainInstallView.xaml.cs">
       <DependentUpon>MainInstallView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\AboutView.xaml.cs">
+      <DependentUpon>AboutView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>
