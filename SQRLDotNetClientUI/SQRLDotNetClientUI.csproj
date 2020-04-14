@@ -85,6 +85,7 @@
     <None Remove="Assets\Icons\MenuIcons\Localize_16x.png" />
     <None Remove="Assets\Icons\MenuIcons\SwitchIdentity_16x.png" />
     <None Remove="Assets\Icons\ok.png" />
+    <None Remove="Assets\Icons\pdf_16.png" />
     <None Remove="Assets\Icons\question.png" />
     <None Remove="Assets\Icons\warning.png" />
     <None Remove="Assets\Localization\localization.json" />
@@ -140,6 +141,7 @@
     <EmbeddedResource Include="Assets\Icons\MenuIcons\Import_16x.png" />
     <EmbeddedResource Include="Assets\Icons\MenuIcons\Localize_16x.png" />
     <EmbeddedResource Include="Assets\Icons\MenuIcons\SwitchIdentity_16x.png" />
+    <EmbeddedResource Include="Assets\Icons\pdf_16.png" />
     <EmbeddedResource Include="Assets\Icons\question.png" />
     <EmbeddedResource Include="Assets\Localization\localization.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
