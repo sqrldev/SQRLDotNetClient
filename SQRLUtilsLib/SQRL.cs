@@ -1464,7 +1464,7 @@ namespace SQRLUtilsLib
             {
                 newID = new SQRLIdentity();
                 newID = GenerateIdentityBlock0(CreateIMK(newIUK), newID);
-
+                newID.IdentityName = identity.IdentityName + " (rekeyed)";
                 var block1Task = GenerateIdentityBlock1(newIUK, newPassword, newID, progressBlock1);
                 var block2Task =  GenerateIdentityBlock2(newIUK, newRescueCode, newID, progressBlock2);
                 await Task.WhenAll(block1Task, block2Task);

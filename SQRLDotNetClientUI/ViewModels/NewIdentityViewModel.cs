@@ -1,9 +1,12 @@
 ﻿
+using Avalonia.Controls;
 using ReactiveUI;
+using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -123,6 +126,44 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
                 ((MainWindowViewModel)_mainWindow.DataContext).PriorContent;
+        }
+
+        /// <summary>
+        /// Opens a file save dialog and saves the rescue code pdf document
+        /// in the location chosen by the user.
+        /// </summary>
+        public async void SaveRescueCodePdf()
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            FileDialogFilter fdf = new FileDialogFilter
+            {
+                Name = "PDF files (.pdf)",
+                Extensions = new List<string> { "pdf" }
+            };
+
+            sfd.Title = _loc.GetLocalizationValue("SaveRescueCodeDialogTitle");
+            sfd.InitialFileName = $"RescueCode.pdf";
+            sfd.Filters.Add(fdf);
+            var file = await sfd.ShowAsync(_mainWindow);
+
+            if (string.IsNullOrEmpty(file)) return;
+
+            try
+            {
+                PdfHelper.CreateRescueCodeDocument(file, this.RescueCode, this.IdentityName);
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = file,
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), ex.Message,
+                    MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog(this);
+            }
         }
     }
 }

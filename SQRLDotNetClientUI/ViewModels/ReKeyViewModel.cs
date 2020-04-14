@@ -1,9 +1,11 @@
 ﻿using Avalonia.Controls;
 using ReactiveUI;
+using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -119,7 +121,6 @@ namespace SQRLDotNetClientUI.ViewModels
 
                 if (!result.Success)
                 {
-
                     progressDialog.Close();
 
                     //Fail bad rescue code (something went wrong...) try again?
@@ -135,16 +136,18 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 else if (result.Success) //All Good
                 {
-
                     progressDialog.Close();
 
-                    //This label is used to re-share the new rescue code if it was copied incorrectly.
-                    CopiedWrong:
+                //This label is used to re-share the new rescue code if it was copied incorrectly.
+                CopiedWrong:
                     //Message Box which displays the new Rescue Code to the user
-                   _= await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("IdentityReKeyNewCode"),
-                        string.Format(_loc.GetLocalizationValue("IdentityReKeyMessage"), SQRL.FormatRescueCodeForDisplay(result.NewRescueCode)),
-                        MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.OK)
-                        .ShowDialog(this);
+                    _ = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("IdentityReKeyNewCode"),
+                         string.Format(_loc.GetLocalizationValue("IdentityReKeyMessage"), SQRL.FormatRescueCodeForDisplay(result.NewRescueCode)),
+                         MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.OK)
+                         .ShowDialog(this);
+
+                    SaveRescueCodePdf(SQRL.FormatRescueCodeForDisplay(result.NewRescueCode),
+                        result.RekeyedIdentity.IdentityName);
 
                     //Ask the user to re-type their New Rescue Code to verify that they copied it correctly.
                     rescueCodeDlg = new InputSecretDialogViewModel(SecretType.RescueCode);
@@ -158,10 +161,11 @@ namespace SQRLDotNetClientUI.ViewModels
                         progressDialog.ShowDialog();
 
                         //Decrypt Block 2 to verify they copied their rescue code correctly.
-                        var block2Results = await SQRL.DecryptBlock2(result.RekeyedIdentity, rescueCodeDlg.Secret, progressList[0]);
+                        var block2Results = await SQRL.DecryptBlock2(result.RekeyedIdentity, 
+                            SQRL.CleanUpRescueCode(rescueCodeDlg.Secret), progressList[0]);
+
                         if (block2Results.DecryptionSucceeded) //All Good, All Done
                         {
-
                             progressDialog.Close();
                             _identityManager.DeleteCurrentIdentity();
                             _identityManager.ImportIdentity(result.RekeyedIdentity, true);
@@ -171,7 +175,6 @@ namespace SQRLDotNetClientUI.ViewModels
                         }
                         else //Fail bad rescue code... try again?
                         {
-
                             progressDialog.Close();
                             var answer = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                                 _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
@@ -196,6 +199,44 @@ namespace SQRLDotNetClientUI.ViewModels
 
                 // Display the main screen
                 Cancel();
+            }
+        }
+
+        /// <summary>
+        /// Opens a file save dialog and saves the rescue code pdf document
+        /// in the location chosen by the user.
+        /// </summary>
+        public async void SaveRescueCodePdf(string rescueCode, string identityName)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            FileDialogFilter fdf = new FileDialogFilter
+            {
+                Name = "PDF files (.pdf)",
+                Extensions = new List<string> { "pdf" }
+            };
+
+            sfd.Title = _loc.GetLocalizationValue("SaveRescueCodeDialogTitle");
+            sfd.InitialFileName = $"RescueCode.pdf";
+            sfd.Filters.Add(fdf);
+            var file = await sfd.ShowAsync(_mainWindow);
+
+            if (string.IsNullOrEmpty(file)) return;
+
+            try
+            {
+                PdfHelper.CreateRescueCodeDocument(file, rescueCode, identityName);
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = file,
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), ex.Message,
+                    MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog(this);
             }
         }
     }

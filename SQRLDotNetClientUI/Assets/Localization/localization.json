@@ -54,7 +54,6 @@
     { "NewUpdateAvailableRunApp": "New SQRL version Available, run main application to update" },
     { "LoadedIdentityLabel": "Loaded Identity:" },
     { "BtnNewIdentity": "New Identity" },
-    { "BtnNewIdentity": "New Identity" },
     { "BtnImportIdentity": "Import Identity" },
     { "BtnExportIdentity": "Export Identity" },
     { "BtnSwitchIdentity": "Switch Identity" },
@@ -130,7 +129,7 @@
     { "ReKeyIdentityExplanation": "You should ONLY rekey your SQRL identity if you have a reason to believe that your computer or device has been compromised. The master identity never leaves the device so there should be virtually no reason for rekeying and most users should never need to do this.\r\n\r\nIf you still want to proceed, enter a new identity password to continue:" },
     { "ExistingRescueCodeLabel": "Current rescue code" },
     { "IdentityReKeyNewCode": "Identity rekey success" },
-    { "IdentityReKeyMessage": "Your identity has been successfully rekeyed.\r\nPlease copy down your new rescue code below.\r\nIn the next step, you will be asked to enter this code one last time to confirm you copied it down correctly.\r\n\r\nRescue code: {0}" },
+    { "IdentityReKeyMessage": "Your identity has been successfully rekeyed!\r\n\r\nPlease make sure to copy down and safely store your new rescue code below.\r\nIn the next step, you'll have the chance to save it as a PDF document, and after that you'll finally be asked to enter this code one last time to confirm you copied it down correctly.\r\n\r\nRescue code: {0}" },
     { "IdentityReKeyFailed": "Identity rekey failed, please make sure to provide the correct rescue code." },
     { "SecretDialogError": "Please use the OK button to exit this dialog." },
     { "OptionsMenuHeader": "_Options" },
@@ -150,7 +149,8 @@
     { "AboutText": "This program is Open Source Software and released under an open license.\r\n\r\nYou can find the source code as well as the license on Github:" },
     { "BtnViewRepository": "View Repository" },
     { "BtnViewLicense": "View License" },
-    { "OpenSourceLicenses": "Open source licenses / used libraries:" }
+    { "OpenSourceLicenses": "Open source licenses / used libraries:" },
+    { "SaveRescueCodeDialogTitle": "Select a location and name to save your rescue code" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -282,7 +282,7 @@
     { "ReKeyIdentityExplanation": "You should ONLY rekey your SQRL identity if you have a reason to believe that your computer or device has been compromised. The master identity never leaves the device so there should be virtually no reason for rekeying and most users should never need to do this.\r\n\r\nIf you still want to proceed, enter a new identity password to continue:" },
     { "ExistingRescueCodeLabel": "Current rescue code" },
     { "IdentityReKeyNewCode": "Identity rekey success" },
-    { "IdentityReKeyMessage": "Your identity has been successfully rekeyed.\r\nPlease copy down your new rescue code below.\r\nIn the next step, you will be asked to enter this code one last time to confirm you copied it down correctly.\r\n\r\nRescue code: {0}" },
+    { "IdentityReKeyMessage": "Your identity has been successfully rekeyed!\r\n\r\nPlease make sure to copy down and safely store your new rescue code below.\r\nIn the next step, you'll have the chance to save it as a PDF document, and after that you'll finally be asked to enter this code one last time to confirm you copied it down correctly.\r\n\r\nRescue code: {0}" },
     { "IdentityReKeyFailed": "Identity rekey failed, please make sure to provide the correct rescue code." },
     { "SecretDialogError": "Please use the OK button to exit this dialog." },
     { "OptionsMenuHeader": "_Options" },
@@ -302,7 +302,8 @@
     { "AboutText": "This program is Open Source Software and released under an open license.\r\n\r\nYou can find the source code as well as the license on Github:" },
     { "BtnViewRepository": "View Repository" },
     { "BtnViewLicense": "View License" },
-    { "OpenSourceLicenses": "Open source licenses / used libraries:" }
+    { "OpenSourceLicenses": "Open source licenses / used libraries:" },
+    { "SaveRescueCodeDialogTitle": "Select a location and name to save your rescue code" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -434,7 +435,7 @@
     { "ReKeyIdentityExplanation": "Sie sollten Ihre Identität nur dann zurücksetzen, wenn Sie der Meinung sind, dass Ihr Computer oder Gerät kompromittiert wurde. Da Ihre Identität niemals Ihr Gerät verlässt, sollte dies für die allermeisten Benutzer niemals erforderlich sein.\r\n\r\nSollten Sie trotzdem der Meinung sein, dass ein Zurücksetzen notwendig ist, dann geben Sie jetzt ein neues Identitäts-Passwort ein, um fortzufahren:" },
     { "ExistingRescueCodeLabel": "Aktueller Rettungscode" },
     { "IdentityReKeyNewCode": "Zurücksetzen erfolgreich" },
-    { "IdentityReKeyMessage": "Ihre Identität wurde erfolgreich zurückgesetzt!\r\nBitte notieren Sie unbedingt Ihren neuen Rettungscode.\r\nSie werden im nächsten Schritt gebeten, diesen Rettungscode erneut einzugeben um zu bestätigen, dass sie ihn korrekt aufgezeichnet haben.\r\n\r\nRettungscode: {0}" },
+    { "IdentityReKeyMessage": "Ihre Identität wurde erfolgreich zurückgesetzt!\r\n\r\nBitte notieren und verwahren Sie unbedingt Ihren unten angezeigten neuen Rettungscode.\r\nIm nächsten Schritt erhalten Sie die Möglichkeit, diesen als PDF-Dokument zu speichern und werden schließlich gebeten, den Rettungscode erneut einzugeben um zu bestätigen, dass sie ihn korrekt aufgezeichnet haben.\r\n\r\nRettungscode: {0}" },
     { "IdentityReKeyFailed": "Das Zurücksetzen der Identität ist fehlgeschlagen!\nVergewissern Sie sich, dass der Rettungscode korrekt eingegeben wurde!" },
     { "SecretDialogError": "Bitte benützen Sie den OK-Button, um diesen Dialog zu schließen." },
     { "OptionsMenuHeader": "_Optionen" },
@@ -454,6 +455,7 @@
     { "AboutText": "Dieses Programm ist Open Source Software und wird unter einer offenen Lizenz veröffentlicht.\r\n\r\nSie finden sowohl den Quellcode als auch die Lizenz auf Github:" },
     { "BtnViewRepository": "Zum Repository" },
     { "BtnViewLicense": "Lizenz anzeigen" },
-    { "OpenSourceLicenses": "Open-Source-Lizenzen / Libraries:" }
+    { "OpenSourceLicenses": "Open-Source-Lizenzen / Libraries:" },
+    { "SaveRescueCodeDialogTitle": "Wählen Sie einen Namen und Speicherort für Ihren Rettungscode" }
   ]
 }

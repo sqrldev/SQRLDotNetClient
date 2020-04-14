@@ -94,8 +94,11 @@ namespace SQRLDotNetClientUI.Models
                 yPos += 10 + DrawTextBlock(canvas, title, yPos, _fontBold, 25, SKColors.Black);
                 yPos += 20 + DrawTextBlock(canvas, warning, yPos, _fontBold, 20, SKColors.Red);
                 yPos += 30 + DrawTextBlock(canvas, text, yPos, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
-                yPos += 05 + DrawTextBlock(canvas, identityLabel, yPos, _fontRegular, 12, SKColors.DarkGray);
-                yPos += 15 + DrawTextBlock(canvas, identityName, yPos, _fontBold, 16, SKColors.Black);
+                if (!string.IsNullOrEmpty(identityName))
+                {
+                    yPos += 05 + DrawTextBlock(canvas, identityLabel, yPos, _fontRegular, 12, SKColors.DarkGray);
+                    yPos += 15 + DrawTextBlock(canvas, identityName, yPos, _fontBold, 16, SKColors.Black);
+                }
                 yPos += 10 + DrawTextBlock(canvas, rescueCodeLabel, yPos, _fontRegular, 12, SKColors.DarkGray);
                 yPos += 15 + DrawTextBlock(canvas, rescueCode, yPos, _fontBold, 24, SKColors.Black);
                 DrawFooter(canvas);

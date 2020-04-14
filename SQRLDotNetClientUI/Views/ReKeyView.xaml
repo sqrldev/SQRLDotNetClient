@@ -37,7 +37,7 @@
     
     <DockPanel DockPanel.Dock="Bottom">
     <Button DockPanel.Dock="Left" Content="{loc:Localization BtnCancel}" Margin="10" Command="{Binding Cancel}" Height="25"  Width="70" VerticalAlignment="Bottom" HorizontalAlignment="Left"  />
-    <Button DockPanel.Dock="Right" Content="{loc:Localization BtnNext}" Margin="10" Command="{Binding Next}" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="70" IsEnabled="{Binding CanSave}"  />
+    <Button DockPanel.Dock="Right" Content="{loc:Localization BtnNext}" Margin="10" Command="{Binding Next}" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="70" IsEnabled="{Binding CanSave}" IsDefault="True" />
     </DockPanel>
   </DockPanel>
 </UserControl>
