@@ -10,7 +10,7 @@ using Serilog;
 using System.IO;
 using System.Reflection;
 using SQRLDotNetClientUI.Views;
-
+using Avalonia.Dialogs;
 namespace SQRLDotNetClientUI
 {
     class Program
@@ -130,6 +130,7 @@ namespace SQRLDotNetClientUI
                 .UsePlatformDetect()
                 .With(new AvaloniaNativePlatformOptions { UseGpu = !RuntimeInformation.IsOSPlatform(OSPlatform.OSX) })
                 .LogToDebug()
-                .UseReactiveUI();
+                .UseReactiveUI()
+                .UseManagedSystemDialogs(); //It is recommended by Avalonia Developers that we use Managed System Dialogs instead  of the native ones particularly for Linux
     }
 }

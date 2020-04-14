@@ -8,7 +8,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Logging.Serilog;
 using Avalonia.ReactiveUI;
 using Serilog;
-
+using Avalonia.Dialogs;
 namespace SQRLPlatformAwareInstaller
 {
     class Program
@@ -40,6 +40,8 @@ namespace SQRLPlatformAwareInstaller
                 .UsePlatformDetect()
                 .With(new AvaloniaNativePlatformOptions { UseGpu = !RuntimeInformation.IsOSPlatform(OSPlatform.OSX) })
                 .LogToDebug()
-                .UseReactiveUI();
+                .UseReactiveUI()
+                .UseManagedSystemDialogs(); //It is recommended by Avalonia Developers that we use Managed System Dialogs instead  of the native ones particularly for Linux
+
     }
 }
