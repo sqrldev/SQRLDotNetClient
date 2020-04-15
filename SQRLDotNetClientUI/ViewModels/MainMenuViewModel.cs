@@ -160,15 +160,14 @@ namespace SQRLDotNetClientUI.ViewModels
                 new ImportIdentityViewModel();
         }
 
-        public async void SwitchIdentity()
+        /// <summary>
+        /// Opens the identity selection dialog.
+        /// </summary>
+        public void SwitchIdentity()
         {
             if (_identityManager.IdentityCount > 1)
             {
-                SelectIdentityDialogView selectIdentityDialog = new SelectIdentityDialogView
-                {
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner
-                };
-                await selectIdentityDialog.ShowDialog(_mainWindow);
+                new SelectIdentityViewModel().ShowDialog(this);
             }
         }
 
