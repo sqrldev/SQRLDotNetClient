@@ -1,26 +1,22 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using SQRLDotNetClientUI.Models;
+using SQRLDotNetClientUI.ViewModels;
 using System;
 
 namespace SQRLDotNetClientUI.Views
 {
-    public class SelectIdentityDialogView : Window
+    public class SelectIdentityView : UserControl
     {
         private StackPanel _stackPnlMain = null;
         private IdentityManager _identityManager = IdentityManager.Instance;
 
-        public SelectIdentityDialogView()
+        public SelectIdentityView()
         {
             this.InitializeComponent();
-
-            this._stackPnlMain = this.FindControl<StackPanel>("stackPnlMain");
             PopulateUI();
-
-#if DEBUG
-            this.AttachDevTools();
-#endif
         }
 
         private void InitializeComponent()
@@ -33,6 +29,7 @@ namespace SQRLDotNetClientUI.Views
         /// </summary>
         private void PopulateUI()
         {
+            _stackPnlMain = this.FindControl<StackPanel>("stackPnlMain");
             var currentId = _identityManager.CurrentIdentity;
             var currentIdUniqueId = _identityManager.CurrentIdentityUniqueId;
             var ids = _identityManager.GetIdentities();
@@ -62,16 +59,15 @@ namespace SQRLDotNetClientUI.Views
         }
 
         /// <summary>
-        /// Handles the event of an identity getting selected.
+        /// Event handler that gets called when an identity gets selected.
         /// </summary>
-        private void OnIdentitySelected(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        private void OnIdentitySelected(object sender, RoutedEventArgs e)
         {
             RadioButton rb = (RadioButton)sender;
             (string name, string uniqueId) = (Tuple<string, string>)rb.Tag;
 
-            _identityManager.SetCurrentIdentity(uniqueId);
-
-            this.Close();
+            SelectIdentityViewModel viewModel = (SelectIdentityViewModel)this.DataContext;
+            viewModel.OnIdentitySelected(uniqueId);
         }
     }
 }

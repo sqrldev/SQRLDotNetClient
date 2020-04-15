@@ -67,7 +67,7 @@
     <AvaloniaResource Remove="Views\NewPasswordWidget.xaml" />
     <AvaloniaResource Remove="Views\ProgressDialogView.xaml" />
     <AvaloniaResource Remove="Views\ReKeyView.xaml" />
-    <AvaloniaResource Remove="Views\SelectIdentityDialogView.xaml" />
+    <AvaloniaResource Remove="Views\SelectIdentityView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
@@ -125,7 +125,7 @@
     <None Remove="Views\NewPasswordWidget.xaml" />
     <None Remove="Views\ProgressDialogView.xaml" />
     <None Remove="Views\ReKeyView.xaml" />
-    <None Remove="Views\SelectIdentityDialogView.xaml" />
+    <None Remove="Views\SelectIdentityView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Fonts\SpaceMono-Bold.ttf" />
@@ -275,12 +275,15 @@
     <Compile Update="Views\ProgressDialogView.xaml.cs">
       <DependentUpon>ProgressDialogView.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\SelectIdentityView.xaml.cs">
+      <DependentUpon>SelectIdentityView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Views\SelectIdentityDialogView.xaml">
+    <EmbeddedResource Include="Views\SelectIdentityView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>
