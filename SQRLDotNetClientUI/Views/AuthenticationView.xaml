@@ -20,7 +20,7 @@
     
     <!-- Login message and site id -->
       <TextBlock HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="10, 0, 10, 5" Text="{loc:Localization AuthMessage}" FontSize="13" TextWrapping="Wrap" />
-      <TextBlock HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="10, 0, 10, 0" Text="www.grc.com" FontSize="22" FontFamily="Consolas" Foreground="#007cc3" TextWrapping="Wrap"/>
+      <TextBlock HorizontalAlignment="Center" DockPanel.Dock="Top" Margin="10, 0, 10, 0" Text="{Binding SiteID}" FontSize="22" FontFamily="Consolas" Foreground="#007cc3" TextWrapping="Wrap"/>
 
     <!-- "Identity button/label -->
     <StackPanel IsVisible="{Binding ShowIdentitySelector}" Orientation="Horizontal" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="5,5,5,0">
