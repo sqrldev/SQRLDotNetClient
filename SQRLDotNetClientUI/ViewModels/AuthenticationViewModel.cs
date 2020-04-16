@@ -11,6 +11,7 @@ using System.Text;
 using Avalonia.Controls;
 using SQRLDotNetClientUI.Models;
 using Serilog;
+using System.Reflection;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -156,7 +157,8 @@ namespace SQRLDotNetClientUI.ViewModels
 
         private async void CheckForUpdate()
         {
-            this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates();
+            this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates(
+                Assembly.GetExecutingAssembly().GetName().Version);
         }
 
         /// <summary>

@@ -240,7 +240,8 @@ namespace SQRLDotNetClientUI.ViewModels
         public async void CheckForUpdates()
         {
 
-            this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates();
+            this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates(
+                Assembly.GetExecutingAssembly().GetName().Version);
         }
 
 
