@@ -40,9 +40,8 @@ namespace SQRLDotNetClientUI.ViewModels
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(textualIdentityBytes, QRCodeGenerator.ECCLevel.H);
             QRCode qrCode = new QRCode(qrCodeData);
-            var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            var logo = new System.Drawing.Bitmap(assets.Open(new Uri("resm:SQRLDotNetClientUI.Assets.SQRL_icon_normal_32.png")));
-            var qrCodeBitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, logo, 15, 1);
+            
+            var qrCodeBitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, true);
             
             using (var stream = new MemoryStream())
             {
