@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using SQRLDotNetClientUI.Views;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -27,9 +28,20 @@ namespace SQRLDotNetClientUI.ViewModels
         public ViewModelBase Content
         {
             get => _content;
-            set { 
-                // Don't want PriorContent to be messed up because of the progress indicator so we aren't counting those
-                PriorContent = (value.GetType() != typeof(ProgressDialogViewModel) && Content!=null && Content.GetType() != typeof(ProgressDialogViewModel) ? Content : PriorContent); 
+            set 
+            { 
+                // Don't want PriorContent to be messed up because of the progress indicator
+                // or message boxes so we aren't counting those
+                if (Content != null &&
+                    Content != PriorContent &&
+                    Content.GetType() != typeof(ProgressDialogViewModel) &&
+                    Content.GetType() != typeof(MessageBoxViewModel) &&
+                    value.GetType() != typeof(ProgressDialogViewModel) &&
+                    value.GetType() != typeof(MessageBoxViewModel))
+                {
+                    PriorContent = Content;
+                }
+                 
                 this.RaiseAndSetIfChanged(ref _content, value); 
             }
         }

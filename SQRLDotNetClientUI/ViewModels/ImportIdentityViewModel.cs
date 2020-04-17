@@ -16,22 +16,38 @@ namespace SQRLDotNetClientUI.ViewModels
             set { this.RaiseAndSetIfChanged(ref _textualIdentity, value); } 
         }
 
-        private string _identityFile="N/A";
+        private string _identityFile="";
         public string IdentityFile 
         {
             get => _identityFile; 
             set { this.RaiseAndSetIfChanged(ref _identityFile, value); } 
         }
-        
+
+        private bool _canImport = false;
+        public bool CanImport
+        {
+            get => _canImport;
+            set { this.RaiseAndSetIfChanged(ref _canImport, value); }
+        }
+
         public ImportIdentityViewModel()
         {
             this.Title = _loc.GetLocalizationValue("ImportIdentityWindowTitle");
+
+            this.WhenAnyValue(x => x.TextualIdentity, x => x.IdentityFile,
+                  (te, id) => new Tuple<string, string>(te, id))
+                .Subscribe((x) => 
+                {
+                    if (!string.IsNullOrEmpty(x.Item1) || !string.IsNullOrEmpty(x.Item2)) CanImport = true;
+                    else CanImport = false;
+                });
         }
 
         public async void ImportFile()
         {
             FileDialogFilter fdf = new FileDialogFilter();
             fdf.Extensions.Add("sqrl");
+            fdf.Extensions.Add("sqrc");
             fdf.Name = _loc.GetLocalizationValue("FileDialogFilterName");
 
             OpenFileDialog ofd = new OpenFileDialog
@@ -41,11 +57,11 @@ namespace SQRLDotNetClientUI.ViewModels
             ofd.Filters.Add(fdf);
             ofd.Title = _loc.GetLocalizationValue("ImportOpenFileDialogTitle");
 
-            var file = await ofd.ShowAsync(_mainWindow);
+            var files = await ofd.ShowAsync(_mainWindow);
 
-            if(file.Length>0)
+            if(files != null && files.Length>0)
             {
-                this.IdentityFile = file[0];
+                this.IdentityFile = files[0];
             }
         }
 
