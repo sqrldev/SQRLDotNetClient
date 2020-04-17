@@ -34,7 +34,7 @@
                Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" VerticalAlignment="Center"/>
 
     <Button Content="{loc:Localization BtnCancel}" Margin="10" Command="{Binding Cancel}" Grid.Row="5" Grid.Column="0" Width="70" HorizontalAlignment="Left" />
-    <Button Content="{loc:Localization BtnNext}" IsDefault="True" Margin="10" Command="{Binding ImportVerify}" Grid.Row="5" Grid.Column="1" Width="70" HorizontalAlignment="Right" />
+    <Button Content="{loc:Localization BtnNext}" Command="{Binding ImportVerify}" IsEnabled="{Binding CanImport}" IsDefault="True" Margin="10" Grid.Row="5" Grid.Column="1" Width="70" HorizontalAlignment="Right" />
     
   </Grid>
 </UserControl>
