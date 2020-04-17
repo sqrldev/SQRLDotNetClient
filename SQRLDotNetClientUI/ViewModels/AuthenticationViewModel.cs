@@ -6,17 +6,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
-
 using Avalonia.Controls;
 using SQRLDotNetClientUI.Models;
 using Serilog;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
+    /// <summary>
+    /// A view model representing the app's authentication screen.
+    /// </summary>
     public class AuthenticationViewModel : ViewModelBase
     {
+        private SQRL _sqrlInstance = SQRL.GetInstance(true);
+        private QuickPassManager _quickPassManager = QuickPassManager.Instance;
+        private bool _newUpdateAvailable = false;
+        private LoginAction _action = LoginAction.Login;
+        private string _password = "";
+        private string _siteID = "";
+        private string _passwordLabel = "";
+        private string _identityName = "";
+        private bool _showIdentitySelector;
+        private bool _advancedFunctionsVisible = false;
+        private bool _isBusy = false;
+        private int _Block1Progress = 0;
+
+        /// <summary>
+        /// Represents the type of action to be performed upon authentication.
+        /// </summary>
         public enum LoginAction
         {
             Login,
@@ -24,88 +42,123 @@ namespace SQRLDotNetClientUI.ViewModels
             Remove
         };
 
-        private bool _NewUpdateAvailable=false;
+        /// <summary>
+        /// Gets or sets a value indicating whether a new app update is available.
+        /// </summary>
         public bool NewUpdateAvailable
         {
-            get => _NewUpdateAvailable;
-            set { this.RaiseAndSetIfChanged(ref _NewUpdateAvailable, value); }
+            get => _newUpdateAvailable;
+            set { this.RaiseAndSetIfChanged(ref _newUpdateAvailable, value); }
         }
 
-
-        private LoginAction action = LoginAction.Login;
+        /// <summary>
+        /// Gets or sets a value indicating which login action should be performed.
+        /// </summary>
         public LoginAction Action
         {
-            get => action; 
-            set { this.RaiseAndSetIfChanged(ref action, value); }
+            get => _action; 
+            set { this.RaiseAndSetIfChanged(ref _action, value); }
         }
 
-        private SQRL _sqrlInstance = SQRL.GetInstance(true);
-        private QuickPassManager _quickPassManager = QuickPassManager.Instance;
-
+        /// <summary>
+        /// Gets or sets a value representing the full authentication URL for the
+        /// authentication.
+        /// </summary>
         public Uri Site { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value representing the alternate identity (Alt-Id)
+        /// string to be used for the current authentication.
+        /// </summary>
         public string AltID { get; set; } = "";
 
-        public string _password = "";
+        /// <summary>
+        /// Gets or sets the password to be used for the authentication procedure.
+        /// </summary>
         public string Password
         {
             get => _password;
             set => this.RaiseAndSetIfChanged(ref _password, value);
         }
 
-        public bool AuthAction { get; set; }
-
-        public string _siteID = "";
+        /// <summary>
+        /// Gets or sets a value representing the host/domain part of the 
+        /// authentication URL.
+        /// </summary>
         public string SiteID 
         { 
             get { return $"{this.Site.Host}"; } 
             set => this.RaiseAndSetIfChanged(ref _siteID, value); 
         }
 
-        public string _passwordLabel = "";
+        /// <summary>
+        /// Gets or sets the label text for the password / quickpass field.
+        /// </summary>
         public string PasswordLabel
         {
             get => _passwordLabel;
             set => this.RaiseAndSetIfChanged(ref _passwordLabel, value);
         }
 
-        public string _identityName = "";
+        /// <summary>
+        /// Gets or sets a value representing the name of the currently 
+        /// selected identity.
+        /// </summary>
         public string IdentityName
         {
             get => _identityName;
             set => this.RaiseAndSetIfChanged(ref _identityName, value);
         }
 
-        public bool _showIdentitySelector;
+        /// <summary>
+        /// Gets or sets a value indicating whether the identity selector
+        /// should be shown in the UI or not.
+        /// </summary>
         public bool ShowIdentitySelector
         {
             get => _showIdentitySelector;
             set => this.RaiseAndSetIfChanged(ref _showIdentitySelector, value);
         }
 
-        public bool _advancedFunctionsVisible = false;
+        /// <summary>
+        /// Gets or sets a value indicating whether advanced functions such
+        /// as "disable" or "remove" should be visible in the UI or not.
+        /// </summary>
         public bool AdvancedFunctionsVisible
         {
             get => _advancedFunctionsVisible;
             set => this.RaiseAndSetIfChanged(ref _advancedFunctionsVisible, value);
         }
 
-        public bool _isBusy = false;
+        /// <summary>
+        /// Gets or sets a value indicating whether the app is currently performing
+        /// a login task. This is used to dynamically enable/disable UI controls.
+        /// </summary>
         public bool IsBusy
         {
             get => _isBusy;
             set => this.RaiseAndSetIfChanged(ref _isBusy, value);
         }
 
-        private int _Block1Progress = 0;
-
+        /// <summary>
+        /// Gets or sets a value representing the progress percentage for the 
+        /// decryption of the type 1 block.
+        /// </summary>
         public int Block1Progress 
         { 
             get => _Block1Progress; 
             set => this.RaiseAndSetIfChanged(ref _Block1Progress, value); 
         }
 
+        /// <summary>
+        /// Gets a value indicating the maximum value for the progress bars.
+        /// </summary>
         public int MaxProgress { get => 100; }
 
+        /// <summary>
+        /// Creates a new <c>AuthenticationViewModel</c> instance and performs
+        /// some initialization tasks.
+        /// </summary>
         public AuthenticationViewModel()
         {
             Init();
@@ -113,6 +166,11 @@ namespace SQRLDotNetClientUI.ViewModels
             this.SiteID = this.Site.Host;
         }
 
+        /// <summary>
+        /// Creates a new <c>AuthenticationViewModel</c> instance, passing in 
+        /// the authentication URL and performs some initialization tasks.
+        /// </summary>
+        /// <param name="site">The authentication URL.</param>
         public AuthenticationViewModel(Uri site)
         {
             Init();
@@ -120,6 +178,9 @@ namespace SQRLDotNetClientUI.ViewModels
             this.SiteID = site.Host;
         }
 
+        /// <summary>
+        /// Performs various intitialization tasks.
+        /// </summary>
         private void Init()
         {
             this.Title = _loc.GetLocalizationValue("AuthenticationWindowTitle");
@@ -150,11 +211,12 @@ namespace SQRLDotNetClientUI.ViewModels
             });
 
             CheckForQuickPass();
-
             CheckForUpdate();
-
         }
 
+        /// <summary>
+        /// Checks if an app update is availabe on Github.
+        /// </summary>
         private async void CheckForUpdate()
         {
             this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates(
@@ -183,7 +245,7 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         /// <summary>
-        /// Opens the identity selection dialog.
+        /// Displays the identity selection screen.
         /// </summary>
         public void SwitchIdentity()
         {
@@ -206,6 +268,9 @@ namespace SQRLDotNetClientUI.ViewModels
             this.AdvancedFunctionsVisible = true;
         }
 
+        /// <summary>
+        /// Cancels a pending authentication.
+        /// </summary>
         public void Cancel()
         {
             if (_sqrlInstance.cps.PendingResponse)
@@ -217,6 +282,11 @@ namespace SQRLDotNetClientUI.ViewModels
             ShowMainScreenAndClose();
         }
 
+        /// <summary>
+        /// Performs the actual authentication and chosen login action.
+        /// </summary>
+        /// <param name="useQuickPass">Indicates whether to use QuickPass instead of the full
+        /// master password for authentication.</param>
         public async void Login(bool useQuickPass = false)
         {
             byte[] imk, ilk;
@@ -238,10 +308,11 @@ namespace SQRLDotNetClientUI.ViewModels
                 var block1Keys = await SQRL.DecryptBlock1(_identityManager.CurrentIdentity, this.Password, progressBlock1);
                 if (!block1Keys.DecryptionSucceeded)
                 {
-                    var dialogResult = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("BadPasswordErrorTitle"), 
-                                               _loc.GetLocalizationValue("BadPasswordError"), 
-                                               MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                               .ShowDialog(this);
+                    var dialogResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("BadPasswordErrorTitle"),
+                        _loc.GetLocalizationValue("BadPasswordError"), 
+                        MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                        .ShowDialog(this);
+
                     if (dialogResult ==MessagBoxDialogResult.OK)
                     {
                         this.IsBusy = false;
@@ -266,10 +337,11 @@ namespace SQRLDotNetClientUI.ViewModels
             if (serverResponse.CommandFailed)
             {
                 //TODO: Fix Dialog
-                var dialogResult = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                           _loc.GetLocalizationValue("SQRLCommandFailedUnknown"), 
-                                           MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                           .ShowDialog(this);
+                var dialogResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    _loc.GetLocalizationValue("SQRLCommandFailedUnknown"), 
+                    MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog(this);
+
                 if (dialogResult == MessagBoxDialogResult.OK)
                 {
                     this.IsBusy = false;
@@ -329,10 +401,11 @@ namespace SQRLDotNetClientUI.ViewModels
                 {
                     var disabledAccountAlert = string.Format(_loc.GetLocalizationValue("SqrlDisabledAlert"), this.SiteID, Environment.NewLine);
                     
-                    var btResult =await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ReEnableSQRLTitle").ToUpper(),
-                                                             disabledAccountAlert,
-                                                             MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
-                                                            .ShowDialog(this);
+                    var btResult =await new MessageBoxViewModel(_loc.GetLocalizationValue("ReEnableSQRLTitle").ToUpper(),
+                        disabledAccountAlert,
+                        MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+                        .ShowDialog(this);
+
                     if (btResult == MessagBoxDialogResult.YES)
                     {
                         RetryRescueCode:
@@ -341,22 +414,26 @@ namespace SQRLDotNetClientUI.ViewModels
 
                         if (dialogClosed)
                         {
-                            var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCodeDlg.Secret), progressBlock1);
+                            var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, 
+                                SQRL.CleanUpRescueCode(rescueCodeDlg.Secret), progressBlock1);
+
                             if (iukData.DecryptionSucceeded)
                             {
                                 byte[] ursKey = null;
-                                ursKey = SQRL.GetURSKey(iukData.Iuk, Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Utilities.Base64Variant.UrlSafeNoPadding));
+                                ursKey = SQRL.GetURSKey(iukData.Iuk, Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, 
+                                    Utilities.Base64Variant.UrlSafeNoPadding));
 
                                 iukData.Iuk.ZeroFill();
-                                serverResponse = SQRL.GenerateEnableCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, ursKey, addClientData, sqrlOpts);
+                                serverResponse = SQRL.GenerateEnableCommand(serverResponse.NewNutURL, siteKvp, 
+                                    serverResponse.FullServerRequest, ursKey, addClientData, sqrlOpts);
                             }
                             else
                             {
+                                var answer = await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                    _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                                    MessageBoxSize.Small, MessageBoxButtons.YesNo, MessageBoxIcons.ERROR)
+                                    .ShowDialog(this);
 
-                                var answer = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                                                        _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
-                                                                        MessageBoxSize.Small, MessageBoxButtons.YesNo, MessageBoxIcons.ERROR)
-                                                                        .ShowDialog(this);
                                 if (answer == MessagBoxDialogResult.YES)
                                 {
                                     goto RetryRescueCode;
@@ -371,8 +448,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 {
                     case LoginAction.Login:
                         {
-                            addClientData = GenerateSIN(imk, serverResponse, addClientData);
-                            serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.ident, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
+                            addClientData = GenerateINS(imk, serverResponse, addClientData);
+                            serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.ident, serverResponse.NewNutURL, 
+                                siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
+
                             if (SQRL.GetInstance(true).cps != null && _sqrlInstance.cps.PendingResponse)
                             {
                                 _sqrlInstance.cps.cpsBC.Add(new Uri(serverResponse.SuccessUrl));
@@ -386,14 +465,17 @@ namespace SQRLDotNetClientUI.ViewModels
                         {
                             var disableAccountAlert = string.Format(_loc.GetLocalizationValue("DisableAccountAlert"), this.SiteID, Environment.NewLine);
                             
-                            var btResult = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("WarningMessageBoxTitle").ToUpper(),
-                                                                     disableAccountAlert, 
-                                                                     MessageBoxSize.Large, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
-                                                                    .ShowDialog(this);
+                            var btResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("WarningMessageBoxTitle").ToUpper(),
+                                disableAccountAlert, 
+                                MessageBoxSize.Large, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+                                .ShowDialog(this);
+
                             if (btResult == MessagBoxDialogResult.YES)
                             {
-                                GenerateSIN(imk, serverResponse, addClientData);
-                                serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
+                                GenerateINS(imk, serverResponse, addClientData);
+                                serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, 
+                                    siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
+
                                 if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
                                 {
                                     _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
@@ -411,12 +493,17 @@ namespace SQRLDotNetClientUI.ViewModels
                             var dialogClosed = await rescueCodeDlg.ShowDialog(this);
                             if (dialogClosed)
                             {
-                                var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, SQRL.CleanUpRescueCode(rescueCodeDlg.Secret), progressBlock1);
+                                var iukData = await SQRL.DecryptBlock2(_identityManager.CurrentIdentity, 
+                                    SQRL.CleanUpRescueCode(rescueCodeDlg.Secret), progressBlock1);
+
                                 if (iukData.DecryptionSucceeded)
                                 {
-                                    byte[] ursKey = SQRL.GetURSKey(iukData.Iuk, Sodium.Utilities.Base64ToBinary(serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
+                                    byte[] ursKey = SQRL.GetURSKey(iukData.Iuk, Sodium.Utilities.Base64ToBinary(
+                                        serverResponse.SUK, string.Empty, Sodium.Utilities.Base64Variant.UrlSafeNoPadding));
 
-                                    serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts, null, ursKey);
+                                    serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverResponse.NewNutURL, 
+                                        siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts, null, ursKey);
+
                                     if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
                                     {
                                         _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
@@ -427,14 +514,11 @@ namespace SQRLDotNetClientUI.ViewModels
                                 }
                                 else
                                 {
-
-
-                                    _ = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                                               _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
-                                                               MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                                               .ShowDialog(this);
+                                    _ = await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                                        _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                                        MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                                        .ShowDialog(this);
                                 }
-                                
                             }
                         }
                         break;
@@ -444,7 +528,16 @@ namespace SQRLDotNetClientUI.ViewModels
             this.IsBusy = false;
         }
 
-        private StringBuilder GenerateSIN(byte[] imk, SQRLServerResponse serverResponse, StringBuilder addClientData)
+        /// <summary>
+        /// Generates an indexed secret (INS) from the secret index (SIN) contained within 
+        /// <paramref name="serverResponse"/> using the Identity Master Key <paramref name="imk"/>,
+        /// appends it to the client data given in <paramref name="addClientData"/> and returns the result.
+        /// </summary>
+        /// <param name="imk">The Identity Master Key (IMK).</param>
+        /// <param name="serverResponse">The server response containing the secret index (SIN).</param>
+        /// <param name="addClientData">The client data to append the generated indexed secret to.</param>
+        /// <returns>The <paramref name="addClientData"/> with the generated indexted secret appended.</returns>
+        private StringBuilder GenerateINS(byte[] imk, SQRLServerResponse serverResponse, StringBuilder addClientData)
         {
             if (!string.IsNullOrEmpty(serverResponse.SIN))
             {
@@ -457,16 +550,27 @@ namespace SQRLDotNetClientUI.ViewModels
             return addClientData;
         }
 
-        private async System.Threading.Tasks.Task<SQRLServerResponse> HandleNewAccount(byte[] imk, byte[] ilk, KeyPair siteKvp, SQRLOptions sqrlOpts, SQRLServerResponse serverResponse)
+        /// <summary>
+        /// Handles the case where the identity is not known to the site that 
+        /// we are authenticating to, so we display a dialog asking the user 
+        /// whether creating a new account is desired.
+        /// </summary>
+        /// <param name="imk">The Identity Master Key (IMK).</param>
+        /// <param name="ilk">The Identity Lock Key (ILK).</param>
+        /// <param name="siteKvp">The site's crypto key pair.</param>
+        /// <param name="sqrlOpts">The SQRL options.</param>
+        /// <param name="serverResponse">The latest response from the SQRL server.</param>
+        /// <returns></returns>
+        private async Task<SQRLServerResponse> HandleNewAccount(byte[] imk, byte[] ilk, KeyPair siteKvp, SQRLOptions sqrlOpts, SQRLServerResponse serverResponse)
         {
             string newAccountQuestion = string.Format(_loc.GetLocalizationValue("NewAccountQuestion"), this.SiteID);
             string genericQuestionTitle = string.Format(_loc.GetLocalizationValue("GenericQuestionTitle"), this.SiteID);
-
             
-            var btnRsult = await new Views.MessageBoxViewModel(genericQuestionTitle,
-                                                      newAccountQuestion, 
-                                                      MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
-                                                      .ShowDialog(this);
+            var btnRsult = await new MessageBoxViewModel(genericQuestionTitle,
+                newAccountQuestion, 
+                MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+                .ShowDialog(this);
+
             if (btnRsult == MessagBoxDialogResult.YES)
             {
                 StringBuilder additionalData = null;
@@ -476,7 +580,9 @@ namespace SQRLDotNetClientUI.ViewModels
                     byte[] ids = SQRL.CreateIndexedSecret(this.Site, AltID, imk, Encoding.UTF8.GetBytes(serverResponse.SIN));
                     additionalData.AppendLineWindows($"ins={Sodium.Utilities.BinaryToBase64(ids, Utilities.Base64Variant.UrlSafeNoPadding)}");
                 }
-                serverResponse = SQRL.GenerateNewIdentCommand(serverResponse.NewNutURL, siteKvp, serverResponse.FullServerRequest, ilk, sqrlOpts, additionalData);
+                serverResponse = SQRL.GenerateNewIdentCommand(serverResponse.NewNutURL, siteKvp, 
+                    serverResponse.FullServerRequest, ilk, sqrlOpts, additionalData);
+
                 if (!serverResponse.CommandFailed)
                 {
                     if (_sqrlInstance.cps.PendingResponse)
@@ -502,6 +608,10 @@ namespace SQRLDotNetClientUI.ViewModels
             return serverResponse;
         }
 
+        /// <summary>
+        /// Decrypts an identity's block 3 and returns its prior site keys.
+        /// </summary>
+        /// <param name="imk">The Identity Master Key (IMK).</param>
         private Dictionary<byte[], PriorSiteKeysResult> GeneratePriorKeyInfo(byte[] imk)
         {
             Dictionary<byte[], PriorSiteKeysResult> priorSiteKeys = null;
