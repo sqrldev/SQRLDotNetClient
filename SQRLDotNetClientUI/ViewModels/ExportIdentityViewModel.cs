@@ -19,13 +19,21 @@ namespace SQRLDotNetClientUI.ViewModels
     /// </summary>
     public class ExportIdentityViewModel: ViewModelBase
     {
+        private Avalonia.Media.Imaging.Bitmap _qrImage;
+
+        /// <summary>
+        /// Gets or sets a bitmap representing the identity as a QR-code.
+        /// </summary>
+        public Avalonia.Media.Imaging.Bitmap QRImage 
+        { 
+            get { return _qrImage; } 
+            set { this.RaiseAndSetIfChanged(ref _qrImage, value); } 
+        }
+
         /// <summary>
         /// The currently active identity.
         /// </summary>
         public SQRLIdentity Identity { get; }
-
-        private Avalonia.Media.Imaging.Bitmap _qrImg;
-        private Avalonia.Media.Imaging.Bitmap QRImage { get { return _qrImg; } set { this.RaiseAndSetIfChanged(ref _qrImg, value); } }
 
         /// <summary>
         /// Creates a new instance and initializes.
