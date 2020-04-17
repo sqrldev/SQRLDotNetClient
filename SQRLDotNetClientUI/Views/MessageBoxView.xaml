@@ -6,18 +6,16 @@
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="150"
         x:Class="SQRLDotNetClientUI.Views.MessageBoxView"
         xmlns:vm="clr-namespace:SQRLDotNetClientUI.Views;assembly=SQRLDotNetClientUI"
-        Width="{Binding Width}"
-        
-        
-        >
-  <DockPanel LastChildFill="True" >
-    <StackPanel  DockPanel.Dock="Top" Orientation="Vertical" VerticalAlignment="Bottom" Margin="10" >
-      <Image Stretch="None" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Source="{Binding IconSource}" />
-      <TextBlock   Margin="10"  Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" Grid.Row="1" Grid.Column="0" Text="{Binding Message}" />
-
-
+        Width="{Binding Width}">
+  
+  <DockPanel LastChildFill="True" Margin="20">
+    
+    <StackPanel DockPanel.Dock="Top" Orientation="Vertical">
+      <Image Source="{Binding IconSource}" Stretch="None" VerticalAlignment="Top" HorizontalAlignment="Center" />
+      <TextBlock Text="{Binding Message}" Margin="0,10" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
     </StackPanel>
-    <StackPanel Margin="10" DockPanel.Dock="Bottom" Name="pnlButtons" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+    
+    <StackPanel Margin="0,10" DockPanel.Dock="Bottom" Name="pnlButtons" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
 
   </DockPanel>
 </UserControl>
