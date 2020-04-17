@@ -150,7 +150,8 @@
     { "BtnViewRepository": "View Repository" },
     { "BtnViewLicense": "View License" },
     { "OpenSourceLicenses": "Open source licenses / used libraries:" },
-    { "SaveRescueCodeDialogTitle": "Select a location and name to save your rescue code" }
+    { "SaveRescueCodeDialogTitle": "Select a location and name to save your rescue code" },
+    { "OrLabel": "... or ..."}
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -303,7 +304,8 @@
     { "BtnViewRepository": "View Repository" },
     { "BtnViewLicense": "View License" },
     { "OpenSourceLicenses": "Open source licenses / used libraries:" },
-    { "SaveRescueCodeDialogTitle": "Select a location and name to save your rescue code" }
+    { "SaveRescueCodeDialogTitle": "Select a location and name to save your rescue code" },
+    { "OrLabel": "... or ..." }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -456,6 +458,7 @@
     { "BtnViewRepository": "Zum Repository" },
     { "BtnViewLicense": "Lizenz anzeigen" },
     { "OpenSourceLicenses": "Open-Source-Lizenzen / Libraries:" },
-    { "SaveRescueCodeDialogTitle": "Wählen Sie einen Namen und Speicherort für Ihren Rettungscode" }
+    { "SaveRescueCodeDialogTitle": "Wählen Sie einen Namen und Speicherort für Ihren Rettungscode" },
+    { "OrLabel": "... oder ..." }
   ]
 }
