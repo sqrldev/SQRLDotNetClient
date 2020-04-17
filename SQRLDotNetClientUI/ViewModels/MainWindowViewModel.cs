@@ -1,40 +1,53 @@
 ﻿using ReactiveUI;
-using SQRLDotNetClientUI.Platform.Win;
-using SQRLUtilsLib;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
+    /// <summary>
+    /// A view model representing the main application window.
+    /// </summary>
     public class MainWindowViewModel : ViewModelBase
     {
-        MainMenuViewModel mainMenu;
-        ViewModelBase content;
-        ViewModelBase priorContent;
+        MainMenuViewModel _mainMenu;
+        ViewModelBase _content;
+        ViewModelBase _priorContent;
 
+        /// <summary>
+        /// Gets or sets the view model representing the app's main screen.
+        /// </summary>
         public MainMenuViewModel MainMenu
         {
-            get => mainMenu;
-            set { this.RaiseAndSetIfChanged(ref mainMenu, value); }
+            get => _mainMenu;
+            set { this.RaiseAndSetIfChanged(ref _mainMenu, value); }
         }
 
+        /// <summary>
+        /// Gets or sets the view model of the corresponding view that will 
+        /// be displayed within the app's main window.
+        /// </summary>
         public ViewModelBase Content
         {
-            get => content;
+            get => _content;
             set { 
                 // Don't want PriorContent to be messed up because of the progress indicator so we aren't counting those
                 PriorContent = (value.GetType() != typeof(ProgressDialogViewModel) && Content!=null && Content.GetType() != typeof(ProgressDialogViewModel) ? Content : PriorContent); 
-                this.RaiseAndSetIfChanged(ref content, value); 
+                this.RaiseAndSetIfChanged(ref _content, value); 
             }
         }
 
+        /// <summary>
+        /// Gets or sets the view model of the corresponding view that was 
+        /// previously displayed within the app's main window.
+        /// </summary>
         public ViewModelBase PriorContent
         {
-            get => priorContent;
-            set => this.RaiseAndSetIfChanged(ref priorContent, value);
+            get => _priorContent;
+            set => this.RaiseAndSetIfChanged(ref _priorContent, value);
         }
 
+        /// <summary>
+        /// Creates a new <c>MainWindowViewModel</c> instance and performs some 
+        /// initialization tasks.
+        /// </summary>
         public MainWindowViewModel()
         {
             var mainMnu = new MainMenuViewModel();
