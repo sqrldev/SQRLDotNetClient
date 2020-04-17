@@ -1,43 +1,65 @@
 ﻿using ReactiveUI;
 using SQRLDotNetClientUI.Views;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
+    /// <summary>
+    /// A view model for the app's screen to enter a user secret
+    /// (password or rescue code).
+    /// </summary>
     public class InputSecretDialogViewModel: ViewModelBase
     {
-        public SecretType SecretType { get; set; }
-        private BlockingCollection<bool> dialogClosed;
+        private BlockingCollection<bool> _dialogClosed;
         private string _secret = "";
+
+        /// <summary>
+        /// Gets or sets the type of secret that the user should be asked to enter.
+        /// </summary>
+        public SecretType SecretType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the actual secret entered by the user.
+        /// </summary>
         public string Secret {
             get => _secret;
             set => this.RaiseAndSetIfChanged(ref _secret, value);
         }
-    
 
+        /// <summary>
+        /// Gets or sets the view model that the Input Secret Dialog was called from and
+        /// that should be shown again when the dialog gets closed.
+        /// </summary>
         public ViewModelBase Parent { get; set; }
+
+        /// <summary>
+        /// Creates a new <c>InputSecretDialogViewModel</c> instance, specifying the
+        /// type of secret that the user should be asked to enter within <paramref name="secretType"/>.
+        /// </summary>
+        /// <param name="secretType">The type of secret that the user should be asked to enter.</param>
         public InputSecretDialogViewModel(SecretType secretType=SecretType.Password)
         {
             this.SecretType = secretType;
-            dialogClosed = new BlockingCollection<bool>();
-        }
-
-        public void Ok()
-        {
-            ((MainWindowViewModel)_mainWindow.DataContext).Content =Parent;
-            dialogClosed.Add(true);
+            _dialogClosed = new BlockingCollection<bool>();
         }
 
         /// <summary>
-        /// This method sets the current view to the Input Secret Dialog then waits for the OK butto to be clicked before returning
-        /// uses a semaphore to accomplish this.
+        /// This event handler gets called when the dialog's "OK" button is clicked.
         /// </summary>
-        /// <param name="parent"></param>
-        /// <returns></returns>
+        public void Ok()
+        {
+            ((MainWindowViewModel)_mainWindow.DataContext).Content = Parent;
+            _dialogClosed.Add(true);
+        }
+
+        /// <summary>
+        /// This method sets the current view to the Input Secret Dialog then waits for the 
+        /// "OK" button to be clicked before returning.
+        /// </summary>
+        /// <param name="parent">The view model that the Input Secret Dialog was called from
+        /// and that should be shown again when the dialog gets closed.</param>
+        /// <param name="title">An optional title for the dialog window.</param>
         public async Task<bool> ShowDialog(ViewModelBase parent, string title = "")
         {
             this.Parent = parent;
@@ -45,7 +67,7 @@ namespace SQRLDotNetClientUI.ViewModels
             ((MainWindowViewModel)_mainWindow.DataContext).Content = this;
             return await Task.Run(() =>
             {
-                foreach (var x in dialogClosed.GetConsumingEnumerable())
+                foreach (var x in _dialogClosed.GetConsumingEnumerable())
                     return x;
 
                 return false;
