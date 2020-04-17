@@ -4,16 +4,39 @@ using SQRLCommonUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 
-public class ViewModelBase : ReactiveObject
+namespace SQRLDotNetClientUI.ViewModels
 {
-    protected IdentityManager _identityManager = IdentityManager.Instance;
-    protected MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
-    protected LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
-
-    private string title="";
-    public string Title
+    /// <summary>
+    /// A base class for all of the app's view models.
+    /// </summary>
+    public class ViewModelBase : ReactiveObject
     {
-        get => this.title; 
-        set { this.RaiseAndSetIfChanged(ref title, value); }
+        private string title = "";
+
+        /// <summary>
+        /// The singleton <c>IdentityManager</c> instance.
+        /// </summary>
+        protected IdentityManager _identityManager = IdentityManager.Instance;
+
+        /// <summary>
+        /// The app's main window.
+        /// </summary>
+        protected MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
+
+        /// <summary>
+        /// An Avalonia extension providing localization/translation 
+        /// services for the app.
+        /// </summary>
+        protected LocalizationExtension _loc = 
+            AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
+
+        /// <summary>
+        /// The window title of the screen represented by the view model.
+        /// </summary>
+        public string Title
+        {
+            get => this.title;
+            set { this.RaiseAndSetIfChanged(ref title, value); }
+        }
     }
 }

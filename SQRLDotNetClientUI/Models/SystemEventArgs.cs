@@ -14,6 +14,10 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         public string EventDescription;
 
+        /// <summary>
+        /// Creates a new <c>SystemEventArgs</c> instance.
+        /// </summary>
+        /// <param name="eventDescription">The description of the system event that triggered the notification.</param>
         public SystemEventArgs(string eventDescription)
         {
             this.EventDescription = eventDescription;
