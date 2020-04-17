@@ -1,7 +1,5 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
 using ReactiveUI;
-using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
@@ -9,18 +7,38 @@ using System.Collections.Generic;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
+    /// <summary>
+    /// A view model representing the app's "Identity Settings" screen.
+    /// </summary>
     class IdentitySettingsViewModel : ViewModelBase
     {
+        private bool _canSave = true;
+
+        /// <summary>
+        /// Gets or sets the affected identity.
+        /// </summary>
         public SQRLIdentity Identity { get; set; }
+
+        /// <summary>
+        /// Gets or sets a working copy of the affected identity for
+        /// holding unsaved changes.
+        /// </summary>
         public SQRLIdentity IdentityCopy { get; set; }
 
-        private bool _canSave = true;
+        /// <summary>
+        /// Gets or sets a value indicating whether changes were made to
+        /// the affected identity which can be saved.
+        /// </summary>
         public bool CanSave 
         { 
             get => _canSave; 
             set => this.RaiseAndSetIfChanged(ref _canSave, value); 
         }
 
+        /// <summary>
+        /// Creates a new <c>IdentitySettingsViewModel</c> instance and performs
+        /// some initialization tasks.
+        /// </summary>
         public IdentitySettingsViewModel()
         {
             this.Title = _loc.GetLocalizationValue("IdentitySettingsDialogTitle");
@@ -30,12 +48,18 @@ namespace SQRLDotNetClientUI.ViewModels
             if (this.Identity != null) this.Title += " (" + this.Identity.IdentityName + ")";
         }
 
+        /// <summary>
+        /// Displays the app's main screen.
+        /// </summary>
         public void Close()
         {
-            ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).Content =
-                ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
+            ((MainWindowViewModel)_mainWindow.DataContext).Content =
+                ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
         }
 
+        /// <summary>
+        /// Saves any changes made to the affected identity.
+        /// </summary>
         public async void Save()
         {
             CanSave = false;
