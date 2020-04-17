@@ -17,24 +17,39 @@ using System.Diagnostics;
 using ToolBox.Bridge;
 namespace SQRLDotNetClientUI.ViewModels
 {
+    /// <summary>
+    /// A view model representing the app's main screen.
+    /// </summary>
     public class MainMenuViewModel : ViewModelBase
     {
+        private bool _newUpdateAvailable = true;
+        private string _siteUrl = "";
+        private SQRLIdentity _currentIdentity;
+        private bool _currentIdentityLoaded = false;
+        public String _IdentityName = "";
 
-        private bool _NewUpdateAvailable = true;
+        /// <summary>
+        /// Gets or sets a value indicating whether there is a new app update
+        /// available on Github.
+        /// </summary>
         public bool NewUpdateAvailable
         {
-            get => _NewUpdateAvailable;
-            set => this.RaiseAndSetIfChanged(ref _NewUpdateAvailable, value);
+            get => _newUpdateAvailable;
+            set => this.RaiseAndSetIfChanged(ref _newUpdateAvailable, value);
         }
 
-        private string _siteUrl = "";
+        /// <summary>
+        /// Gets or sets the full site authentication URL.
+        /// </summary>
         public string SiteUrl
         {
             get => _siteUrl;
             set => this.RaiseAndSetIfChanged(ref _siteUrl, value);
         }
 
-        private SQRLIdentity _currentIdentity;
+        /// <summary>
+        /// Gets or sets the currently active identity.
+        /// </summary>
         public SQRLIdentity CurrentIdentity
         {
             get => _currentIdentity;
@@ -45,18 +60,62 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
-        private bool _currentIdentityLoaded = false;
+        /// <summary>
+        /// Gets or sets a value indicating whether there is an identity
+        /// loaded/available or not.
+        /// </summary>
         public bool CurrentIdentityLoaded
         {
             get => _currentIdentityLoaded;
             set => this.RaiseAndSetIfChanged(ref _currentIdentityLoaded, value);
         }
 
-        public String _IdentityName = "";
+        /// <summary>
+        /// Gets or sets the currently loaded identity's name.
+        /// </summary>
         public String IdentityName
         {
             get => _IdentityName;
             set => this.RaiseAndSetIfChanged(ref _IdentityName, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the view model for the authentication screen.
+        /// </summary>
+        public AuthenticationViewModel AuthVM { get; set; }
+
+        /// <summary>
+        /// Creates a new <c>MainMenuViewModel</c> instance, performs some
+        /// initialization tasks and checks for new app updates.
+        /// </summary>
+        public MainMenuViewModel()
+        {
+            this.Title = _loc.GetLocalizationValue("MainWindowTitle");
+            this.CurrentIdentity = _identityManager.CurrentIdentity;
+            this.IdentityName = this.CurrentIdentity?.IdentityName;
+
+            _identityManager.IdentityChanged += OnIdentityChanged;
+
+            string[] commandLine = Environment.CommandLine.Split(" ");
+            if (commandLine.Length > 1)
+            {
+
+                if (Uri.TryCreate(commandLine[1], UriKind.Absolute, out Uri result) && this.CurrentIdentity != null)
+                {
+                    AuthenticationViewModel authView = new AuthenticationViewModel(result);
+                    _mainWindow.Height = 300;
+                    _mainWindow.Width = 400;
+                    AuthVM = authView;
+                }
+            }
+            else
+            {
+                _mainWindow.Height = 450;
+                _mainWindow.Width = 400;
+            }
+
+            //Checks for New Version on Main Menu Start
+            CheckForUpdates();
         }
 
         /// <summary>
@@ -96,44 +155,21 @@ namespace SQRLDotNetClientUI.ViewModels
             set { }
         }
 
-        public AuthenticationViewModel AuthVM { get; set; }
-
-        public MainMenuViewModel()
-        {
-            this.Title = _loc.GetLocalizationValue("MainWindowTitle");
-            this.CurrentIdentity = _identityManager.CurrentIdentity;
-            this.IdentityName = this.CurrentIdentity?.IdentityName;
-
-            _identityManager.IdentityChanged += OnIdentityChanged;
-
-            string[] commandLine = Environment.CommandLine.Split(" ");
-            if (commandLine.Length > 1)
-            {
-
-                if (Uri.TryCreate(commandLine[1], UriKind.Absolute, out Uri result) && this.CurrentIdentity != null)
-                {
-                    AuthenticationViewModel authView = new AuthenticationViewModel(result);
-                    _mainWindow.Height = 300;
-                    _mainWindow.Width = 400;
-                    AuthVM = authView;
-                }
-            }
-            else
-            {
-                _mainWindow.Height = 450;
-                _mainWindow.Width = 400;
-            }
-
-            //Checks for New Version on Main Menu Start
-            CheckForUpdates();
-        }
-
+        /// <summary>
+        /// This event handler gets called when the currently active identity changes.
+        /// </summary>
         private void OnIdentityChanged(object sender, IdentityChangedEventArgs e)
         {
             this.IdentityName = e.IdentityName;
             this.CurrentIdentity = _identityManager.CurrentIdentity;
         }
 
+        /// <summary>
+        /// Sets the given <paramref name="language"/> as the active language in the 
+        /// <c>LocalizationExtension</c> and reloads the app's main screen for the
+        /// language change to take effect.
+        /// </summary>
+        /// <param name="language">The language/localization code to set active (e.g. "en-US").</param>
         public void SelectLanguage(string language)
         {
             LocalizationExtension.CurrentLocalization = language;
@@ -142,18 +178,30 @@ namespace SQRLDotNetClientUI.ViewModels
                 new MainMenuViewModel();
         }
 
+        /// <summary>
+        /// This event handler gets called when the "New Identity" button or
+        /// menu item is clicked.
+        /// </summary>
         public void OnNewIdentityClick()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
                 new NewIdentityViewModel();
         }
 
+        /// <summary>
+        /// This event handler gets called when the "Export Identity" button or
+        /// menu item is clicked.
+        /// </summary>
         public void ExportIdentity()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
                 new ExportIdentityViewModel();
         }
 
+        /// <summary>
+        /// This event handler gets called when the "Import Identity" button or
+        /// menu item is clicked.
+        /// </summary>
         public void ImportIdentity()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
@@ -171,6 +219,10 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
+        /// <summary>
+        /// This event handler gets called when the "Identity Settings" button or
+        /// menu item is clicked.
+        /// </summary>
         public void IdentitySettings()
         {
             Log.Information("Launching identity settings for identity id {IdentityUniqueId}",
@@ -180,6 +232,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 new IdentitySettingsViewModel();
         }
 
+        /// <summary>
+        /// This event handler gets called when the "Change Password" button or
+        /// menu item is clicked.
+        /// </summary>
         public void ChangePassword()
         {
             Log.Information("Launching change password screen for identity id {IdentityUniqueId}",
@@ -189,6 +245,9 @@ namespace SQRLDotNetClientUI.ViewModels
                 new ChangePasswordViewModel();
         }
 
+        /// <summary>
+        /// This event handler gets called when the "About" menu item is clicked.
+        /// </summary>
         public void About()
         {
             Log.Information("Launching about screen");
@@ -197,6 +256,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 new AboutViewModel();
         }
 
+        /// <summary>
+        /// This event handler gets called when the "Exit" menu item is clicked.
+        /// It shuts down the application.
+        /// </summary>
         public void Exit()
         {
             _mainWindow.Close();
@@ -206,6 +269,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 .Shutdown();
         }
 
+        /// <summary>
+        /// This event handler gets called when the "Delete Identity" button or
+        /// menu item is clicked.
+        /// </summary>
         public async void DeleteIdentity()
         {
             var result = await new MessageBoxViewModel(_loc.GetLocalizationValue("DeleteIdentityMessageBoxTitle"),
@@ -219,6 +286,22 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
+        /// <summary>
+        /// This event handler gets called when the "Rekey Identity" button or
+        /// menu item is clicked.
+        /// </summary>
+        public void RekeyIdentity()
+        {
+            Log.Information("Launching Rekey Identity for Identity: {IdentityUniqueId}",
+                _identityManager.CurrentIdentityUniqueId);
+
+            ((MainWindowViewModel)_mainWindow.DataContext).Content =
+                new ReKeyViewModel();
+        }
+
+        /// <summary>
+        /// Helper method for testing authentication without invoking a "sqrl://" link.
+        /// </summary>
         public void Login()
         {
             if (!string.IsNullOrEmpty(this.SiteUrl) && this.CurrentIdentity != null)
@@ -280,10 +363,11 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             else
             {
-                var result = await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("GenericQuestionTitle"),
-                string.Format(_loc.GetLocalizationValue("MissingInstaller"), this.IdentityName, Environment.NewLine),
-                MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
-                .ShowDialog(this);
+                var result = await new MessageBoxViewModel(_loc.GetLocalizationValue("GenericQuestionTitle"),
+                    string.Format(_loc.GetLocalizationValue("MissingInstaller"), this.IdentityName, Environment.NewLine),
+                    MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+                    .ShowDialog(this);
+
                 if(result == MessagBoxDialogResult.YES)
                 {
                     OpenUrl("https://github.com/sqrldev/SQRLDotNetClient/releases");
@@ -292,6 +376,10 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
+        /// <summary>
+        /// Opens the specified <paramref name="url"/> in the standard browser.
+        /// </summary>
+        /// <param name="url">The link/URL to open.</param>
         private void OpenUrl(string url)
         {
             try
@@ -321,6 +409,9 @@ namespace SQRLDotNetClientUI.ViewModels
             }
         }
 
+        /// <summary>
+        /// Returns the name of the installer corresponding to the current platform.
+        /// </summary>
         private string GetInstallerByPlatform()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -331,17 +422,6 @@ namespace SQRLDotNetClientUI.ViewModels
                 return "SQRLPlatformAwareInstaller_linux";
 
             return "";
-        }
-
-        public void RekeyIdentity()
-        {
-
-        
-            Log.Information("Launching Rekey Identity for Identity: {IdentityUniqueId}",
-                _identityManager.CurrentIdentityUniqueId);
-
-            ((MainWindowViewModel)_mainWindow.DataContext).Content =
-                new ReKeyViewModel();
         }
     }
 
