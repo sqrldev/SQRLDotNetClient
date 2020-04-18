@@ -18,5 +18,11 @@ namespace SQRLDotNetClientUI.DB.Models
         /// The id of the last loaded identity.
         /// </summary>
         public string LastLoadedIdentity { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value that determines if the app should start 
+        /// minimized to the tray icon.
+        /// </summary>
+        public bool StartMinimized { get; set; } = false;
     }
 }
