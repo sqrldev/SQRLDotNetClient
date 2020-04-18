@@ -14,6 +14,12 @@ namespace SQRLDotNetClientUI.ViewModels
         private string title = "";
 
         /// <summary>
+        /// The singleton <c>AppSettings</c> instance representing the 
+        /// app's general settings.
+        /// </summary>
+        protected AppSettings _appSettings = AppSettings.Instance;
+
+        /// <summary>
         /// The singleton <c>IdentityManager</c> instance.
         /// </summary>
         protected IdentityManager _identityManager = IdentityManager.Instance;
