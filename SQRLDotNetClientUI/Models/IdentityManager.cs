@@ -107,6 +107,7 @@ namespace SQRLDotNetClientUI.Models
 
                 // Save the last active identity unique id in the database
                 _appSettings.LastLoadedIdentity = id.UniqueId;
+                _appSettings.Save();
             }
             else
             {

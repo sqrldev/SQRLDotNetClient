@@ -15,6 +15,7 @@ namespace SQRLDotNetClientUI.Models
         private static AppSettings _instance = null;
         private SQRLDBContext _db = null;
         private UserData _userData = null;
+        private bool _hasUnsavedChanges = false;
 
         /// <summary>
         /// Gets the singleton <c>AppSettings</c> instance.
@@ -29,6 +30,15 @@ namespace SQRLDotNetClientUI.Models
         }
 
         /// <summary>
+        /// Gets a value indicating whether changes to the current app 
+        /// settings were made that haven't been saved back to the database yet.
+        /// </summary>
+        public bool HasUnsavedChanges 
+        {
+            get { return _hasUnsavedChanges; }
+        }
+
+        /// <summary>
         /// The id of the last loaded identity.
         /// </summary>
         public string LastLoadedIdentity 
@@ -40,7 +50,7 @@ namespace SQRLDotNetClientUI.Models
             set
             {
                 _userData.LastLoadedIdentity = value;
-                _db.SaveChanges();
+                _hasUnsavedChanges = true;
             }
         }
 
@@ -57,7 +67,7 @@ namespace SQRLDotNetClientUI.Models
             set
             {
                 _userData.StartMinimized = value;
-                _db.SaveChanges();
+                _hasUnsavedChanges = true;
             }
         }
 
@@ -69,6 +79,14 @@ namespace SQRLDotNetClientUI.Models
         {
             _db = new SQRLDBContext();
             _userData = GetUserData();
+        }
+
+        /// <summary>
+        /// Saves any changed settings to the database.
+        /// </summary>
+        public void Save()
+        {
+            _db.SaveChanges();
         }
 
         /// <summary>
