@@ -300,6 +300,17 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         /// <summary>
+        /// This event handler gets called when the app's "Settings" menu item is clicked.
+        /// </summary>
+        public void AppSettings()
+        {
+            Log.Information("Launching app settings screen");
+
+            ((MainWindowViewModel)_mainWindow.DataContext).Content =
+                new AppSettingsViewModel();
+        }
+
+        /// <summary>
         /// Helper method for testing authentication without invoking a "sqrl://" link.
         /// </summary>
         public void Login()
