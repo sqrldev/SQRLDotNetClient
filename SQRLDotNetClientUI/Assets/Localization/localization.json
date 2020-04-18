@@ -152,7 +152,9 @@
     { "OpenSourceLicenses": "Open source licenses / used libraries:" },
     { "SaveRescueCodeDialogTitle": "Select a location and name to save your rescue code" },
     { "OrLabel": "... or ..." },
-    { "AppSettingsMenuHeader": "Settings" }
+    { "AppSettingsMenuHeader": "Settings" },
+    { "AppSettingsTitle": "General Settings" },
+    { "StartMinimizedLabel": "Start with the app window minimized" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -307,7 +309,9 @@
     { "OpenSourceLicenses": "Open source licenses / used libraries:" },
     { "SaveRescueCodeDialogTitle": "Select a location and name to save your rescue code" },
     { "OrLabel": "... or ..." },
-    { "AppSettingsMenuHeader": "Settings" }
+    { "AppSettingsMenuHeader": "Settings" },
+    { "AppSettingsTitle": "General Settings" },
+    { "StartMinimizedLabel": "Start with the app window minimized" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -462,6 +466,8 @@
     { "OpenSourceLicenses": "Open-Source-Lizenzen / Libraries:" },
     { "SaveRescueCodeDialogTitle": "Wählen Sie einen Namen und Speicherort für Ihren Rettungscode" },
     { "OrLabel": "... oder ..." },
-    { "AppSettingsMenuHeader": "Einstellungen" }
+    { "AppSettingsMenuHeader": "Einstellungen" },
+    { "AppSettingsTitle": "Allgemeine Einstellungen" },
+    { "StartMinimizedLabel": "Programmfenster beim Start minimieren" }
   ]
 }
