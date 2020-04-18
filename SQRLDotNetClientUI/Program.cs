@@ -11,6 +11,9 @@ using System.IO;
 using System.Reflection;
 using SQRLDotNetClientUI.Views;
 using Avalonia.Dialogs;
+using SQRLDotNetClientUI.DB.DBContext;
+using Microsoft.EntityFrameworkCore;
+
 namespace SQRLDotNetClientUI
 {
     class Program
@@ -57,6 +60,10 @@ namespace SQRLDotNetClientUI
                     {
                         hasHandle = true;
                     }
+
+                    // Perform database migrations
+                    SQRLDBContext _db = new SQRLDBContext();
+                    _db.Database.Migrate();
 
                     // No existing instance of the app running,
                     // so start the IPC server and run the app
