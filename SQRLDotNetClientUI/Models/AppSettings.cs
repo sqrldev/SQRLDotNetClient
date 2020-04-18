@@ -84,6 +84,7 @@ namespace SQRLDotNetClientUI.Models
             {
                 UserData ud = new UserData();
                 ud.LastLoadedIdentity = string.Empty;
+                ud.StartMinimized = false;
                 _db.UserData.Add(ud);
                 _db.SaveChanges();
                 result = ud;

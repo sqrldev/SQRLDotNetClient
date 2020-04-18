@@ -19,6 +19,7 @@ namespace SQRLDotNetClientUI.Models
     {
         private static readonly Lazy<IdentityManager> _instance = new Lazy<IdentityManager>(() => new IdentityManager());
         private SQRLDBContext _db;
+        private AppSettings _appSettings = AppSettings.Instance;
         private Identity _currentIdentityDB = null;
         private SQRLIdentity _currentIdentity = null;
         private ILogger _log = Log.ForContext(typeof(IdentityManager));
@@ -31,7 +32,7 @@ namespace SQRLDotNetClientUI.Models
         private IdentityManager()
         {
             _db = new SQRLDBContext();
-            _currentIdentityDB = GetIdentityInternal(GetUserData().LastLoadedIdentity);
+            _currentIdentityDB = GetIdentityInternal(_appSettings.LastLoadedIdentity);
             if (_currentIdentityDB != null) _currentIdentity = DeserializeIdentity(_currentIdentityDB.DataBytes);
 
             _log.Information("IdentityManager initialized.");
@@ -105,8 +106,7 @@ namespace SQRLDotNetClientUI.Models
                 _currentIdentity = DeserializeIdentity(_currentIdentityDB.DataBytes);
 
                 // Save the last active identity unique id in the database
-                GetUserData().LastLoadedIdentity = id.UniqueId;
-                _db.SaveChanges();
+                _appSettings.LastLoadedIdentity = id.UniqueId;
             }
             else
             {
@@ -255,27 +255,6 @@ namespace SQRLDotNetClientUI.Models
 
             return _db.Identities
                 .Single(i => i.UniqueId == uniqueId);
-        }
-
-        /// <summary>
-        /// Returns the <c>UserData</c> database entry. If no such entry
-        /// exists, it will be created.
-        /// </summary>
-        private UserData GetUserData()
-        {
-            UserData result = null;
-
-            result = _db.UserData.FirstOrDefault();
-            if (result == null)
-            {
-                UserData ud = new UserData();
-                ud.LastLoadedIdentity = string.Empty;
-                _db.UserData.Add(ud);
-                _db.SaveChanges();
-                result = ud;
-            }
-
-            return result;
         }
 
         /// <summary>
