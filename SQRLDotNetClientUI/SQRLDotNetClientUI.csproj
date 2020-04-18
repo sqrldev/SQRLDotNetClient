@@ -280,7 +280,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Migrations\" />
+    <Folder Include="DB\Migrations\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\SelectIdentityView.xaml">
