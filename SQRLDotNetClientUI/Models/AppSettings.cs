@@ -17,6 +17,9 @@ namespace SQRLDotNetClientUI.Models
         private UserData _userData = null;
         private bool _hasUnsavedChanges = false;
 
+        private string _lastLoadedIdentity;
+        private bool _startMinimized;
+
         /// <summary>
         /// Gets the singleton <c>AppSettings</c> instance.
         /// </summary>
@@ -43,14 +46,14 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         public string LastLoadedIdentity 
         { 
-            get 
-            { 
-                return _userData.LastLoadedIdentity; 
-            }
+            get { return _lastLoadedIdentity; }
             set
             {
-                _userData.LastLoadedIdentity = value;
-                _hasUnsavedChanges = true;
+                if (_lastLoadedIdentity != value)
+                {
+                    _lastLoadedIdentity = value;
+                    _hasUnsavedChanges = true;
+                }
             }
         }
 
@@ -60,14 +63,14 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         public bool StartMinimized 
         {
-            get
-            {
-                return _userData.StartMinimized;
-            }
+            get { return _startMinimized; }
             set
             {
-                _userData.StartMinimized = value;
-                _hasUnsavedChanges = true;
+                if (_startMinimized != value)
+                {
+                    _startMinimized = value;
+                    _hasUnsavedChanges = true;
+                }
             }
         }
 
@@ -79,6 +82,7 @@ namespace SQRLDotNetClientUI.Models
         {
             _db = new SQRLDBContext();
             _userData = GetUserData();
+            Reload();
         }
 
         /// <summary>
@@ -86,7 +90,24 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         public void Save()
         {
+            if (!HasUnsavedChanges) return;
+
+            _userData.LastLoadedIdentity = _lastLoadedIdentity;
+            _userData.StartMinimized = _startMinimized;
+
             _db.SaveChanges();
+        }
+
+        /// <summary>
+        /// Discards any usaved changes and reloads all settings
+        /// from the database.
+        /// </summary>
+        public void Reload()
+        {
+            _lastLoadedIdentity = _userData.LastLoadedIdentity;
+            _startMinimized = _userData.StartMinimized;
+
+            _hasUnsavedChanges = false;
         }
 
         /// <summary>
