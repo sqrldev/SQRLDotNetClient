@@ -16,6 +16,7 @@ namespace SQRLDotNetClientUI.Views
     public class MainWindow : Window
     {
         private bool _reallyClose = false;
+        private bool _firstOpen = true;
         private ContextMenu _NotifyIconContextMenu;
 
         // We establish and keep a QuickPassManager instance here
@@ -101,10 +102,23 @@ namespace SQRLDotNetClientUI.Views
                 e.Cancel = true;
             };
 
+            // Remove the notify icon when the main window closes
             this.Closed += (s, e) =>
             {
-                // Remove the notify icon when the main window closes
                 if (NotifyIcon != null) NotifyIcon?.Remove();
+            };
+
+            // Check if we should start minimized
+            this.Opened += (s, e) =>
+            {
+                if (_firstOpen)
+                {
+                    if (AppSettings.Instance.StartMinimized)
+                    {
+                        this.Hide();
+                    }
+                    _firstOpen = false;
+                }
             };
         }
 
