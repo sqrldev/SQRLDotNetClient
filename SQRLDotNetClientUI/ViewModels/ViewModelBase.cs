@@ -33,8 +33,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// An Avalonia extension providing localization/translation 
         /// services for the app.
         /// </summary>
-        protected LocalizationExtension _loc = 
-            AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
+        protected LocalizationExtension _loc = (App.Current as App).Localization;
 
         /// <summary>
         /// The window title of the screen represented by the view model.

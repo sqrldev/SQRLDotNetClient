@@ -13,7 +13,7 @@ namespace SQRLDotNetClientUI.Views
     public class InputSecretDialogView : UserControl
     {
         private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
-        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
+        private LocalizationExtension _loc = (App.Current as App).Localization;
         private TextBox _txtSecret = null;
         private Button _btnOK = null;
         private TextBlock _lblMessage = null;

@@ -113,7 +113,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
                             mwvm.Content = mmvm.AuthVM;
                             Dispatcher.UIThread.Post(() =>
                             {
-                                ((MainWindow)this.mainWindow).RestoreWindow();
+                                (Application.Current as App).RestoreMainWindow();
                             });
                         }
 

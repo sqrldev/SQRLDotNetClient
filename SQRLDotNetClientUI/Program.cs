@@ -68,7 +68,7 @@ namespace SQRLDotNetClientUI
                     // No existing instance of the app running,
                     // so start the IPC server and run the app
                     ipcThread.Start();
-                    BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+                    BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, Avalonia.Controls.ShutdownMode.OnExplicitShutdown);
                 }
                 finally
                 {
@@ -79,13 +79,14 @@ namespace SQRLDotNetClientUI
                         mutex.ReleaseMutex();
                     }
 
+                    //Remove the notify icon
+                    (App.Current as App).NotifyIcon?.Remove();
+
                     if (ipcThread.IsAlive)
                     {
                         // Force close the app without waiting 
                         // for any threads to finish.
                         Log.Information("Forcing exit because of IPC thread still running.");
-
-                        AvaloniaLocator.Current.GetService<MainWindow>().NotifyIcon?.Remove();
                         Environment.Exit(1);
                     }
                 }
