@@ -22,7 +22,8 @@ namespace SQRLDotNetClientUI
         // so that it will immediately receive system event notifications
         private QuickPassManager _quickPassManager = QuickPassManager.Instance;
 
-        private ContextMenu _NotifyIconContextMenu;
+        private ContextMenu _NotifyIconContextMenu = null;
+        private MainWindow _mainWindow = null;
 
         /// <summary>
         /// Gets or sets the app's notify icon (tray icon).
@@ -48,6 +49,12 @@ namespace SQRLDotNetClientUI
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
+
+            this._mainWindow = new MainWindow
+            {
+                DataContext = new MainWindowViewModel(),
+            };
+            
             Log.Information("App initialization completed!");
         }
 
@@ -112,10 +119,7 @@ namespace SQRLDotNetClientUI
                 // Set up the app's main window, if we aren't staring minimized to tray
                 if (!AppSettings.Instance.StartMinimized || NotifyIcon == null)
                 {
-                    desktop.MainWindow = new MainWindow
-                    {
-                        DataContext = new MainWindowViewModel(),
-                    };
+                    desktop.MainWindow = _mainWindow;
                 }
             }          
 
@@ -135,10 +139,7 @@ namespace SQRLDotNetClientUI
 
             if (mainWindow == null)
             {
-                mainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel(),
-                };
+                mainWindow = _mainWindow;
             }
 
             mainWindow.Show();
