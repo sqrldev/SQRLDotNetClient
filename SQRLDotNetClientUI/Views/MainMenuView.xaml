@@ -59,7 +59,7 @@
           </MenuItem.Icon>
         </MenuItem>
         <Separator/>
-        <MenuItem Header="{loc:Localization IdentitySettingsMenuItemHeader}"  Command="{Binding IdentitySettings}" IsEnabled="{Binding CurrentIdentityLoaded}">
+        <MenuItem Header="{loc:Localization IdentitySettingsMenuItemHeader}" Command="{Binding IdentitySettings}" IsEnabled="{Binding CurrentIdentityLoaded}">
           <MenuItem.Icon>
             <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.IdentitySettings_16x.png"/>
           </MenuItem.Icon>
@@ -69,6 +69,11 @@
         <MenuItem Header="{loc:Localization LanguageMenuHeader}" Name="menuLanguage">
           <MenuItem.Icon>
             <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.Localize_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
+        <MenuItem Header="{loc:Localization AppSettingsMenuHeader}" Command="{Binding AppSettings}" Name="menuAppSettings">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.Settings_16x.png"/>
           </MenuItem.Icon>
         </MenuItem>
       </MenuItem>

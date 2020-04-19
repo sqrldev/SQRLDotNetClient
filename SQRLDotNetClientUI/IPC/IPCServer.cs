@@ -112,10 +112,8 @@ namespace SQRLDotNetClientUI.IPC
                         }
 
                         Log.Information("IPC server showing main window!");
-                        mainWindow.WindowState = WindowState.Normal;
-                        mainWindow.Show();
-                        mainWindow.Focus();
-                        mainWindow.Activate();
+
+                        (App.Current as App).RestoreMainWindow();
                     });
                 }
             }

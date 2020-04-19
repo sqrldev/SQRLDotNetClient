@@ -11,6 +11,9 @@ using System.IO;
 using System.Reflection;
 using SQRLDotNetClientUI.Views;
 using Avalonia.Dialogs;
+using SQRLDotNetClientUI.DB.DBContext;
+using Microsoft.EntityFrameworkCore;
+
 namespace SQRLDotNetClientUI
 {
     class Program
@@ -58,10 +61,14 @@ namespace SQRLDotNetClientUI
                         hasHandle = true;
                     }
 
+                    // Perform database migrations
+                    SQRLDBContext _db = new SQRLDBContext();
+                    _db.Database.Migrate();
+
                     // No existing instance of the app running,
                     // so start the IPC server and run the app
                     ipcThread.Start();
-                    BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+                    BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, Avalonia.Controls.ShutdownMode.OnExplicitShutdown);
                 }
                 finally
                 {
@@ -72,13 +79,14 @@ namespace SQRLDotNetClientUI
                         mutex.ReleaseMutex();
                     }
 
+                    //Remove the notify icon
+                    (App.Current as App).NotifyIcon?.Remove();
+
                     if (ipcThread.IsAlive)
                     {
                         // Force close the app without waiting 
                         // for any threads to finish.
                         Log.Information("Forcing exit because of IPC thread still running.");
-
-                        AvaloniaLocator.Current.GetService<MainWindow>().NotifyIcon?.Remove();
                         Environment.Exit(1);
                     }
                 }

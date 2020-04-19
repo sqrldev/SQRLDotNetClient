@@ -20,7 +20,7 @@ namespace SQRLDotNetClientUI.Views
     /// </summary>
     public class ProgressDialogView: UserControl
     {
-        private LocalizationExtension _loc = AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
+        private LocalizationExtension _loc = (App.Current as App).Localization;
         private Dictionary<Progress<KeyValuePair<int, string>>, ProgressItem> _progDict;
         private StackPanel _MainPanel;
         private StackPanel _DummyPanel;

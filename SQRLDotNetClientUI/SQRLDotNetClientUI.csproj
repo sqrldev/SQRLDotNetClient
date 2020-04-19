@@ -52,6 +52,7 @@
     <AvaloniaResource Remove="Assets\SQRL_InAction.gif" />
     <AvaloniaResource Remove="Assets\VL.png" />
     <AvaloniaResource Remove="Views\AboutView.xaml" />
+    <AvaloniaResource Remove="Views\AppSettingsView.xaml" />
     <AvaloniaResource Remove="Views\AskView.xaml" />
     <AvaloniaResource Remove="Views\AuthenticationView.xaml" />
     <AvaloniaResource Remove="Views\ChangePasswordView.xaml" />
@@ -110,6 +111,7 @@
     <None Remove="Assets\SQRL_icon_normal_64.png" />
     <None Remove="Assets\VL.png" />
     <None Remove="Views\AboutView.xaml" />
+    <None Remove="Views\AppSettingsView.xaml" />
     <None Remove="Views\AskView.xaml" />
     <None Remove="Views\AuthenticationView.xaml" />
     <None Remove="Views\ChangePasswordView.xaml" />
@@ -260,6 +262,9 @@
     <EmbeddedResource Include="Assets\sqrl_icon_normal_256.ico" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Views\AppSettingsView.xaml.cs">
+      <DependentUpon>AppSettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\AskView.xaml.cs">
       <DependentUpon>AskView.xaml</DependentUpon>
     </Compile>
@@ -280,7 +285,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Migrations\" />
+    <Folder Include="DB\Migrations\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\SelectIdentityView.xaml">
@@ -314,6 +319,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\AboutView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\AppSettingsView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

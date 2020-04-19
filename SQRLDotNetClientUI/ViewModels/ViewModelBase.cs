@@ -14,6 +14,12 @@ namespace SQRLDotNetClientUI.ViewModels
         private string title = "";
 
         /// <summary>
+        /// The singleton <c>AppSettings</c> instance representing the 
+        /// app's general settings.
+        /// </summary>
+        protected AppSettings _appSettings = AppSettings.Instance;
+
+        /// <summary>
         /// The singleton <c>IdentityManager</c> instance.
         /// </summary>
         protected IdentityManager _identityManager = IdentityManager.Instance;
@@ -27,8 +33,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// An Avalonia extension providing localization/translation 
         /// services for the app.
         /// </summary>
-        protected LocalizationExtension _loc = 
-            AvaloniaLocator.Current.GetService<MainWindow>().LocalizationService;
+        protected LocalizationExtension _loc = (App.Current as App).Localization;
 
         /// <summary>
         /// The window title of the screen represented by the view model.

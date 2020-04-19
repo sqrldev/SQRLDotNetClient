@@ -2,19 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SQRLDotNetClientUI.DB.DBContext;
 
 namespace SQRLDotNetClientUI.Migrations
 {
     [DbContext(typeof(SQRLDBContext))]
-    partial class SQRLDBContextModelSnapshot : ModelSnapshot
+    [Migration("20200418165401_AddStartMinimized")]
+    partial class AddStartMinimized
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.1");
+                .HasAnnotation("ProductVersion", "3.1.3");
 
             modelBuilder.Entity("SQRLDotNetClientUI.DB.Models.Identity", b =>
                 {
@@ -43,6 +45,9 @@ namespace SQRLDotNetClientUI.Migrations
 
                     b.Property<string>("LastLoadedIdentity")
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("StartMinimized")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
