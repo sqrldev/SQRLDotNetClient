@@ -22,8 +22,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\LICENSE" Pack="True" PackagePath=""/>
-	<None Include="Resources\sqrl_icon_normal_64.png" Pack="true" PackagePath=""/>
+    <None Remove="Resources\CPS.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\CPS.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE" Pack="True" PackagePath="" />
+	<None Include="Resources\sqrl_icon_normal_64.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>

@@ -13,6 +13,7 @@ using SQRLDotNetClientUI.Views;
 using Avalonia.Dialogs;
 using SQRLDotNetClientUI.DB.DBContext;
 using Microsoft.EntityFrameworkCore;
+using SQRLUtilsLib;
 
 namespace SQRLDotNetClientUI
 {
@@ -61,6 +62,12 @@ namespace SQRLDotNetClientUI
                         hasHandle = true;
                     }
 
+
+                    // Adds event to handle abrupt program exits and mitigate CPS
+                    AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
+
+
+
                     // Perform database migrations
                     SQRLDBContext _db = new SQRLDBContext();
                     _db.Database.Migrate();
@@ -79,6 +86,10 @@ namespace SQRLDotNetClientUI
                         mutex.ReleaseMutex();
                     }
 
+                    HandleAbruptCPS();
+
+
+
                     //Remove the notify icon
                     (App.Current as App).NotifyIcon?.Remove();
 
@@ -92,6 +103,44 @@ namespace SQRLDotNetClientUI
                 }
             }
         }
+
+
+        /// <summary>
+        /// Try to capture abrupt process exit to gracefully handle CPS
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        {
+            // One of the last ditch efforts at gracefully handling CPS, note there may be no localization here we are at this point throwing a hail marry
+            HandleAbruptCPS();
+
+        }
+
+        /// <summary>
+        /// Handles unclean process exit tries to save CPS
+        /// </summary>
+        private static void HandleAbruptCPS()
+        {
+            try
+            {
+                Log.Information("Attempting to End CPS Gracefully from Process Exit Event");
+                var _loc = (App.Current as App)?.Localization;
+                if (_loc != null)
+                {
+                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"),
+                                                   _loc.GetLocalizationValue("CPSAbortMessage"),
+                                                   _loc.GetLocalizationValue("CPSAbortLinkText"));
+                }
+                else
+                    SQRLCPSServer.HandlePendingCPS();
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Failed to Cancel CPS Gracefully", ex);
+            }
+        }
+
 
         /// <summary>
         /// Starts the IPC server and also starts listening for incoming IPC queries.

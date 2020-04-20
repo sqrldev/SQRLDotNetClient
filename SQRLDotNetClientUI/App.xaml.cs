@@ -13,6 +13,7 @@ using Avalonia.Controls;
 using System.Collections.Generic;
 using SQRLCommonUI.AvaloniaExtensions;
 using ReactiveUI;
+using SQRLUtilsLib;
 
 namespace SQRLDotNetClientUI
 {
@@ -121,6 +122,8 @@ namespace SQRLDotNetClientUI
                 {
                     desktop.MainWindow = _mainWindow;
                 }
+                
+                
             }          
 
             base.OnFrameworkInitializationCompleted();
