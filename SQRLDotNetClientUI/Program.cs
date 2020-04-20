@@ -63,6 +63,7 @@ namespace SQRLDotNetClientUI
                     }
 
 
+                    // Adds event to handle abrupt program exits and mitigate CPS
                     AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
 
 
