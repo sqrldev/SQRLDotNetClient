@@ -63,7 +63,7 @@ namespace SQRLDotNetClientUI.Platform.Linux
                     X11.Xlib.XScreenSaverQueryInfo(Display, X11.Xlib.XRootWindow(Display, 0), ref xsi);
                     
                     Log.Debug("Idle time: {IdleTime}", xsi.idle.ToString());
-                    if (xsi.idle > (ulong)_maxIdleSeconds)
+                    if ((xsi.idle/1000) > (ulong)_maxIdleSeconds)
                     {
                         if (!_idleDetected)
                         {

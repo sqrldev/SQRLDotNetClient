@@ -86,24 +86,7 @@ namespace SQRLDotNetClientUI
                         mutex.ReleaseMutex();
                     }
 
-                    try
-                    {
-                        Log.Information("Attempting to End CPS Gracefully from Program.cs");
-                        // One of the last ditch efforts at gracefully handling CPS, note we may not have localization heree we are at this point throwing a hail marry
-                        var _loc = (App.Current as App)?.Localization;
-                        if (_loc != null)
-                        {
-                            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
-                                                           _loc.GetLocalizationValue("CPSAbortMessage"), 
-                                                           _loc.GetLocalizationValue("CPSAbortLinkText"));
-                        }
-                        else
-                            SQRLCPSServer.HandlePendingCPS();
-                    }
-                    catch(Exception ex)
-                    {
-                        Log.Error("Failed to Cancel CPS Gracefully", ex);
-                    }
+                    HandleAbruptCPS();
 
 
 
@@ -129,26 +112,33 @@ namespace SQRLDotNetClientUI
         /// <param name="e"></param>
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
-
             // One of the last ditch efforts at gracefully handling CPS, note there may be no localization here we are at this point throwing a hail marry
+            HandleAbruptCPS();
+
+        }
+
+        /// <summary>
+        /// Handles unclean process exit tries to save CPS
+        /// </summary>
+        private static void HandleAbruptCPS()
+        {
             try
             {
                 Log.Information("Attempting to End CPS Gracefully from Process Exit Event");
                 var _loc = (App.Current as App)?.Localization;
                 if (_loc != null)
                 {
-                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
-                                                   _loc.GetLocalizationValue("CPSAbortMessage"), 
+                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"),
+                                                   _loc.GetLocalizationValue("CPSAbortMessage"),
                                                    _loc.GetLocalizationValue("CPSAbortLinkText"));
                 }
                 else
                     SQRLCPSServer.HandlePendingCPS();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error("Failed to Cancel CPS Gracefully", ex);
             }
-
         }
 
 

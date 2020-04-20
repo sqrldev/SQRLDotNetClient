@@ -61,7 +61,7 @@ namespace SQRLUtilsLib
         /// <summary>
         /// Holds the HTML Content of the CPS Abort page pulled from an internal Resource File
         /// </summary>
-        private string AbortHTML = "";
+        private string _abortHTML = "";
 
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace SQRLUtilsLib
             this.cpsBC = new BlockingCollection<Uri>();
             this.Initialize();
             var _assembly = Assembly.GetExecutingAssembly();
-            AbortHTML = new StreamReader(_assembly.GetManifestResourceStream("SQRLUtilsLib.Resources.CPS.html")).ReadToEnd();
+            _abortHTML = new StreamReader(_assembly.GetManifestResourceStream("SQRLUtilsLib.Resources.CPS.html")).ReadToEnd();
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace SQRLUtilsLib
                 if (x.Equals(this.AbortURL))
                 {
 
-                    var htmlData = Encoding.ASCII.GetBytes(this.AbortHTML.
+                    var htmlData = Encoding.ASCII.GetBytes(this._abortHTML.
                                                             Replace("{BACKLINK}", this.CPSAbortLinkText).
                                                             Replace("{HEADER}", this.CPSAbortHeader).
                                                             Replace("{MESSAGE}", this.CPSAbortMessage));
@@ -262,6 +262,9 @@ namespace SQRLUtilsLib
         /// <summary>
         /// Handles CPS response for all requests
         /// </summary>
+        /// <param name="header">Sets the title and heading line on the SQRL Abort HTML Generated page</param>
+        /// <param name="message">Sets the body of the SQRL Abort HTML Generated page</param>
+        /// <param name="backUrlText">Sets the text on the Back Now link on the SQRL Abort HTML Generated page</param>
         /// <param name="succesUrl">Success URL passed in if the response is a successful Auth Ident</param>
         public static void HandlePendingCPS(string header = "", string message = "", string backUrlText = "", Uri succesUrl = null)
         {
