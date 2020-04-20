@@ -273,7 +273,9 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public void Cancel()
         {
-            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"));
+            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
+                                           _loc.GetLocalizationValue("CPSAbortMessage"), 
+                                           _loc.GetLocalizationValue("CPSAbortLinkText"));
             ShowMainScreenAndClose();
         }
 
@@ -447,7 +449,9 @@ namespace SQRLDotNetClientUI.ViewModels
                             serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.ident, serverResponse.NewNutURL, 
                                 siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
                             
-                            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"),new Uri(serverResponse.SuccessUrl));
+                            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
+                                                           _loc.GetLocalizationValue("CPSAbortMessage"), 
+                                                           _loc.GetLocalizationValue("CPSAbortLinkText"),new Uri(serverResponse.SuccessUrl));
                             
                             ShowMainScreenAndClose();
                         }
@@ -467,7 +471,9 @@ namespace SQRLDotNetClientUI.ViewModels
                                 serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, 
                                     siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
 
-                                SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"));
+                                SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
+                                                               _loc.GetLocalizationValue("CPSAbortMessage"), 
+                                                               _loc.GetLocalizationValue("CPSAbortLinkText"));
                                 ShowMainScreenAndClose();
                             }
                         }
@@ -490,7 +496,9 @@ namespace SQRLDotNetClientUI.ViewModels
                                     serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverResponse.NewNutURL, 
                                         siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts, null, ursKey);
 
-                                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"));
+                                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
+                                                                   _loc.GetLocalizationValue("CPSAbortMessage"),
+                                                                   _loc.GetLocalizationValue("CPSAbortLinkText"));
                                     ShowMainScreenAndClose();
                                 }
                                 else
@@ -566,13 +574,17 @@ namespace SQRLDotNetClientUI.ViewModels
 
                 if (!serverResponse.CommandFailed)
                 {
-                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"),new Uri(serverResponse.SuccessUrl));
+                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
+                                                   _loc.GetLocalizationValue("CPSAbortMessage"), 
+                                                   _loc.GetLocalizationValue("CPSAbortLinkText"),new Uri(serverResponse.SuccessUrl));
                     ShowMainScreenAndClose();
                 }
             }
             else
             {
-                SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"));
+                SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
+                                               _loc.GetLocalizationValue("CPSAbortMessage"), 
+                                               _loc.GetLocalizationValue("CPSAbortLinkText"));
                 ShowMainScreenAndClose();
             }
 

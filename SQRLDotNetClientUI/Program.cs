@@ -93,7 +93,9 @@ namespace SQRLDotNetClientUI
                         var _loc = (App.Current as App)?.Localization;
                         if (_loc != null)
                         {
-                            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"));
+                            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
+                                                           _loc.GetLocalizationValue("CPSAbortMessage"), 
+                                                           _loc.GetLocalizationValue("CPSAbortLinkText"));
                         }
                         else
                             SQRLCPSServer.HandlePendingCPS();
@@ -135,7 +137,9 @@ namespace SQRLDotNetClientUI
                 var _loc = (App.Current as App)?.Localization;
                 if (_loc != null)
                 {
-                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"));
+                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
+                                                   _loc.GetLocalizationValue("CPSAbortMessage"), 
+                                                   _loc.GetLocalizationValue("CPSAbortLinkText"));
                 }
                 else
                     SQRLCPSServer.HandlePendingCPS();
