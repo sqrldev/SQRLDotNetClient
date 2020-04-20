@@ -273,12 +273,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public void Cancel()
         {
-            if (_sqrlInstance.cps.PendingResponse)
-            {
-                _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
-            }
-            while (_sqrlInstance.cps.PendingResponse)
-                ;
+            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"));
             ShowMainScreenAndClose();
         }
 
@@ -451,13 +446,9 @@ namespace SQRLDotNetClientUI.ViewModels
                             addClientData = GenerateINS(imk, serverResponse, addClientData);
                             serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.ident, serverResponse.NewNutURL, 
                                 siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
-
-                            if (SQRL.GetInstance(true).cps != null && _sqrlInstance.cps.PendingResponse)
-                            {
-                                _sqrlInstance.cps.cpsBC.Add(new Uri(serverResponse.SuccessUrl));
-                            }
-                            while (_sqrlInstance.cps.PendingResponse)
-                                ;
+                            
+                            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"),new Uri(serverResponse.SuccessUrl));
+                            
                             ShowMainScreenAndClose();
                         }
                         break;
@@ -476,12 +467,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                 serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, 
                                     siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
 
-                                if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
-                                {
-                                    _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
-                                }
-                                while (_sqrlInstance.cps.PendingResponse)
-                                    ;
+                                SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"));
                                 ShowMainScreenAndClose();
                             }
                         }
@@ -504,12 +490,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                     serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverResponse.NewNutURL, 
                                         siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts, null, ursKey);
 
-                                    if (_sqrlInstance.cps != null && _sqrlInstance.cps.PendingResponse)
-                                    {
-                                        _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
-                                    }
-                                    while (_sqrlInstance.cps.PendingResponse)
-                                        ;
+                                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"));
                                     ShowMainScreenAndClose();
                                 }
                                 else
@@ -585,23 +566,13 @@ namespace SQRLDotNetClientUI.ViewModels
 
                 if (!serverResponse.CommandFailed)
                 {
-                    if (_sqrlInstance.cps.PendingResponse)
-                    {
-                        _sqrlInstance.cps.cpsBC.Add(new Uri(serverResponse.SuccessUrl));
-                    }
-                    while (_sqrlInstance.cps.PendingResponse)
-                        ;
+                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"),new Uri(serverResponse.SuccessUrl));
                     ShowMainScreenAndClose();
                 }
             }
             else
             {
-                if (_sqrlInstance.cps.PendingResponse)
-                {
-                    _sqrlInstance.cps.cpsBC.Add(_sqrlInstance.cps.Can);
-                }
-                while (_sqrlInstance.cps.PendingResponse)
-                    ;
+                SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), _loc.GetLocalizationValue("CPSAbortMessage"), _loc.GetLocalizationValue("CPSAbortLinkText"));
                 ShowMainScreenAndClose();
             }
 

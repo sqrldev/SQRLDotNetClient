@@ -42,7 +42,10 @@ namespace SQRLUtilsLib
         private const int ENCODING_BASE = 56;
         private const int CLIENT_VERSION = 1;
 
-        public CPSServer cps=null;
+        
+
+
+        public SQRLCPSServer cps=null;
 
         /// <summary>
         /// Creates a new instance of the SQRL library and optionally
@@ -55,7 +58,7 @@ namespace SQRLUtilsLib
             SodiumInit();
 
             if (startCPS)
-                this.cps = new CPSServer();
+                this.cps = new SQRLCPSServer();
         }
 
         /// <summary>
