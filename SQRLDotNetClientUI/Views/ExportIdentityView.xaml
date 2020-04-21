@@ -10,11 +10,35 @@
   <DockPanel LastChildFill="False" Margin="20,10,20,20">
     
     <StackPanel DockPanel.Dock="Top">
-      <TextBlock Text="{loc:Localization ExportIdentityMessage}" Margin="0,0,0,5" FontSize="12" TextWrapping="Wrap" />
-      <Image Source="{Binding QRImage}" Stretch="Uniform" Margin="0,0,0,5" Width="200" Height="200" HorizontalAlignment="Center"/>
-      <Button Content="{loc:Localization BtnSaveToFile}" Margin="0,0,0,10" Command="{Binding SaveToFile}" Width="220" HorizontalAlignment="Center" />
-      <Button Content="{loc:Localization BtnCopyToClipboard}" Margin="0,0,0,10" Command="{Binding CopyToClipboard}" Width="220" HorizontalAlignment="Center" />
-      <Button Content="{loc:Localization BtnSaveAsPdf}" Margin="0,0,0,10" Command="{Binding SaveAsPdf}" Width="220" HorizontalAlignment="Center" />
+      
+      <TextBlock Text="{loc:Localization ExportIdentityMessage}" Margin="0,0,0,15" FontSize="12" TextWrapping="Wrap" />
+      
+      <StackPanel IsVisible="{Binding ShowQrCode}">
+        <Image Source="{Binding QRImage}" Stretch="Uniform" Margin="0,0,0,5" Width="200" Height="200" HorizontalAlignment="Center"/>
+        <Button Content="{loc:Localization BtnBack}" Margin="0,0,0,10" Command="{Binding ToggleQrCode}" CommandParameter="False" Width="220" HorizontalAlignment="Center" />
+      </StackPanel>
+      
+      <StackPanel IsVisible="{Binding !ShowQrCode}">
+        <Border Margin="0,0,0,20" BorderBrush="LightGray" BorderThickness="1" CornerRadius="4">
+          <StackPanel Margin="20">
+            <RadioButton IsChecked="{Binding ExportWithPassword}" Margin="0,0,0,10">
+              <RadioButton.Content>
+                <TextBlock Text="{loc:Localization RadButExortWithPassword}" TextWrapping="Wrap" Margin="10,0,0,0" />
+              </RadioButton.Content>
+            </RadioButton>
+            <RadioButton  IsChecked="{Binding !ExportWithPassword}">
+              <RadioButton.Content>
+                <TextBlock Text="{loc:Localization RadButExortWithRescueCode}" TextWrapping="Wrap" Margin="10,0,0,0"/>
+              </RadioButton.Content>
+            </RadioButton>
+          </StackPanel>
+        </Border>
+        <Button Content="{loc:Localization BtnShowQrCode}" Command="{Binding ToggleQrCode}" CommandParameter="True" Margin="0,0,0,10" Width="220" HorizontalAlignment="Center" />
+        <Button Content="{loc:Localization BtnSaveToFile}" Command="{Binding SaveToFile}" Margin="0,0,0,10" Width="220" HorizontalAlignment="Center" />
+        <Button Content="{loc:Localization BtnCopyToClipboard}" Command="{Binding CopyToClipboard}" Margin="0,0,0,10" Width="220" HorizontalAlignment="Center" />
+        <Button Content="{loc:Localization BtnSaveAsPdf}" Command="{Binding SaveAsPdf}" Margin="0,0,0,10" Width="220" HorizontalAlignment="Center" />
+      </StackPanel>
+      
     </StackPanel>
 
     <StackPanel DockPanel.Dock="Bottom">

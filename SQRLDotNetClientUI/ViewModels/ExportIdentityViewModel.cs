@@ -20,6 +20,8 @@ namespace SQRLDotNetClientUI.ViewModels
     public class ExportIdentityViewModel: ViewModelBase
     {
         private Avalonia.Media.Imaging.Bitmap _qrImage;
+        private bool _exportWithPassword = false;
+        private bool _showQrCode = false;
 
         /// <summary>
         /// Gets or sets a bitmap representing the identity as a QR-code.
@@ -34,6 +36,28 @@ namespace SQRLDotNetClientUI.ViewModels
         /// The currently active identity.
         /// </summary>
         public SQRLIdentity Identity { get; }
+
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the exported identity
+        /// can be decrypted with either the password and the rescue code
+        /// or with the rescue code only.
+        /// </summary>
+        public bool ExportWithPassword 
+        {
+            get { return _exportWithPassword; }
+            set { this.RaiseAndSetIfChanged(ref _exportWithPassword, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether or not to display the
+        /// identity qr-code in the UI.
+        /// </summary>
+        public bool ShowQrCode
+        {
+            get { return _showQrCode; }
+            set { this.RaiseAndSetIfChanged(ref _showQrCode, value); }
+        }
 
         /// <summary>
         /// Creates a new instance and initializes.
@@ -131,6 +155,16 @@ namespace SQRLDotNetClientUI.ViewModels
                     MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.OK)
                     .ShowDialog(this);
             }
+        }
+
+        /// <summary>
+        /// Toggles the visibility of the qr code UI.
+        /// </summary>
+        /// <param name="visible">Set to <c>true</c> to show the qr code, 
+        /// or <c>false</c> to hide it</param>
+        public void ToggleQrCode(bool visible)
+        {
+            this.ShowQrCode = visible;
         }
 
         /// <summary>
