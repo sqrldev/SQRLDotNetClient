@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Platform;
 using QRCoder;
 using ReactiveUI;
 using SQRLDotNetClientUI.Models;
@@ -20,7 +19,7 @@ namespace SQRLDotNetClientUI.ViewModels
     public class ExportIdentityViewModel: ViewModelBase
     {
         private Avalonia.Media.Imaging.Bitmap _qrImage;
-        private bool _exportWithPassword = false;
+        private bool _exportWithPassword = true;
         private bool _showQrCode = false;
 
         /// <summary>
@@ -98,7 +97,7 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             var identityBytes = this.Identity.ToByteArray(includeHeader: true, _blocksToExport);
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(identityBytes, QRCodeGenerator.ECCLevel.Q);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(identityBytes, QRCodeGenerator.ECCLevel.M);
             QRCode qrCode = new QRCode(qrCodeData);
 
             var qrCodeBitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, true);
@@ -171,7 +170,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
             try
             {
-                PdfHelper.CreateIdentityDocument(file, this.Identity); 
+                PdfHelper.CreateIdentityDocument(file, this.Identity, _blocksToExport); 
                 ProcessStartInfo psi = new ProcessStartInfo
                 {
                     FileName = file,

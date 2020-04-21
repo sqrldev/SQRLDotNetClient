@@ -175,7 +175,7 @@ namespace SQRLDotNetClientUI.Models
         private static SKBitmap CreateQRCode(byte[] identityBytes)
         {
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(identityBytes, QRCodeGenerator.ECCLevel.H);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(identityBytes, QRCodeGenerator.ECCLevel.M);
             QRCode qrCode = new QRCode(qrCodeData);
             var bitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, true);
             using (var stream = new MemoryStream())
