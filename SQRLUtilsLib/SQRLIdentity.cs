@@ -124,9 +124,19 @@ namespace SQRLUtilsLib
         /// target file aleady exists, it is overwritten!
         /// </summary>
         /// <param name="fileName">The full file path of the identity file to be created.</param>
-        public void WriteToFile(string fileName)
+        /// <param name="skipBlockType1">If set to <c>true</c>, block type 1 will not be written
+        /// to the file, requiring the rescue code to decode the resulting identity file.</param>
+        public void WriteToFile(string fileName, bool skipBlockType1 = false)
         {
-            File.WriteAllBytes(fileName, this.ToByteArray());
+            List<ushort> blockTypes = new List<ushort>();
+
+            foreach (var block in Blocks)
+            {
+                if (block.Type == 1 && skipBlockType1) continue;
+                blockTypes.Add(block.Type);
+            }
+            
+            File.WriteAllBytes(fileName, this.ToByteArray(includeHeader: true, blockTypes));
         }
 
         /// <summary>
