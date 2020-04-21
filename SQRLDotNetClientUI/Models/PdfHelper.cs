@@ -114,7 +114,8 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         /// <param name="fileName">The full file name (including the path) for the document.</param>
         /// <param name="identity">The identity for which to create the document.</param>
-        public static void CreateIdentityDocument(string fileName, SQRLIdentity identity)
+        /// <param name="blockTypes">Spciefies a list of block types to include.</param>
+        public static void CreateIdentityDocument(string fileName, SQRLIdentity identity, List<ushort> blockTypes)
         {
             if (string.IsNullOrEmpty(fileName) || identity == null)
             {
@@ -127,7 +128,7 @@ namespace SQRLDotNetClientUI.Models
             string qrCodeMessage = _loc.GetLocalizationValue("IdentityDocumentQRCodeMessage");
             string textualIdentityMessage = _loc.GetLocalizationValue("IdentityDocumentTextualIdentityMessage");
             string guidanceMessage = _loc.GetLocalizationValue("IdentityDocumentGuidanceMessage");
-            var identityBytes = identity.ToByteArray(includeHeader: true, new List<ushort>() { 2, 3 });
+            var identityBytes = identity.ToByteArray(includeHeader: true, blockTypes);
             string textualIdentity = SQRL.GenerateTextualIdentityBase56(identityBytes);
 
             var metadata = new SKDocumentPdfMetadata
