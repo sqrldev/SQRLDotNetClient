@@ -24,6 +24,20 @@ namespace SQRLDotNetClientUI.ViewModels
         private bool _showQrCode = false;
 
         /// <summary>
+        /// Gets a list of block types to export depending on the export
+        /// option chosen by the user (pwd + rc code or rc only).
+        /// </summary>
+        private List<ushort> _blocksToExport
+        {
+            get
+            {
+                return this.ExportWithPassword ?
+                    new List<ushort>() { 1, 2, 3 } :
+                    new List<ushort>() { 2, 3 };
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a bitmap representing the identity as a QR-code.
         /// </summary>
         public Avalonia.Media.Imaging.Bitmap QRImage 
@@ -68,13 +82,27 @@ namespace SQRLDotNetClientUI.ViewModels
             this.Title = _loc.GetLocalizationValue("ExportIdentityWindowTitle");
             this.Identity = _identityManager.CurrentIdentity;
 
-            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, new List<ushort>() { 2, 3 });
+            this.WhenAnyValue(x => x.ExportWithPassword)
+                .Subscribe(x =>
+                {
+                    UpdateQrCode();
+                });
+
+            UpdateQrCode();
+        }
+
+        /// <summary>
+        /// Updates the qr-code image.
+        /// </summary>
+        private void UpdateQrCode()
+        {
+            var identityBytes = this.Identity.ToByteArray(includeHeader: true, _blocksToExport);
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(textualIdentityBytes, QRCodeGenerator.ECCLevel.H);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(identityBytes, QRCodeGenerator.ECCLevel.Q);
             QRCode qrCode = new QRCode(qrCodeData);
-            
+
             var qrCodeBitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, true);
-            
+
             using (var stream = new MemoryStream())
             {
                 qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
@@ -109,7 +137,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public async void CopyToClipboard()
         {
-            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, new List<ushort>() { 2, 3 });
+            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, _blocksToExport);
 
             string identity = SQRL.GenerateTextualIdentityBase56(textualIdentityBytes);
             await Application.Current.Clipboard.SetTextAsync(identity);
