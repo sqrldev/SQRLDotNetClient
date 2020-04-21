@@ -127,7 +127,7 @@ namespace SQRLDotNetClientUI.Models
             string qrCodeMessage = _loc.GetLocalizationValue("IdentityDocumentQRCodeMessage");
             string textualIdentityMessage = _loc.GetLocalizationValue("IdentityDocumentTextualIdentityMessage");
             string guidanceMessage = _loc.GetLocalizationValue("IdentityDocumentGuidanceMessage");
-            var identityBytes = identity.ToByteArray(includeHeader: true, minimumSize: true);
+            var identityBytes = identity.ToByteArray(includeHeader: true, new List<ushort>() { 2, 3 });
             string textualIdentity = SQRL.GenerateTextualIdentityBase56(identityBytes);
 
             var metadata = new SKDocumentPdfMetadata

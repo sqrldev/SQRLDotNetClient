@@ -68,7 +68,7 @@ namespace SQRLDotNetClientUI.ViewModels
             this.Title = _loc.GetLocalizationValue("ExportIdentityWindowTitle");
             this.Identity = _identityManager.CurrentIdentity;
 
-            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, minimumSize: true);
+            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, new List<ushort>() { 2, 3 });
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(textualIdentityBytes, QRCodeGenerator.ECCLevel.H);
             QRCode qrCode = new QRCode(qrCodeData);
@@ -109,7 +109,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public async void CopyToClipboard()
         {
-            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, minimumSize: true);
+            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, new List<ushort>() { 2, 3 });
 
             string identity = SQRL.GenerateTextualIdentityBase56(textualIdentityBytes);
             await Application.Current.Clipboard.SetTextAsync(identity);
