@@ -116,14 +116,16 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public async void SaveToFile()
         {
-            SaveFileDialog ofd = new SaveFileDialog();
+            SaveFileDialog sfd = new SaveFileDialog();
 
-            ofd.Title = _loc.GetLocalizationValue("SaveIdentityDialogTitle");
-            ofd.InitialFileName = $"{(string.IsNullOrEmpty(this.Identity.IdentityName)?"Identity":this.Identity.IdentityName)}.sqrl";
-            var file = await ofd.ShowAsync(_mainWindow);
+            var fileExtension = this.ExportWithPassword ? "sqrl" : "sqrc";
+            sfd.Title = _loc.GetLocalizationValue("SaveIdentityDialogTitle");
+            sfd.InitialFileName = $"{(string.IsNullOrEmpty(this.Identity.IdentityName)?"Identity":this.Identity.IdentityName)}.{fileExtension}";
+            sfd.DefaultExtension = fileExtension;
+            var file = await sfd.ShowAsync(_mainWindow);
             if(!string.IsNullOrEmpty(file))
             {
-                this.Identity.WriteToFile(file);
+                this.Identity.WriteToFile(file, skipBlockType1: !this.ExportWithPassword);
                 
                 await new MessageBoxViewModel(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
                     string.Format(_loc.GetLocalizationValue("IdentityExportedMessageBoxText"), file),
