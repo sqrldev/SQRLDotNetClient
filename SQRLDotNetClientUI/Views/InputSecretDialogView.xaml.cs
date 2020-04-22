@@ -12,10 +12,8 @@ namespace SQRLDotNetClientUI.Views
     /// </summary>
     public class InputSecretDialogView : UserControl
     {
-        private MainWindow _mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
         private LocalizationExtension _loc = (App.Current as App).Localization;
         private TextBox _txtSecret = null;
-        private Button _btnOK = null;
         private TextBlock _lblMessage = null;
         
         /// <summary>
@@ -34,15 +32,21 @@ namespace SQRLDotNetClientUI.Views
         {
             this.InitializeComponent();
             this.DataContextChanged += InputSecretDialogView_DataContextChanged;
-            //Prevent closing the dialog externally.
             
             _txtSecret = this.FindControl<CopyPasteTextBox> ("txtSecret");
-            _btnOK = this.FindControl<Button>("btnOK");
             _lblMessage = this.FindControl<TextBlock>("lblMessage");
-            
 
+            // This is only here because for some reason the XAML behaviour "FocusOnAttached"
+            // isn't working for this window. No clue why, probably a dumb mistake on my part.
+            // If anyone gets this working in XAML, this ugly hack can be removed!
+            _txtSecret.AttachedToVisualTree += (sender, e) => (sender as CopyPasteTextBox).Focus();
         }
 
+        /// <summary>
+        /// Event handler for the "DataContextChanged" event.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InputSecretDialogView_DataContextChanged(object sender, System.EventArgs e)
         {
             if(this.DataContext!=null)
@@ -65,14 +69,13 @@ namespace SQRLDotNetClientUI.Views
             }
         }
 
-        
-
+        /// <summary>
+        /// Initializes the UI components.
+        /// </summary>
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
         }
-
-      
     }
 
     /// <summary>
@@ -83,7 +86,5 @@ namespace SQRLDotNetClientUI.Views
     {
         Password,
         RescueCode
-    }
-
-    
+    }   
 }
