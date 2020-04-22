@@ -95,7 +95,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
                     progressDialog.Close();
 
-                   _= await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                   _= await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                         _loc.GetLocalizationValue("BadPasswordError"),
                         MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
                         .ShowDialog(this);
