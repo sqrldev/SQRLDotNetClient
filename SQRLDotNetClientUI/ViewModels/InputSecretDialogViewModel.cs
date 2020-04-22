@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using SQRLDotNetClientUI.Views;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SQRLDotNetClientUI.ViewModels
@@ -11,7 +12,7 @@ namespace SQRLDotNetClientUI.ViewModels
     /// </summary>
     public class InputSecretDialogViewModel: ViewModelBase
     {
-        private BlockingCollection<bool> _dialogClosed;
+        private AutoResetEvent _dialogClosed = null;
         private string _secret = "";
 
         /// <summary>
@@ -41,7 +42,7 @@ namespace SQRLDotNetClientUI.ViewModels
         public InputSecretDialogViewModel(SecretType secretType=SecretType.Password)
         {
             this.SecretType = secretType;
-            _dialogClosed = new BlockingCollection<bool>();
+            _dialogClosed = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -50,7 +51,7 @@ namespace SQRLDotNetClientUI.ViewModels
         public void Ok()
         {
             ((MainWindowViewModel)_mainWindow.DataContext).Content = Parent;
-            _dialogClosed.Add(true);
+            _dialogClosed.Set();
         }
 
         /// <summary>
@@ -63,14 +64,14 @@ namespace SQRLDotNetClientUI.ViewModels
         public async Task<bool> ShowDialog(ViewModelBase parent, string title = "")
         {
             this.Parent = parent;
-            this.Title = string.IsNullOrEmpty(title)? parent.Title:title;
+            this.Title = string.IsNullOrEmpty(title) ? parent.Title : title;
+
             ((MainWindowViewModel)_mainWindow.DataContext).Content = this;
+
             return await Task.Run(() =>
             {
-                foreach (var x in _dialogClosed.GetConsumingEnumerable())
-                    return x;
-
-                return false;
+                _dialogClosed.WaitOne();
+                return true;
             });
         }
     }

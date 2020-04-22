@@ -84,10 +84,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                                               string.Format(_loc.GetLocalizationValue("TextualImportErrorMessage"), ex.Message),
-                                               MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                               .ShowDialog(this);
+                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                        string.Format(_loc.GetLocalizationValue("TextualImportErrorMessage"), ex.Message),
+                        MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                        .ShowDialog(this);
                 }
             }
             else if (!string.IsNullOrEmpty(this.IdentityFile))
@@ -99,10 +99,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 catch (Exception ex)
                 {
 
-                    await new Views.MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), 
-                                               string.Format(_loc.GetLocalizationValue("FileImportErrorMessage"), ex.Message),
-                                               MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
-                                               .ShowDialog(this);
+                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                        string.Format(_loc.GetLocalizationValue("FileImportErrorMessage"), ex.Message),
+                        MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                        .ShowDialog(this);
                 }
             }
 
