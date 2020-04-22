@@ -157,7 +157,10 @@
     { "StartMinimizedLabel": "Start with the app window minimized" },
     { "CPSAbortHeader": "Authentication Aborted" },
     { "CPSAbortMessage": "SQRL's CPS authentication has been aborted. You will be automatically sent back to the previous page in a few seconds. If this does not work, please press your browser's BACK button or click the link below." },
-    { "CPSAbortLinkText": "Go Back Now" }
+    { "CPSAbortLinkText": "Go Back Now" },
+    { "BtnShowQrCode": "Show QR Code" },
+    { "RadButExortWithPassword": "Allow backup decryption with either the password or the rescue code for more convenience but somewhat reduced security." },
+    { "RadButExortWithRescueCode": "Require the super-secure Rescue Code for later decryption and use of the backup for maximum storage security." }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -317,7 +320,10 @@
     { "StartMinimizedLabel": "Start with the app window minimized" },
     { "CPSAbortHeader": "Authentication Aborted" },
     { "CPSAbortMessage": "SQRL's CPS authentication has been aborted. You will be automatically sent back to the previous page in a few seconds. If this does not work, please press your browser's BACK button or click the link below." },
-    { "CPSAbortLinkText": "Go Back Now" }
+    { "CPSAbortLinkText": "Go Back Now" },
+    { "BtnShowQrCode": "Show QR Code" },
+    { "RadButExortWithPassword": "Allow backup decryption with either the password or the rescue code for more convenience but somewhat reduced security." },
+    { "RadButExortWithRescueCode": "Require the super-secure Rescue Code for later decryption and use of the backup for maximum storage security." }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -477,6 +483,9 @@
     { "StartMinimizedLabel": "Programmfenster beim Start minimieren" },
     { "CPSAbortHeader": "Authentifizierung abgebrochen" },
     { "CPSAbortMessage": "SQRLs CPS-Authentifizierung wurde abgebrochen. Sie werden in ein paar Sekunden automatisch zur vorherigen Seite zurückgeleitet. Falls dies nicht funktioniert, drücken Sie bitte in Ihrem Browser auf die Schaltfläche \"Zurück\" oder klicken Sie auf den folgenden Link." },
-    { "CPSAbortLinkText": "Jetzt zurückgehen" }
+    { "CPSAbortLinkText": "Jetzt zurückgehen" },
+    { "BtnShowQrCode": "QR-Code anzeigen" },
+    { "RadButExortWithPassword": "Erlaube Backup-Entschlüsselung mit Passwort oder Rettungscode für mehr Bequemlichkeit aber leicht reduzierte Sicherheit." },
+    { "RadButExortWithRescueCode": "Erfordere den super-sicheren Rettungscode zur späteren Backup-Entschüsselung für maximale Sicherheit." }
   ]
 }

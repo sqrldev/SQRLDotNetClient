@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Platform;
 using QRCoder;
 using ReactiveUI;
 using SQRLDotNetClientUI.Models;
@@ -20,6 +19,22 @@ namespace SQRLDotNetClientUI.ViewModels
     public class ExportIdentityViewModel: ViewModelBase
     {
         private Avalonia.Media.Imaging.Bitmap _qrImage;
+        private bool _exportWithPassword = true;
+        private bool _showQrCode = false;
+
+        /// <summary>
+        /// Gets a list of block types to export depending on the export
+        /// option chosen by the user (pwd + rc code or rc only).
+        /// </summary>
+        private List<ushort> _blocksToExport
+        {
+            get
+            {
+                return this.ExportWithPassword ?
+                    new List<ushort>() { 1, 2, 3 } :
+                    new List<ushort>() { 2, 3 };
+            }
+        }
 
         /// <summary>
         /// Gets or sets a bitmap representing the identity as a QR-code.
@@ -35,6 +50,28 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public SQRLIdentity Identity { get; }
 
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the exported identity
+        /// can be decrypted with either the password and the rescue code
+        /// or with the rescue code only.
+        /// </summary>
+        public bool ExportWithPassword 
+        {
+            get { return _exportWithPassword; }
+            set { this.RaiseAndSetIfChanged(ref _exportWithPassword, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether or not to display the
+        /// identity qr-code in the UI.
+        /// </summary>
+        public bool ShowQrCode
+        {
+            get { return _showQrCode; }
+            set { this.RaiseAndSetIfChanged(ref _showQrCode, value); }
+        }
+
         /// <summary>
         /// Creates a new instance and initializes.
         /// </summary>
@@ -44,13 +81,27 @@ namespace SQRLDotNetClientUI.ViewModels
             this.Title = _loc.GetLocalizationValue("ExportIdentityWindowTitle");
             this.Identity = _identityManager.CurrentIdentity;
 
-            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, minimumSize: true);
+            this.WhenAnyValue(x => x.ExportWithPassword)
+                .Subscribe(x =>
+                {
+                    UpdateQrCode();
+                });
+
+            UpdateQrCode();
+        }
+
+        /// <summary>
+        /// Updates the qr-code image.
+        /// </summary>
+        private void UpdateQrCode()
+        {
+            var identityBytes = this.Identity.ToByteArray(includeHeader: true, _blocksToExport);
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(textualIdentityBytes, QRCodeGenerator.ECCLevel.H);
+            QRCodeData qrCodeData = qrGenerator.CreateQrCode(identityBytes, QRCodeGenerator.ECCLevel.M);
             QRCode qrCode = new QRCode(qrCodeData);
-            
+
             var qrCodeBitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, true);
-            
+
             using (var stream = new MemoryStream())
             {
                 qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
@@ -64,14 +115,16 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public async void SaveToFile()
         {
-            SaveFileDialog ofd = new SaveFileDialog();
+            SaveFileDialog sfd = new SaveFileDialog();
 
-            ofd.Title = _loc.GetLocalizationValue("SaveIdentityDialogTitle");
-            ofd.InitialFileName = $"{(string.IsNullOrEmpty(this.Identity.IdentityName)?"Identity":this.Identity.IdentityName)}.sqrl";
-            var file = await ofd.ShowAsync(_mainWindow);
+            var fileExtension = this.ExportWithPassword ? "sqrl" : "sqrc";
+            sfd.Title = _loc.GetLocalizationValue("SaveIdentityDialogTitle");
+            sfd.InitialFileName = $"{(string.IsNullOrEmpty(this.Identity.IdentityName)?"Identity":this.Identity.IdentityName)}.{fileExtension}";
+            sfd.DefaultExtension = fileExtension;
+            var file = await sfd.ShowAsync(_mainWindow);
             if(!string.IsNullOrEmpty(file))
             {
-                this.Identity.WriteToFile(file);
+                this.Identity.WriteToFile(file, skipBlockType1: !this.ExportWithPassword);
                 
                 await new MessageBoxViewModel(_loc.GetLocalizationValue("IdentityExportedMessageBoxTitle"),
                     string.Format(_loc.GetLocalizationValue("IdentityExportedMessageBoxText"), file),
@@ -85,7 +138,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public async void CopyToClipboard()
         {
-            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, minimumSize: true);
+            var textualIdentityBytes = this.Identity.ToByteArray(includeHeader: true, _blocksToExport);
 
             string identity = SQRL.GenerateTextualIdentityBase56(textualIdentityBytes);
             await Application.Current.Clipboard.SetTextAsync(identity);
@@ -117,7 +170,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
             try
             {
-                PdfHelper.CreateIdentityDocument(file, this.Identity); 
+                PdfHelper.CreateIdentityDocument(file, this.Identity, _blocksToExport); 
                 ProcessStartInfo psi = new ProcessStartInfo
                 {
                     FileName = file,
@@ -131,6 +184,16 @@ namespace SQRLDotNetClientUI.ViewModels
                     MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.OK)
                     .ShowDialog(this);
             }
+        }
+
+        /// <summary>
+        /// Toggles the visibility of the qr code UI.
+        /// </summary>
+        /// <param name="visible">Set to <c>true</c> to show the qr code, 
+        /// or <c>false</c> to hide it</param>
+        public void ToggleQrCode(bool visible)
+        {
+            this.ShowQrCode = visible;
         }
 
         /// <summary>

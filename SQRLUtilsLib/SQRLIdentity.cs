@@ -93,24 +93,28 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Returns the raw byte representation of the identity, optionally
-        /// including the plaintext "sqrldata" SQRL header.
+        /// Returns the raw byte representation of the identity. Optional parameters
+        /// specify whether to include the plaintext "sqrldata" header and which block 
+        /// types to include.
         /// </summary>
-        /// <param name="includeHeader">If set to true, the resulting byte array will include the 
-        /// plaintext "sqrldata" header</param>
-        /// <param name="minimumSize">If set to true, only block 2 (and block 3 if available)
-        /// will be included in the resulting byte array. Please note that decrypting the resulting
-        /// identity will require the secret rescue code.</param>
-        public byte[] ToByteArray(bool includeHeader = true, bool minimumSize = false)
+        /// <param name="includeHeader">If set to true, the resulting byte array will 
+        /// include the plaintext "sqrldata" header</param>
+        /// <param name="blockTypes">Spciefies a list of block types to include. If set to
+        /// <c>null</c>, all available block types will be included.</param>
+        public byte[] ToByteArray(bool includeHeader = true, List<ushort> blockTypes = null)
         {
-            byte[] data = includeHeader ? 
+            byte[] data = includeHeader ?
                 Encoding.UTF8.GetBytes(SQRLHEADER) : new byte[] { };
 
-            foreach (var block in Blocks)
+            var selectedBlocks = blockTypes == null ?
+                Blocks :
+                Blocks.Where(b => blockTypes.Contains(b.Type));
+
+            foreach (var block in selectedBlocks)
             {
-                if (minimumSize && block.Type != 2 && block.Type != 3) continue;
                 data = data.Concat(block.ToByteArray()).ToArray();
             }
+
             return data;
         }
 
@@ -120,9 +124,19 @@ namespace SQRLUtilsLib
         /// target file aleady exists, it is overwritten!
         /// </summary>
         /// <param name="fileName">The full file path of the identity file to be created.</param>
-        public void WriteToFile(string fileName)
+        /// <param name="skipBlockType1">If set to <c>true</c>, block type 1 will not be written
+        /// to the file, requiring the rescue code to decode the resulting identity file.</param>
+        public void WriteToFile(string fileName, bool skipBlockType1 = false)
         {
-            File.WriteAllBytes(fileName, this.ToByteArray());
+            List<ushort> blockTypes = new List<ushort>();
+
+            foreach (var block in Blocks)
+            {
+                if (block.Type == 1 && skipBlockType1) continue;
+                blockTypes.Add(block.Type);
+            }
+            
+            File.WriteAllBytes(fileName, this.ToByteArray(includeHeader: true, blockTypes));
         }
 
         /// <summary>
