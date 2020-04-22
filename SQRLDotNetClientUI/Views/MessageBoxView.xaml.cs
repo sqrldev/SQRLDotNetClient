@@ -11,42 +11,48 @@ using System.Threading.Tasks;
 namespace SQRLDotNetClientUI.Views
 {
     /// <summary>
-    /// This is a class which implements a message box to be used throughout the project
-    /// it supports localization of buttons and dynamic re-sizing where allowed.
+    /// This class implements a localizable message box to be used throughout the project.
     /// </summary>
     public class MessageBoxView : UserControl
     {
         /// <summary>
-        /// Instanciates a new MessageBoxWindow
+        /// Instanciates a new <c>MessageBoxView</c>.
         /// </summary>
-        /// <param name="Title">The title of the messagebox</param>
+        /// <param name="Title">The title of the message box</param>
         /// <param name="Message">The actual message to be delivered</param>
-        /// <param name="messageBoxSize"> Optional Size Parameter changes the width of the window presented</param>
-        /// <param name="messageBoxButtons">Optional (default OK) Allows you to select which buttons to give the user</param>
-        /// <param name="messageBoxIcon"> Optioal (default OK) Allows you to select which Icon to present the user with the message</param>
-        public MessageBoxView(string Title, string Message, MessageBoxSize messageBoxSize = MessageBoxSize.Medium, MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK, MessageBoxIcons messageBoxIcon = MessageBoxIcons.OK)
+        /// <param name="messageBoxSize"> Optional size parameter changes the width of the window presented</param>
+        /// <param name="messageBoxButtons">Optional (default "OK"). Allows you to select which buttons to present the user.</param>
+        /// <param name="messageBoxIcon"> Optional (default "OK"). Allows you to select which icon to present the user with the message.</param>
+        public MessageBoxView(string Title, string Message, MessageBoxSize messageBoxSize = MessageBoxSize.Medium, 
+            MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK, MessageBoxIcons messageBoxIcon = MessageBoxIcons.OK)
         {
             Init();
-            //this.DataContext = new MessageBoxViewModel(Title, Message, messageBoxSize, messageBoxButtons, messageBoxIcon);
         }
 
+        /// <summary>
+        /// Instanciates a new <c>MessageBoxView</c>.
+        /// </summary>
         public MessageBoxView()
         {
             Init();
-            //this.DataContext = new MessageBoxViewModel();
         }
+
+        /// <summary>
+        /// Performs a few initialization tasks.
+        /// </summary>
         private void Init()
         {
-            
-
             AvaloniaLocator.CurrentMutable.Bind<MessageBoxView>().ToConstant(this);
 
             this.InitializeComponent();
-            this.DataContextChanged += MessageBoxView_DataContextChanged;
-
-            
+            this.DataContextChanged += MessageBoxView_DataContextChanged;           
         }
 
+        /// <summary>
+        /// Event handler for the "DataContextChanged" event.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event parameters.</param>
         private void MessageBoxView_DataContextChanged(object sender, EventArgs e)
         {
             if(this.DataContext !=null)
@@ -55,6 +61,9 @@ namespace SQRLDotNetClientUI.Views
             }
         }
 
+        /// <summary>
+        /// Initializes the UI components.
+        /// </summary>
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
@@ -62,7 +71,7 @@ namespace SQRLDotNetClientUI.Views
     }
 
     /// <summary>
-    /// Public Enum which allows easy selection of Message Box Size (Width)
+    /// Public Enum which allows easy selection of MessageBox size (width).
     /// </summary>
     public enum MessageBoxSize
     {
@@ -73,8 +82,8 @@ namespace SQRLDotNetClientUI.Views
     }
 
     /// <summary>
-    /// Public Enum List of Button Combinations Available to the MessageBox.
-    /// These buttons automatically load the localization from the system if available
+    /// Public Enum list of button combinations available to the MessageBox.
+    /// These buttons automatically load the localization from the system if available.
     /// </summary>
     public enum MessageBoxButtons
     {
@@ -84,7 +93,7 @@ namespace SQRLDotNetClientUI.Views
     }
 
     /// <summary>
-    /// Enum which determines which Icon will be shown along with the message box
+    /// Enum which determines which icon will be shown along with the message.
     /// </summary>
     public enum MessageBoxIcons
     {
@@ -95,7 +104,7 @@ namespace SQRLDotNetClientUI.Views
     }
 
     /// <summary>
-    /// Enum values which will be returned from a messagebox based on which button you click
+    /// Enum values which will be returned from a MessageBox based on which button is clicked.
     /// </summary>
     public enum MessagBoxDialogResult
     {
