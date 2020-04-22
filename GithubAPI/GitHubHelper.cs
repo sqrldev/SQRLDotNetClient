@@ -3,6 +3,7 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -15,9 +16,42 @@ namespace GitHubApi
     /// </summary>
     public static class GitHubHelper
     {
+        /// <summary>
+        /// The HTTP user agent for the installer.
+        /// </summary>
         public static readonly string SQRLInstallerUserAgent="Open Source Cross Platform SQRL Installer";
+
+        /// <summary>
+        /// The Github name of the project owner. (The middle part of a repository's github url.)
+        /// </summary>
         public static readonly string SQRLGithubProjectOwner = "sqrldev";
+
+        /// <summary>
+        /// The Github project/repository name. (The last part of a repository's github url.)
+        /// </summary>
         public static readonly string SQRLGithubProjectName = "SQRLDotNetClient";
+
+        /// <summary>
+        /// Specifies the keyword that, when present in a release tag, tells
+        /// the release checker to omit those releases if we're not in 
+        /// testing mode (<seealso cref="_testReleaseFile"/>).
+        /// </summary>
+        private static readonly string _testReleaseKeyword = "test";
+
+        /// <summary>
+        /// Specifies the "magic" file name for switching to testing/dev mode.
+        /// If a file with this name is present in the executable's directory,
+        /// test releases will be included in the release list (<seealso cref="_testReleaseKeyword"/>.
+        /// </summary>
+        private static readonly string _testReleaseFile = "TESTING";
+
+        /// <summary>
+        /// Defines the file name for the Github authrorization file which must
+        /// contain a valid Github authorization token in the format of  
+        /// "token 5c19b5ada557335de35ed54642c363f82ac1da18" and be placed in the
+        /// executable's working directory. This is for development only!
+        /// </summary>
+        private static readonly string _githubAuthFile = "GithubAuthToken.txt";
 
         /// <summary>
         /// Retrieves information about releases from Github.
@@ -42,9 +76,22 @@ namespace GitHubApi
                 {
                     Log.Error($"Error Downloading Releases. Error: {ex}");
                 }
-                return !string.IsNullOrEmpty(jsonData) ? 
+                var releases = !string.IsNullOrEmpty(jsonData) ? 
                     (JsonConvert.DeserializeObject<List<GithubRelease>>(jsonData)).ToArray() :
                     new GithubRelease[] { };
+
+                var testFile = Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                _testReleaseFile);
+
+                // If a file with the specified "magic" name exists in the executable's
+                // directory, we show all releases, otherwise we hide those which contain 
+                // the defined test keyword.
+                releases = File.Exists(testFile) ? 
+                    releases : 
+                    releases.Where(x => !x.tag_name.ToLower().Contains(_testReleaseKeyword)).ToArray();
+
+                return releases;
             });
         }
 
@@ -104,9 +151,9 @@ namespace GitHubApi
 
         /// <summary>
         /// Adds the "User-Agent" header to the given <paramref name="webClient"/>.
-        /// If a file with a name of "GithubAuthToken.txt" exists in the same directory
-        /// as the executable, and the file contains a valid Github authorization token
-        /// in the format of "token 5c19b5ada557335de35ed54642c363f82ac1da18", a 
+        /// If a file with the name defined in <see cref="_githubAuthFile"/> exists in the 
+        /// same directory as the executable, and the file contains a valid Github authorization 
+        /// token in the format of "token 5c19b5ada557335de35ed54642c363f82ac1da18", a 
         /// corresponding "Authorization" header will be sent as well.
         /// </summary>
         /// <param name="webClient">The WebClient to which headers should be added.</param>
@@ -116,7 +163,7 @@ namespace GitHubApi
 
             var authFile = Path.Combine(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                @"GithubAuthToken.txt");
+                _githubAuthFile);
 
             if (File.Exists(authFile))
             {
