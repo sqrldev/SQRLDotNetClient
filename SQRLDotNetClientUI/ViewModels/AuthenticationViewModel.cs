@@ -219,6 +219,9 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         private async void CheckForUpdate()
         {
+            TimeSpan timeSinceLastUpdate = DateTime.Now - App.LastUpdateCheck;
+            if (timeSinceLastUpdate < App.MinTimeBetweenUpdateChecks) return;
+
             this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates(
                 Assembly.GetExecutingAssembly().GetName().Version);
         }
