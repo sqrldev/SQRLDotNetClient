@@ -1,9 +1,11 @@
 param (
     [string]$token = "",
-    [string]$milestone = ""
-    
+    [string]$milestone = ""  
  )
 
+echo $token
+echo $milestone
+cd SQRLDotNetClientUI
 dotnet publish -r win-x64 -c Release /p:PublishSingleFile=false /p:PublishTrimmed=true
 dotnet publish -r linux-x64 -c Release /p:PublishSingleFile=false /p:PublishTrimmed=true
 dotnet publish -r osx-x64 -c Release /p:PublishSingleFile=false /p:PublishTrimmed=true
@@ -12,6 +14,7 @@ cd .\SQRLPlatformAwareInstaller\
 dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
 dotnet publish -r linux-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
 dotnet publish -r osx-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
+
 Move-Item ".\bin\Release\netcoreapp3.1\osx-x64\publish\SQRLPlatformAwareInstaller" -Destination ".\bin\Release\netcoreapp3.1\osx-x64\publish\SQRLPlatformAwareInstaller_osx"  -Force
 Move-Item ".\bin\Release\netcoreapp3.1\linux-x64\publish\SQRLPlatformAwareInstaller" -Destination ".\bin\Release\netcoreapp3.1\linux-x64\publish\SQRLPlatformAwareInstaller_linux"  -Force
 Move-Item ".\bin\Release\netcoreapp3.1\win-x64\publish\SQRLPlatformAwareInstaller.exe" -Destination ".\bin\Release\netcoreapp3.1\win-x64\publish\SQRLPlatformAwareInstaller_win.exe" -Force
@@ -41,7 +44,7 @@ $releaseParams =
   "prerelease"= $true
 }
 
-$gitUrl= "https://api.github.com/repos/josegomez/SQRLDotNetClient/releases"
+$gitUrl= "https://api.github.com/repos/sqrldev/SQRLDotNetClient/releases"
 
 
 $header = @{
@@ -51,9 +54,9 @@ $header = @{
 } 
 
 
-Invoke-WebRequest -Uri $gitUrl -Method Post -Body ($releaseParams|ConvertTo-Json) -ContentType "application/json" -Headers $header
+$newRelease= Invoke-WebRequest -Uri $gitUrl -Method Post -Body ($releaseParams|ConvertTo-Json) -ContentType "application/json" -Headers $header
 
-
+$jsonObject = ConvertFrom-Json $([String]::new($newRelease.Content))
 
 
 Get-ChildItem "C:\Temp\SQRL\Publish"| 
@@ -66,7 +69,8 @@ Foreach-Object {
     }
     $fileName = $_.Name
     echo $fileName
-    $fileUrl = "https://uploads.github.com/repos/josegomez/SQRLDotNetClient/releases/25793012/assets?name=$fileName"
+    $uploadUrl = $jsonObject.upload_url.replace("{?name,label}","")
+    $fileUrl = $uploadUrl+"?name="+$fileName
     Invoke-RestMethod -Uri $fileUrl -Method Post -Headers $fileHeaders -InFile $_.FullName -ContentType $contentType
     
 }
