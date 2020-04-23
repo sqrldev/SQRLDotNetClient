@@ -9,7 +9,15 @@
   
   <DockPanel LastChildFill="False" Margin="20">
     
-    <Grid DockPanel.Dock="Top">
+    <StackPanel DockPanel.Dock="Top" IsVisible="{Binding !HasReleases}">
+      <Image Source="resm:SQRLPlatformAwareInstaller.Assets.Icons.alert-triangle.png"
+           Stretch="None" HorizontalAlignment="Center" Margin="10,100,10,20"/>
+      <TextBlock Text="{loc:Localization NoReleasesMessage}" HorizontalAlignment="Center" Foreground="Gray" Margin="10,10,10,20"/>
+      <CheckBox Content="{loc:Localization EnablePreReleases}" IsChecked="{Binding EnablePreReleases}" HorizontalAlignment="Center" />
+    </StackPanel>
+    
+    
+    <Grid DockPanel.Dock="Top" IsVisible="{Binding HasReleases}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition  Width="Auto"/>
         <ColumnDefinition Width="*" />
@@ -26,9 +34,8 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Source="resm:SQRLPlatformAwareInstaller.Assets.SQRL_icon_normal_32.png" 
-             Stretch="None" HorizontalAlignment="Left"/>
-    
+
+      <CheckBox Content="{loc:Localization EnablePreReleases}" IsChecked="{Binding EnablePreReleases}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,0,20" />
       <TextBlock Text="{loc:Localization SelectInstallVersionLabel}" VerticalAlignment="Center" Grid.Row="1" Margin="0,10" Grid.Column="0" FontWeight="Bold" />
       <DropDown Width="300" HorizontalAlignment="Left" Margin="10" Grid.Row="1" Grid.Column="1" Items="{Binding Releases}" SelectedItem="{Binding SelectedRelease}"/>
       
@@ -55,7 +62,7 @@
 
     <DockPanel DockPanel.Dock="Bottom">
       <Button Content="{loc:Localization BtnBack}" Command="{Binding Back}" DockPanel.Dock="Left" Height="25" Width="100" HorizontalAlignment="Left" />
-      <Button Content="{loc:Localization BtnInstall}" Command="{Binding DownloadInstall}" DockPanel.Dock="Right" Height="25" Width="100" HorizontalAlignment="Right" />
+      <Button Content="{loc:Localization BtnInstall}" Command="{Binding DownloadInstall}" IsEnabled="{Binding HasReleases}" DockPanel.Dock="Right" Height="25" Width="100" HorizontalAlignment="Right" />
     </DockPanel>
     
   </DockPanel>

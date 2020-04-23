@@ -58,6 +58,7 @@
     <None Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
     <None Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
     <None Remove="Assets\Fonts\SpaceMono-Regular.ttf" />
+    <None Remove="Assets\Icons\alert-triangle.png" />
     <None Remove="Assets\linux.png" />
     <None Remove="Assets\Localization\localization.json" />
     <None Remove="Assets\mac.png" />
@@ -81,6 +82,7 @@
     <None Remove="Views\VersionSelectorView.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Assets\Icons\alert-triangle.png" />
     <EmbeddedResource Include="Assets\unknown.png" />
     <EmbeddedResource Include="Assets\linux.png" />
     <EmbeddedResource Include="Assets\mac.png" />

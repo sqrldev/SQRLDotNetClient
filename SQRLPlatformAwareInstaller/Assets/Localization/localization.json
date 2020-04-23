@@ -23,7 +23,9 @@
       "ReleaseDateLabel": "Release date:",
       "SizeLabel": "Size:",
       "InstallSuccessMessage": "The SQRL client has been successfully installed!",
-      "LaunchClientCheckBox": "Launch SQRL client on finish"
+      "LaunchClientCheckBox": "Launch SQRL client on finish",
+      "EnablePreReleases": "Show pre-releases",
+      "NoReleasesMessage": "No releases available? Try enabling pre-releases!"
     }
   ],
   "en-US": [
@@ -50,7 +52,9 @@
       "ReleaseDateLabel": "Release date:",
       "SizeLabel": "Size:",
       "InstallSuccessMessage": "The SQRL client has been successfully installed!",
-      "LaunchClientCheckBox": "Launch SQRL client on finish"
+      "LaunchClientCheckBox": "Launch SQRL client on finish",
+      "EnablePreReleases": "Show pre-releases",
+      "NoReleasesMessage": "No releases available? Try enabling pre-releases!"
     }
   ],
   "de-DE": [
@@ -77,7 +81,9 @@
       "ReleaseDateLabel": "Release-Datum:",
       "SizeLabel": "Größe:",
       "InstallSuccessMessage": "Der SQRL-Client wurde erfolgreich installiert!",
-      "LaunchClientCheckBox": "SQRL Client beim Fertigstellen starten"
+      "LaunchClientCheckBox": "SQRL Client beim Fertigstellen starten",
+      "EnablePreReleases": "Vorab-Releases aktivieren",
+      "NoReleasesMessage": "Keine Releases verfügbar? Probieren Sie, Vorab-Releases zu aktivieren!"
     }
   ]
 }

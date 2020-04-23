@@ -56,7 +56,9 @@ namespace GitHubApi
         /// <summary>
         /// Retrieves information about releases from Github.
         /// </summary>
-        public async static Task<GithubRelease[]> GetReleases()
+        /// <param name="enablePreReleases">If set to <c>true</c>, pre-releases will be
+        /// included in the release listing.</param>
+        public async static Task<GithubRelease[]> GetReleases(bool enablePreReleases = false)
         {
             return await Task.Run(() =>
             {
@@ -74,7 +76,7 @@ namespace GitHubApi
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"Error Downloading Releases. Error: {ex}");
+                    Log.Error($"Error downloading releases: {ex}");
                 }
                 var releases = !string.IsNullOrEmpty(jsonData) ? 
                     (JsonConvert.DeserializeObject<List<GithubRelease>>(jsonData)).ToArray() :
@@ -90,6 +92,11 @@ namespace GitHubApi
                 releases = File.Exists(testFile) ? 
                     releases : 
                     releases.Where(x => !x.tag_name.ToLower().Contains(_testReleaseKeyword)).ToArray();
+
+                /// Do we want pre-releases included?
+                releases = enablePreReleases ?
+                    releases :
+                    releases.Where(x => !x.prerelease).ToArray();
 
                 return releases;
             });
@@ -128,9 +135,11 @@ namespace GitHubApi
         /// </summary>
         /// <returns>Returns <c>true</c> if an update exists, or <c>false</c> if no update exists
         /// or if the update check could not be perfomred for some reason.</returns>
-        public async static Task<bool> CheckForUpdates(Version currentVersion)
+        /// /// <param name="enablePreReleases">If set to <c>true</c>, pre-releases will be
+        /// included in the release listing.</param>
+        public async static Task<bool> CheckForUpdates(Version currentVersion, bool enablePreReleases = true)
         {
-            var releases = await GetReleases();
+            var releases = await GetReleases(enablePreReleases);
             if (releases != null && releases.Length > 0)
             {
                 Match match = Regex.Match(releases[0].tag_name, @"\d+(?:\.\d+)+");
