@@ -56,6 +56,8 @@ namespace GitHubApi
         /// <summary>
         /// Retrieves information about releases from Github.
         /// </summary>
+        /// <param name="enablePreReleases">If set to <c>true</c>, pre-releases will be
+        /// included in the release listing.</param>
         public async static Task<GithubRelease[]> GetReleases(bool enablePreReleases = false)
         {
             return await Task.Run(() =>
@@ -133,9 +135,11 @@ namespace GitHubApi
         /// </summary>
         /// <returns>Returns <c>true</c> if an update exists, or <c>false</c> if no update exists
         /// or if the update check could not be perfomred for some reason.</returns>
-        public async static Task<bool> CheckForUpdates(Version currentVersion)
+        /// /// <param name="enablePreReleases">If set to <c>true</c>, pre-releases will be
+        /// included in the release listing.</param>
+        public async static Task<bool> CheckForUpdates(Version currentVersion, bool enablePreReleases = true)
         {
-            var releases = await GetReleases();
+            var releases = await GetReleases(enablePreReleases);
             if (releases != null && releases.Length > 0)
             {
                 Match match = Regex.Match(releases[0].tag_name, @"\d+(?:\.\d+)+");
