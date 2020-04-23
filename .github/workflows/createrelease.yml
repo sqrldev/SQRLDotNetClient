@@ -16,8 +16,6 @@ jobs:
       with:
         # SDK version to use. Example: 2.2.104
         dotnet-version: 3.1.100 # optional
-    - name: Build with dotnet
-      run: dotnet build --configuration Release
     - name: Create Releases Assets
       run: |
-           powershell .github/releases.ps1 -token ${{secrets.TOKEN}} -milestone ${{ github.event.milestone.title }}
+           powershell .github/releases.ps1 -token ${{secrets.TOKEN}} -milestone ${{ github.event.milestone.title }} -milestonedesc ${{ github.event.milestone.description }}
