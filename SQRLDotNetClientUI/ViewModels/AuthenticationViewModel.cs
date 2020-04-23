@@ -336,7 +336,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (serverResponse.CommandFailed)
             {
-                //TODO: Fix Dialog
+                
                 var dialogResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
                     _loc.GetLocalizationValue("SQRLCommandFailedUnknown"), 
                     MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
