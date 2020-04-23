@@ -42,34 +42,34 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <summary>
         /// Gets or sets the download progress percentage.
         /// </summary>
-        public int DownloadPercentage 
-        { 
-            get { return _downloadPercentage; } 
-            set { this.RaiseAndSetIfChanged(ref _downloadPercentage, value); } 
+        public int DownloadPercentage
+        {
+            get { return _downloadPercentage; }
+            set { this.RaiseAndSetIfChanged(ref _downloadPercentage, value); }
         }
 
         /// <summary>
         /// Gets or sets the installation warning message.
         /// </summary>
-        public string Warning 
-        { 
-            get { return this._warning; } 
-            set { this.RaiseAndSetIfChanged(ref this._warning, value); } 
+        public string Warning
+        {
+            get { return this._warning; }
+            set { this.RaiseAndSetIfChanged(ref this._warning, value); }
         }
 
         /// <summary>
         /// Gets or sets the program installation path.
         /// </summary>
-        public string InstallationPath 
-        { 
-            get  { return this._installationPath; } 
-            set { this.RaiseAndSetIfChanged(ref this._installationPath, value); } 
+        public string InstallationPath
+        {
+            get { return this._installationPath; }
+            set { this.RaiseAndSetIfChanged(ref this._installationPath, value); }
         }
 
         /// <summary>
         /// Gets or sets a string representing the installation status.
         /// </summary>
-        public string InstallStatus 
+        public string InstallStatus
         {
             get { return this._installStatus; }
             set
@@ -145,6 +145,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                     }
                 }
             }
+            this.InstallationPath = Environment.GetCommandLineArgs().Length > 1 ? Environment.GetCommandLineArgs()[1] : this.InstallationPath;
         }
 
         /// <summary>
@@ -152,6 +153,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// </summary>
         private void PathByPlatform()
         {
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 this.InstallationPath = Path.Combine("/Applications/");
@@ -431,7 +433,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             this.DownloadPercentage = e.ProgressPercentage;
-            this.InstallStatus = _loc.GetLocalizationValue("InstallStatusDownloading") +  
+            this.InstallStatus = _loc.GetLocalizationValue("InstallStatusDownloading") +
                 $" {Math.Round(e.BytesReceived / 1024M / 1024M, 2)}/{Math.Round(e.TotalBytesToReceive / 1024M / 1024M, 2)} MB";
         }
 
@@ -470,7 +472,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// </summary>
         public void Back()
         {
-            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
+            ((MainWindowViewModel)_mainWindow.DataContext).Content =
                 ((MainWindowViewModel)_mainWindow.DataContext).PriorContent;
         }
 
@@ -483,6 +485,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <param name="outFolder">The output folder.</param>
         public void ExtractZipFile(string archivePath, string password, string outFolder)
         {
+            if (!Directory.Exists(outFolder))
+            {
+                Directory.CreateDirectory(outFolder);
+                SetFileAccess(outFolder);
+            }
             using (Stream fsInput = File.OpenRead(archivePath))
             {
                 using (var zf = new ZipFile(fsInput))
@@ -495,22 +502,22 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                     }
 
                     long fileCt = zf.Count;
-                    
+
                     foreach (ZipEntry zipEntry in zf)
                     {
-                        
+
                         if (!zipEntry.IsFile)
                         {
                             // Ignore directories
                             continue;
                         }
                         String entryFileName = zipEntry.Name;
-                      
+
 
                         // Manipulate the output filename here as desired.
                         var fullZipToPath = Path.Combine(outFolder, entryFileName);
                         //Do not over-write the sqrl Db if it exists
-                        
+
                         if (entryFileName.Equals("sqrl.db", StringComparison.OrdinalIgnoreCase) && File.Exists(fullZipToPath))
                         {
                             Log.Information("Found existing SQRL DB , keeping existing");
@@ -558,11 +565,10 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         {
             var fi = new FileInfo(file);
             var ac = fi.GetAccessControl();
-            var sid = new SecurityIdentifier(WellKnownSidType.WorldSid, null);
-            var account = (NTAccount)sid.Translate(typeof(NTAccount));
-            Log.Information("Granting full file permissions to current user");
-            var fileAccessRule = new FileSystemAccessRule(account, FileSystemRights.FullControl, AccessControlType.Allow);
             
+            Log.Information("Granting full file permissions to current user");
+            var fileAccessRule = new FileSystemAccessRule(WindowsIdentity.GetCurrent().User, FileSystemRights.FullControl, AccessControlType.Allow);
+
             ac.AddAccessRule(fileAccessRule);
             fi.SetAccessControl(ac);
         }

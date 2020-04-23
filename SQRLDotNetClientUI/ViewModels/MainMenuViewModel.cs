@@ -359,16 +359,19 @@ namespace SQRLDotNetClientUI.ViewModels
                     Log.Information("Changing Executable File to be Executable a+x");
                     _shell.Term($"chmod a+x {Path.Combine(tempFile, Path.GetFileName(installer))}", Output.Internal);
                 }
+
+                Log.Information("Starting Installer");
+                Process proc = new Process();
+                proc.StartInfo.FileName = Path.Combine(tempFile, Path.GetFileName(installer));
+                proc.StartInfo.Arguments = $"\"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\"";
+                Log.Information($"Installer Location:{proc.StartInfo.FileName}");
+                Log.Information($"Installer Arguments:{proc.StartInfo.Arguments}");
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Process proc = new Process();
-                    proc.StartInfo.FileName = Path.Combine(tempFile, Path.GetFileName(installer));
                     proc.StartInfo.UseShellExecute = true;
                     proc.StartInfo.Verb = "runas";
-                    proc.Start();
                 }
-                else
-                    Process.Start(Path.Combine(tempFile, Path.GetFileName(installer)));
+                proc.Start();
 
                 this._mainWindow.Exit();
             }
