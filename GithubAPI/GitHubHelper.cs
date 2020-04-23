@@ -56,7 +56,7 @@ namespace GitHubApi
         /// <summary>
         /// Retrieves information about releases from Github.
         /// </summary>
-        public async static Task<GithubRelease[]> GetReleases()
+        public async static Task<GithubRelease[]> GetReleases(bool enablePreReleases = false)
         {
             return await Task.Run(() =>
             {
@@ -74,7 +74,7 @@ namespace GitHubApi
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"Error Downloading Releases. Error: {ex}");
+                    Log.Error($"Error downloading releases: {ex}");
                 }
                 var releases = !string.IsNullOrEmpty(jsonData) ? 
                     (JsonConvert.DeserializeObject<List<GithubRelease>>(jsonData)).ToArray() :
@@ -90,6 +90,11 @@ namespace GitHubApi
                 releases = File.Exists(testFile) ? 
                     releases : 
                     releases.Where(x => !x.tag_name.ToLower().Contains(_testReleaseKeyword)).ToArray();
+
+                /// Do we want pre-releases included?
+                releases = enablePreReleases ?
+                    releases :
+                    releases.Where(x => !x.prerelease).ToArray();
 
                 return releases;
             });
