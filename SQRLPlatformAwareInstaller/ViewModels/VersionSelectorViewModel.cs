@@ -38,6 +38,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private GithubRelease[] _releases;
         private GithubRelease _selectedRelease;
         private decimal? _downloadSize;
+        private bool _enablePreReleases = false;
+        private bool _hasReleases = false;
 
         /// <summary>
         /// Gets or sets the download progress percentage.
@@ -103,7 +105,25 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         {
             get { return this._downloadSize; }
             set { this.RaiseAndSetIfChanged(ref _downloadSize, value); }
+        }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to enable fetching
+        /// alpha/beta releases.
+        /// </summary>
+        public bool EnablePreReleases
+        {
+            get { return this._enablePreReleases; }
+            set { this.RaiseAndSetIfChanged(ref _enablePreReleases, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether any releases are available.
+        /// </summary>
+        public bool HasReleases
+        {
+            get { return this._hasReleases; }
+            set { this.RaiseAndSetIfChanged(ref _hasReleases, value); }
         }
 
         /// <summary>
@@ -116,12 +136,23 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         }
 
         /// <summary>
-        /// Sets the screen title and downloads available releases from Github.
+        /// Performs initialization tasks.
         /// </summary>
-        private async void Init()
+        private void Init()
         {
             this.Title = _loc.GetLocalizationValue("TitleVersionSelector");
 
+            this.WhenAnyValue(x => x.EnablePreReleases)
+                .Subscribe(x => GetReleases());
+
+            GetReleases();
+        }
+
+        /// <summary>
+        /// Fetches available releases from Github.
+        /// </summary>
+        private async void GetReleases()
+        {
             _webClient = new WebClient
             {
                 CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
@@ -129,8 +160,10 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
             _webClient.Headers.Add("User-Agent", GitHubHelper.SQRLInstallerUserAgent);
 
-            this.Releases = await GitHubHelper.GetReleases();
-            if (this.Releases.Length > 0)
+            this.Releases = await GitHubHelper.GetReleases(this.EnablePreReleases);
+            this.HasReleases = this.Releases.Length > 0;
+
+            if (this.HasReleases)
             {
                 this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
                 Log.Information($"Found {this.Releases?.Count()} Releases");
