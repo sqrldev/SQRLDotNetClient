@@ -485,11 +485,14 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <param name="outFolder">The output folder.</param>
         public void ExtractZipFile(string archivePath, string password, string outFolder)
         {
+
             if (!Directory.Exists(outFolder))
             {
                 Directory.CreateDirectory(outFolder);
-                SetFileAccess(outFolder);
             }
+           
+            SetFileAccess(outFolder);
+            
             using (Stream fsInput = File.OpenRead(archivePath))
             {
                 using (var zf = new ZipFile(fsInput))
@@ -520,6 +523,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
                         if (entryFileName.Equals("sqrl.db", StringComparison.OrdinalIgnoreCase) && File.Exists(fullZipToPath))
                         {
+                              SetFileAccess(fullZipToPath);
                             Log.Information("Found existing SQRL DB , keeping existing");
                             continue;
                         }
@@ -529,11 +533,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                             if (!Directory.Exists(directoryName))
                             {
                                 Directory.CreateDirectory(directoryName);
-                                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                                {
-                                    SetFileAccess(directoryName);
-                                }
+                               
                             }
+                           
+                            SetFileAccess(directoryName);
+                           
                         }
 
                         // 4K is optimum
@@ -547,10 +551,9 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                         {
 
                             StreamUtils.Copy(zipStream, fsOutput, buffer);
-                            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                            {
-                                SetFileAccess(fullZipToPath);
-                            }
+                            
+                            SetFileAccess(fullZipToPath);
+                            
                         }
                     }
                 }
@@ -563,14 +566,17 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <param name="file">The file to set the permissions for.</param>
         public void SetFileAccess(string file)
         {
-            var fi = new FileInfo(file);
-            var ac = fi.GetAccessControl();
-            
-            Log.Information("Granting full file permissions to current user");
-            var fileAccessRule = new FileSystemAccessRule(WindowsIdentity.GetCurrent().User, FileSystemRights.FullControl, AccessControlType.Allow);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var fi = new FileInfo(file);
+                var ac = fi.GetAccessControl();
 
-            ac.AddAccessRule(fileAccessRule);
-            fi.SetAccessControl(ac);
+                Log.Information("Granting full file permissions to current user");
+                var fileAccessRule = new FileSystemAccessRule(WindowsIdentity.GetCurrent().User, FileSystemRights.FullControl, AccessControlType.Allow);
+
+                ac.AddAccessRule(fileAccessRule);
+                fi.SetAccessControl(ac);
+            }
         }
     }
 }
