@@ -78,7 +78,7 @@
         </MenuItem>
       </MenuItem>
       <MenuItem Header="{loc:Localization HelpMenuItemHeader}" >
-        <MenuItem Header="{loc:Localization CheckForUpdates}" IsEnabled="True" Command="{Binding CheckForUpdates}">
+        <MenuItem Header="{loc:Localization CheckForUpdates}" IsEnabled="True" Command="{Binding CheckForUpdates}" CommandParameter="true">
           <MenuItem.Icon>
             <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.CheckOut_16x.png"/>
           </MenuItem.Icon>

@@ -11,6 +11,8 @@ using System.Reflection;
 using Avalonia.Data.Converters;
 using System.Collections.Generic;
 using Avalonia.Media.Imaging;
+using Avalonia.Controls;
+using ReactiveUI;
 
 namespace SQRLCommonUI.AvaloniaExtensions
 {
@@ -47,7 +49,6 @@ namespace SQRLCommonUI.AvaloniaExtensions
         public static readonly string DEFAULT_LOC = "default";
 
         private string _resourceId { get; set; }
-        private IAssetLoader _assets { get; set; }
         private static Assembly _entryAssembly = Assembly.GetEntryAssembly();
         private static string _entryAssemblyName = Assembly.GetEntryAssembly().GetName().Name;
         private static Assembly _assembly = Assembly.GetExecutingAssembly();
@@ -91,7 +92,6 @@ namespace SQRLCommonUI.AvaloniaExtensions
         /// </summary>
         public LocalizationExtension()
         {
-            _assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
 
             if (!_initialized)
             {
@@ -195,6 +195,39 @@ namespace SQRLCommonUI.AvaloniaExtensions
         }
 
         /// <summary>
+        /// Gets a list of menu item objects representing the different
+        /// languages that are supported by the app.
+        /// </summary>
+        public List<MenuItem> GetLanguageMenuItems(ILocalizable target)
+        {
+            List<MenuItem> items = new List<MenuItem>();
+            foreach (var locInfo in LocalizationExtension.Localizations)
+            {
+                object logo;
+                string prefix = string.Empty;
+
+                if (LocalizationExtension.CurrentLocalization == locInfo.Key)
+                    logo = new CheckBox() { IsChecked = true, BorderThickness = new Thickness(0) };
+                else
+                    logo = new Image() { Source = locInfo.Value.Image };
+
+                if (locInfo.Key == LocalizationExtension.DEFAULT_LOC)
+                    prefix = GetLocalizationValue("DefaultLanguageMenuItemHeader") + " - ";
+
+                MenuItem item = new MenuItem()
+                {
+                    Header = prefix + locInfo.Value.CultureInfo.DisplayName,
+                    Command = ReactiveCommand.Create<string>(target.SelectLanguage),
+                    CommandParameter = locInfo.Key,
+                    Icon = logo
+                };
+
+                items.Add(item);
+            }
+            return items;
+        }
+
+        /// <summary>
         /// Reads the project's localization .json file into a <c>JObject</c>.
         /// </summary>
         private void GetLocalization()
@@ -224,5 +257,18 @@ namespace SQRLCommonUI.AvaloniaExtensions
     {
         public CultureInfo CultureInfo;
         public Bitmap Image;
+    }
+
+    /// <summary>
+    /// Defines an interface for localizable UI components.
+    /// </summary>
+    public interface ILocalizable
+    {
+        /// <summary>
+        /// Changes the UI language in the current control to the
+        /// language specified by <paramref name="language"/>.
+        /// </summary>
+        /// <param name="language"></param>
+        public void SelectLanguage(string language);
     }
 }

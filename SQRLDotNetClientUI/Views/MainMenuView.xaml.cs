@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using SQRLCommonUI.AvaloniaExtensions;
 using SQRLDotNetClientUI.ViewModels;
@@ -21,29 +22,14 @@ namespace SQRLDotNetClientUI.Views
         {
             // We need to instantiate a LocalizationExtension here
             // so that the can be sure that the localization data is initialized.
-            LocalizationExtension _ = new LocalizationExtension();
+            LocalizationExtension loc = new LocalizationExtension();
 
             MenuItem languageMenu = this.FindControl<MenuItem>("menuLanguage");
 
-            List<MenuItem> items = new List<MenuItem>();
-            var newMenuView = new MainMenuViewModel();
-            foreach (var lang in newMenuView.LanguageMenuItems)
-            {
-                MenuItem item = new MenuItem()
-                {
-                    Header = lang.Header,
-                    Command = lang.Command,
-                    CommandParameter = lang.CommandParameter,
-                    Icon = lang.Icon
-                };
-
-                items.Add(item);
-            }
+            var mmvm = ((MainWindowViewModel)AvaloniaLocator.Current.GetService<MainWindow>().DataContext).MainMenu;
+            List<MenuItem> items = loc.GetLanguageMenuItems(mmvm);
 
             languageMenu.Items = items;
-
-            //Derreference for GC
-            newMenuView = null;
         }
 
         private void InitializeComponent()

@@ -44,7 +44,7 @@ namespace SQRLDotNetClientUI.ViewModels
             Log.Information("Leaving about screen");
 
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
-                new MainMenuViewModel();
+                ((MainWindowViewModel)_mainWindow.DataContext).PriorContent;
         }
 
         /// <summary>

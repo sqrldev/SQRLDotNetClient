@@ -1,26 +1,23 @@
-﻿using Avalonia.Controls;
-using ReactiveUI;
+﻿using ReactiveUI;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
 using System;
 using SQRLDotNetClientUI.Models;
 using Serilog;
 using Avalonia.Controls.ApplicationLifetimes;
-using System.Collections.Generic;
-using System.Windows.Input;
 using SQRLCommonUI.AvaloniaExtensions;
-using Avalonia;
 using System.Reflection;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using ToolBox.Bridge;
+
 namespace SQRLDotNetClientUI.ViewModels
 {
     /// <summary>
     /// A view model representing the app's main screen.
     /// </summary>
-    public class MainMenuViewModel : ViewModelBase
+    public class MainMenuViewModel : ViewModelBase, ILocalizable
     {
         private bool _newUpdateAvailable = true;
         private string _siteUrl = "";
@@ -114,45 +111,8 @@ namespace SQRLDotNetClientUI.ViewModels
                 _mainWindow.Width = 400;
             }
 
-            //Checks for New Version on Main Menu Start
+            //Checks for new version on main menu start
             CheckForUpdates();
-        }
-
-        /// <summary>
-        /// Gets a list of menu item objects representing the different
-        /// languages that are supported by the app.
-        /// </summary>
-        public IReadOnlyList<LanguageMenuItem> LanguageMenuItems
-        {
-            get
-            {
-                List<LanguageMenuItem> items = new List<LanguageMenuItem>();
-                foreach (var locInfo in LocalizationExtension.Localizations)
-                {
-                    object logo;
-                    string prefix = string.Empty;
-
-                    if (LocalizationExtension.CurrentLocalization == locInfo.Key)
-                        logo = new CheckBox() { IsChecked = true, BorderThickness = new Thickness(0) };
-                    else
-                        logo = new Image() { Source = locInfo.Value.Image };
-
-                    if (locInfo.Key == LocalizationExtension.DEFAULT_LOC)
-                        prefix = _loc.GetLocalizationValue("DefaultLanguageMenuItemHeader") + " - ";
-
-                    LanguageMenuItem item = new LanguageMenuItem()
-                    {
-                        Header = prefix + locInfo.Value.CultureInfo.DisplayName,
-                        Command = ReactiveCommand.Create<string>(SelectLanguage),
-                        CommandParameter = locInfo.Key,
-                        Icon = logo
-                    };
-
-                    items.Add(item);
-                }
-                return items;
-            }
-            set { }
         }
 
         /// <summary>
@@ -172,6 +132,9 @@ namespace SQRLDotNetClientUI.ViewModels
         /// <param name="language">The language/localization code to set active (e.g. "en-US").</param>
         public void SelectLanguage(string language)
         {
+            if (LocalizationExtension.CurrentLocalization == language) 
+                return;
+
             LocalizationExtension.CurrentLocalization = language;
 
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
@@ -329,15 +292,32 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         /// <summary>
-        /// Checks for new version in github and enables the Alert Button
+        /// Checks for new version in Github and enables the alert button.
         /// </summary>
-        public async void CheckForUpdates()
+        /// <param name="userInitiated">Set to <c>true</c> if the update check was
+        /// manually initiated by the user to trigger a UI response.</param>
+        public async void CheckForUpdates(bool userInitiated = false)
         {
+            if (!userInitiated)
+            {
+                TimeSpan timeSinceLastUpdate = DateTime.Now - App.LastUpdateCheck;
+                if (timeSinceLastUpdate < App.MinTimeBetweenUpdateChecks) return;
+            }
 
             this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates(
                 Assembly.GetExecutingAssembly().GetName().Version);
-        }
 
+            App.LastUpdateCheck = DateTime.Now;
+
+            if (userInitiated && !this.NewUpdateAvailable)
+            {
+                await new MessageBoxViewModel(_loc.GetLocalizationValue("CheckForUpdates"),
+                    _loc.GetLocalizationValue("NoUpdateAvailable"),
+                    MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.OK)
+                    .ShowDialog(this);
+            }
+
+        }
 
         /// <summary>
         /// Launches the installer to install a new update
@@ -434,16 +414,5 @@ namespace SQRLDotNetClientUI.ViewModels
 
             return "";
         }
-    }
-
-    /// <summary>
-    /// Represents a single menu item in the "languages" menu.
-    /// </summary>
-    public class LanguageMenuItem
-    {
-        public string Header;
-        public ICommand Command;
-        public object CommandParameter;
-        public object Icon;
     }
 }

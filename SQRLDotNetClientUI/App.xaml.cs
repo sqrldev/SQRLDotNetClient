@@ -27,6 +27,17 @@ namespace SQRLDotNetClientUI
         private MainWindow _mainWindow = null;
 
         /// <summary>
+        /// Defines the minimum time between two (automated) update checks.
+        /// Manual update checks are not impacted by this value.
+        /// </summary>
+        public static TimeSpan MinTimeBetweenUpdateChecks { get; } = new TimeSpan(0, 60, 0); // 60 minutes
+
+        /// <summary>
+        /// Gets or sets the last time the app automatically checked for updates.
+        /// </summary>
+        public static DateTime LastUpdateCheck { get; set; } = DateTime.MinValue;
+
+        /// <summary>
         /// Gets or sets the app's notify icon (tray icon).
         /// </summary>
         public INotifyIcon NotifyIcon { get; set;  } = null;
