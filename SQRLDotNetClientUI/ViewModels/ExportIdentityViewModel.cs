@@ -96,6 +96,12 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         private async void UpdateQrCode()
         {
+            // If ExportIdentityView is not yet fully loaded, we need to drop out
+            // because if a message box gets shown in this state, it will mess up 
+            // our "content/previous content" system.
+            if (((MainWindowViewModel)_mainWindow.DataContext).Content.GetType() != typeof(ExportIdentityViewModel))
+                return;
+
             var identityBytes = this.Identity.ToByteArray(includeHeader: true, _blocksToExport);
 
             try
@@ -207,6 +213,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// or <c>false</c> to hide it</param>
         public void ToggleQrCode(bool visible)
         {
+            UpdateQrCode();
             this.ShowQrCode = visible;
         }
 
