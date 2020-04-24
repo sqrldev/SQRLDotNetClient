@@ -124,9 +124,24 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         }
 
+        public override void WillFinishLaunching(NSNotification notification)
+        {
+            base.WillFinishLaunching(notification);
+            if(NSApplication.SharedApplication.ActivationPolicy != NSApplicationActivationPolicy.Regular)
+            {
+                foreach(var x in NSRunningApplication.GetRunningApplications(@"com.apple.dock"))
+                {
+                    x.Activate(NSApplicationActivationOptions.ActivateIgnoringOtherWindows);
+                    break;
+                }
+                NSApplication.SharedApplication.ActivationPolicy = NSApplicationActivationPolicy.Regular;
+            }
+        }
+
         public override void DidFinishLaunching(NSNotification notification)
         {
-            IsFinishedLaunching = true;
+            base.DidFinishLaunching(notification);
+            NSRunningApplication.CurrentApplication.Activate(NSApplicationActivationOptions.ActivateIgnoringOtherWindows);
         }
 
 
