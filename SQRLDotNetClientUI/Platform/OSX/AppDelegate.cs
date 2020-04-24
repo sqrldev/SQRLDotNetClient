@@ -24,7 +24,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
     /// This requires us to use MonoMac to make it work with .net core
     /// </summary>
     [Register("AppDelegate")]
-    public class AppDelegate : NSApplicationDelegate
+    public class AppDelegate : NSObject
     {
         public bool IsFinishedLaunching = false;
         [DllImport("/System/Library/Frameworks/IOKit.framework/IOKit")]
@@ -58,11 +58,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
        
 
-        public AppDelegate(Window mainWindow)
-        {
-            this.mainWindow = mainWindow;
-            Init();
-        }
+        
         public AppDelegate()
         {
             Init();
@@ -76,7 +72,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
             Log.Information("Initializing Mac App Delegate");
             //Register this Apple Delegate globablly with Avalonia for Later Use
             AvaloniaLocator.CurrentMutable.Bind<AppDelegate>().ToConstant(this);
-            NSAppleEventManager.SharedAppleEventManager.SetEventHandler(this, new MonoMac.ObjCRuntime.Selector("handleGetURLEvent:withReplyEvent:"), AEEventClass.Internet, AEEventID.GetUrl);
+            //NSAppleEventManager.SharedAppleEventManager.SetEventHandler(this, new MonoMac.ObjCRuntime.Selector("handleGetURLEvent:withReplyEvent:"), AEEventClass.Internet, AEEventID.GetUrl);
         }
         /// <summary>
         /// This handles the URL invokation System Event when an App is launched  with the
@@ -124,10 +120,7 @@ namespace SQRLDotNetClientUI.Platform.OSX
 
         }
 
-        public override void DidFinishLaunching(NSNotification notification)
-        {
-            IsFinishedLaunching = true;
-        }
+       
 
 
         /// <summary>

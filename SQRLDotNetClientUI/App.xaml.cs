@@ -13,6 +13,7 @@ using Avalonia.Controls;
 using System.Collections.Generic;
 using SQRLCommonUI.AvaloniaExtensions;
 using ReactiveUI;
+using MonoMac.Foundation;
 
 namespace SQRLDotNetClientUI
 {
@@ -79,7 +80,9 @@ namespace SQRLDotNetClientUI
                 {
                     Log.Information("Initialializing App Delegate for macOS");
                     NSApplication.Init();
-                    NSApplication.SharedApplication.Delegate = new Platform.OSX.AppDelegate();
+                    var del = new Platform.OSX.AppDelegate();
+                    NSAppleEventManager.SharedAppleEventManager.SetEventHandler(del, new MonoMac.ObjCRuntime.Selector("handleURLEvent:withReplyEvent:", true), AEEventClass.Internet, AEEventID.GetUrl);
+
                 }
 
                 // Set up and configure the notification icon
