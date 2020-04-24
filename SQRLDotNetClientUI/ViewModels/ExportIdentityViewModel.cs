@@ -198,9 +198,18 @@ namespace SQRLDotNetClientUI.ViewModels
                 };
                 Process.Start(psi);
             }
+            catch (TypeInitializationException ex)
+            {
+                Log.Error($"{ex.GetType().ToString()} was thrown while creating an identity pdf: {ex.Message}");
+
+                await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    _loc.GetLocalizationValue("MissingLibGdiPlusErrorMessage"),
+                    MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog(this);
+            }
             catch (Exception ex) 
             {
-                Log.Error($"{ex.GetType().ToString()} was thrown while creating an identity pdf.");
+                Log.Error($"{ex.GetType().ToString()} was thrown while creating an identity pdf: {ex.Message}");
 
                 await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), ex.Message,
                     MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
