@@ -19,7 +19,7 @@ namespace SQRLDotNetClientUI.ViewModels
     /// </summary>
     public class MainMenuViewModel : ViewModelBase, ILocalizable
     {
-        private bool _newUpdateAvailable = true;
+        private bool _newUpdateAvailable = false;
         private string _siteUrl = "";
         private SQRLIdentity _currentIdentity;
         private bool _currentIdentityLoaded = false;
