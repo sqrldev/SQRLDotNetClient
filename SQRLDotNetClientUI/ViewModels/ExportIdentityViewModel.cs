@@ -200,8 +200,10 @@ namespace SQRLDotNetClientUI.ViewModels
             }
             catch (Exception ex) 
             {
+                Log.Error($"{ex.GetType().ToString()} was thrown while creating an identity pdf.");
+
                 await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), ex.Message,
-                    MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.OK)
+                    MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
                     .ShowDialog(this);
             }
         }
