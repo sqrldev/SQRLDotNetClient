@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using QRCoder;
 using ReactiveUI;
+using Serilog;
 using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
@@ -93,20 +94,39 @@ namespace SQRLDotNetClientUI.ViewModels
         /// <summary>
         /// Updates the qr-code image.
         /// </summary>
-        private void UpdateQrCode()
+        private async void UpdateQrCode()
         {
+            // If ExportIdentityView is not yet fully loaded, we need to drop out
+            // because if a message box gets shown in this state, it will mess up 
+            // our "content/previous content" system.
+            if (((MainWindowViewModel)_mainWindow.DataContext).Content.GetType() != typeof(ExportIdentityViewModel))
+                return;
+
             var identityBytes = this.Identity.ToByteArray(includeHeader: true, _blocksToExport);
-            QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(identityBytes, QRCodeGenerator.ECCLevel.M);
-            QRCode qrCode = new QRCode(qrCodeData);
 
-            var qrCodeBitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, true);
-
-            using (var stream = new MemoryStream())
+            try
             {
-                qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-                stream.Seek(0, SeekOrigin.Begin);
-                this.QRImage = new Avalonia.Media.Imaging.Bitmap(stream);
+                QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(identityBytes, QRCodeGenerator.ECCLevel.M);
+                QRCode qrCode = new QRCode(qrCodeData);
+
+                var qrCodeBitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, true);
+
+                using (var stream = new MemoryStream())
+                {
+                    qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    this.QRImage = new Avalonia.Media.Imaging.Bitmap(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error creating QR code: {ex.Message}");
+
+                await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    _loc.GetLocalizationValue("MissingLibGdiPlusErrorMessage"),
+                    MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog(this);
             }
         }
 
@@ -178,10 +198,21 @@ namespace SQRLDotNetClientUI.ViewModels
                 };
                 Process.Start(psi);
             }
+            catch (TypeInitializationException ex)
+            {
+                Log.Error($"{ex.GetType().ToString()} was thrown while creating an identity pdf: {ex.Message}");
+
+                await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    _loc.GetLocalizationValue("MissingLibGdiPlusErrorMessage"),
+                    MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog(this);
+            }
             catch (Exception ex) 
             {
+                Log.Error($"{ex.GetType().ToString()} was thrown while creating an identity pdf: {ex.Message}");
+
                 await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), ex.Message,
-                    MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.OK)
+                    MessageBoxSize.Small, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
                     .ShowDialog(this);
             }
         }
@@ -193,6 +224,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// or <c>false</c> to hide it</param>
         public void ToggleQrCode(bool visible)
         {
+            UpdateQrCode();
             this.ShowQrCode = visible;
         }
 
