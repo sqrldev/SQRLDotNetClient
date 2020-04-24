@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using QRCoder;
 using ReactiveUI;
+using Serilog;
 using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 using SQRLUtilsLib;
@@ -93,20 +94,33 @@ namespace SQRLDotNetClientUI.ViewModels
         /// <summary>
         /// Updates the qr-code image.
         /// </summary>
-        private void UpdateQrCode()
+        private async void UpdateQrCode()
         {
             var identityBytes = this.Identity.ToByteArray(includeHeader: true, _blocksToExport);
-            QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(identityBytes, QRCodeGenerator.ECCLevel.M);
-            QRCode qrCode = new QRCode(qrCodeData);
 
-            var qrCodeBitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, true);
-
-            using (var stream = new MemoryStream())
+            try
             {
-                qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-                stream.Seek(0, SeekOrigin.Begin);
-                this.QRImage = new Avalonia.Media.Imaging.Bitmap(stream);
+                QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                QRCodeData qrCodeData = qrGenerator.CreateQrCode(identityBytes, QRCodeGenerator.ECCLevel.M);
+                QRCode qrCode = new QRCode(qrCodeData);
+
+                var qrCodeBitmap = qrCode.GetGraphic(3, System.Drawing.Color.Black, System.Drawing.Color.White, true);
+
+                using (var stream = new MemoryStream())
+                {
+                    qrCodeBitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    this.QRImage = new Avalonia.Media.Imaging.Bitmap(stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error creating QR code: {ex.Message}");
+
+                await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
+                    _loc.GetLocalizationValue("MissingLibGdiPlusErrorMessage"),
+                    MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog(this);
             }
         }
 
