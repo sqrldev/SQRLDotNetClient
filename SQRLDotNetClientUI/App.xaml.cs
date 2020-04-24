@@ -13,16 +13,12 @@ using Avalonia.Controls;
 using System.Collections.Generic;
 using SQRLCommonUI.AvaloniaExtensions;
 using ReactiveUI;
-using SQRLUtilsLib;
 
 namespace SQRLDotNetClientUI
 {
     public class App : Application
     {
-        // We establish and keep a QuickPassManager instance here
-        // so that it will immediately receive system event notifications
-        private QuickPassManager _quickPassManager = QuickPassManager.Instance;
-
+        private QuickPassManager _quickPassManager = null;
         private ContextMenu _NotifyIconContextMenu = null;
         private MainWindow _mainWindow = null;
 
@@ -77,7 +73,6 @@ namespace SQRLDotNetClientUI
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-              
                 // If this is running on a Mac we need a special event handler for URL schema invokation
                 // This also handles System Events and notifications, it gives us a native foothold on a Mac.
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -128,13 +123,15 @@ namespace SQRLDotNetClientUI
                     NotifyIcon.Visible = true;
                 }
 
+                // We establish and keep a QuickPassManager instance here
+                // so that it will immediately receive system event notifications
+                _quickPassManager = QuickPassManager.Instance;
+
                 // Set up the app's main window, if we aren't staring minimized to tray
                 if (!AppSettings.Instance.StartMinimized || NotifyIcon == null)
                 {
                     desktop.MainWindow = _mainWindow;
-                }
-                
-                
+                }                
             }          
 
             base.OnFrameworkInitializationCompleted();
