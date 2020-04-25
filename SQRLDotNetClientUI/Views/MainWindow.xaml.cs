@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using Serilog;
 using Avalonia.Threading;
 using Avalonia.Controls.ApplicationLifetimes;
+using System.Runtime.InteropServices;
 
 namespace SQRLDotNetClientUI.Views
 {
@@ -51,7 +52,8 @@ namespace SQRLDotNetClientUI.Views
 
         protected override void HandleWindowStateChanged(WindowState state)
         {
-            if (state == WindowState.Minimized && (App.Current as App).NotifyIcon != null)
+            if (state == WindowState.Minimized && (App.Current as App).NotifyIcon != null &&
+                !RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 Log.Information("Hiding main window instead of minimizing it");
                 this.Hide();
