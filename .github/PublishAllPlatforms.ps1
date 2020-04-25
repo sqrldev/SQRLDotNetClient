@@ -59,8 +59,8 @@ Compress-Archive -Path "..\SQRLDotNetClientUI\bin\Release\netcoreapp3.1\win-x64\
 
 
 #Copying Platform Aware Installer (binary) to Publishing Folder
-Copy-Item ".\bin\Release\netcoreapp3.1\osx-x64\publish\SQRLPlatformAwareInstaller_osx" -Destination "C:\Temp\SQRL\Publish\" -Force
-Copy-Item ".\bin\Release\netcoreapp3.1\linux-x64\publish\SQRLPlatformAwareInstaller_linux" -Destination "C:\Temp\SQRL\Publish\" -Force
+tar -cvzf C:\Temp\SQRL\Publish\SQRLPlatformAwareInstaller_osx.tar.gz -C .\bin\Release\netcoreapp3.1\osx-x64\publish\ ./SQRLPlatformAwareInstaller_osx
+tar -cvzf C:\Temp\SQRL\Publish\SQRLPlatformAwareInstaller_linux.tar.gz -C .\bin\Release\netcoreapp3.1\linux-x64\publish\ ./SQRLPlatformAwareInstaller_linux
 Copy-Item ".\bin\Release\netcoreapp3.1\win-x64\publish\SQRLPlatformAwareInstaller_win.exe" -Destination "C:\Temp\SQRL\Publish\" -Force
 
 echo "Creating Github Release for Milestone: $milestone"
@@ -95,7 +95,7 @@ $jsonObject = ConvertFrom-Json $([String]::new($newRelease.Content))
 Get-ChildItem "C:\Temp\SQRL\Publish"| 
 #For each file in the publishing folder upload the asset
 Foreach-Object {
-    $contentType = If ($_.Extension -eq ".zip") {"application/x-zip-compressed"} else {"application/octet-stream"}
+    $contentType = If ($_.Extension -eq ".zip") {"application/application/x-gzip"} If ($_.Extension -eq ".gz") {"application/x-gzip"} else {"application/octet-stream"}
     $fileHeaders = @{
         "Accept"="application/vnd.github.v3+json"
         "Authorization"="token $token"
