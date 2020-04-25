@@ -95,7 +95,7 @@ $jsonObject = ConvertFrom-Json $([String]::new($newRelease.Content))
 Get-ChildItem "C:\Temp\SQRL\Publish"| 
 #For each file in the publishing folder upload the asset
 Foreach-Object {
-    $contentType = If ($_.Extension -eq ".zip") {"application/application/x-gzip"} If ($_.Extension -eq ".gz") {"application/x-gzip"} else {"application/octet-stream"}
+    $contentType = If ($_.Extension -eq ".zip") {"application/x-gzip"} If ($_.Extension -eq ".gz") {"application/x-gzip"} else {"application/octet-stream"}
     $fileHeaders = @{
         "Accept"="application/vnd.github.v3+json"
         "Authorization"="token $token"
@@ -107,16 +107,19 @@ Foreach-Object {
     $fileUrl = $uploadUrl+"?name="+$fileName
     
     $count=1
-    $error=$true
-    while( $count -lt 3 -and $error -eq $true)
+    $errror=$true
+    while( $count -lt 3 -and $errror -eq $true)
     {
         try{
             $count = $count + 1
-            Invoke-RestMethod -Uri $fileUrl -Method Post -Headers $fileHeaders -InFile $_.FullName -ContentType $contentType -TimeoutSec 3600
-            $error=$false
+            $result =Invoke-RestMethod -Uri $fileUrl -Method Post -Headers $fileHeaders -InFile $_.FullName -ContentType $contentType -TimeoutSec 3600
+            echo $result
+            $errror=$false
         }
         catch {
-            $error=$true
+            $errror=$true
+               Write-Host "StatusCode:" $_.Exception.Response.StatusCode.value__ 
+               Write-Host "StatusDescription:" $_.Exception.Response.StatusDescription
         }
     }
 
