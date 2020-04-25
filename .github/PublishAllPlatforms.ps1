@@ -105,7 +105,20 @@ Foreach-Object {
     echo "Uploading File: $fileName"
     $uploadUrl = $jsonObject.upload_url.replace("{?name,label}","")
     $fileUrl = $uploadUrl+"?name="+$fileName
-    Invoke-RestMethod -Uri $fileUrl -Method Post -Headers $fileHeaders -InFile $_.FullName -ContentType $contentType -TimeoutSec 3600
+    
+    $count=1
+    $error=$true
+    while( $count -lt 3 -and $error -eq $true)
+    {
+        try{
+            $count = $count + 1
+            Invoke-RestMethod -Uri $fileUrl -Method Post -Headers $fileHeaders -InFile $_.FullName -ContentType $contentType -TimeoutSec 3600
+            $error=$false
+        }
+        catch {
+            $error=$true
+        }
+    }
 
     #Take a break, the REST API is grumpy about less than 1 second posts
     Start-Sleep -s 10
