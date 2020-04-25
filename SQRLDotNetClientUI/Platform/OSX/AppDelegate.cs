@@ -116,7 +116,6 @@ namespace SQRLDotNetClientUI.Platform.OSX
                                 (Application.Current as App).RestoreMainWindow();
                             });
                         }
-
                     }
 
                 }
