@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <ApplicationIcon>Assets\sqrl_icon_normal_256.ico</ApplicationIcon>
     <Version>0.0.1</Version>
-    <AssemblyVersion>0.1.1.0</AssemblyVersion>
+    <AssemblyVersion>0.1.2.0</AssemblyVersion>
     <FileVersion>0.1.1.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
