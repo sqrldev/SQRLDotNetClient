@@ -27,8 +27,11 @@ namespace SQRLPlatformAwareInstaller
                 .WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
-            Log.Information("New app instance is being launched on {OSDescription}",
+            Log.Information("New installer instance is being launched on {OSDescription}",
                 RuntimeInformation.OSDescription);
+
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            Log.Information($"Installer version: {version.ToString()}");
 
             BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
