@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Avalonia.Media.Imaging;
 using ReactiveUI;
@@ -40,6 +41,18 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                     return "Linux";
                 else
                     return "";
+            }
+        }
+
+        /// <summary>
+        /// Gets a string representing the installer version.
+        /// </summary>
+        public string Version
+        {
+            get
+            {
+                return Assembly.GetExecutingAssembly().GetName()
+                    .Version.ToString();
             }
         }
 
