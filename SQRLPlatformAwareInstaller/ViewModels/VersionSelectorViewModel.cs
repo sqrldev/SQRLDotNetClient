@@ -178,7 +178,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                     }
                 }
             }
-            this.InstallationPath = Environment.GetCommandLineArgs().Length > 1 ? Environment.GetCommandLineArgs()[1] : this.InstallationPath;
+            this.InstallationPath = Environment.GetCommandLineArgs().Length > 1 ? 
+                Environment.GetCommandLineArgs()[1] : this.InstallationPath;
         }
 
         /// <summary>
@@ -488,7 +489,15 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                         this.InstallationPath = Path.Combine(result);
                     else
-                        this.InstallationPath = Path.Combine(result, "SQRL");
+                    {
+                        var lastDir = Path.GetFileName(result.TrimEnd(Path.DirectorySeparatorChar));
+                        if (lastDir != "SQRL")
+                        {
+                            result = Path.Combine(result, "SQRL");
+                        }
+
+                        this.InstallationPath = result;
+                    }
                 }
             }
             catch (Exception ex)
