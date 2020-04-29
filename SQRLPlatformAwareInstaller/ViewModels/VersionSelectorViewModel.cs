@@ -16,6 +16,7 @@ using System.Security.Principal;
 using GitHubApi;
 using Serilog;
 using System.Runtime.InteropServices;
+using SQRLCommonUI.Models;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -145,6 +146,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             this.WhenAnyValue(x => x.EnablePreReleases)
                 .Subscribe(x => GetReleases());
 
+            this.InstallationPath = PathConf.ClientInstallPath;
             GetReleases();
         }
 
@@ -167,7 +169,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             {
                 this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
                 Log.Information($"Found {this.Releases?.Count()} Releases");
-                PathByPlatform();
+                
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     Log.Information($"We are on Windows, checking to see if an existing version of SQRL exists");
@@ -180,29 +182,6 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             }
             this.InstallationPath = Environment.GetCommandLineArgs().Length > 1 ? 
                 Environment.GetCommandLineArgs()[1] : this.InstallationPath;
-        }
-
-        /// <summary>
-        /// Sets a default installation path according to the detected platform.
-        /// </summary>
-        private void PathByPlatform()
-        {
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                this.InstallationPath = Path.Combine("/Applications/");
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                this.InstallationPath = Path.Combine(Environment.GetFolderPath(
-                    Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.None), "SQRL");
-            }
-            else
-            {
-                this.InstallationPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "SQRL");
-            }
-
-            Log.Information($"Set installation path to: {this.InstallationPath}");
         }
 
         /// <summary>
@@ -276,6 +255,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 InstallOnMac(downloadedFileName);
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 InstallOnLinux(downloadedFileName);
+
+            // Write the installation path to the config file so that
+            // we can locate the installation later
+            Log.Information($"Writing installation path to config file: {this.InstallationPath}");
+            PathConf.ClientInstallPath = this.InstallationPath;
         }
 
         /// <summary>
