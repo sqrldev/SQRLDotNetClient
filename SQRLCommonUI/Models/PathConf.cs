@@ -19,7 +19,7 @@ namespace SQRLCommonUI.Models
         /// The full file path of the config file.
         /// </summary>
         public static readonly string ConfFile = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create),
             "SQRL", "sqrl.conf");
 
         /// <summary>
