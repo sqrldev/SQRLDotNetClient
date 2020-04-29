@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 
@@ -24,8 +25,11 @@ namespace SQRLCommonUI.Models
         /// <summary>
         /// The default client installation directory.
         /// </summary>
-        public static readonly string DefaultClientInstallPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "SQRL");
+        public static readonly string DefaultClientInstallPath = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ?
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "SQRL") :
+            RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ?
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) :
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "SQRL");
 
         /// <summary>
         /// The default client database directory.
