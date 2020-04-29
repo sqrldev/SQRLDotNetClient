@@ -1,9 +1,8 @@
-param (
-    [string]$token = "",
-    [string]$milestone = "" , 
-	[string]$milestonedesc = ""  
-	
- )
+
+
+$token = "dfc69cb8ca709ad44452a12891f9504098baf115"
+$milestone = "v0.1.2.0-beta"
+$milestonedesc = "Version 0.1.2.0 Beta (Pre-Release)"  
 
 #Navigate to our UI Client Folder
 cd SQRLDotNetClientUI
