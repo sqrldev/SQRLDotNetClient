@@ -19,7 +19,8 @@ namespace SQRLPlatformAwareInstaller.Models
         /// <param name="archiveFilePath">The full file name, including the path,
         /// of the archive containing the components to install.</param>
         /// <param name="installPath">The full path to the client installation directory.</param>
-        public Task Install(string archiveFilePath, string installPath);
+        /// <param name="versionTag">The version number of the client to install.</param>
+        public Task Install(string archiveFilePath, string installPath, string versionTag);
 
         /// <summary>
         /// Returns the full path to the client executable using the given <paramref name="installPath"/>.

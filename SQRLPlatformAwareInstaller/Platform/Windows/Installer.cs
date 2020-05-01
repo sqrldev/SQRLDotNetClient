@@ -14,14 +14,15 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
 {
     class Installer : IInstaller
     {
-        public async Task Install(string archiveFilePath, string installPath)
+        public async Task Install(string archiveFilePath, string installPath, string versionTag)
         {
-            Log.Information($"Installing on Windows to {installPath}");
-            Log.Information($"Loading inventory");
-            Inventory.Instance.Load();
-
             await Task.Run(() =>
             {
+                Log.Information($"Installing on Windows to {installPath}");
+                Log.Information($"Loading inventory");
+                Inventory.Instance.Load();
+                Log.Information($"Inventory already contains {Inventory.Instance.InventoryItemCount} items");
+
                 // Extract installation archive
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
@@ -66,7 +67,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                     Inventory.Instance.Data.RegistryKeys.Add(key.ToString());
 
                     key.SetValue("DisplayName", "SQRL Open Source Client");
-                    key.SetValue("DisplayVersion", FileVersionInfo.GetVersionInfo(GetClientExePath(installPath)).FileVersion);
+                    key.SetValue("DisplayVersion", versionTag);
                     key.SetValue("DisplayIcon", $"{GetClientExePath(installPath)},0");
                     key.SetValue("UninstallString", $"\"{GetInstallerExePath(installPath)}\" -uninstall");
                     key.SetValue("Publisher", "SQRL Developers");
@@ -100,6 +101,9 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
 
                 Log.Information($"Adding file \"{shortcutLocation}\" to inventory");
                 Inventory.Instance.Data.Files.Add(shortcutLocation);
+
+                Log.Information($"Saving inventory with {Inventory.Instance.InventoryItemCount} items");
+                Inventory.Instance.Save();
             });
         }
 

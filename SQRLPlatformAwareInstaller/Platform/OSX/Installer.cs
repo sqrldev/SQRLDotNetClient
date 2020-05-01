@@ -15,7 +15,7 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
         private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
         private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
 
-        public async Task Install(string archiveFilePath, string installPath)
+        public async Task Install(string archiveFilePath, string installPath, string versionTag)
         {
             Log.Information($"Installing on macOS to {installPath}");
             string fileName = Path.GetTempFileName().Replace(".tmp", ".zip");
