@@ -272,7 +272,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             Log.Information($"Launching installation");
 
             // Perform the actual installation
-            await _installer.Install(downloadedFileName, this.InstallationPath);
+            await _installer.Install(downloadedFileName, this.InstallationPath, this.SelectedRelease.tag_name);
 
             // Write the installation path to the config file so that
             // we can locate the installation later
