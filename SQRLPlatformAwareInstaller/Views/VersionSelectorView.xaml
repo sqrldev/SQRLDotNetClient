@@ -55,7 +55,7 @@
       <TextBox Margin="10" Width="400" MaxWidth="400" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="1" Text="{Binding InstallationPath}" IsReadOnly="True"/>
       <StackPanel Margin="0,10" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
         <TextBlock Text="{Binding InstallStatus}" FontWeight="Bold" />
-        <ProgressBar Margin="0,10,0,0"  Value="{Binding DownloadPercentage}" Maximum="100" />
+        <ProgressBar Value="{Binding DownloadPercentage}" IsIndeterminate="{Binding IsProgressIndeterminate}" Maximum="100" Margin="0,10,0,0" />
       </StackPanel>
       <TextBlock FontWeight="Bold"  Margin="0,10" HorizontalAlignment="Left" Width="580" MaxWidth="580" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding Warning}" TextWrapping="Wrap"/>
     </Grid>

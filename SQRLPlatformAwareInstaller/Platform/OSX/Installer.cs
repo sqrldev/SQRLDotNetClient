@@ -15,9 +15,9 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
         private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
         private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
 
-        public async Task Install(string archiveFilePath, string installPath, IProgress<int> progress)
+        public async Task Install(string archiveFilePath, string installPath)
         {
-            Log.Information("Installing on macOS");
+            Log.Information($"Installing on macOS to {installPath}");
             string fileName = Path.GetTempFileName().Replace(".tmp", ".zip");
 
             await Task.Run(() =>
@@ -29,14 +29,9 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
                 Utils.ExtractZipFile(fileName, string.Empty, installPath);
             });
             
-            var exePath = Path.Combine(installPath, "SQRL.app/Contents/MacOS", "SQRLDotNetClientUI");
-            Log.Information($"Excecutable location: {exePath}");
-            progress.Report(20);
-
             await Task.Run(() =>
             {
                 Log.Information($"Extracting main installation archive");
-
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, Path.Combine(installPath, "SQRL.app/Contents/MacOS"));
                 try
                 {
@@ -51,13 +46,9 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
                 }
             });
 
-            progress.Report(60);
-
             Log.Information("Changing executable file to be executable a+x");
-            _shell.Term($"chmod a+x {exePath}", Output.Internal);
+            _shell.Term($"chmod a+x {GetExecutablePath(installPath)}", Output.Internal);
             _shell.Term($"chmod a+x {Path.Combine(installPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
-            
-            progress.Report(100);
         }
 
         public Task Uninstall(string uninstallInfoFile)

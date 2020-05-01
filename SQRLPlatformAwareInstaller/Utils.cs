@@ -85,7 +85,7 @@ namespace SQRLPlatformAwareInstaller
                         if (entryFileName.Equals("sqrl.db", StringComparison.OrdinalIgnoreCase) && File.Exists(fullZipToPath))
                         {
                             GrantFullFileAccess(fullZipToPath);
-                            Log.Information("Found existing SQRL DB , keeping existing");
+                            Log.Information("Found existing SQRL DB, keeping existing");
                             continue;
                         }
                         var directoryName = Path.GetDirectoryName(fullZipToPath);
@@ -94,11 +94,9 @@ namespace SQRLPlatformAwareInstaller
                             if (!Directory.Exists(directoryName))
                             {
                                 Directory.CreateDirectory(directoryName);
-
                             }
 
                             GrantFullFileAccess(directoryName);
-
                         }
 
                         // 4K is optimum
@@ -110,11 +108,8 @@ namespace SQRLPlatformAwareInstaller
                         using (var zipStream = zf.GetInputStream(zipEntry))
                         using (Stream fsOutput = File.Create(fullZipToPath))
                         {
-
                             StreamUtils.Copy(zipStream, fsOutput, buffer);
-
                             GrantFullFileAccess(fullZipToPath);
-
                         }
                     }
                 }

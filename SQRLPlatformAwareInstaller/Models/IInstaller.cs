@@ -19,8 +19,7 @@ namespace SQRLPlatformAwareInstaller.Models
         /// <param name="archiveFilePath">The full file name, including the path,
         /// of the archive containing the components to install.</param>
         /// <param name="installPath">The full path to the client installation directory.</param>
-        /// <param name="progress">An object for receiving installation progress updates.</param>
-        public Task Install(string archiveFilePath, string installPath, IProgress<int> progress);
+        public Task Install(string archiveFilePath, string installPath);
 
         /// <summary>
         /// Performs the uninstallation of the client app.
@@ -36,7 +35,7 @@ namespace SQRLPlatformAwareInstaller.Models
         public string GetExecutablePath(string installPath);
 
         /// <summary>
-        /// Returns the download size and url for the asset corresponding to the current platform
+        /// Returns download information for the asset corresponding to the current platform
         /// contained within <paramref name="selectedRelease"/>.
         /// </summary>
         /// <param name="selectedRelease">The selected Github release.</param>
@@ -44,7 +43,8 @@ namespace SQRLPlatformAwareInstaller.Models
     }
 
     /// <summary>
-    /// Holds information about a downloadable asset within a Github release.
+    /// Holds information about a downloadable asset within a Github release,
+    /// such as download size and URL.
     /// </summary>
     public class DownloadInfo
     {

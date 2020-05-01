@@ -37,6 +37,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private bool _enablePreReleases = false;
         private bool _hasReleases = false;
         private bool _canInstall = false;
+        private bool _isProgressIndeterminate = false;
 
         /// <summary>
         /// Gets or sets the download progress percentage.
@@ -141,6 +142,16 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the progress bar should be displayed
+        /// as indeterminate.
+        /// </summary>
+        public bool IsProgressIndeterminate
+        {
+            get { return _isProgressIndeterminate; }
+            set { this.RaiseAndSetIfChanged(ref _isProgressIndeterminate, value); }
+        }
+
+        /// <summary>
         /// Creates a new instance and performs some initializations.
         /// </summary>
         public VersionSelectorViewModel()
@@ -242,6 +253,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             {
                 this.InstallStatus = _loc.GetLocalizationValue("InstallStatusInstalling");
                 this.DownloadPercentage = 0;
+                this.IsProgressIndeterminate = true;
             });
 
             await InstallOnPlatform(this._downloadedFileName);
@@ -260,13 +272,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             Log.Information($"Launching installation");
 
             // Perform the actual installation
-            Progress<int> progress = new Progress<int>((x) =>
-                Dispatcher.UIThread.Post(() => this.DownloadPercentage = x));
-            await _installer.Install(downloadedFileName, this.InstallationPath, progress);
+            await _installer.Install(downloadedFileName, this.InstallationPath);
 
             // Write the installation path to the config file so that
             // we can locate the installation later
-            Log.Information($"Writing installation path to config file: {this.InstallationPath}");
+            Log.Information($"Writing installation path {this.InstallationPath} to config file");
             PathConf.ClientInstallPath = this.InstallationPath;
         }
 
