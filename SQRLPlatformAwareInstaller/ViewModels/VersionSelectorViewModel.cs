@@ -177,7 +177,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             _installer = Activator.CreateInstance(
                 Implementation.ForType<IInstaller>()) as IInstaller;
 
-            _executablePath = _installer.GetExecutablePath(this.InstallationPath);
+            _executablePath = _installer.GetClientExePath(this.InstallationPath);
 
             _webClient = new WebClient();
             _webClient.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
