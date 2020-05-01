@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using System;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -35,7 +36,19 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// </summary>
         public MainWindowViewModel()
         {
-            this.Content = new MainInstallViewModel();
+            ViewModelBase viewModel = null;
+
+            if (Environment.GetCommandLineArgs().Length > 1 &&
+                Environment.GetCommandLineArgs()[1].ToLower() == "-uninstall")
+            {
+                viewModel = new UninstallViewModel();
+            }
+            else
+            {
+                viewModel = new MainInstallViewModel();
+            }
+
+            this.Content = viewModel;
         }
     }
 }
