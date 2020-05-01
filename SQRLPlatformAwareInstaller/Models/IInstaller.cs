@@ -22,17 +22,16 @@ namespace SQRLPlatformAwareInstaller.Models
         public Task Install(string archiveFilePath, string installPath);
 
         /// <summary>
-        /// Performs the uninstallation of the client app.
-        /// </summary>
-        /// <param name="uninstallInfoFile">The full file name, including the path,
-        /// of the file containing the uninstall information.</param>
-        public Task Uninstall(string uninstallInfoFile);
-
-        /// <summary>
         /// Returns the full path to the client executable using the given <paramref name="installPath"/>.
         /// </summary>
         /// <param name="installPath">The client installation path.</param>
-        public string GetExecutablePath(string installPath);
+        public string GetClientExePath(string installPath);
+
+        /// <summary>
+        /// Returns the full path to the installer executable using the given <paramref name="installPath"/>.
+        /// </summary>
+        /// <param name="installPath">The client installation path.</param>
+        public string GetInstallerExePath(string installPath);
 
         /// <summary>
         /// Returns download information for the asset corresponding to the current platform

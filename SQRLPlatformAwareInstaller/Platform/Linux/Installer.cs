@@ -55,14 +55,14 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
             sb.AppendLine("Name=SQRL");
             sb.AppendLine("Type=Application");
             sb.AppendLine($"Icon={(Path.Combine(installPath, "SQRL.png"))}");
-            sb.AppendLine($"Exec={GetExecutablePath(installPath)} %u");
+            sb.AppendLine($"Exec={GetClientExePath(installPath)} %u");
             sb.AppendLine("Categories=Internet");
             sb.AppendLine("Terminal=false");
             sb.AppendLine("MimeType=x-scheme-handler/sqrl");
             File.WriteAllText(Path.Combine(installPath, "sqrldev-sqrl.desktop"), sb.ToString());
 
             _shell.Term($"chmod -R 755 {installPath}", Output.Internal);
-            _shell.Term($"chmod a+x {GetExecutablePath(installPath)}", Output.Internal);
+            _shell.Term($"chmod a+x {GetClientExePath(installPath)}", Output.Internal);
             _shell.Term($"chmod +x {Path.Combine(installPath, "sqrldev-sqrl.desktop")}", Output.Internal);
             _shell.Term($"chmod a+x {Path.Combine(installPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
             _shell.Term($"xdg-desktop-menu install {Path.Combine(installPath, "sqrldev-sqrl.desktop")}", Output.Internal);
@@ -71,14 +71,14 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
             _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
         }
 
-        public Task Uninstall(string uninstallInfoFile)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GetExecutablePath(string installPath)
+        public string GetClientExePath(string installPath)
         {
             return Path.Combine(installPath, "SQRLDotNetClientUI");
+        }
+
+        public string GetInstallerExePath(string installPath)
+        {
+            return Path.Combine(installPath, "SQRLPlatformAwareInstaller_linux");
         }
 
         public DownloadInfo GetDownloadInfoForAsset(GithubRelease selectedRelease)
