@@ -6,6 +6,7 @@ using ICSharpCode.SharpZipLib.Zip;
 using Serilog;
 using System.IO;
 using System.Security.AccessControl;
+using Microsoft.Win32;
 
 namespace SQRLPlatformAwareInstaller
 {
@@ -133,6 +134,62 @@ namespace SQRLPlatformAwareInstaller
                 ac.AddAccessRule(fileAccessRule);
                 fi.SetAccessControl(ac);
             }
+        }
+
+        /// <summary>
+        /// Parses the provided registry key string and returns its base key.
+        /// </summary>
+        /// <param name="keyAsString">The string representation of the registry key.</param>
+        public static RegistryKey GetRegistryBaseKey(string keyAsString)
+        {
+            var index = keyAsString.IndexOf("\\");
+            if (index == -1) return null;
+
+            string baseKeyStr = keyAsString.Substring(0, index);
+
+            RegistryKey baseKey = null;
+
+            switch (baseKeyStr)
+            {
+                case "HKEY_CLASSES_ROOT":
+                    baseKey = Registry.ClassesRoot;
+                    break;
+
+                case "HKEY_CURRENT_USER":
+                    baseKey = Registry.CurrentUser;
+                    break;
+
+                case "HKEY_LOCAL_MACHINE":
+                    baseKey = Registry.LocalMachine;
+                    break;
+
+                case "HKEY_USERS":
+                    baseKey = Registry.Users;
+                    break;
+
+                case "HKEY_PERFORMANCE_DATA":
+                    baseKey = Registry.PerformanceData;
+                    break;
+
+                case "HKEY_CURRENT_CONFIG":
+                    baseKey = Registry.CurrentConfig;
+                    break;
+            }
+
+            return baseKey;
+        }
+
+        /// <summary>
+        /// Parses the provided registry key string and returns its sub key
+        /// (the part after the base key).
+        /// </summary>
+        /// <param name="keyAsString">The string representation of the registry key.</param>
+        public static string GetRegistrySubKey(string keyAsString)
+        {
+            var index = keyAsString.IndexOf("\\");
+            if (index == -1 || index == keyAsString.Length-1) return null;
+
+            return keyAsString.Substring(index+1);
         }
     }
 }
