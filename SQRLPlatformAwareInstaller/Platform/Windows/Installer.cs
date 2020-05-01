@@ -1,9 +1,11 @@
-﻿using Microsoft.Win32;
+﻿using GitHubApi;
+using Microsoft.Win32;
 using Serilog;
 using SQRLPlatformAwareInstaller.Models;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +13,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
 {
     class Installer : IInstaller
     {
-        public async void Install(string archiveFilePath, string installPath, IProgress<int> progress)
+        public async Task Install(string archiveFilePath, string installPath, IProgress<int> progress)
         {
             progress.Report(0);
 
@@ -19,7 +21,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
 
             var exePath = GetExecutablePath(installPath);
 
-            Task.Run(() =>
+            await Task.Run(() =>
             {
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
 
@@ -33,7 +35,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 {
                     Log.Warning($"File copy exception while copying installer! {fc}");
                 }
-            }).Wait();
+            });
 
             progress.Report(20);
 
@@ -84,7 +86,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
             progress.Report(100);
         }
 
-        public void UnInstall(string uninstallInfoFile)
+        public Task Uninstall(string uninstallInfoFile)
         {
             throw new NotImplementedException();
         }
@@ -92,6 +94,15 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
         public string GetExecutablePath(string installPath)
         {
             return Path.Combine(installPath, "SQRLDotNetClientUI.exe");
+        }
+
+        public DownloadInfo GetDownloadInfoForAsset(GithubRelease selectedRelease)
+        {
+            return new DownloadInfo
+            {
+                DownloadSize = Math.Round((selectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().size / 1024M) / 1024M, 2),
+                DownloadUrl = selectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().browser_download_url
+            };
         }
     }
 }
