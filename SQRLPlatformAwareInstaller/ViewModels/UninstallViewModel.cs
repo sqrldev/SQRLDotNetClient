@@ -2,11 +2,12 @@
 using ReactiveUI;
 using SQRLPlatformAwareInstaller.Models;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
+    /// <summary>
+    /// A view model representing the Installer's "uninstall" screen.
+    /// </summary>
     public class UninstallViewModel : ViewModelBase
     {
         private string _uninstallLog = "";
@@ -30,11 +31,17 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             set { this.RaiseAndSetIfChanged(ref this._progressPercentage, value); }
         }
 
+        /// <summary>
+        /// Creates a new instance and performs some initialization tasks.
+        /// </summary>
         public UninstallViewModel()
         {
             this.Title = _loc.GetLocalizationValue("TitleUninstall");
         }
 
+        /// <summary>
+        /// Starts the actual uninstall process.
+        /// </summary>
         public async void Uninstall()
         {
             Progress<Tuple<int, string>> progress = new Progress<Tuple<int, string>>((x) =>
@@ -46,7 +53,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 });
             });
 
-            await Uninstaller.Run(progress, dryRun: true);
+            await Uninstaller.Run(progress, dryRun: false);
         }
     }
 }
