@@ -26,6 +26,18 @@ namespace SQRLPlatformAwareInstaller.Models
         public InventoryModel Data { get; internal set; } = new InventoryModel();
 
         /// <summary>
+        /// Gets the total count of all inventory items.
+        /// </summary>
+        public int InventoryItemCount
+        {
+            get
+            {
+                return this.Data.Directories.Count + this.Data.Files.Count + 
+                    this.Data.RegistryKeys.Count;
+            }
+        }
+
+        /// <summary>
         /// Gets the singleton instance for this class.
         /// </summary>
         public static Inventory Instance

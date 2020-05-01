@@ -13,8 +13,6 @@ namespace SQRLPlatformAwareInstaller.Models
     /// </summary>
     public static class Uninstaller
     {
-        private static Inventory _inventory = Inventory.Instance;
-
         /// <summary>
         /// Runs the actual uninstallation task.
         /// </summary>
@@ -23,32 +21,33 @@ namespace SQRLPlatformAwareInstaller.Models
         /// actually performed. Used for testing.</param>
         public static async Task Run(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
         {
-            int operationCount = 0;
 
             Log.Information("Loading inventory");
-            _inventory.Load();
+            Inventory inventory = Inventory.Instance; 
+            inventory.Load();
 
-            int totalOperationCount = _inventory.Data.Directories.Count +
-                _inventory.Data.Files.Count + _inventory.Data.RegistryKeys.Count;
+            int currentItem = 0;
+            int totalItems = inventory.InventoryItemCount;
 
-            Log.Information($"Running uninstaller, total operation count: {totalOperationCount}");
+            Log.Information($"Running uninstaller, total operation count: {totalItems}");
 
-            if (totalOperationCount == 0)
+            if (totalItems == 0)
             {
                 Log.Information($"Nothing to do, aborting uninstallation.");
+                progress.Report(new Tuple<int, string>(100, $"Nothing to do, aborting uninstallation."));
                 return;
             }
 
             await Task.Run(() =>
             {
                 // Remove directories
-                foreach (var dir in _inventory.Data.Directories)
+                foreach (var dir in inventory.Data.Directories)
                 {
-                    operationCount++;
+                    currentItem++;
 
                     try
                     {
-                        Log.Information($"{operationCount}/{totalOperationCount}: Deleting directory {dir}");
+                        Log.Information($"{currentItem}/{totalItems}: Deleting directory {dir}");
                         if (!dryRun) Directory.Delete(dir, true);
                     }
                     catch (Exception ex)
@@ -58,18 +57,18 @@ namespace SQRLPlatformAwareInstaller.Models
                     finally
                     {
                         progress.Report(new Tuple<int, string>(
-                            (int)(100 / totalOperationCount * operationCount), $"Deleting directory {dir}"));
+                            (int)(100 / totalItems * currentItem), $"Deleting directory {dir}"));
                     }
                 }
 
                 // Remove single files
-                foreach (var file in _inventory.Data.Files)
+                foreach (var file in inventory.Data.Files)
                 {
-                    operationCount++;
+                    currentItem++;
 
                     try
                     {
-                        Log.Information($"{operationCount}/{totalOperationCount}: Deleting file {file}");
+                        Log.Information($"{currentItem}/{totalItems}: Deleting file {file}");
                         if (!dryRun) File.Delete(file);
                     }
                     catch (Exception ex)
@@ -79,18 +78,18 @@ namespace SQRLPlatformAwareInstaller.Models
                     finally
                     {
                         progress.Report(new Tuple<int, string>(
-                            (int)(100 / totalOperationCount * operationCount), $"Deleting file {file}"));
+                            (int)(100 / totalItems * currentItem), $"Deleting file {file}"));
                     }
                 }
 
                 // Remove registry keys
-                foreach (var regKey in _inventory.Data.RegistryKeys)
+                foreach (var regKey in inventory.Data.RegistryKeys)
                 {
-                    operationCount++;
+                    currentItem++;
 
                     try
                     {
-                        Log.Information($"{operationCount}/{totalOperationCount}: Deleting registry key {regKey}");
+                        Log.Information($"{currentItem}/{totalItems}: Deleting registry key {regKey}");
                         RegistryKey baseKey = Utils.GetRegistryBaseKey(regKey);
                         if (baseKey == null) throw new ArgumentException($"Could not parse registry base key for {regKey}");
                         string subKey = Utils.GetRegistrySubKey(regKey);
@@ -103,7 +102,7 @@ namespace SQRLPlatformAwareInstaller.Models
                     finally
                     {
                         progress.Report(new Tuple<int, string>(
-                        (int)(100 / totalOperationCount * operationCount), $"Deleting registry key {regKey}"));
+                        (int)(100 / totalItems * currentItem), $"Deleting registry key {regKey}"));
                     }
                 }
             });
