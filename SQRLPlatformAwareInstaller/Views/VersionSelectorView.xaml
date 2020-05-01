@@ -62,7 +62,7 @@
 
     <DockPanel DockPanel.Dock="Bottom">
       <Button Content="{loc:Localization BtnBack}" Command="{Binding Back}" DockPanel.Dock="Left" Height="25" Width="100" HorizontalAlignment="Left" />
-      <Button Content="{loc:Localization BtnInstall}" Command="{Binding DownloadInstall}" IsEnabled="{Binding HasReleases}" DockPanel.Dock="Right" Height="25" Width="100" HorizontalAlignment="Right" />
+      <Button Content="{loc:Localization BtnInstall}" Command="{Binding DownloadInstall}" IsEnabled="{Binding CanInstall}" DockPanel.Dock="Right" Height="25" Width="100" HorizontalAlignment="Right" />
     </DockPanel>
     
   </DockPanel>

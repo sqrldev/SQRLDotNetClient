@@ -5,13 +5,14 @@ using System.Linq;
 using System.IO;
 using Avalonia.Controls;
 using Microsoft.Win32;
-using ToolBox.Bridge;
 using GitHubApi;
 using Serilog;
 using System.Runtime.InteropServices;
 using SQRLCommonUI.Models;
 using SQRLPlatformAwareInstaller.Models;
 using SQRLPlatformAwareInstaller.Platform;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -22,8 +23,6 @@ namespace SQRLPlatformAwareInstaller.ViewModels
     public class VersionSelectorViewModel : ViewModelBase
     {
         private IInstaller _installer = null;
-        private static IBridgeSystem _bridgeSystem { get; set; }
-        private static ShellConfigurator _shell { get; set; }
         private WebClient _webClient;
         private int _downloadPercentage;
         private string _downloadUrl = "";
@@ -37,6 +36,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private decimal? _downloadSize;
         private bool _enablePreReleases = false;
         private bool _hasReleases = false;
+        private bool _canInstall = false;
 
         /// <summary>
         /// Gets or sets the download progress percentage.
@@ -92,7 +92,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         public GithubRelease SelectedRelease
         {
             get { return this._selectedRelease; }
-            set { this.RaiseAndSetIfChanged(ref _selectedRelease, value); SetDownloadSize(); }
+            set 
+            { 
+                this.RaiseAndSetIfChanged(ref _selectedRelease, value); 
+                SetDownloadSize(); 
+            }
         }
 
         /// <summary>
@@ -120,7 +124,20 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         public bool HasReleases
         {
             get { return this._hasReleases; }
-            set { this.RaiseAndSetIfChanged(ref _hasReleases, value); }
+            set 
+            { 
+                this.RaiseAndSetIfChanged(ref _hasReleases, value);
+                this.CanInstall = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the install button should be enabled.
+        /// </summary>
+        public bool CanInstall
+        {
+            get { return this._canInstall; }
+            set { this.RaiseAndSetIfChanged(ref _canInstall, value); }
         }
 
         /// <summary>
@@ -142,12 +159,18 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             this.WhenAnyValue(x => x.EnablePreReleases)
                 .Subscribe(x => GetReleases());
 
-            this.InstallationPath = PathConf.ClientInstallPath;
+            this.InstallationPath = Environment.GetCommandLineArgs().Length > 1 ?
+                Environment.GetCommandLineArgs()[1] : 
+                PathConf.ClientInstallPath;
 
-            Type implementation = Implementation.ForType<IInstaller>();
-            _installer = Activator.CreateInstance(implementation) as IInstaller;
+            _installer = Activator.CreateInstance(
+                Implementation.ForType<IInstaller>()) as IInstaller;
 
             _executablePath = _installer.GetExecutablePath(this.InstallationPath);
+
+            _webClient = new WebClient();
+            _webClient.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
+            _webClient.Headers.Add("User-Agent", GitHubHelper.SQRLInstallerUserAgent);
 
             GetReleases();
         }
@@ -157,57 +180,34 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// </summary>
         private async void GetReleases()
         {
-            _webClient = new WebClient
-            {
-                CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
-            };
-
-            _webClient.Headers.Add("User-Agent", GitHubHelper.SQRLInstallerUserAgent);
-
             this.Releases = await GitHubHelper.GetReleases(this.EnablePreReleases);
             this.HasReleases = this.Releases.Length > 0;
+            if (!this.HasReleases) return;
 
-            if (this.HasReleases)
+            Log.Information($"Found {this.Releases?.Count()} Releases");
+            this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
-                Log.Information($"Found {this.Releases?.Count()} Releases");
-                
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Log.Information($"We are on Windows, checking to see if an existing version of SQRL exists");
+                if (Registry.ClassesRoot.OpenSubKey(@"sqrl") != null)
                 {
-                    Log.Information($"We are on Windows, checking to see if an existing version of SQRL exists");
-                    if (Registry.ClassesRoot.OpenSubKey(@"sqrl") != null)
-                    {
-                        Log.Information($"Display Warning that we may over-write the existing SQRL Install");
-                        this.Warning = _loc.GetLocalizationValue("SchemaRegistrationWarning");
-                    }
+                    Log.Information($"Display warning that we may overwrite an existing SQRL schema registration");
+                    this.Warning = _loc.GetLocalizationValue("SchemaRegistrationWarning");
                 }
             }
-            this.InstallationPath = Environment.GetCommandLineArgs().Length > 1 ? 
-                Environment.GetCommandLineArgs()[1] : this.InstallationPath;
         }
 
         /// <summary>
-        /// Calculates and sets the download size for the selected release.
+        /// Sets the download size and URL for the selected release.
         /// </summary>
         public void SetDownloadSize()
         {
             if (SelectedRelease == null) return;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                this.DownloadSize = Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("osx-x64.zip")).First().size / 1024M) / 1024M, 2);
-                this._downloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("osx-x64.zip")).First().browser_download_url;
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                this.DownloadSize = Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("linux-x64.zip")).First().size / 1024M) / 1024M, 2);
-                this._downloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("linux-x64.zip")).First().browser_download_url;
-            }
-            else
-            {
-                this.DownloadSize = Math.Round((this.SelectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().size / 1024M) / 1024M, 2);
-                this._downloadUrl = this.SelectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().browser_download_url;
-            }
+            var downloadInfo = _installer.GetDownloadInfoForAsset(SelectedRelease);
+            this.DownloadSize = downloadInfo?.DownloadSize;
+            this._downloadUrl = downloadInfo?.DownloadUrl;
 
             Log.Information($"Current download size is : {this.DownloadSize} MB");
             Log.Information($"Current download URL is : {this._downloadUrl}");
@@ -221,6 +221,8 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             if (string.IsNullOrEmpty(this._downloadUrl)) return;
 
             this.InstallStatus = _loc.GetLocalizationValue("InstallStatusDownloading");
+            this.CanInstall = false;
+
             _webClient.DownloadProgressChanged += Wc_DownloadProgressChanged;
             _webClient.DownloadFileCompleted += Wc_DownloadFileCompleted;
 
@@ -232,12 +234,20 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <summary>
         /// Event handler for the "download completed" event.
         /// </summary>
-        private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        private async void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
             Log.Information("Download completed");
-            this.DownloadPercentage = 100;
-            InstallOnPlatform(this._downloadedFileName);
-            ((MainWindowViewModel)_mainWindow.DataContext).Content = new InstallationCompleteViewModel(Path.Combine(this._executablePath));
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                this.InstallStatus = _loc.GetLocalizationValue("InstallStatusInstalling");
+                this.DownloadPercentage = 0;
+            });
+
+            await InstallOnPlatform(this._downloadedFileName);
+
+            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
+                new InstallationCompleteViewModel(Path.Combine(this._executablePath));
         }
 
         /// <summary>
@@ -245,125 +255,20 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// according to the detected platform.
         /// </summary>
         /// <param name="downloadedFileName">The downloaded application files to install.</param>
-        private async void InstallOnPlatform(string downloadedFileName)
+        private async Task InstallOnPlatform(string downloadedFileName)
         {
             Log.Information($"Launching installation");
 
-            _installStatus = _loc.GetLocalizationValue("InstallStatusInstalling");
-
             // Perform the actual installation
-            Progress<int> progress = new Progress<int>((x) => this.DownloadPercentage = x);
-            if (_installer != null) _installer.Install(downloadedFileName, this.InstallationPath, progress);
+            Progress<int> progress = new Progress<int>((x) =>
+                Dispatcher.UIThread.Post(() => this.DownloadPercentage = x));
+            await _installer.Install(downloadedFileName, this.InstallationPath, progress);
 
             // Write the installation path to the config file so that
             // we can locate the installation later
             Log.Information($"Writing installation path to config file: {this.InstallationPath}");
             PathConf.ClientInstallPath = this.InstallationPath;
         }
-
-        /// <summary>
-        /// Installs the app in <paramref name="downloadedFileName"/> on MacOSX.
-        /// </summary>
-        /// <param name="downloadedFileName">The downloaded application files to install.</param>
-        //private void InstallOnMac(string downloadedFileName)
-        //{
-        //    Log.Information("Installing on MacOSX");
-        //    string fileName = Path.GetTempFileName().Replace(".tmp", ".zip");
-
-        //    Log.Information("Downloading Mac app folder structure from Github");
-        //    GitHubHelper.DownloadFile("https://github.com/sqrldev/SQRLDotNetClient/raw/PlatformInstaller/Installers/MacOsX/SQRL.app.zip", fileName);
-
-        //    Log.Information("Creating initial SQRL application template");
-        //    ExtractZipFile(fileName, string.Empty, this.InstallationPath);
-        //    _executable = Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", "SQRLDotNetClientUI");
-        //    Log.Information($"Excecutable location:{_executable}");
-        //    this.DownloadPercentage = 20;
-        //    ExtractZipFile(downloadedFileName, string.Empty, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS"));
-        //    //File.Move(downloadedFileName, Executable, true);
-        //    try
-        //    {
-        //        Log.Information("Copying installer into installation location (for auto update)");
-        //        File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), false);
-        //    }
-        //    catch (Exception fc)
-        //    {
-        //        Log.Error($"File copy exception: {fc}");
-        //    }
-        //    using (StreamWriter sw = new StreamWriter(Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", "sqrlversion.json")))
-        //    {
-        //        Log.Information($"Finished installing SQRL version: {this.SelectedRelease.tag_name}");
-        //        sw.Write(Newtonsoft.Json.JsonConvert.SerializeObject(this.SelectedRelease.tag_name));
-        //        sw.Close();
-        //    }
-
-        //    this.DownloadPercentage += 20;
-        //    _bridgeSystem = BridgeSystem.Bash;
-        //    _shell = new ShellConfigurator(_bridgeSystem);
-        //    Log.Information("Changing executable file to be executable a+x");
-        //    _shell.Term($"chmod a+x {_executable}", Output.Internal);
-        //    _shell.Term($"chmod a+x {Path.Combine(this.InstallationPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
-        //}
-
-        ///// <summary>
-        ///// Installs the app in <paramref name="downloadedFileName"/> on Linux.
-        ///// </summary>
-        ///// <param name="downloadedFileName">The downloaded application files to install.</param>
-        //private void InstallOnLinux(string downloadedFileName)
-        //{
-        //    Log.Information("Installing on Linux");
-
-        //    _executable = Path.Combine(this.InstallationPath, "SQRLDotNetClientUI");
-
-        //    if (!Directory.Exists(this.InstallationPath))
-        //    {
-        //        Directory.CreateDirectory(this.InstallationPath);
-        //    }
-
-        //    this.DownloadPercentage = 20;
-        //    //File.Move(downloadedFileName, Executable, true);
-        //    ExtractZipFile(downloadedFileName, string.Empty, this.InstallationPath);
-        //    try
-        //    {
-        //        Log.Information("Copying installer into installation location (for auto update)");
-        //        //Copy the installer but don't over-write the one included in the zip since it will likely be newer
-        //        File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(this.InstallationPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), false);
-        //    }
-        //    catch (Exception fc)
-        //    {
-        //        Log.Warning($"File copy exception: {fc}");
-        //    }
-        //    using (StreamWriter sw = new StreamWriter(Path.Combine(this.InstallationPath, "sqrlversion.json")))
-        //    {
-        //        sw.Write(Newtonsoft.Json.JsonConvert.SerializeObject(this.SelectedRelease.tag_name));
-        //        sw.Close();
-        //    }
-        //    this.DownloadPercentage += 20;
-
-
-        //    _bridgeSystem = BridgeSystem.Bash;
-        //    _shell = new ShellConfigurator(_bridgeSystem);
-
-        //    Log.Information("Creating Linux desktop icon, application and registering SQRL invokation scheme");
-        //    GitHubHelper.DownloadFile(@"https://github.com/sqrldev/SQRLDotNetClient/raw/master/SQRLDotNetClientUI/Assets/SQRL_icon_normal_64.png", Path.Combine(this.InstallationPath, "SQRL.png"));
-        //    StringBuilder sb = new StringBuilder();
-        //    sb.AppendLine($"[Desktop Entry]");
-        //    sb.AppendLine("Name=SQRL");
-        //    sb.AppendLine("Type=Application");
-        //    sb.AppendLine($"Icon={(Path.Combine(this.InstallationPath, "SQRL.png"))}");
-        //    sb.AppendLine($"Exec={_executable} %u");
-        //    sb.AppendLine("Categories=Internet");
-        //    sb.AppendLine("Terminal=false");
-        //    sb.AppendLine("MimeType=x-scheme-handler/sqrl");
-        //    File.WriteAllText(Path.Combine(this.InstallationPath, "sqrldev-sqrl.desktop"), sb.ToString());
-        //    _shell.Term($"chmod -R 755 {this.InstallationPath}", Output.Internal);
-        //    _shell.Term($"chmod a+x {_executable}", Output.Internal);
-        //    _shell.Term($"chmod +x {Path.Combine(this.InstallationPath, "sqrldev-sqrl.desktop")}", Output.Internal);
-        //    _shell.Term($"chmod a+x {Path.Combine(this.InstallationPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
-        //    _shell.Term($"xdg-desktop-menu install {Path.Combine(this.InstallationPath, "sqrldev-sqrl.desktop")}", Output.Internal);
-        //    _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop", Output.Internal);
-        //    _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl", Output.Internal);
-        //    _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
-        //}
 
         /// <summary>
         /// Event handler for "download progress changed" event.
