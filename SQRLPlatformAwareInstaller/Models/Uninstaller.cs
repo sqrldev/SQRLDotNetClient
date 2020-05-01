@@ -1,9 +1,7 @@
 ﻿using Microsoft.Win32;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SQRLPlatformAwareInstaller.Models
@@ -21,13 +19,19 @@ namespace SQRLPlatformAwareInstaller.Models
         /// Runs the actual uninstallation task.
         /// </summary>
         /// <param name="progress">An object used for tracking the progress of the operation.</param>
-        public static async Task Run(IProgress<Tuple<int, string>> progress)
+        /// <param name="dryRun">If set to <c>true</c>, all uninstall operations are only simulated but not 
+        /// actually performed. Used for testing.</param>
+        public static async Task Run(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
         {
             int operationCount = 0;
+
+            Log.Information("Loading inventory");
+            _inventory.Load();
+
             int totalOperationCount = _inventory.Data.Directories.Count +
                 _inventory.Data.Files.Count + _inventory.Data.RegistryKeys.Count;
 
-            Log.Information($"Running uninstaller, total operation count: {operationCount}");
+            Log.Information($"Running uninstaller, total operation count: {totalOperationCount}");
 
             if (totalOperationCount == 0)
             {
@@ -44,7 +48,8 @@ namespace SQRLPlatformAwareInstaller.Models
 
                     try
                     {
-                        Directory.Delete(dir, true);
+                        Log.Information($"{operationCount}/{totalOperationCount}: Deleting directory {dir}");
+                        if (!dryRun) Directory.Delete(dir, true);
                     }
                     catch (Exception ex)
                     {
@@ -64,7 +69,8 @@ namespace SQRLPlatformAwareInstaller.Models
 
                     try
                     {
-                        File.Delete(file);
+                        Log.Information($"{operationCount}/{totalOperationCount}: Deleting file {file}");
+                        if (!dryRun) File.Delete(file);
                     }
                     catch (Exception ex)
                     {
@@ -84,9 +90,11 @@ namespace SQRLPlatformAwareInstaller.Models
 
                     try
                     {
-                        RegistryKey key = ParseRegistryKey(regKey);
-                        if (key == null) throw new ArgumentException($"Could not parse registry key {regKey}");
-                        //TODO!
+                        Log.Information($"{operationCount}/{totalOperationCount}: Deleting registry key {regKey}");
+                        RegistryKey baseKey = Utils.GetRegistryBaseKey(regKey);
+                        if (baseKey == null) throw new ArgumentException($"Could not parse registry base key for {regKey}");
+                        string subKey = Utils.GetRegistrySubKey(regKey);
+                        if (!dryRun) baseKey.DeleteSubKeyTree(subKey, throwOnMissingSubKey: true);
                     }
                     catch (Exception ex)
                     {
@@ -99,48 +107,6 @@ namespace SQRLPlatformAwareInstaller.Models
                     }
                 }
             });
-        }
-
-        public static RegistryKey ParseRegistryKey(string keyAsString, bool openForWriting = true)
-        {
-            var index = keyAsString.IndexOf("\\\\");
-            if (index == -1) return null;
-
-            string baseKeyStr = keyAsString.Substring(0, index);
-            string subKeyStr = keyAsString.Substring(index);
-
-            RegistryKey baseKey = null;
-
-            switch (baseKeyStr)
-            {
-                case "HKEY_CLASSES_ROOT":
-                    baseKey = Registry.ClassesRoot;
-                    break;
-
-                case "HKEY_CURRENT_USER":
-                    baseKey = Registry.CurrentUser;
-                    break;
-
-                case "HKEY_LOCAL_MACHINE":
-                    baseKey = Registry.LocalMachine;
-                    break;
-
-                case "HKEY_USERS":
-                    baseKey = Registry.Users;
-                    break;
-
-                case "HKEY_PERFORMANCE_DATA":
-                    baseKey = Registry.PerformanceData;
-                    break;
-
-                case "HKEY_CURRENT_CONFIG":
-                    baseKey = Registry.CurrentConfig;
-                    break;
-            }
-
-            if (baseKey == null) return null;
-
-            return baseKey.OpenSubKey(subKeyStr, openForWriting);
         }
     }
 }
