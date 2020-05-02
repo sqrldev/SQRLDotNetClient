@@ -54,6 +54,8 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
             Log.Information("Changing executable file to be executable a+x");
             _shell.Term($"chmod a+x {GetClientExePath(installPath)}", Output.Internal);
             _shell.Term($"chmod a+x {Path.Combine(installPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
+
+            Inventory.Instance.Save();
         }
 
         public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)

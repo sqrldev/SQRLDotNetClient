@@ -72,6 +72,8 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
             _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop", Output.Internal);
             _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl", Output.Internal);
             _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
+
+            Inventory.Instance.Save();
         }
 
         public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
