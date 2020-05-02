@@ -21,8 +21,6 @@ namespace SQRLPlatformAwareInstaller.Models
         /// actually performed. Used for testing.</param>
         public static async Task Run(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
         {
-
-            Log.Information("Loading inventory");
             Inventory inventory = Inventory.Instance; 
             inventory.Load();
 
@@ -105,6 +103,8 @@ namespace SQRLPlatformAwareInstaller.Models
                         (int)(100 / totalItems * currentItem), $"Deleting registry key {regKey}"));
                     }
                 }
+
+                progress.Report(new Tuple<int, string>(100, $"Uninstallation complete!"));
             });
         }
     }
