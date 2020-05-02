@@ -79,6 +79,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
         public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
         {
             // First, remove the desktop entry and "sqrl://" scheme handlers
+            progress.Report(new Tuple<int, string>(0, $"Removing desktop entries and sqrl:// scheme handlers"));
             var desktopFile = Path.Combine(PathConf.ClientInstallPath, "sqrldev-sqrl.desktop");
             _shell.Term($"xdg-mime uninstall {desktopFile}", Output.Internal);
             _shell.Term($"xdg-desktop-menu uninstall sqrldev-sqrl.desktop", Output.Internal);
