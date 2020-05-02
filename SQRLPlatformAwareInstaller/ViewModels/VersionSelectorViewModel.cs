@@ -269,15 +269,14 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <param name="downloadedFileName">The downloaded application files to install.</param>
         private async Task InstallOnPlatform(string downloadedFileName)
         {
-            Log.Information($"Launching installation");
-
-            // Perform the actual installation
-            await _installer.Install(downloadedFileName, this.InstallationPath, this.SelectedRelease.tag_name);
-
             // Write the installation path to the config file so that
             // we can locate the installation later
             Log.Information($"Writing installation path {this.InstallationPath} to config file");
             PathConf.ClientInstallPath = this.InstallationPath;
+
+            // Perform the actual installation
+            Log.Information($"Launching installation");
+            await _installer.Install(downloadedFileName, this.InstallationPath, this.SelectedRelease.tag_name);
         }
 
         /// <summary>
