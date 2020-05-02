@@ -214,6 +214,12 @@ namespace SQRLDotNetClientUI.Models
         /// <param name="progressText">A string representing a text descrition for the progress indicator (optional).</param>
         public async void SetQuickPass(string password, byte[] imk, byte[] ilk, SQRLIdentity identity, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
+            if (string.IsNullOrEmpty(password))
+            {
+                Log.Warning("Can't use QuickPass on an empty password, aborting SetQuickPass()!");
+                return;
+            }
+
             QuickPassItem qpi = new QuickPassItem()
             {
                 EstablishedDate = DateTime.Now,
@@ -226,7 +232,7 @@ namespace SQRLDotNetClientUI.Models
                 ClearQuickPassOnSleep = identity.Block1.OptionFlags.ClearQuickPassOnSleep,
                 ClearQuickPassOnSwitchingUser = identity.Block1.OptionFlags.ClearQuickPassOnSwitchingUser,
                 Timer = new Timer()
-                };
+            };
 
             qpi.Timer.Enabled = false;
             qpi.Timer.AutoReset = false; // Dont restart timer after calling elapsed
