@@ -47,7 +47,6 @@ namespace SQRLPlatformAwareInstaller
         /// <param name="outFolder">The output folder.</param>
         public static void ExtractZipFile(string archivePath, string password, string outFolder)
         {
-
             if (!Directory.Exists(outFolder))
             {
                 Directory.CreateDirectory(outFolder);
@@ -57,40 +56,39 @@ namespace SQRLPlatformAwareInstaller
 
             using (Stream fsInput = File.OpenRead(archivePath))
             {
-                using (var zf = new ZipFile(fsInput))
+                using (var zipFile = new ZipFile(fsInput))
                 {
                     //We don't password protect our install but maybe we should
                     if (!String.IsNullOrEmpty(password))
                     {
                         // AES encrypted entries are handled automatically
-                        zf.Password = password;
+                        zipFile.Password = password;
                     }
 
-                    long fileCt = zf.Count;
+                    long fileCount = zipFile.Count;
 
-                    foreach (ZipEntry zipEntry in zf)
+                    foreach (ZipEntry zipEntry in zipFile)
                     {
-
                         if (!zipEntry.IsFile)
                         {
                             // Ignore directories
                             continue;
                         }
-                        String entryFileName = zipEntry.Name;
-
 
                         // Manipulate the output filename here as desired.
+                        String entryFileName = zipEntry.Name;
                         var fullZipToPath = Path.Combine(outFolder, entryFileName);
+                        
                         //Do not over-write the sqrl Db if it exists
-
                         if (entryFileName.Equals("sqrl.db", StringComparison.OrdinalIgnoreCase) && File.Exists(fullZipToPath))
                         {
                             GrantFullFileAccess(fullZipToPath);
                             Log.Information("Found existing SQRL DB, keeping existing");
                             continue;
                         }
+
                         var directoryName = Path.GetDirectoryName(fullZipToPath);
-                        if (directoryName.Length > 0)
+                        if (directoryName.Length > 0 && directoryName != outFolder)
                         {
                             if (!Directory.Exists(directoryName))
                             {
@@ -106,7 +104,7 @@ namespace SQRLPlatformAwareInstaller
                         // Unzip file in buffered chunks. This is just as fast as unpacking
                         // to a buffer the full size of the file, but does not waste memory.
                         // The "using" will close the stream even if an exception occurs.
-                        using (var zipStream = zf.GetInputStream(zipEntry))
+                        using (var zipStream = zipFile.GetInputStream(zipEntry))
                         using (Stream fsOutput = File.Create(fullZipToPath))
                         {
                             StreamUtils.Copy(zipStream, fsOutput, buffer);
