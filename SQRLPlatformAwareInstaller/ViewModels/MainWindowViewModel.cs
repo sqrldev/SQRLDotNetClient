@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using Serilog;
 using System;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
@@ -38,9 +39,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         {
             ViewModelBase viewModel = null;
 
-            if (Environment.GetCommandLineArgs().Length > 1 &&
-                Environment.GetCommandLineArgs()[1].ToLower() == "-uninstall")
+            string[] args = Environment.GetCommandLineArgs();
+
+            if (args.Length > 1 && args[1].ToLower() == "-uninstall")
             {
+                Log.Information($"Installer was called with \"{args[1]}\" command line switch - launching uninstall screen");
                 viewModel = new UninstallViewModel();
             }
             else
