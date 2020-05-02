@@ -51,6 +51,11 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
             _shell.Term($"chmod a+x {Path.Combine(installPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
         }
 
+        public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
+        {
+            await Uninstaller.Run(progress, dryRun);
+        }
+
         public string GetClientExePath(string installPath)
         {
             return Path.Combine(installPath, "SQRL.app/Contents/MacOS", "SQRLDotNetClientUI");

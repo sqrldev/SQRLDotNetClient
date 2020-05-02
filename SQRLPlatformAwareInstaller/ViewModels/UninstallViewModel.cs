@@ -1,7 +1,9 @@
 ﻿using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using ReactiveUI;
+using SQRLCommonUI.Models;
 using SQRLPlatformAwareInstaller.Models;
+using SQRLPlatformAwareInstaller.Platform;
 using System;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
@@ -11,6 +13,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
     /// </summary>
     public class UninstallViewModel : ViewModelBase
     {
+        private IInstaller _installer = null;
         private string _uninstallLog = "";
         private string _uninstallButtonText = "";
         private decimal _progressPercentage = 0;
@@ -76,6 +79,10 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         {
             this.Title = _loc.GetLocalizationValue("TitleUninstall");
             this.UninstallButtonText = _loc.GetLocalizationValue("BtnUninstall");
+
+            // Create a platform-specific installer instance
+            _installer = Activator.CreateInstance(
+                Implementation.ForType<IInstaller>()) as IInstaller;
         }
 
         /// <summary>
@@ -98,7 +105,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             });
 
             this.CanUninstall = false;
-            await Uninstaller.Run(progress, dryRun: false);
+            await _installer.Uninstall(progress, dryRun: false);
             this.UninstallFinished = true;
             this.CanUninstall = true;
         }

@@ -1,5 +1,6 @@
 ﻿using GitHubApi;
 using Serilog;
+using SQRLCommonUI.Models;
 using SQRLPlatformAwareInstaller.Models;
 using System;
 using System.Diagnostics;
@@ -19,6 +20,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
         public async Task Install(string archiveFilePath, string installPath, string versionTag)
         {
             Log.Information("Installing on Linux");
+            Inventory.Instance.Load();
 
             if (!Directory.Exists(installPath))
             {
@@ -29,6 +31,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
             {
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
+                Inventory.Instance.AddDirectory(installPath);
 
                 Log.Information("Copying installer into installation location (for auto update)");
                 try
@@ -69,6 +72,18 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
             _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop", Output.Internal);
             _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl", Output.Internal);
             _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
+        }
+
+        public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
+        {
+            // First, remove the desktop entry and "sqrl://" scheme handlers
+            var desktopFile = Path.Combine(PathConf.ClientInstallPath, "sqrldev-sqrl.desktop");
+            _shell.Term($"xdg-mime uninstall {desktopFile}", Output.Internal);
+            _shell.Term($"xdg-desktop-menu uninstall sqrldev-sqrl.desktop", Output.Internal);
+            _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
+
+            // Run the inventory-based uninstaller
+            await Uninstaller.Run(progress, dryRun);
         }
 
         public string GetClientExePath(string installPath)

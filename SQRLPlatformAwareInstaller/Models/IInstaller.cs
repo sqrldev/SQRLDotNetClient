@@ -23,6 +23,14 @@ namespace SQRLPlatformAwareInstaller.Models
         public Task Install(string archiveFilePath, string installPath, string versionTag);
 
         /// <summary>
+        /// Uninstalls the client app.
+        /// </summary>
+        /// <param name="progress">An object used for tracking the progress of the operation.</param>
+        /// <param name="dryRun">If set to <c>true</c>, all uninstall operations are only simulated but not 
+        /// actually performed. Used for testing.</param>
+        public Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true);
+
+        /// <summary>
         /// Returns the full path to the client executable using the given <paramref name="installPath"/>.
         /// </summary>
         /// <param name="installPath">The client installation path.</param>

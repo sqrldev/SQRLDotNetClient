@@ -95,6 +95,11 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
             });
         }
 
+        public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
+        {
+            await Uninstaller.Run(progress, dryRun);
+        }
+
         public string GetClientExePath(string installPath)
         {
             return Path.Combine(installPath, "SQRLDotNetClientUI.exe");
