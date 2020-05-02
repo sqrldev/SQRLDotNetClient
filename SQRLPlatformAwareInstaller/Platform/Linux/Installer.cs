@@ -42,7 +42,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 }
                 catch (Exception fc)
                 {
-                    Log.Warning($"File copy exception: {fc}");
+                    Log.Warning($"File copy exception while copying installer:\r\n{fc}");
                 }
             });
 

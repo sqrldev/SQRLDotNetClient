@@ -18,6 +18,8 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
         public async Task Install(string archiveFilePath, string installPath, string versionTag)
         {
             Log.Information($"Installing on macOS to {installPath}");
+            Inventory.Instance.Load();
+
             string fileName = Path.GetTempFileName().Replace(".tmp", ".zip");
 
             await Task.Run(() =>
@@ -27,12 +29,15 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
 
                 Log.Information("Creating initial SQRL application template");
                 Utils.ExtractZipFile(fileName, string.Empty, installPath);
+                File.Delete(fileName);
             });
             
             await Task.Run(() =>
             {
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, Path.Combine(installPath, "SQRL.app/Contents/MacOS"));
+                Inventory.Instance.AddDirectory(Path.Combine(installPath, "SQRL.app"));
+
                 try
                 {
                     Log.Information("Copying installer into installation location (for auto update)");
@@ -42,7 +47,7 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
                 }
                 catch (Exception fc)
                 {
-                    Log.Error($"File copy exception: {fc}");
+                    Log.Error($"File copy exception while copying installer:\r\n{fc}");
                 }
             });
 

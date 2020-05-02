@@ -33,7 +33,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 }
                 catch (Exception fc)
                 {
-                    Log.Warning($"File copy exception while copying installer!\r\n{fc}");
+                    Log.Warning($"File copy exception while copying installer:\r\n{fc}");
                 }
 
                 // Create registry keys for sqrl:// scheme registration
