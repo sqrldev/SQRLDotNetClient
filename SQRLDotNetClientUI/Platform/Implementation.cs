@@ -34,7 +34,7 @@ namespace SQRLDotNetClientUI.Platform
                 {
                     // On Linux, we only support a tray icon for Ubuntu,
                     // sorry folks ¯\_(ツ)_/¯
-                    var response = _shell.Term($"cat /etc/*-release", Output.Internal);
+                    var response = _shell.Term($"cat /etc/*-release", Output.Hidden);
                     Log.Information($"Checking Linux distribution to see if we can use a tray icon");
                     Log.Information($"Output of \"cat / etc/*-release\" is:\r\n{response.stdout}");
                     if (!string.IsNullOrEmpty(response.stdout) && 
