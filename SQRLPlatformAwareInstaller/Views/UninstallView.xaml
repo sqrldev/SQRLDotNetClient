@@ -18,12 +18,12 @@
 
     <TextBox Text="{Binding UninstallLog}" DockPanel.Dock="Top" IsReadOnly="True" TextWrapping="NoWrap" FontFamily="Courier New" FontSize="12" 
              Width="560" MinWidth="560" Height="260" MinHeight="260" Margin="0,0,0,10" ScrollViewer.HorizontalScrollBarVisibility="Auto"
-             ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+             ScrollViewer.VerticalScrollBarVisibility="Auto" TextBlock.Foreground="Gray" BorderBrush="Gray"/>
     <ProgressBar Value="{Binding ProgressPercentage}" DockPanel.Dock="Top" IsIndeterminate="False" Maximum="100" Width="560" MinWidth="560" Height="25" MinHeight="25"/>
 
     <DockPanel DockPanel.Dock="Bottom">
-      <Button Content="{loc:Localization BtnCancel}" Command="{Binding Cancel}" DockPanel.Dock="Left" Width="100" HorizontalAlignment="Left" />
-      <Button Content="{loc:Localization BtnUninstall}" Command="{Binding Uninstall}" DockPanel.Dock="Right" Width="100" HorizontalAlignment="Right"/>
+      <Button Content="{loc:Localization BtnCancel}" Command="{Binding Cancel}" IsEnabled="{Binding CanUninstall}" DockPanel.Dock="Left" Width="100" HorizontalAlignment="Left" />
+      <Button Content="{Binding UninstallButtonText}" Command="{Binding Uninstall}" IsEnabled="{Binding CanUninstall}" DockPanel.Dock="Right" Width="100" HorizontalAlignment="Right"/>
     </DockPanel>
   </DockPanel>
 </UserControl>
