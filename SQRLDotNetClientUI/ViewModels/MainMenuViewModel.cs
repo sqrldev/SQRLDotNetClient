@@ -11,6 +11,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using ToolBox.Bridge;
+using System.Threading.Tasks;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -303,6 +304,10 @@ namespace SQRLDotNetClientUI.ViewModels
                 TimeSpan timeSinceLastUpdate = DateTime.Now - App.LastUpdateCheck;
                 if (timeSinceLastUpdate < App.MinTimeBetweenUpdateChecks) return;
             }
+            else
+            {
+                Log.Information("User initiated update check");
+            }
 
             this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates(
                 Assembly.GetExecutingAssembly().GetName().Version);
@@ -316,57 +321,101 @@ namespace SQRLDotNetClientUI.ViewModels
                     MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.OK)
                     .ShowDialog(this);
             }
-
         }
 
         /// <summary>
-        /// Launches the installer to install a new update
+        /// Launches the installer to install a new update.
         /// </summary>
         public async void InstallUpdate()
         {
+            Log.Information("User initiated installation of update");
 
+            var installPathArgument = $"\"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\"";
+            bool success = await RunInstaller(installPathArgument);
+            if (success)
+            {
+                Log.CloseAndFlush();
+                _mainWindow.Exit();
+            }
+        }
 
+        /// <summary>
+        /// Launches the installer in uninstall mode.
+        /// </summary>
+        private async void Uninstall()
+        {
+            Log.Information("User initiated uninstall request from client");
+
+            var result = await new MessageBoxViewModel(_loc.GetLocalizationValue("GenericQuestionTitle"),
+                string.Format(_loc.GetLocalizationValue("ReallyUninstallQuestion"), this.IdentityName, Environment.NewLine),
+                MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
+                .ShowDialog(this);
+
+            if (result != MessagBoxDialogResult.YES) return;
+
+            var uninstallArgument = "-uninstall";
+            bool success = await RunInstaller(uninstallArgument);
+            if (success)
+            {
+                Log.CloseAndFlush();
+                _mainWindow.Exit();
+            }
+        }
+
+        /// <summary>
+        /// Launches the installer binary, passing in the provided <paramref name="arguments"/>.
+        /// </summary>
+        /// <param name="arguments">The command line arguments to pass to the installer.</param>
+        private async Task<bool> RunInstaller(string arguments)
+        {
             IBridgeSystem _bridgeSystem = BridgeSystem.Bash;
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string installer = GetInstallerByPlatform();
-            if(File.Exists(Path.Combine(directory,installer)))
+            if (File.Exists(Path.Combine(directory, installer)))
             {
                 var tempFile = Path.GetTempPath();
                 File.Copy(Path.Combine(directory, installer), Path.Combine(tempFile, Path.GetFileName(installer)), true);
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     var _shell = new ShellConfigurator(_bridgeSystem);
-                    Log.Information("Changing Executable File to be Executable a+x");
+                    Log.Information("Changing executable file to be executable a+x");
                     _shell.Term($"chmod a+x {Path.Combine(tempFile, Path.GetFileName(installer))}", Output.Internal);
                 }
 
                 Log.Information("Starting Installer");
                 Process proc = new Process();
                 proc.StartInfo.FileName = Path.Combine(tempFile, Path.GetFileName(installer));
-                proc.StartInfo.Arguments = $"\"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\"";
-                Log.Information($"Installer Location:{proc.StartInfo.FileName}");
-                Log.Information($"Installer Arguments:{proc.StartInfo.Arguments}");
+                proc.StartInfo.Arguments = arguments;
+                Log.Information($"Installer Location: {proc.StartInfo.FileName}");
+                Log.Information($"Installer Arguments: {proc.StartInfo.Arguments}");
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     proc.StartInfo.UseShellExecute = true;
                     proc.StartInfo.Verb = "runas";
                 }
                 proc.Start();
-
-                this._mainWindow.Exit();
+                return true;
             }
             else
             {
+                Log.Information("Installer binary missing, asking user to download");
                 var result = await new MessageBoxViewModel(_loc.GetLocalizationValue("GenericQuestionTitle"),
                     string.Format(_loc.GetLocalizationValue("MissingInstaller"), this.IdentityName, Environment.NewLine),
                     MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
                     .ShowDialog(this);
 
-                if(result == MessagBoxDialogResult.YES)
+                if (result == MessagBoxDialogResult.YES)
                 {
+                    Log.Information("Sending user to Github");
                     OpenUrl("https://github.com/sqrldev/SQRLDotNetClient/releases");
-                    this._mainWindow.Exit();
+                    return true;
                 }
+                else
+                {
+                    Log.Information("User declined downloading installer.");
+                }
+
+                return false;
             }
         }
 
