@@ -28,7 +28,6 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private string _downloadUrl = "";
         private string _installationPath;
         private string _warning = "";
-        private string _executablePath = "";
         private string _installStatus = "";
         private string _downloadedFileName;
         private GithubRelease[] _releases;
@@ -170,19 +169,28 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             this.WhenAnyValue(x => x.EnablePreReleases)
                 .Subscribe(x => GetReleases());
 
-            this.InstallationPath = Environment.GetCommandLineArgs().Length > 1 ?
-                Environment.GetCommandLineArgs()[1] : 
-                PathConf.ClientInstallPath;
+            // Let's set the preset for the client installation path.
+            // We first fetch the path from the config file, but if a valid
+            // path was specified on the command line, it will overrule the
+            // one from the config file!
+            string installPath = PathConf.ClientInstallPath;
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length > 1 && Directory.Exists(args[1]))
+            {
+                installPath = args[1];
+            }
+            this.InstallationPath = installPath;
 
+            // Create a platform-specific installer instance
             _installer = Activator.CreateInstance(
                 Implementation.ForType<IInstaller>()) as IInstaller;
 
-            _executablePath = _installer.GetExecutablePath(this.InstallationPath);
-
+            // Initialize the web client we use to download stuff from Github
             _webClient = new WebClient();
             _webClient.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
             _webClient.Headers.Add("User-Agent", GitHubHelper.SQRLInstallerUserAgent);
 
+            // Fetch releases from Github
             GetReleases();
         }
 
@@ -259,7 +267,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             await InstallOnPlatform(this._downloadedFileName);
 
             ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                new InstallationCompleteViewModel(Path.Combine(this._executablePath));
+                new InstallationCompleteViewModel(_installer.GetClientExePath(this.InstallationPath));
         }
 
         /// <summary>
@@ -269,15 +277,14 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <param name="downloadedFileName">The downloaded application files to install.</param>
         private async Task InstallOnPlatform(string downloadedFileName)
         {
-            Log.Information($"Launching installation");
-
-            // Perform the actual installation
-            await _installer.Install(downloadedFileName, this.InstallationPath);
-
             // Write the installation path to the config file so that
             // we can locate the installation later
             Log.Information($"Writing installation path {this.InstallationPath} to config file");
             PathConf.ClientInstallPath = this.InstallationPath;
+
+            // Perform the actual installation
+            Log.Information($"Launching installation");
+            await _installer.Install(downloadedFileName, this.InstallationPath, this.SelectedRelease.tag_name);
         }
 
         /// <summary>

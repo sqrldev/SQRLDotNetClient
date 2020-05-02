@@ -25,7 +25,10 @@
       "InstallSuccessMessage": "The SQRL client has been successfully installed!",
       "LaunchClientCheckBox": "Launch SQRL client on finish",
       "EnablePreReleases": "Show pre-releases",
-      "NoReleasesMessage": "No releases available? Try enabling pre-releases!"
+      "NoReleasesMessage": "No releases available? Try enabling pre-releases!",
+      "TitleUninstall": "Uninstall SQRL Client",
+      "UninstallMessage": "You are about to uninstall the SQRL client application.\r\n\r\nAll application data will be removed. Your user data (e.g. the database containing your SQRL identites) will be retained. Press \"Uninstall\" to continue.",
+      "BtnUninstall": "Uninstall"
     }
   ],
   "en-US": [
@@ -54,7 +57,10 @@
       "InstallSuccessMessage": "The SQRL client has been successfully installed!",
       "LaunchClientCheckBox": "Launch SQRL client on finish",
       "EnablePreReleases": "Show pre-releases",
-      "NoReleasesMessage": "No releases available? Try enabling pre-releases!"
+      "NoReleasesMessage": "No releases available? Try enabling pre-releases!",
+      "TitleUninstall": "Uninstall SQRL Client",
+      "UninstallMessage": "You are about to uninstall the SQRL client application.\r\n\r\nAll application data will be removed. Your user data (e.g. the database containing your SQRL identites) will be retained. Press \"Uninstall\" to continue.",
+      "BtnUninstall": "Uninstall"
     }
   ],
   "de-DE": [
@@ -83,7 +89,10 @@
       "InstallSuccessMessage": "Der SQRL-Client wurde erfolgreich installiert!",
       "LaunchClientCheckBox": "SQRL Client beim Fertigstellen starten",
       "EnablePreReleases": "Vorab-Releases aktivieren",
-      "NoReleasesMessage": "Keine Releases verfügbar? Probieren Sie, Vorab-Releases zu aktivieren!"
+      "NoReleasesMessage": "Keine Releases verfügbar? Probieren Sie, Vorab-Releases zu aktivieren!",
+      "TitleUninstall": "SQRL Client deinstallieren",
+      "UninstallMessage": "Sie sind im Begriff, die SQRL Client-App von Ihrem Computer zu entfernen.\r\n\r\nSämtliche Programm-Daten werden dabei gelöscht. Ihre Benutzerdaten (z.B. ihre SQRL-Identitäten) bleiben dabei erhalten. Drücken Sie \"Deinstallieren\", um fortzufahren.",
+      "BtnUninstall":  "Deinstallieren"
     }
   ]
 }

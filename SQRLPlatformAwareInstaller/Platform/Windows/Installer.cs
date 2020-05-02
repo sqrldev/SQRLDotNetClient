@@ -13,14 +13,17 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
 {
     class Installer : IInstaller
     {
-        public async Task Install(string archiveFilePath, string installPath)
+        public async Task Install(string archiveFilePath, string installPath, string versionTag)
         {
-            Log.Information($"Installing on Windows to {installPath}");
-
             await Task.Run(() =>
             {
+                Log.Information($"Installing on Windows to {installPath}");
+                Inventory.Instance.Load();
+
+                // Extract installation archive
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
+                Inventory.Instance.AddDirectory(installPath);
 
                 try
                 {
@@ -30,38 +33,52 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 }
                 catch (Exception fc)
                 {
-                    Log.Warning($"File copy exception while copying installer! {fc}");
+                    Log.Warning($"File copy exception while copying installer:\r\n{fc}");
                 }
-            });
 
-            // Create registry keys for sqrl:// scheme registration
-            Log.Information("Creating registry keys for sqrl:// protocol scheme");
-            using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl"))
-            {
-                key.SetValue(string.Empty, "URL:SQRL Protocol");
-                key.SetValue("URL Protocol", $"", RegistryValueKind.String);
-            }
-            using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\DefaultIcon"))
-            {
-                key.SetValue("", $"{(GetExecutablePath(installPath))},1", RegistryValueKind.String);
-            }
-            using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\shell\open\command"))
-            {
-                key.SetValue("", $"\"{(GetExecutablePath(installPath))}\" \"%1\"", RegistryValueKind.String);
-            }
+                // Create registry keys for sqrl:// scheme registration
+                Log.Information("Creating registry keys for sqrl:// protocol scheme");
+                using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl"))
+                {
+                    Inventory.Instance.AddRegistryKey(key.ToString());
+                    key.SetValue(string.Empty, "URL:SQRL Protocol");
+                    key.SetValue("URL Protocol", $"", RegistryValueKind.String);
+                }
+                using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\DefaultIcon"))
+                {
+                    key.SetValue("", $"{(GetClientExePath(installPath))},0", RegistryValueKind.String);
+                }
+                using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl\shell\open\command"))
+                {
+                    key.SetValue("", $"\"{(GetClientExePath(installPath))}\" \"%1\"", RegistryValueKind.String);
+                }
 
-            //Create Desktop Shortcut
-            await Task.Run(() =>
-            {
+                // Create uninstall registry entries
+                using (RegistryKey key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SQRL OSS Client"))
+                {
+                    Inventory.Instance.AddRegistryKey(key.ToString());
+                    key.SetValue("DisplayName", "SQRL Open Source Client");
+                    key.SetValue("DisplayVersion", versionTag);
+                    key.SetValue("DisplayIcon", $"{GetClientExePath(installPath)},0");
+                    key.SetValue("UninstallString", $"\"{GetInstallerExePath(installPath)}\" -uninstall");
+                    key.SetValue("Publisher", "SQRL Developers");
+                    key.SetValue("URLInfoAbout", "https://github.com/sqrldev/SQRLDotNetClient");
+                    key.SetValue("NoModify", 1, RegistryValueKind.DWord);
+                    key.SetValue("NoRepair", 1, RegistryValueKind.DWord);
+                    key.SetValue("InstallLocation", installPath);
+                }
+
+                // Create Desktop Shortcut
                 Log.Information("Create Windows desktop shortcut");
+                string shortcutLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "SQRL OSS Client.lnk");
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine($"$SourceFileLocation = \"{GetExecutablePath(installPath)}\"; ");
-                sb.AppendLine($"$ShortcutLocation = \"{(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "SQRL OSS Client.lnk"))}\"; ");
+                sb.AppendLine($"$SourceFileLocation = \"{GetClientExePath(installPath)}\"; ");
+                sb.AppendLine($"$ShortcutLocation = \"{shortcutLocation}\"; ");
                 sb.AppendLine("$WScriptShell = New-Object -ComObject WScript.Shell; ");
                 sb.AppendLine($"$Shortcut = $WScriptShell.CreateShortcut($ShortcutLocation); ");
                 sb.AppendLine($"$Shortcut.TargetPath = $SourceFileLocation; ");
-                sb.AppendLine($"$Shortcut.IconLocation  = \"{GetExecutablePath(installPath)}\"; ");
-                sb.AppendLine($"$Shortcut.WorkingDirectory  = \"{Path.GetDirectoryName(GetExecutablePath(installPath))}\"; ");
+                sb.AppendLine($"$Shortcut.IconLocation  = \"{GetClientExePath(installPath)}\"; ");
+                sb.AppendLine($"$Shortcut.WorkingDirectory  = \"{Path.GetDirectoryName(GetClientExePath(installPath))}\"; ");
                 sb.AppendLine($"$Shortcut.Save(); ");
                 var tempFile = Path.GetTempFileName().Replace(".tmp", ".ps1");
                 File.WriteAllText(tempFile, sb.ToString());
@@ -72,17 +89,25 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 process.StartInfo.Arguments = $"-File {tempFile}";
                 process.Start();
+
+                Inventory.Instance.AddFile(shortcutLocation);
+                Inventory.Instance.Save();
             });
         }
 
-        public Task Uninstall(string uninstallInfoFile)
+        public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
         {
-            throw new NotImplementedException();
+            await Uninstaller.Run(progress, dryRun);
         }
 
-        public string GetExecutablePath(string installPath)
+        public string GetClientExePath(string installPath)
         {
             return Path.Combine(installPath, "SQRLDotNetClientUI.exe");
+        }
+
+        public string GetInstallerExePath(string installPath)
+        {
+            return Path.Combine(installPath, "SQRLPlatformAwareInstaller_win.exe");
         }
 
         public DownloadInfo GetDownloadInfoForAsset(GithubRelease selectedRelease)

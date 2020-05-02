@@ -83,6 +83,13 @@
             <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.CheckOut_16x.png"/>
           </MenuItem.Icon>
         </MenuItem>
+        <Separator/>
+        <MenuItem Header="{loc:Localization UninstallMenuItemHeader}" Command="{Binding Uninstall}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.Uninstall_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
+        <Separator/>
         <MenuItem Header="{loc:Localization AboutMenuItemHeader}" Command="{Binding About}">
           <MenuItem.Icon>
             <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.About_16x.png"/>

@@ -35,6 +35,8 @@ namespace SQRLPlatformAwareInstaller
 
             BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);
+
+            Log.Information($"Installer shutting down\r\n\r\n");
         }
 
         // Avalonia configuration, don't remove; also used by visual designer.

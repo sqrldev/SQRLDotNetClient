@@ -15,9 +15,11 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
         private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
         private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
 
-        public async Task Install(string archiveFilePath, string installPath)
+        public async Task Install(string archiveFilePath, string installPath, string versionTag)
         {
             Log.Information($"Installing on macOS to {installPath}");
+            Inventory.Instance.Load();
+
             string fileName = Path.GetTempFileName().Replace(".tmp", ".zip");
 
             await Task.Run(() =>
@@ -27,12 +29,15 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
 
                 Log.Information("Creating initial SQRL application template");
                 Utils.ExtractZipFile(fileName, string.Empty, installPath);
+                File.Delete(fileName);
             });
             
             await Task.Run(() =>
             {
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, Path.Combine(installPath, "SQRL.app/Contents/MacOS"));
+                Inventory.Instance.AddDirectory(Path.Combine(installPath, "SQRL.app"));
+
                 try
                 {
                     Log.Information("Copying installer into installation location (for auto update)");
@@ -42,23 +47,30 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
                 }
                 catch (Exception fc)
                 {
-                    Log.Error($"File copy exception: {fc}");
+                    Log.Error($"File copy exception while copying installer:\r\n{fc}");
                 }
             });
 
             Log.Information("Changing executable file to be executable a+x");
-            _shell.Term($"chmod a+x {GetExecutablePath(installPath)}", Output.Internal);
+            _shell.Term($"chmod a+x {GetClientExePath(installPath)}", Output.Internal);
             _shell.Term($"chmod a+x {Path.Combine(installPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
+
+            Inventory.Instance.Save();
         }
 
-        public Task Uninstall(string uninstallInfoFile)
+        public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
         {
-            throw new NotImplementedException();
+            await Uninstaller.Run(progress, dryRun);
         }
 
-        public string GetExecutablePath(string installPath)
+        public string GetClientExePath(string installPath)
         {
             return Path.Combine(installPath, "SQRL.app/Contents/MacOS", "SQRLDotNetClientUI");
+        }
+
+        public string GetInstallerExePath(string installPath)
+        {
+            return Path.Combine(installPath, "SQRLPlatformAwareInstaller_osx");
         }
 
         public DownloadInfo GetDownloadInfoForAsset(GithubRelease selectedRelease)

@@ -53,6 +53,7 @@
     <AvaloniaResource Remove="Assets\windows.png" />
     <AvaloniaResource Remove="Views\InstallationCompleteView.xaml" />
     <AvaloniaResource Remove="Views\MainInstallView.xaml" />
+    <AvaloniaResource Remove="Views\UninstallView.xaml" />
     <AvaloniaResource Remove="Views\VersionSelectorView.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +82,7 @@
     <None Remove="Assets\windows.png" />
     <None Remove="Views\InstallationCompleteView.xaml" />
     <None Remove="Views\MainInstallView.xaml" />
+    <None Remove="Views\UninstallView.xaml" />
     <None Remove="Views\VersionSelectorView.xaml" />
   </ItemGroup>
   <ItemGroup>
@@ -137,6 +139,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\InstallationCompleteView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\UninstallView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>
