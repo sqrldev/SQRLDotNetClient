@@ -133,11 +133,24 @@ namespace SQRLPlatformAwareInstaller.Models
         }
     }
 
-
+    /// <summary>
+    /// The data model for our installation inventory.
+    /// </summary>
     public class InventoryModel
     {
+        /// <summary>
+        /// A list of directory paths created by the installer.
+        /// </summary>
         public HashSet<string> Directories { get; set; } = new HashSet<string>();
+
+        /// <summary>
+        /// A list of file paths created by the installer.
+        /// </summary>
         public HashSet<string> Files { get; set; } = new HashSet<string>();
+
+        /// <summary>
+        /// A list of registry keys created by the installer.
+        /// </summary>
         public HashSet<string> RegistryKeys { get; set; } = new HashSet<string>();
     }
 }

@@ -105,6 +105,7 @@ namespace SQRLPlatformAwareInstaller.Models
                 }
 
                 progress.Report(new Tuple<int, string>(100, $"Uninstallation complete!"));
+                Log.Information($"Uninstallation completed");
             });
         }
     }
