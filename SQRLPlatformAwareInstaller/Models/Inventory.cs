@@ -1,4 +1,5 @@
-﻿using SQRLCommonUI.Models;
+﻿using Serilog;
+using SQRLCommonUI.Models;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -44,7 +45,11 @@ namespace SQRLPlatformAwareInstaller.Models
         {
             get
             {
-                if (_instance == null) _instance = new Inventory();
+                if (_instance == null)
+                {
+                    Log.Information("Creating singleton Inventory instance");
+                    _instance = new Inventory();
+                }
                 return _instance;
             }
         }
@@ -61,14 +66,21 @@ namespace SQRLPlatformAwareInstaller.Models
         /// </summary>
         public void Load()
         {
+            Log.Information($"Loading inventory");
+
             if (!File.Exists(InventoryFile))
             {
+                Log.Information($"No inventory file found, continuing with empty inventory");
                 this.Data = new InventoryModel();
-                return;
+            }
+            else
+            {
+                Log.Information($"Inventory file found, loading");
+                var json = File.ReadAllText(InventoryFile);
+                this.Data = JsonSerializer.Deserialize<InventoryModel>(json);
             }
 
-            var json = File.ReadAllText(InventoryFile);
-            this.Data = JsonSerializer.Deserialize<InventoryModel>(json);
+            Log.Information($"Inventory contains {this.InventoryItemCount} items");
         }
 
         /// <summary>
@@ -76,6 +88,8 @@ namespace SQRLPlatformAwareInstaller.Models
         /// </summary>
         public void Save()
         {
+            Log.Information($"Saving inventory with {this.InventoryItemCount} items");
+
             JsonSerializerOptions options = new JsonSerializerOptions()
             {
                 WriteIndented = true
@@ -83,6 +97,39 @@ namespace SQRLPlatformAwareInstaller.Models
 
             var json = JsonSerializer.Serialize(this.Data, this.Data.GetType(), options);
             File.WriteAllText(InventoryFile, json);
+        }
+
+        /// <summary>
+        /// Adds a directory path to the inventory. This addition will not be
+        /// saved back to file unil <c>Inventory.Save()</c> is getting called.
+        /// </summary>
+        /// <param name="directory">The full path of the directory to add.</param>
+        public void AddDirectory(string directory)
+        {
+            Log.Information($"Adding directory \"{directory}\" to inventory");
+            Data.Directories.Add(directory);
+        }
+
+        /// <summary>
+        /// Adds a file path to the inventory. This addition will not be
+        /// saved back to file unil <c>Inventory.Save()</c> is getting called.
+        /// </summary>
+        /// <param name="file">The full path of the file to add.</param>
+        public void AddFile(string file)
+        {
+            Log.Information($"Adding file \"{file}\" to inventory");
+            Data.Files.Add(file);
+        }
+
+        /// <summary>
+        /// Adds a file path to the inventory. This addition will not be
+        /// saved back to file unil <c>Inventory.Save()</c> is getting called.
+        /// </summary>
+        /// <param name="regKey">The full path of the registry key to add.</param>
+        public void AddRegistryKey(string regKey)
+        {
+            Log.Information($"Adding registry key \"{regKey}\" to inventory");
+            Data.RegistryKeys.Add(regKey);
         }
     }
 

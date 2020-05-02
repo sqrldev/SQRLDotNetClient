@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,16 +18,12 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
             await Task.Run(() =>
             {
                 Log.Information($"Installing on Windows to {installPath}");
-                Log.Information($"Loading inventory");
                 Inventory.Instance.Load();
-                Log.Information($"Inventory already contains {Inventory.Instance.InventoryItemCount} items");
 
                 // Extract installation archive
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
-
-                Log.Information($"Adding directory \"{installPath}\" to inventory");
-                Inventory.Instance.Data.Directories.Add(installPath);
+                Inventory.Instance.AddDirectory(installPath);
 
                 try
                 {
@@ -45,9 +40,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 Log.Information("Creating registry keys for sqrl:// protocol scheme");
                 using (RegistryKey key = Registry.ClassesRoot.CreateSubKey(@"sqrl"))
                 {
-                    Log.Information($"Adding registry key \"{key.ToString()}\" to inventory");
-                    Inventory.Instance.Data.RegistryKeys.Add(key.ToString());
-
+                    Inventory.Instance.AddRegistryKey(key.ToString());
                     key.SetValue(string.Empty, "URL:SQRL Protocol");
                     key.SetValue("URL Protocol", $"", RegistryValueKind.String);
                 }
@@ -63,9 +56,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 // Create uninstall registry entries
                 using (RegistryKey key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\SQRL OSS Client"))
                 {
-                    Log.Information($"Adding registry key \"{key.ToString()}\" to inventory");
-                    Inventory.Instance.Data.RegistryKeys.Add(key.ToString());
-
+                    Inventory.Instance.AddRegistryKey(key.ToString());
                     key.SetValue("DisplayName", "SQRL Open Source Client");
                     key.SetValue("DisplayVersion", versionTag);
                     key.SetValue("DisplayIcon", $"{GetClientExePath(installPath)},0");
@@ -99,10 +90,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 process.StartInfo.Arguments = $"-File {tempFile}";
                 process.Start();
 
-                Log.Information($"Adding file \"{shortcutLocation}\" to inventory");
-                Inventory.Instance.Data.Files.Add(shortcutLocation);
-
-                Log.Information($"Saving inventory with {Inventory.Instance.InventoryItemCount} items");
+                Inventory.Instance.AddFile(shortcutLocation);
                 Inventory.Instance.Save();
             });
         }
