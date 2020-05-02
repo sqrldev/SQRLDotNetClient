@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using ToolBox.Bridge;
 
 namespace SQRLDotNetClientUI.Platform
 {
@@ -12,6 +13,9 @@ namespace SQRLDotNetClientUI.Platform
     /// </summary>
     public static class Implementation
     {
+        private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
+        private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
+
         /// <summary>
         /// Returns a <c>Type</c> that represents the platform-specific implementation for 
         /// the given type <typeparamref name="T"/>, or <c>null</c> if no implementation
@@ -26,7 +30,17 @@ namespace SQRLDotNetClientUI.Platform
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     return typeof(Win.NotifyIcon);
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                    return typeof(Linux.NotifyIcon);
+                {
+                    // On Linux, we only support a tray icon for Ubuntu,
+                    // sorry folks ¯\_(ツ)_/¯
+                    var response = _shell.Term($"cat /etc/*-release", Output.Internal);
+                    if (!string.IsNullOrEmpty(response.stdout) && 
+                        response.stdout.ToLower().Contains("ubuntu"))
+                    {
+                        return typeof(Linux.NotifyIcon);
+                    }
+                    return null;
+                }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                     return typeof(OSX.NotifyIcon);
                 else return null;
