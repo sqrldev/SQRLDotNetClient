@@ -172,12 +172,12 @@
     <Content Include="Assets\SQRL_icon_normal_64.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.9.7" />
-    <PackageReference Include="Avalonia.Desktop" Version="0.9.7" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.7" />
-    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.9.7" />
-    <PackageReference Include="Avalonia.Xaml.Interactions.Custom" Version="0.9.7" />
-    <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.9.7" />
+    <PackageReference Include="Avalonia" Version="0.9.9" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.9.9" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.9" />
+    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.9.9" />
+    <PackageReference Include="Avalonia.Xaml.Interactions.Custom" Version="0.9.9" />
+    <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.9.9" />
   <PackageReference Include="dein.ToolBox" Version="1.5.4" />
     <PackageReference Include="Eto.Forms" Version="2.5.0" />
     <PackageReference Include="Eto.Platform.Gtk" Version="2.5.0" />
