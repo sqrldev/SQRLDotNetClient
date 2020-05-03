@@ -228,7 +228,6 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             _mainWindow.Close();
 
-            Log.Information("App shutting down");
             ((IClassicDesktopStyleApplicationLifetime)App.Current.ApplicationLifetime)
                 .Shutdown();
         }
