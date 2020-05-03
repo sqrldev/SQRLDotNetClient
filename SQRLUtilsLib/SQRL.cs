@@ -947,6 +947,8 @@ namespace SQRLUtilsLib
         /// encapsulating the site seed as well as the actual ECDH public-private key pair for that particular PIUK.</returns>
         public static Dictionary<byte[], PriorSiteKeysResult> CreatePriorSiteKeys(List<byte[]> oldIUKs, Uri domain, String altID)
         {
+            Log.Information($"Creating prior site keys");
+
             Dictionary<byte[], PriorSiteKeysResult> priorSiteKeys = new Dictionary<byte[], PriorSiteKeysResult>();
             foreach(var oldIUK in oldIUKs)
             {
@@ -970,6 +972,8 @@ namespace SQRLUtilsLib
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
         public static Sodium.KeyPair CreateSiteKey(Uri domain, String altID, byte[] imk, bool test = false)
         {
+            Log.Information($"Creating site key");
+
             byte[] siteSeed = CreateSiteSeed(domain, altID, imk, test);
             Sodium.KeyPair kp = Sodium.PublicKeyAuth.GenerateKeyPair(siteSeed);
 
@@ -987,6 +991,8 @@ namespace SQRLUtilsLib
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
         public static byte[] CreateIndexedSecret(Uri domain, String altID, byte[] imk, byte[] secretIndex, bool test = false)
         {
+            Log.Information($"Creating indexed secret (INS) from domain");
+
             byte[] siteSeed = CreateSiteSeed(domain, altID, imk, test);
             byte[] key = EnHash(siteSeed);
             byte[] indexedSecret = Sodium.SecretKeyAuth.SignHmacSha256(secretIndex, key);
@@ -1003,6 +1009,8 @@ namespace SQRLUtilsLib
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
         public static byte[] CreateIndexedSecret(byte[] siteSeed, byte[] secretIndex, bool test = false)
         {
+            Log.Information($"Creating indexed secret (INS) from existing site seed");
+
             byte[] key = EnHash(siteSeed);
             byte[] indexedSecret = Sodium.SecretKeyAuth.SignHmacSha256(secretIndex, key);
 
@@ -1022,10 +1030,11 @@ namespace SQRLUtilsLib
         /// <param name="test">This is specifically for the vector tests since they don't use the x param (should be fixed).</param>
         private static byte[] CreateSiteSeed(Uri domain, String altID, byte[] imk, bool test = false)
         {
-            byte[] domainBytes = { };
+            Log.Information($"Creating site seed");
 
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
+
+            byte[] domainBytes = { };
             
             if (domain != null)
             {
@@ -1061,8 +1070,9 @@ namespace SQRLUtilsLib
         /// <returns>Returns a <c>SQRLServerResponse</c> object, representing the server's response details.</returns>
         public static SQRLServerResponse GenerateIdentCommand(Uri sqrl, KeyPair siteKP, string priorServerMessaage, string[] opts, out string message, StringBuilder addClientData = null)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
+
+            Log.Information($"Generating ident command");
 
             SQRLServerResponse serverResponse = null;
             message = "";
@@ -1108,6 +1118,8 @@ namespace SQRLUtilsLib
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
         public static SQRLServerResponse GenerateQueryCommand(Uri sqrl, KeyPair siteKP, SQRLOptions opts = null, string encodedServerMessage=null, int count = 0, Dictionary<byte[], PriorSiteKeysResult> priorSiteKeys=null)
         {
+            Log.Information($"Generating query command");
+
             SQRLServerResponse serverResponse = null;
             if(encodedServerMessage==null)
             {
@@ -1147,6 +1159,8 @@ namespace SQRLUtilsLib
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
         public static SQRLServerResponse GenerateNewIdentCommand(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk, SQRLOptions opts = null, StringBuilder sin=null)
         {
+            Log.Information($"Sending new identity with an ident command");
+
             var sukvuk = GetSukVuk(ilk);
             StringBuilder addClientData = new StringBuilder();
             addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Suk, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
@@ -1158,7 +1172,8 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Generates an ident command and sends new SUK and VUK but signs it with the old URS, effectively replacing the old identity with a new rekeyed one.
+        /// Generates an ident command and sends new SUK and VUK but signs it with the old URS, effectively replacing the old 
+        /// identity with a new rekeyed one.
         /// </summary>
         /// <param name="sqrl">The SQRL server URI.</param>
         /// <param name="siteKP">The site-specific ECDH public-private key pair.</param>
@@ -1171,6 +1186,8 @@ namespace SQRLUtilsLib
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
         public static SQRLServerResponse GenerateIdentCommandWithReplace(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ilk, byte[] ursKey, KeyPair priorKey, SQRLOptions opts = null, StringBuilder sin=null)
         {
+            Log.Information($"Sending an ident command for replacing the old identity with a new one");
+
             var sukvuk = GetSukVuk(ilk);
             StringBuilder addClientData = new StringBuilder();
             addClientData.AppendLineWindows($"suk={Sodium.Utilities.BinaryToBase64(sukvuk.Suk, Sodium.Utilities.Base64Variant.UrlSafeNoPadding)}");
@@ -1193,6 +1210,7 @@ namespace SQRLUtilsLib
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
         public static SQRLServerResponse GenerateEnableCommand(Uri sqrl, KeyPair siteKP, string encodedServerMessage, byte[] ursKey, StringBuilder addClientData=null, SQRLOptions opts = null)
         {
+            Log.Information($"Sending \"enable\" command");
             return GenerateSQRLCommand(SQRLCommands.enable, sqrl, siteKP, encodedServerMessage, addClientData, opts,null, ursKey);
         }
 
@@ -1209,8 +1227,9 @@ namespace SQRLUtilsLib
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
         public static SQRLServerResponse GenerateCommand(Uri sqrl, KeyPair siteKP, string priorServerMessage, string command, SQRLOptions opts, StringBuilder addClientData = null, KeyPair priorSiteKP=null)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            Log.Information($"Sending client command");
+
+            SodiumInit();
 
             SQRLServerResponse serverResponse = null;
             
@@ -1255,8 +1274,9 @@ namespace SQRLUtilsLib
         /// <returns>Returns a <c>SQRLServerResponse</c> object representing the server's response details.</returns>
         public static SQRLServerResponse GenerateCommandWithURS(Uri sqrl, KeyPair siteKP, byte[] ursKey, string priorServerMessage, string command, SQRLOptions opts = null, StringBuilder addClientData = null, KeyPair priorMatchedKey=null)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            Log.Information($"Sending command with an unlick request signature");
+
+            SodiumInit();
 
             SQRLServerResponse serverResponse = null;
 
@@ -1324,6 +1344,10 @@ namespace SQRLUtilsLib
         /// and the base64_url-encoded signature.</returns>
         public static SignatureResult GenerateSignature(string signatureID, string encodedServer, string client, byte[] key)
         {
+            Log.Information($"Generating signature");
+
+            SodiumInit();
+
             string encodedClient = Sodium.Utilities.BinaryToBase64(
                 Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
             
@@ -1344,6 +1368,7 @@ namespace SQRLUtilsLib
         /// and the base64_url-encoded signature.</returns>
         public static SignatureResult GenerateURS(string encodedServer, string client, byte[] ursKey)
         {
+            Log.Information($"Generating Unlock Request Signature (URS)");
             return GenerateSignature("urs", encodedServer, client, ursKey);
         }
 
@@ -1358,6 +1383,7 @@ namespace SQRLUtilsLib
         /// and the base64_url-encoded signature.</returns>
         public static SignatureResult GeneratePIDS(string encodedServer, string client, byte[] pidkKey)
         {
+            Log.Information($"Generating Previous Identity Signature (PIDS)");
             return GenerateSignature("pids", encodedServer, client, pidkKey);
         }
 
@@ -1372,6 +1398,7 @@ namespace SQRLUtilsLib
         /// and the base64_url-encoded signature.</returns>
         public static SignatureResult GenerateIDS(string encodedServer, string client, byte[] idkKey)
         {
+            Log.Information($"Generating Identity Signature (IDS)");
             return GenerateSignature("ids", encodedServer, client, idkKey);
         }
 
@@ -1453,8 +1480,7 @@ namespace SQRLUtilsLib
         /// <param name="priorKP">The prior site-specific ECDH public-private key pair.</param>
         private static Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, StringBuilder server, KeyPair priorKP=null)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
 
             string encodedServer = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(server.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
             return GenerateResponse(siteKP, client, encodedServer, priorKP);
@@ -1469,8 +1495,7 @@ namespace SQRLUtilsLib
         /// <param name="priorKP">The prior site-specific ECDH public-private key pair.</param>
         private static Dictionary<string, string> GenerateResponse(KeyPair siteKP, StringBuilder client, string server, KeyPair priorKP = null)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
 
             string encodedClient = Sodium.Utilities.BinaryToBase64(Encoding.UTF8.GetBytes(client.ToString()), Utilities.Base64Variant.UrlSafeNoPadding);
             string encodedServer = server;
@@ -1505,6 +1530,8 @@ namespace SQRLUtilsLib
         /// <returns>Returns a <c>RekeyIdentityResult</c> object containingthe newly generated rescue code and the rekeyed <c>SQRLIdentity</c>.</returns>
         public static async Task<RekeyIdentityResult> RekeyIdentity(SQRLIdentity identity, string rescueCode, string newPassword, Progress<KeyValuePair<int,string>> progressBlock1=null, Progress<KeyValuePair<int, string>> progressBlock2=null)
         {
+            Log.Information($"Rekeying identity");
+
             SQRLIdentity newID = null;
             var oldIukData = await SQRL.DecryptBlock2(identity, rescueCode, progressBlock1);
             string newRescueCode = CreateRescueCode();
@@ -1534,6 +1561,8 @@ namespace SQRLUtilsLib
         /// <param name="newImk">The new Identity Master Key (IMK) under which the newly created block 3 will be encrypted.</param>
         public static void GenerateIdentityBlock3(byte[] oldIuk, SQRLIdentity oldIdentity, SQRLIdentity newID, byte[] oldImk, byte[] newImk)
         {
+            Log.Information($"Generating identity block of type 3");
+
             byte[] decryptedBlock3 = null;
             List<byte> unencryptedOldKeys = new List<byte>();
             unencryptedOldKeys.AddRange(oldIuk);
@@ -1587,6 +1616,8 @@ namespace SQRLUtilsLib
         /// which includes all the PIUKs as well as the authentication tag.</returns>
         public static byte[] DecryptBlock3(byte[] imk, SQRLIdentity identity, out bool allGood)
         {
+            Log.Information($"Decrypting identity block of type 3");
+
             List<byte> plainText = new List<byte>();
             plainText.AddRange(GetBytes(identity.Block3.Length));
             plainText.AddRange(GetBytes(identity.Block3.Type));
