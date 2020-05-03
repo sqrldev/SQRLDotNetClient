@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -167,7 +168,10 @@ namespace SQRLUtilsLib
             {
                 string sqrlHeader = System.Text.Encoding.UTF8.GetString(identityData.Take(8).ToArray());
                 if (!sqrlHeader.Equals(SQRLHEADER, StringComparison.OrdinalIgnoreCase))
+                {
+                    Log.Error($"Error parsing identity from byte array: No SQRL header found!");
                     throw new IOException("Invalid File Exception, not a valid SQRL Identity File");
+                }
                 if (sqrlHeader.Equals(SQRLHEADER.ToUpper())) isBase64 = true;
             }
             else
@@ -294,12 +298,18 @@ namespace SQRLUtilsLib
         public void FromByteArray(byte[] blockData)
         {
             if (blockData.Length < 4)
+            {
+                Log.Error($"Error parsing block from byte array: Invalid block, incorrect number of bytes!");
                 throw new Exception("Invalid Block, incorrect number of bytes");
+            }
             this.Length = BitConverter.ToUInt16(blockData.Take(2).ToArray());
             this.Type = BitConverter.ToUInt16(blockData.Skip(2).Take(2).ToArray());
             
             if (blockData.Length < this.Length)
+            {
+                Log.Error($"Error parsing block from byte array: Invalid block length!");
                 throw new Exception("Invalid Block, incorrect number of bytes");
+            }
             this.BlockData = blockData.Skip(4).Take(this.Length-4).ToArray();
         }
 
@@ -311,7 +321,6 @@ namespace SQRLUtilsLib
             byteAry.AddRange(BlockData);
             return byteAry.ToArray();
         }
-
     }
 
     /// <summary>
@@ -341,7 +350,10 @@ namespace SQRLUtilsLib
         public void FromByteArray(byte[] blockData)
         {
             if (blockData.Length != 68)
+            {
+                Log.Error($"Error parsing block type 0 from byte array: Invalid block length!");
                 throw new Exception("Invalid Block 0, incorrect number of bytes");
+            }
             this.GenesisIdentifier = blockData.Skip(4).Take(32).ToArray();
             this.UniqueIdentifier = blockData.Skip(36).Take(32).ToArray();
         }
@@ -448,7 +460,10 @@ namespace SQRLUtilsLib
         public void FromByteArray(byte[] blockData)
         {
             if (blockData.Length != 125)
+            {
+                Log.Error($"Error parsing block type 1 from byte array: Invalid block length!");
                 throw new Exception("Invalid Block 1, incorrect number of bytes");
+            }
             this.AesGcmInitVector = blockData.Skip(6).Take(12).ToArray();
             this.ScryptRandomSalt = blockData.Skip(18).Take(16).ToArray();
             this.LogNFactor = blockData.Skip(34).Take(1).First();
@@ -528,7 +543,10 @@ namespace SQRLUtilsLib
         public void FromByteArray(byte[] blockData)
         {
             if (blockData.Length != 73)
+            {
+                Log.Error($"Error parsing block type 2 from byte array: Invalid block length!");
                 throw new Exception("Invalid Block 2, incorrect number of bytes");
+            }
             this.RandomSalt = blockData.Skip(4).Take(16).ToArray();
             this.LogNFactor = blockData.Skip(20).Take(1).First();
             this.IterationCount = BitConverter.ToUInt32(blockData.Skip(21).Take(4).ToArray());
@@ -591,7 +609,10 @@ namespace SQRLUtilsLib
         public void FromByteArray(byte[] blockData)
         {
             if (blockData.Length != 54 && blockData.Length != 86 && blockData.Length != 118 && blockData.Length != 150)
+            {
+                Log.Error($"Error parsing block type 3 from byte array: Invalid block length!");
                 throw new Exception("Invalid Block 3, incorrect number of bytes");
+            }
             this.Length = BitConverter.ToUInt16(blockData.Skip(0).Take(2).ToArray());
             this.Edition = BitConverter.ToUInt16(blockData.Skip(4).Take(2).ToArray());
             int skip = 6;

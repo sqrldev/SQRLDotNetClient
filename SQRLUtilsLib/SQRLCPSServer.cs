@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Collections.Concurrent;
 using System.Web;
 using System.Reflection;
+using Serilog;
 
 namespace SQRLUtilsLib
 {
@@ -63,12 +64,10 @@ namespace SQRLUtilsLib
         /// </summary>
         private string _abortHTML = "";
 
-
         /// <summary>
         /// Generic Abort URL
         /// </summary>
         public Uri AbortURL = new Uri($"http://ABORT_ALL_HOPE_LOST");
-
 
         /// <summary>
         /// Holds the header for the generic SQRL Abort Page
@@ -84,8 +83,6 @@ namespace SQRLUtilsLib
         /// Text Link for the Generic SQRL Abort Page
         /// </summary>
         public string CPSAbortLinkText { get; set; }
-
-
 
         /// <summary>
         /// Instanciates a CPS HTTP server on the SQRL default port.
@@ -103,6 +100,8 @@ namespace SQRLUtilsLib
         /// </summary>
         private void Initialize()
         {
+            Log.Information($"Starting CPS server");
+
             _serverThread = new Thread(this.Listen);
             _serverThread.Start();
         }
@@ -114,21 +113,24 @@ namespace SQRLUtilsLib
         {
             try
             {
+                var prefix = "http://localhost:" + this.Port.ToString() + "/";
                 _listener = new HttpListener();
-                _listener.Prefixes.Add("http://localhost:" + this.Port.ToString() + "/");
+                _listener.Prefixes.Add(prefix);
+                Log.Information($"Start listening for CPS requests on {prefix}");
+                
                 _listener.Start();
                 this.Running = true;
+
                 while (true)
                 {
                     try
                     {
-                        Console.WriteLine("Http Listening");
                         HttpListenerContext context = _listener.GetContext();
                         Process(context);
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Error with CPS: {ex}");
+                        Log.Error($"CPS: Error while getting or processing a context:\r\n{ex}");
                     }
                 }
             }
@@ -144,16 +146,15 @@ namespace SQRLUtilsLib
         /// <param name="context">The HTTP context which provides access to the request and response objects.</param>
         private void Process(HttpListenerContext context)
         {
-            Console.WriteLine("Processing Request");
+            Log.Information("CPS: Processing new request");
             string filename = context.Request.Url.AbsolutePath;
             
             string extension = Path.GetExtension(filename);
             //Checking if the request is for a gif. If it is we return a 1x1 clear gif and an OK response
             if(extension.Equals(".gif", StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine($"Got Gif request");
+                Log.Information($"CPS: Handling \"gif\" request");
                 RespondWithGif(context);
-                Console.WriteLine($"Responded to Gif request");
             }
             else //All other requests are handled as a CPS Redirect Request
             {
@@ -169,41 +170,42 @@ namespace SQRLUtilsLib
         /// <param name="context">The HTTP context which provides access to the request and response objects.</param>
         private void RespondWithCPS(HttpListenerContext context)
         {
-            Console.WriteLine($"Got CPS Request");
+            Log.Information($"CPS: Handling CPS request");
             string data = context.Request.Url.AbsolutePath.Substring(1);
             Sodium.SodiumCore.Init();
             Uri cpsData = new Uri(Encoding.UTF8.GetString(Sodium.Utilities.Base64ToBinary(data, "", Sodium.Utilities.Base64Variant.UrlSafeNoPadding)));
             var nvC= HttpUtility.ParseQueryString(cpsData.Query);
 
-            //Get the nut from the CPS Request
+            //Get the nut from the CPS request
             if(nvC["nut"]!=null)
             {
                 this.Nut = nvC["nut"];
             }
 
-            //Try to get the Cancel url from the CPS Request
+            //Try to get the "cancel url" from the CPS request
             if(nvC["can"]!=null)
             {
                 this.Can = new Uri(Encoding.UTF8.GetString(Sodium.Utilities.Base64ToBinary(nvC["can"],string.Empty,Sodium.Utilities.Base64Variant.UrlSafeNoPadding)));
             }
 
-            Console.WriteLine($"Holding here till CPS is Ready");
+            Log.Information($"CPS: Holding here till CPS is ready");
 
             //Hang here until we have a valid CPS then redirect the user
             //Porbably need to figure out how to handle a timeout.
             foreach (var x in cpsBC.GetConsumingEnumerable())
             {
-                Console.WriteLine($"Redirecting To: {x}");
+                Log.Information($"CPS: Redirecting to: {x}");
                 if (x.Equals(this.AbortURL))
                 {
 
                     var htmlData = Encoding.ASCII.GetBytes(this._abortHTML.
-                                                            Replace("{BACKLINK}", this.CPSAbortLinkText).
-                                                            Replace("{HEADER}", this.CPSAbortHeader).
-                                                            Replace("{MESSAGE}", this.CPSAbortMessage));
+                        Replace("{BACKLINK}", this.CPSAbortLinkText).
+                        Replace("{HEADER}", this.CPSAbortHeader).
+                        Replace("{MESSAGE}", this.CPSAbortMessage));
 
                     context.Response.ContentLength64 = htmlData.Length;
                     context.Response.StatusCode= (int)HttpStatusCode.OK;
+
                     using (Stream output = context.Response.OutputStream)
                     {
                         output.Write(htmlData, 0, htmlData.Length);
@@ -219,7 +221,7 @@ namespace SQRLUtilsLib
                 }
                break;
             }
-            Console.WriteLine($"Done with Request");
+            Log.Information($"CPS: Done with request");
         }
 
         /// <summary>
@@ -258,7 +260,6 @@ namespace SQRLUtilsLib
             return Convert.FromBase64String(clearGif1X1);
         }
 
-
         /// <summary>
         /// Handles CPS response for all requests
         /// </summary>
@@ -288,7 +289,6 @@ namespace SQRLUtilsLib
             // Note we want to handle CPS if it already exists, but we don't want to start up the CPS Server for no reason.
             var sqrlIntance = SQRL.GetInstance(false);
             
-
             if (sqrlIntance.cps != null && sqrlIntance.cps.PendingResponse)
             {
                 if (succesUrl == null)

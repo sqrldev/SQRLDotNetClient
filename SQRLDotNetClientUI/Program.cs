@@ -39,6 +39,9 @@ namespace SQRLDotNetClientUI
             Log.Information("New app instance is being launched on {OSDescription}", 
                 RuntimeInformation.OSDescription);
 
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            Log.Information($"Client version: {version.ToString()}");
+
             // Try to detect an existing instance of our app
             using (var mutex = new Mutex(false, mutexId, out bool created))
             {
@@ -79,16 +82,10 @@ namespace SQRLDotNetClientUI
                 }
                 finally
                 {
-                    Log.Information("App shutting down");
-
                     if (hasHandle)
                     {
                         mutex.ReleaseMutex();
                     }
-
-                    HandleAbruptCPS();
-
-
 
                     //Remove the notify icon
                     (App.Current as App).NotifyIcon?.Remove();
@@ -104,27 +101,26 @@ namespace SQRLDotNetClientUI
             }
         }
 
-
         /// <summary>
-        /// Try to capture abrupt process exit to gracefully handle CPS
+        /// Try to capture abrupt process exit to gracefully end any pending CPS requests.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
-            // One of the last ditch efforts at gracefully handling CPS, note there may be no localization here we are at this point throwing a hail marry
+            // One of the last ditch efforts at gracefully handling CPS, note there may be no 
+            // localization here we are at this point throwing a hail mary
             HandleAbruptCPS();
 
+            Log.Information("Client shutting down\r\n\r\n");
         }
 
         /// <summary>
-        /// Handles unclean process exit tries to save CPS
+        /// Handles pending CPS requests to end CPS gracefully.
         /// </summary>
         private static void HandleAbruptCPS()
         {
             try
             {
-                Log.Information("Attempting to End CPS Gracefully from Process Exit Event");
+                Log.Information("Attempting to end CPS gracefully");
                 var _loc = (App.Current as App)?.Localization;
                 if (_loc != null)
                 {
@@ -137,7 +133,7 @@ namespace SQRLDotNetClientUI
             }
             catch (Exception ex)
             {
-                Log.Error("Failed to Cancel CPS Gracefully", ex);
+                Log.Error("Failed to cancel CPS gracefully", ex);
             }
         }
 
