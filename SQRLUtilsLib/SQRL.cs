@@ -37,14 +37,19 @@ namespace SQRLUtilsLib
     {
         private static Lazy<SQRL> _instance = null;
         private static bool SodiumInitialized = false;
-
         private static readonly char[] BASE56_ALPHABETH = { '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
         private const int ENCODING_BASE = 56;
         private const int CLIENT_VERSION = 1;
 
-        
+        /// <summary>
+        /// Represents the "User-Agent" header that will be sent by all HTTP
+        /// queries performed by the library.
+        /// </summary>
+        public static string UserAgentHeader { get; set; } = "OSS SQRL Library for .NET Core";
 
-
+        /// <summary>
+        /// The server component handling the Client-Protected-Session (CPS).
+        /// </summary>
         public SQRLCPSServer cps=null;
 
         /// <summary>
@@ -1021,7 +1026,7 @@ namespace SQRLUtilsLib
             message = "";
             using (HttpClient wc = new HttpClient())
             {
-                wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez SQRL Client");
+                wc.DefaultRequestHeaders.Add("User-Agent", UserAgentHeader);
                 if (opts == null)
                 {
                     opts = new string[]
@@ -1169,7 +1174,7 @@ namespace SQRLUtilsLib
             
             using (HttpClient wc = new HttpClient())
             {
-                wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez SQRL Client");
+                wc.DefaultRequestHeaders.Add("User-Agent", UserAgentHeader);
 
                 StringBuilder client = new StringBuilder();
                 client.AppendLineWindows($"ver={CLIENT_VERSION}");
@@ -1215,7 +1220,7 @@ namespace SQRLUtilsLib
 
             using (HttpClient wc = new HttpClient())
             {
-                wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez's SQRL Client");
+                wc.DefaultRequestHeaders.Add("User-Agent", UserAgentHeader);
 
                 StringBuilder client = new StringBuilder();
                 client.AppendLineWindows($"ver={CLIENT_VERSION}");
@@ -1387,7 +1392,7 @@ namespace SQRLUtilsLib
             }
             using (HttpClient wc = new HttpClient())
             {
-                wc.DefaultRequestHeaders.Add("User-Agent", "Jose Gomez's SQRL Client");
+                wc.DefaultRequestHeaders.Add("User-Agent", UserAgentHeader);
                 var content = new FormUrlEncodedContent(strContent);
                 var response = wc.PostAsync($"https://{sqrlUri.Host}{(sqrlUri.IsDefaultPort ? "" : $":{sqrlUri.Port}")}{sqrlUri.PathAndQuery}", content).Result;
                 var result = response.Content.ReadAsStringAsync().Result;
