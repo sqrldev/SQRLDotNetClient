@@ -39,6 +39,9 @@ namespace SQRLDotNetClientUI
             Log.Information("New app instance is being launched on {OSDescription}", 
                 RuntimeInformation.OSDescription);
 
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            Log.Information($"Client version: {version.ToString()}");
+
             // Try to detect an existing instance of our app
             using (var mutex = new Mutex(false, mutexId, out bool created))
             {
