@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using Serilog;
 
 namespace SQRLUtilsLib
 {
@@ -60,10 +61,15 @@ namespace SQRLUtilsLib
         /// <param name="startCPS">Set to true if the CPS server should be started, or false otherwise.</param>
         private SQRL(bool startCPS=false)
         {
+            Log.Information("Creating new SQRL library instance");
+
             SodiumInit();
 
             if (startCPS)
+            {
+                Log.Information("Starting CPS server");
                 this.cps = new SQRLCPSServer();
+            }
         }
 
         /// <summary>
@@ -88,9 +94,9 @@ namespace SQRLUtilsLib
         /// </summary>
         public static byte[] CreateIUK()
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
 
+            Log.Information($"Creating IUK");
             return Sodium.SodiumCore.GetRandomBytes(32);
         }
 
@@ -99,8 +105,9 @@ namespace SQRLUtilsLib
         /// </summary>
         public static string CreateRescueCode()
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
+
+            Log.Information($"Creating rescue code");
 
             char[] tempBytes = new char[24];
             byte temp;
@@ -129,8 +136,9 @@ namespace SQRLUtilsLib
         /// <param name="SUK">The Server Unlock Key (SUK).</param>
         public static byte[] GetURSKey(byte[] IUK, byte[] SUK)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
+
+            Log.Information($"Creating Unlock Request Signing Key (URSK)");
 
             var bytesToSign = Sodium.ScalarMult.Mult(IUK, SUK);
             var ursKeyPair = Sodium.PublicKeyAuth.GenerateKeyPair(bytesToSign);
@@ -145,9 +153,9 @@ namespace SQRLUtilsLib
         /// <param name="iuk">The identity's Identity Unlock Key (IUK).</param>
         public static byte[] CreateIMK(byte[] iuk)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
 
+            Log.Information($"Creating Identity Master Key (IMK)");
             return EnHash(iuk);
         }
 
@@ -158,9 +166,9 @@ namespace SQRLUtilsLib
         /// <param name="iuk">The identity's Identity Unlock Key (IUK).</param>
         public static byte[] CreateILK(byte[] iuk)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
 
+            Log.Information($"Creating Identity Lock Key (ILK)");
             return Sodium.ScalarMult.Base(iuk);
         }
 
@@ -169,9 +177,9 @@ namespace SQRLUtilsLib
         /// </summary>
         public static byte[] RandomLockKey()
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
 
+            Log.Information($"Creating Random Lock Key (RLK)");
             return Sodium.SodiumCore.GetRandomBytes(32);
         }
 
@@ -182,8 +190,9 @@ namespace SQRLUtilsLib
         /// <param name="ILK">The identity's Identity Lock Key (ILK).</param>
         public static SukVukResult GetSukVuk(byte[] ILK)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
+
+            Log.Information($"Creating SUK/VUK keypair");
 
             var RLK = RandomLockKey();
             var SUK = Sodium.ScalarMult.Base(RLK);
@@ -200,8 +209,12 @@ namespace SQRLUtilsLib
         /// </summary>
         private static void SodiumInit()
         {
-            SodiumCore.Init();
-            SodiumInitialized = true;
+            if (!SodiumInitialized)
+            {
+                Log.Information("Initializing SodiumCore");
+                SodiumCore.Init();
+                SodiumInitialized = true;
+            }
         }
 
         /// <summary>
@@ -214,8 +227,7 @@ namespace SQRLUtilsLib
         /// <param name="data">The input data to be EnHash'ed.</param>
         public static byte[] EnHash(byte[] data)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
 
             byte[] xor = new byte[32];
             for (int i = 0; i < 16; i++)
@@ -251,8 +263,9 @@ namespace SQRLUtilsLib
         public static async Task<EnScryptTimeResult> EnScryptTime(String password, byte[] randomSalt, int logNFactor, int secondsToRun, 
             IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
+
+            Log.Information($"Running EnScryptTime for {secondsToRun} seconds");
 
             byte[] passwordBytes = Encoding.ASCII.GetBytes(password);
             DateTime startTime = DateTime.Now;
@@ -302,11 +315,13 @@ namespace SQRLUtilsLib
         /// <param name="password">The password to hash.</param>
         /// <param name="randomSalt">Random data which is being used as salt for Scrypt.</param>
         /// <param name="logNFactor">Log N Factor for Scrypt.</param>
-        /// <param name="intCount">Number of Scrypt iterations (inclusive).</param>
-        public static async Task<byte[]> EnScryptCT(String password, byte[] randomSalt, int logNFactor, int intCount, IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
+        /// <param name="nrOfIterations">Number of Scrypt iterations (inclusive).</param>
+        public static async Task<byte[]> EnScryptCT(String password, byte[] randomSalt, int logNFactor, int nrOfIterations, 
+            IProgress<KeyValuePair<int, string>> progress = null, string progressText = null)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
+
+            Log.Information($"Running EnScryptCT for {nrOfIterations} iterations");
 
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
             
@@ -314,7 +329,7 @@ namespace SQRLUtilsLib
             {
                 byte[] xorKey = new byte[32];
                 int count = 0;
-                while (count < intCount)
+                while (count < nrOfIterations)
                 {
                     byte[] key = Sodium.PasswordHash.ScryptHashLowLevel(passwordBytes, randomSalt, logNFactor, 256, 1, (uint)32);
 
@@ -334,7 +349,7 @@ namespace SQRLUtilsLib
                     count++;
                     if(progress!=null)
                     {
-                        int prog = (int)(((double)count / (double)intCount) * 100);
+                        int prog = (int)(((double)count / (double)nrOfIterations) * 100);
                         if (progressText == null)
                             progressText = "Encrypting Data:";
                         var reportKvp = new KeyValuePair<int, string>(prog, progressText);
@@ -359,6 +374,8 @@ namespace SQRLUtilsLib
         {
             if (identity == null)
                 throw new ArgumentException("A valid identity must be provided!");
+
+            Log.Information($"Generating identity block of type 0");
 
             if (!identity.HasBlock(0))
                 identity.Blocks.Add(new SQRLBlock0());
@@ -405,8 +422,9 @@ namespace SQRLUtilsLib
         /// <param name="encTime">The time in seconds to run the EnScrypt PBKDF on <paramref name="password"/>. Defaults to 5 seconds.</param>
         public static async Task<SQRLIdentity> GenerateIdentityBlock1(byte[] imk, byte[] ilk, string password, SQRLIdentity identity, IProgress<KeyValuePair<int, string>> progress=null, int encTime=5)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
+
+            Log.Information($"Generating identity block of type 1");
 
             if (!identity.HasBlock(1))
                 identity.Blocks.Add(new SQRLBlock1());
@@ -456,11 +474,12 @@ namespace SQRLUtilsLib
         /// <param name="encTime">The time in seconds to run the memory hard key derivation function (optional, defaults to 5 seconds).</param>
         public static async Task<SQRLIdentity> GenerateIdentityBlock2(byte[] iuk, String rescueCode, SQRLIdentity identity, IProgress<KeyValuePair<int,string>> progress = null, int encTime=5)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
 
             if (!identity.HasBlock(2))
                 identity.Blocks.Add(new SQRLBlock2());
+
+            Log.Information($"Generating identity block of type 2");
 
             byte[] initVector = new byte[12];
             byte[] randomSalt = Sodium.SodiumCore.GetRandomBytes(16);
@@ -534,8 +553,9 @@ namespace SQRLUtilsLib
         /// <param name="key">The key for the AES-GCM encryption.</param>
         public static byte[] AesGcmEncrypt(byte[] message, byte[] additionalData, byte[] iv, byte[] key)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
+
+            Log.Information($"Running AesGcmEncrypt");
 
             //Had to override Sodium Core to allow more than 16 bytes of additional data
             byte[] cipherText = Sodium.SecretAeadAes.Encrypt(message, iv, key, additionalData);
@@ -554,6 +574,7 @@ namespace SQRLUtilsLib
         /// <param name="rescueCode">The unformatted rescue code string.</param>
         public static string FormatRescueCodeForDisplay(string rescueCode)
         {
+            Log.Information($"Formatting rescue code for display");
             return Regex.Replace(rescueCode, ".{4}(?!$)", "$0-");
         }
 
@@ -564,6 +585,7 @@ namespace SQRLUtilsLib
         /// <param name="rescueCode">The formatted rescue code string to be cleaned.</param>
         public static string CleanUpRescueCode(string rescueCode)
         {
+            Log.Information($"Cleaning up rescue code");
             if (!string.IsNullOrEmpty(rescueCode)) return rescueCode.Trim().Replace(" ", "").Replace("-", "");
             else return string.Empty;
         }
@@ -583,6 +605,8 @@ namespace SQRLUtilsLib
         /// <param name="identity">The raw byte data of the identity to be encoded.</param>
         public static string GenerateTextualIdentityBase56(byte[] identity)
         {
+            Log.Information($"Generating textual identity");
+
             int maxLength = (int)Math.Ceiling((double)(identity.Length * 8) / (Math.Log(ENCODING_BASE) / Math.Log(2)));
             BigInteger bigNum = new BigInteger(identity.Concat(new byte[] { (byte)0 }).ToArray());
             List<byte> checksumBytes = new List<byte>();
@@ -624,8 +648,7 @@ namespace SQRLUtilsLib
         /// <param name="dataBytes">The bytes to create the checksum character from.</param>
         public static char GetBase56CheckSum(byte[] dataBytes)
         {
-            if (!SodiumInitialized)
-                SodiumInit();
+            SodiumInit();
 
             byte[] hash = Sodium.CryptoHash.Sha256(dataBytes);
             BigInteger bigI = new BigInteger(hash.Concat(new byte[] { 0 }).ToArray());
@@ -648,6 +671,8 @@ namespace SQRLUtilsLib
         /// <param name="textID">The unformatted textual identity.</param>
         public static string FormatTextualIdentity(char[] textID)
         {
+            Log.Information($"Formatting textual identity");
+
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < textID.Length; i++)
             {
@@ -702,6 +727,8 @@ namespace SQRLUtilsLib
         /// <param name="bypassCheck">If set to <c>true</c>, the result of the verification of the textual identity will be ignored.</param>
         public static byte[] Base56DecodeIdentity(string identityStr, bool bypassCheck = false)
         {
+            Log.Information($"Base56-decoding textual identity");
+
             byte[] identity = null;
             if (VerifyEncodedIdentity(identityStr) || bypassCheck)
             {
@@ -754,7 +781,9 @@ namespace SQRLUtilsLib
         /// <returns>Returns <c>true</c>if the verfification succeeds, and <c>false</c> otherwise.</returns>
         public static bool VerifyEncodedIdentity(string identityStr)
         {
-            //Remove White Space
+            Log.Information($"Verifying textual identity");
+
+            //Remove whitespace
             identityStr = Regex.Replace(identityStr, @"\s+", "").Replace("\r\n", "");
 
             byte lineNr = 0;
@@ -776,11 +805,15 @@ namespace SQRLUtilsLib
                 checkSumBytes.Add((byte)lineNr);
                 char computerCheckSumChar = GetBase56CheckSum(checkSumBytes.ToArray());
                 if (computerCheckSumChar != identityStr[checkSumPosition])
+                {
+                    Log.Warning($"Textual identity verification failed");
                     return false;
+                }
 
                 lineNr++;
             }
 
+            Log.Information($"Textual identity verification succeeded");
             return true;
         }
 
@@ -794,6 +827,8 @@ namespace SQRLUtilsLib
         /// <returns>Returns an object containing the operation's success status, the decrypted IMK and the decrypted ILK.</returns>
         public static async Task<DecryptBlock1Result> DecryptBlock1(SQRLIdentity identity, string password, IProgress<KeyValuePair<int,string>> progress = null)
         {
+            Log.Information($"Decryptin identity block 1");
+
             byte[] key = await EnScryptCT(password, identity.Block1.ScryptRandomSalt, (int)Math.Pow(2, identity.Block1.LogNFactor), (int)identity.Block1.IterationCount, progress, "Decrypting Block 1");
             bool allgood = false;
             List<byte> plainText = new List<byte>();
@@ -841,6 +876,9 @@ namespace SQRLUtilsLib
                     imk = null;
                     allgood = false;
                 }
+
+                if (!allgood) Log.Warning($"Decryption of identity block 1 failed!");
+
                 return new DecryptBlock1Result(allgood, imk, ilk);
             });
         }
@@ -855,6 +893,8 @@ namespace SQRLUtilsLib
         /// <returns>Returns an object representing the operation's success, the decrypted IUK and an optional error message.</returns>
         public static async Task<DecryptBlock2Result> DecryptBlock2(SQRLIdentity identity, string rescueCode, IProgress<KeyValuePair<int, string>> progress = null)
         {
+            Log.Information($"Decrypting identity block 2");
+
             byte[] key = await EnScryptCT(rescueCode, identity.Block2.RandomSalt, (int)Math.Pow(2, identity.Block2.LogNFactor), 
                 (int)identity.Block2.IterationCount, progress,"Decrypting Block 2");
 
@@ -889,6 +929,8 @@ namespace SQRLUtilsLib
                     iuk = null;
                     allGood = false;
                 }
+
+                if (!allGood) Log.Warning($"Decryption of identity block 2 failed!");
 
                 return new DecryptBlock2Result(allGood, iuk, (!allGood ? 
                     "Decryption failed. Bad password or rescue code" : ""));
