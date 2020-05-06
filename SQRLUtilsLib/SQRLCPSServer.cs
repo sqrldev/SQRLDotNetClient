@@ -223,7 +223,7 @@ namespace SQRLUtilsLib
             //Porbably need to figure out how to handle a timeout.
             foreach (var x in cpsBC.GetConsumingEnumerable())
             {
-                Log.Information($"CPS: Redirecting to: {x}");
+                Log.Information($"CPS: Redirecting to (omitting query params): {x.GetLeftPart(UriPartial.Path)}");
                 if (x.Equals(this.AbortURL))
                 {
 
