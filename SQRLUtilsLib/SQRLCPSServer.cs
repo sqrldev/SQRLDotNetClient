@@ -25,13 +25,19 @@ namespace SQRLUtilsLib
     /// </remarks>
     public class SQRLCPSServer
     {
+        private static SQRLCPSServer _instance = null;
         private Thread _serverThread;
         private HttpListener _listener;
         
         /// <summary>
         /// Default SQRL CPS port, do not change. 
         /// </summary>
-        private int Port { get; } =25519;
+        public static int Port { get; } = 25519;
+
+        /// <summary>
+        /// This event fires when a new CPS request arrives.
+        /// </summary>
+        public event EventHandler<CPSRequestReceivedEventArgs> CPSRequestReceived;
 
         /// <summary>
         /// A blocking collection of URLs, used to handle redirection 
@@ -85,9 +91,27 @@ namespace SQRLUtilsLib
         public string CPSAbortLinkText { get; set; }
 
         /// <summary>
-        /// Instanciates a CPS HTTP server on the SQRL default port.
+        /// Gets a singleton <c>SQRLCPSServer</c> instance.
         /// </summary>
-        public SQRLCPSServer()
+        public static SQRLCPSServer Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new SQRLCPSServer();
+                }
+
+                return _instance;
+            }
+        }
+
+        /// <summary>
+        /// Instanciates a CPS HTTP server on the SQRL default port.
+        /// This constructor is private. To get an instance, use
+        /// <c>SQRLCPSServer.Instance</c>.
+        /// </summary>
+        private SQRLCPSServer()
         {
             this.cpsBC = new BlockingCollection<Uri>();
             this.Initialize();
@@ -113,7 +137,7 @@ namespace SQRLUtilsLib
         {
             try
             {
-                var prefix = "http://localhost:" + this.Port.ToString() + "/";
+                var prefix = "http://localhost:" + Port.ToString() + "/";
                 _listener = new HttpListener();
                 _listener.Prefixes.Add(prefix);
                 Log.Information($"Start listening for CPS requests on {prefix}");
@@ -126,7 +150,12 @@ namespace SQRLUtilsLib
                     try
                     {
                         HttpListenerContext context = _listener.GetContext();
-                        Process(context);
+                        CPSRequestReceivedEventArgs e = new CPSRequestReceivedEventArgs(context);
+                        CPSRequestReceived?.Invoke(this, e);
+                        if (e.ProcessEvent)
+                        {
+                            Process(context);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -286,30 +315,53 @@ namespace SQRLUtilsLib
                 backUrlText = "Go Back Now";
             }
 
-            // Note we want to handle CPS if it already exists, but we don't want to start up the CPS Server for no reason.
-            var sqrlIntance = SQRL.GetInstance(false);
-            
-            if (sqrlIntance.cps != null && sqrlIntance.cps.PendingResponse)
+            // Note we want to handle CPS if it already exists, but we don't want to start up the CPS Server for no reason.          
+            if (SQRL.CPS != null && SQRL.CPS.PendingResponse)
             {
                 if (succesUrl == null)
                 {
-                    sqrlIntance.cps.CPSAbortHeader = header;
-                    sqrlIntance.cps.CPSAbortMessage = message;
-                    sqrlIntance.cps.CPSAbortLinkText = backUrlText;
+                    SQRL.CPS.CPSAbortHeader = header;
+                    SQRL.CPS.CPSAbortMessage = message;
+                    SQRL.CPS.CPSAbortLinkText = backUrlText;
 
-                    if (sqrlIntance.cps.Can != null)
-                        sqrlIntance.cps.cpsBC.Add(sqrlIntance.cps.Can);
+                    if (SQRL.CPS.Can != null)
+                        SQRL.CPS.cpsBC.Add(SQRL.CPS.Can);
                     else
-                        sqrlIntance.cps.cpsBC.Add(sqrlIntance.cps.AbortURL);
+                        SQRL.CPS.cpsBC.Add(SQRL.CPS.AbortURL);
                 }
                 else
                 {
-                    sqrlIntance.cps.cpsBC.Add(succesUrl);
+                    SQRL.CPS.cpsBC.Add(succesUrl);
                 }
-                while (sqrlIntance.cps.PendingResponse) ;
+                while (SQRL.CPS.PendingResponse) ;
             }
         }
     }
 
-    
+    /// <summary>
+    /// Provides infomation about a <c>CPSRequestReceived</c> event.
+    /// </summary>
+    public class CPSRequestReceivedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the CPS request's HTTP listener context, providing access to the 
+        /// request and response objects.
+        /// </summary>
+        public HttpListenerContext Context { get; }
+
+        /// <summary>
+        /// If set to <c>true</c>, the CPS request will be processed by the CPS server,
+        /// otherwise it will be silently dropped. Default is <c>true</c>.
+        /// </summary>
+        public bool ProcessEvent { get; set; } = true;
+
+        /// <summary>
+        /// Creates a new instance.
+        /// </summary>
+        /// <param name="request">The CPS request received by the CPS server.</param>
+        public CPSRequestReceivedEventArgs(HttpListenerContext context)
+        {
+            this.Context = context;
+        }
+    }
 }
