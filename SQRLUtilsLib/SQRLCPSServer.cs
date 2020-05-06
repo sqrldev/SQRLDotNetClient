@@ -137,7 +137,7 @@ namespace SQRLUtilsLib
         {
             try
             {
-                var prefix = "http://localhost:" + Port.ToString() + "/";
+                var prefix = $"http://localhost:{Port}/";
                 _listener = new HttpListener();
                 _listener.Prefixes.Add(prefix);
                 Log.Information($"Start listening for CPS requests on {prefix}");
