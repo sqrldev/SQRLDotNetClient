@@ -36,7 +36,6 @@ namespace SQRLUtilsLib
     /// </remarks>
     public class SQRL
     {
-        private static Lazy<SQRL> _instance = null;
         private static bool SodiumInitialized = false;
         private static readonly char[] BASE56_ALPHABETH = { '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
         private const int ENCODING_BASE = 56;
@@ -51,42 +50,18 @@ namespace SQRLUtilsLib
         /// <summary>
         /// The server component handling the Client-Protected-Session (CPS).
         /// </summary>
-        public SQRLCPSServer cps=null;
+        public static SQRLCPSServer CPS = null;
 
         /// <summary>
-        /// Creates a new instance of the SQRL library and optionally
-        /// starts the CPS server. This constructor is private, please use
-        /// <c>SQRL.GetInstance()</c> to obtain a <c>SQRL</c> instance.
-        /// </summary>
-        /// <param name="startCPS">Set to true if the CPS server should be started, or false otherwise.</param>
-        private SQRL(bool startCPS=false)
+        /// Starts the CPS server.
+        /// </summary>        
+        public static void StartCPSServer()
         {
-            Log.Information("Creating new SQRL library instance");
-
-            SodiumInit();
-
-            if (startCPS)
+            if (CPS == null)
             {
-                Log.Information("Starting CPS server");
-                this.cps = new SQRLCPSServer();
+                Log.Information("Creating CPS server");
+                CPS = SQRLCPSServer.Instance;
             }
-        }
-
-        /// <summary>
-        /// Returns a singleton instance of the SQRL library. If an instance
-        /// was already created before, it will be returned instead of creating
-        /// another one. Only on the first call of this method, a new instance 
-        /// will be created.
-        /// </summary>
-        /// <param name="startCPS">Set to true if the CPS server should be started, or false otherwise.</param>
-        public static SQRL GetInstance(bool startCPS = false)
-        {
-            if (_instance == null)
-            {
-                _instance = new Lazy<SQRL>(() => new SQRL(startCPS));
-            }
-
-            return _instance.Value;
         }
 
         /// <summary>

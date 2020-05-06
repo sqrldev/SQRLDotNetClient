@@ -56,7 +56,7 @@ namespace SQRLDotNetClientUI
                             // Existing instance detected, forward the first 
                             // command line argument if present.
                             Log.Information("Existing app instance detected, forwarding data and shutting down");
-                            ForwardToExistingInstance(args.Length > 0 ? args[0] : IPCServer.MAGIC_WAKEUP_STR);
+                            ForwardToExistingInstance(args.Length > 0 ? args[0] : App.MagicWakeupString);
                             Environment.Exit(1);
                         }
                     }
@@ -65,11 +65,8 @@ namespace SQRLDotNetClientUI
                         hasHandle = true;
                     }
 
-
                     // Adds event to handle abrupt program exits and mitigate CPS
                     AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
-
-
 
                     // Perform database migrations
                     SQRLDBContext _db = new SQRLDBContext();

@@ -1,6 +1,4 @@
 ﻿using Avalonia;
-using Avalonia.Threading;
-using SQRLDotNetClientUI.ViewModels;
 using SQRLDotNetClientUI.Views;
 using System;
 using System.Net;
@@ -8,7 +6,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using Serilog;
-using Avalonia.Controls;
 
 namespace SQRLDotNetClientUI.IPC
 {
@@ -27,14 +24,6 @@ namespace SQRLDotNetClientUI.IPC
     public class IPCServer
     {
         private TcpListener _server = null;
-
-        /// <summary>
-        /// The magic wakeup string is sent to an existing app instance
-        /// to signal that the existing instances main window should be shown.
-        /// This is only used if the new instance was started without any 
-        /// command line arguments.
-        /// </summary>
-        public static readonly string MAGIC_WAKEUP_STR = "wakeup!";
 
         /// <summary>
         /// Creates a new <c>IPCServer</c> instance and starts the TCP server
@@ -77,13 +66,12 @@ namespace SQRLDotNetClientUI.IPC
         /// <summary>
         /// Processes incoming IPC data.
         /// </summary>
-        /// <param name="obj">The <c>TcpClient</c> object representing the incoming connection.</param>
-        private void HandleIncomingIPC(Object obj)
+        /// <param name="tcpClient">The <c>TcpClient</c> object representing the incoming connection.</param>
+        private void HandleIncomingIPC(Object tcpClient)
         {
             MainWindow mainWindow = AvaloniaLocator.Current.GetService<MainWindow>();
-            TcpClient client = (TcpClient)obj;
+            TcpClient client = (TcpClient)tcpClient;
             var stream = client.GetStream();
-            string imei = String.Empty;
             string data = null;
             Byte[] bytes = new Byte[256];
             int i;
@@ -94,27 +82,8 @@ namespace SQRLDotNetClientUI.IPC
                     string hex = BitConverter.ToString(bytes);
                     data = Encoding.ASCII.GetString(bytes, 0, i);
 
-                    Log.Information("IPC server received data: {IPCData}", data);
-
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        var mainMenuViewModel = ((MainWindowViewModel)mainWindow.DataContext).MainMenu;
-
-                        if (data == MAGIC_WAKEUP_STR)
-                        {
-                            ((MainWindowViewModel)mainWindow.DataContext).Content = mainMenuViewModel;
-                        }
-                        else
-                        {
-                            AuthenticationViewModel authView = new AuthenticationViewModel(new Uri(data));
-                            mainMenuViewModel.AuthVM = authView;
-                            ((MainWindowViewModel)mainWindow.DataContext).Content = authView;
-                        }
-
-                        Log.Information("IPC server showing main window!");
-
-                        (App.Current as App).RestoreMainWindow();
-                    });
+                    Log.Information("IPC server received data");
+                    (App.Current as App).HandleIPC(data);
                 }
             }
             catch (Exception e)
