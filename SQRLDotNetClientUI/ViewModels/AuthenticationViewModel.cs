@@ -19,7 +19,6 @@ namespace SQRLDotNetClientUI.ViewModels
     /// </summary>
     public class AuthenticationViewModel : ViewModelBase
     {
-        private SQRL _sqrlInstance = SQRL.GetInstance(true);
         private QuickPassManager _quickPassManager = QuickPassManager.Instance;
         private bool _newUpdateAvailable = false;
         private LoginAction _action = LoginAction.Login;
@@ -453,17 +452,20 @@ namespace SQRLDotNetClientUI.ViewModels
                                 siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
                             
                             SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
-                                                           _loc.GetLocalizationValue("CPSAbortMessage"), 
-                                                           _loc.GetLocalizationValue("CPSAbortLinkText"),new Uri(serverResponse.SuccessUrl));
+                                _loc.GetLocalizationValue("CPSAbortMessage"), 
+                                _loc.GetLocalizationValue("CPSAbortLinkText"),
+                                new Uri(serverResponse.SuccessUrl));
                             
                             ShowMainScreenAndClose();
                         }
                         break;
                     case LoginAction.Disable:
                         {
-                            var disableAccountAlert = string.Format(_loc.GetLocalizationValue("DisableAccountAlert"), this.SiteID, Environment.NewLine);
+                            var disableAccountAlert = string.Format(_loc.GetLocalizationValue("DisableAccountAlert"), 
+                                this.SiteID, Environment.NewLine);
                             
-                            var btResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("WarningMessageBoxTitle").ToUpper(),
+                            var btResult = await new MessageBoxViewModel(
+                                _loc.GetLocalizationValue("WarningMessageBoxTitle").ToUpper(),
                                 disableAccountAlert, 
                                 MessageBoxSize.Large, MessageBoxButtons.YesNo, MessageBoxIcons.QUESTION)
                                 .ShowDialog(this);
@@ -474,9 +476,10 @@ namespace SQRLDotNetClientUI.ViewModels
                                 serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, 
                                     siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
 
-                                SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
-                                                               _loc.GetLocalizationValue("CPSAbortMessage"), 
-                                                               _loc.GetLocalizationValue("CPSAbortLinkText"));
+                                SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"),
+                                    _loc.GetLocalizationValue("CPSAbortMessage"), 
+                                    _loc.GetLocalizationValue("CPSAbortLinkText"));
+
                                 ShowMainScreenAndClose();
                             }
                         }
