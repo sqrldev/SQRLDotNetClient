@@ -161,7 +161,12 @@ namespace SQRLUtilsLib
                         // “Origin:” header which is not under the script’s control – and browser page - 
                         // fetch queries do not. Therefore, all SQRL clients must drop any query received 
                         // which contains an “Origin:” header.
-                        if (context.Request.Headers.AllKeys.Contains("Origin")) return;
+                        if (context.Request.Headers.AllKeys.Contains("Origin"))
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                            context.Response.Close();
+                            return;
+                        }
 
                         // Looks like a legit request, so we can continue
                         CPSRequestReceivedEventArgs e = new CPSRequestReceivedEventArgs(context);
