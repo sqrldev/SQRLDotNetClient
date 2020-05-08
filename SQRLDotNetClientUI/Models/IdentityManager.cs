@@ -36,6 +36,9 @@ namespace SQRLDotNetClientUI.Models
             _log.Information("IdentityManager initialized.");
         }
 
+        /// <summary>
+        /// Called from various methods to load DB and initialize defaults.
+        /// </summary>
         public void Initialize()
         {
             _db = SQRLDBContext.Instance;
@@ -303,10 +306,6 @@ namespace SQRLDotNetClientUI.Models
         public event EventHandler<IdentityCountChangedEventArgs> IdentityCountChanged;
 
 
-        public void ReloadDb()
-        {
-            Initialize();
-        }
     }
 
     public class IdentityChangedEventArgs : EventArgs

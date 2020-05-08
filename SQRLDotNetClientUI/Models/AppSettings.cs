@@ -83,6 +83,10 @@ namespace SQRLDotNetClientUI.Models
             Initialize();
         }
 
+
+        /// <summary>
+        /// Called from various methods to load the DB and pull in default values.
+        /// </summary>
         public void Initialize()
         {
             _db = SQRLDBContext.Instance;

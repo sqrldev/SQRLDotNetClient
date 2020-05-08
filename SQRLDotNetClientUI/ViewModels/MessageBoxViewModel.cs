@@ -59,6 +59,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// <param name="messageBoxSize">MessageBox size (width), default is "Medium".</param>
         /// <param name="messageBoxButtons">MessageBox button combiniation to display (default is "OK").</param>
         /// <param name="messageBoxIcon">MessageBox icon to display (default is "OK").</param>
+        /// <param name="customButtons">Array of custom buttons to be used instead of default ones</param>
         public MessageBoxViewModel(string title, string message, MessageBoxSize messageBoxSize = MessageBoxSize.Medium, 
             MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK, MessageBoxIcons messageBoxIcon = MessageBoxIcons.OK, MessageBoxButtonCustom[] customButtons =null)
         {
@@ -171,6 +172,9 @@ namespace SQRLDotNetClientUI.ViewModels
         }
     }
 
+    /// <summary>
+    /// Custom button message class to pass in to our MessageBox
+    /// </summary>
     public class  MessageBoxButtonCustom
     {
         public string Label { get; set; }
@@ -179,6 +183,12 @@ namespace SQRLDotNetClientUI.ViewModels
 
         public bool IsDefault { get; set; }
 
+        /// <summary>
+        /// Creates an instance of MessageBoxButtonCustom
+        /// </summary>
+        /// <param name="label">Label to be shown on button</param>
+        /// <param name="result"> MessageBoxDialogResult to be returned if this button is clicked</param>
+        /// <param name="isDefault">Set the butten as the default choice</param>
         public MessageBoxButtonCustom(string label, MessagBoxDialogResult result, bool isDefault =false)
         {
             this.Label = label;

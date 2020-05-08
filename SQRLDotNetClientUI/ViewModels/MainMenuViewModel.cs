@@ -469,6 +469,9 @@ namespace SQRLDotNetClientUI.ViewModels
             return "";
         }
 
+        /// <summary>
+        /// Allows a user to pick and load or import a sqrl.db file to be used to store application identities and settings
+        /// </summary>
         private async void ImportDB()
         {
             Log.Information("User chose to Import New DB File");
