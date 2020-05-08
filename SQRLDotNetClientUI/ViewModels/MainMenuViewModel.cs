@@ -476,7 +476,7 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             Log.Information("User chose to Import New DB File");
             var ofdDB = new OpenFileDialog();
-            ofdDB.Title = "Select a valid sqrl.db file";
+            ofdDB.Title = _loc.GetLocalizationValue("DbFileTitle");
             FileDialogFilter fdf = new FileDialogFilter();
             fdf.Extensions.Add("db");
             fdf.Name = "sqrl";
@@ -493,11 +493,11 @@ namespace SQRLDotNetClientUI.ViewModels
                 else
                 {
                     var diagResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("GenericQuestionTitle"),
-                           string.Format(_loc.GetLocalizationValue("DbMoveQuestion"), PathConf.FullClientDbPath, result[0], Path.Combine(PathConf.DefaultClientDBPath, "sqrl.db"), Environment.NewLine),
-                           MessageBoxSize.Medium, MessageBoxButtons.Custom, MessageBoxIcons.QUESTION, new MessageBoxButtonCustom[] {
-                                                                                              new MessageBoxButtonCustom(_loc.GetLocalizationValue("DbMoveAndLoad"),MessagBoxDialogResult.CUSTOM1,true),
-                                                                                              new MessageBoxButtonCustom(_loc.GetLocalizationValue("DbJustLoad"),MessagBoxDialogResult.CUSTOM2,false),
-                                                                                              new MessageBoxButtonCustom(_loc.GetLocalizationValue("BtnCancel"),MessagBoxDialogResult.CANCEL,false)})
+                           string.Format(_loc.GetLocalizationValue("DbMoveQuestion"), PathConf.FullClientDbPath, result[0], Path.Combine(PathConf.DefaultClientDBPath, PathConf.DBNAME)),
+                           MessageBoxSize.Medium, MessageBoxButtons.Custom, MessageBoxIcons.QUESTION, new MessageBoxCustomButton [] {
+                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("DbMoveAndLoad"),MessagBoxDialogResult.CUSTOM1,true),
+                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("DbJustLoad"),MessagBoxDialogResult.CUSTOM2,false),
+                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("BtnCancel"),MessagBoxDialogResult.CANCEL,false)})
 
                            .ShowDialog(this);
                     switch (diagResult)
@@ -505,7 +505,7 @@ namespace SQRLDotNetClientUI.ViewModels
                         // Move and Load
                         case MessagBoxDialogResult.CUSTOM1:
                             {
-                                string newDbLocation = Path.Combine(PathConf.DefaultClientDBPath, "sqrl.db");
+                                string newDbLocation = Path.Combine(PathConf.DefaultClientDBPath, PathConf.DBNAME);
                                 Log.Information($"User chose to move Db file from:{result[0]} to {newDbLocation}");
                                 try
                                 {

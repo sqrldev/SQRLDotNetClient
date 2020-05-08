@@ -37,9 +37,9 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
             {
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, Path.Combine(installPath, "SQRL.app/Contents/MacOS"));
-                if (File.Exists(Path.Combine(installPath, "SQRL.app/Contents/MacOS", "sqrl.db")))
+                if (File.Exists(Path.Combine(installPath, "SQRL.app/Contents/MacOS", PathConf.DBNAME)))
                 {
-                    MoveDb(Path.Combine(installPath, "SQRL.app/Contents/MacOS", "sqrl.db"));
+                    Utils.MoveDb(Path.Combine(installPath, "SQRL.app/Contents/MacOS", PathConf.DBNAME));
                 }
               
                 Inventory.Instance.AddDirectory(Path.Combine(installPath, "SQRL.app"));
@@ -88,39 +88,6 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
             };
         }
 
-        /// <summary>
-        /// Moves the Db from the current location to the new user space location
-        /// </summary>
-        /// <param name="currentPath"></param>
-        /// <returns></returns>
-        public bool MoveDb(string currentPath)
-        {
-            Log.Information("Attempting to move the DB to the new User Space Location");
-            bool success = false;
-            if (!Directory.Exists(PathConf.ClientDBPath))
-            {
-                Directory.CreateDirectory(PathConf.ClientDBPath);
-                Inventory.Instance.AddDirectory(PathConf.ClientDBPath);
-            }
-          
-            if (!File.Exists(PathConf.FullClientDbPath))
-            {
-                File.Copy(currentPath, PathConf.FullClientDbPath, false);
-                
-                if (Utils.GetFileHashSha256(PathConf.FullClientDbPath).Equals(Utils.GetFileHashSha256(currentPath)))
-                {
-                    File.Delete(currentPath);
-                    Log.Information($"Successfully moved Db from {currentPath} to {PathConf.FullClientDbPath} ");
-                    success = true;
-                }
-            }
-            else
-            {
-                Log.Warning($"Tried to move the DB, but there is already a Db in place in {PathConf.FullClientDbPath}, not moving forward ");
-                success = false;
-            }
-
-            return success;
-        }
+        
     }
 }

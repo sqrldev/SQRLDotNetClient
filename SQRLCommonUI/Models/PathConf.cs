@@ -15,6 +15,7 @@ namespace SQRLCommonUI.Models
     {
         private static PathConfModel _model = new PathConfModel();
 
+        public static readonly string DBNAME = "sqrl.db";
         
         /// <summary>
         /// The full file path of the config file.
@@ -38,7 +39,7 @@ namespace SQRLCommonUI.Models
             get
             {
                 LoadConfig();
-                return Path.Combine(_model.ClientDBPath, "sqrl.db");
+                return Path.Combine(_model.ClientDBPath, PathConf.DBNAME);
             }
         }
 

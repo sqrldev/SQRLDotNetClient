@@ -22,7 +22,7 @@ namespace SQRLDotNetClientUI.ViewModels
         private string _message = "";
         private string _internalIcon { get; set; } = "resm:SQRLDotNetClientUI.Assets.Icons.ok.png";
 
-        private MessageBoxButtonCustom[] _customButtons;
+        private MessageBoxCustomButton [] _customButtons;
 
         /// <summary>
         /// Gets or sets the message to be displayed.
@@ -61,7 +61,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// <param name="messageBoxIcon">MessageBox icon to display (default is "OK").</param>
         /// <param name="customButtons">Array of custom buttons to be used instead of default ones</param>
         public MessageBoxViewModel(string title, string message, MessageBoxSize messageBoxSize = MessageBoxSize.Medium, 
-            MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK, MessageBoxIcons messageBoxIcon = MessageBoxIcons.OK, MessageBoxButtonCustom[] customButtons =null)
+            MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK, MessageBoxIcons messageBoxIcon = MessageBoxIcons.OK, MessageBoxCustomButton [] customButtons =null)
         {
             _buttonClicked = new AutoResetEvent(false);
             this.Title = title;
@@ -175,7 +175,7 @@ namespace SQRLDotNetClientUI.ViewModels
     /// <summary>
     /// Custom button message class to pass in to our MessageBox
     /// </summary>
-    public class  MessageBoxButtonCustom
+    public class  MessageBoxCustomButton 
     {
         public string Label { get; set; }
 
@@ -189,7 +189,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// <param name="label">Label to be shown on button</param>
         /// <param name="result"> MessageBoxDialogResult to be returned if this button is clicked</param>
         /// <param name="isDefault">Set the butten as the default choice</param>
-        public MessageBoxButtonCustom(string label, MessagBoxDialogResult result, bool isDefault =false)
+        public MessageBoxCustomButton (string label, MessagBoxDialogResult result, bool isDefault =false)
         {
             this.Label = label;
             this.DialogResult = result;

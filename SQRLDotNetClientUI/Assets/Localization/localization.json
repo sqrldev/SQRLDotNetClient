@@ -166,12 +166,12 @@
     { "UninstallMenuItemHeader": "Uninstall this app" },
     { "SwitchDBMenuItemHeader": "Switch Database" },
     { "ReallyUninstallQuestion": "Are you really sure you want to uninstall the SQRL client application from your system?" },
-    { "DbMoveQuestion": "Currently loadded DB File Is:{3}{3}{0}{3}{3}You have chosen to load a new Db File:{3}{3}{1}{3}{3}Would you like to move this new Db File to the default SQRL Path at:{3}{3}{2}{3}{3} and then load it.{3}Or should we just load this new Db in place?" },
+    { "DbMoveQuestion": "Currently loadded DB File Is:\r\n\r\n{0}\r\n\r\nYou have chosen to load a new Db File:\r\n\r\n{1}\r\n\r\nWould you like to move this new Db File to the default SQRL Path at:\r\n\r\n{2}\r\n\r\n and then load it.\r\nOr should we just load this new Db in place?" },
     { "DbMoveAndLoad": "Move it and Load It" },
     { "DbJustLoad": "Just Load It" },
     { "DbFileAlreadyLoaded": "The selected Db File is the same as the currently loaded Db File, try again by selecting a different file" },
-    { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" }
-
+    { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" },
+    { "DbFileTitle": "Select a valid sqrl.db file" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -340,11 +340,12 @@
     { "UninstallMenuItemHeader": "Uninstall this app" },
     { "SwitchDBMenuItemHeader": "Switch Database" },
     { "ReallyUninstallQuestion": "Are you really sure you want to uninstall the SQRL client application from your system?" },
-    { "DbMoveQuestion": "Currently loadded DB File Is:{3}{3}{0}{3}{3}You have chosen to load a new Db File:{3}{3}{1}{3}{3}Would you like to move this new Db File to the default SQRL Path at:{3}{3}{2}{3}{3} and then load it.{3}Or should we just load this new Db in place?" },
+    { "DbMoveQuestion": "Currently loadded DB File Is:\r\n\r\n{0}\r\n\r\nYou have chosen to load a new Db File:\r\n\r\n{1}\r\n\r\nWould you like to move this new Db File to the default SQRL Path at:\r\n\r\n{2}\r\n\r\n and then load it.\r\nOr should we just load this new Db in place?" },
     { "DbMoveAndLoad": "Move it and Load It" },
     { "DbJustLoad": "Just Load It" },
     { "DbFileAlreadyLoaded": "The selected Db File is the same as the currently loaded Db File, try again by selecting a different file" },
-    { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" }
+    { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" },
+    { "DbFileTitle": "Select a valid sqrl.db file" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -513,10 +514,11 @@
     { "UninstallMenuItemHeader": "App deinstallieren" },
     { "SwitchDBMenuItemHeader": "Datenbank ändern" },
     { "ReallyUninstallQuestion": "Sind Sie wirklich sicher, dass Sie die SQRL Client-App deinstallieren möchten?" },
-    { "DbMoveQuestion": "Currently loadded DB File Is:{3}{3}{0}{3}{3}You have chosen to load a new Db File:{3}{3}{1}{3}{3}Would you like to move this new Db File to the default SQRL Path at:{3}{3}{2}{3}{3} and then load it.{3}Or should we just load this new Db in place?" },
+    { "DbMoveQuestion": "Currently loadded DB File Is:\r\n\r\n{0}\r\n\r\nYou have chosen to load a new Db File:\r\n\r\n{1}\r\n\r\nWould you like to move this new Db File to the default SQRL Path at:\r\n\r\n{2}\r\n\r\n and then load it.\r\nOr should we just load this new Db in place?" },
     { "DbMoveAndLoad": "Move it and Load It" },
     { "DbJustLoad": "Just Load It" },
     { "DbFileAlreadyLoaded": "The selected Db File is the same as the currently loaded Db File, try again by selecting a different file" },
-    { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" }
+    { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" },
+    { "DbFileTitle": "Select a valid sqrl.db file" }
   ]
 }

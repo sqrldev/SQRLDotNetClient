@@ -33,9 +33,9 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
 
                 //If the DB Exists in the current install path
-                if (File.Exists(Path.Combine(installPath, "sqrl.db")))
+                if (File.Exists(Path.Combine(installPath, PathConf.DBNAME)))
                 {
-                    MoveDb(Path.Combine(installPath, "sqrl.db"));
+                    Utils.MoveDb(Path.Combine(installPath, PathConf.DBNAME));
                 }
                 
                 Inventory.Instance.AddDirectory(installPath);
@@ -116,38 +116,6 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
         }
 
 
-        /// <summary>
-        /// Moves the Db from the current location to the new user space location
-        /// </summary>
-        /// <param name="currentPath"></param>
-        /// <returns></returns>
-        public bool MoveDb(string currentPath)
-        {
-            bool success = false;
-            if (!Directory.Exists(PathConf.ClientDBPath))
-            {
-                Directory.CreateDirectory(PathConf.ClientDBPath);
-                Inventory.Instance.AddDirectory(PathConf.ClientDBPath);
-            }
-            
-            if (!File.Exists(PathConf.FullClientDbPath))
-            {
-                File.Copy(currentPath, PathConf.FullClientDbPath, false);
-                Inventory.Instance.AddFile(PathConf.FullClientDbPath);
-                if (Utils.GetFileHashSha256(PathConf.FullClientDbPath).Equals(Utils.GetFileHashSha256(currentPath)))
-                {
-                    File.Delete(currentPath);
-                    Log.Information($"Successfully moved Db from {currentPath} to {PathConf.FullClientDbPath} ");
-                    success = true;
-                }
-            }
-            else
-            {
-                Log.Warning($"Tried to move the DB, but there is already a Db in place in {PathConf.FullClientDbPath}, not moving forward ");
-                success = false;
-            }
-
-            return success;
-        }
+        
     }
 }
