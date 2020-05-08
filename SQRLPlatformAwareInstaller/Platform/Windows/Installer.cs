@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -76,30 +77,21 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
 
                 // Create Desktop Shortcut
                 Log.Information("Create Windows desktop shortcut");
+                
                 string shortcutLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "SQRL OSS Client.lnk");
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine($"$SourceFileLocation = \"{GetClientExePath(installPath)}\"; ");
-                sb.AppendLine($"$ShortcutLocation = \"{shortcutLocation}\"; ");
-                sb.AppendLine("$WScriptShell = New-Object -ComObject WScript.Shell; ");
-                sb.AppendLine($"$Shortcut = $WScriptShell.CreateShortcut($ShortcutLocation); ");
-                sb.AppendLine($"$Shortcut.TargetPath = $SourceFileLocation; ");
-                sb.AppendLine($"$Shortcut.IconLocation  = \"{GetClientExePath(installPath)}\"; ");
-                sb.AppendLine($"$Shortcut.WorkingDirectory  = \"{Path.GetDirectoryName(GetClientExePath(installPath))}\"; ");
-                sb.AppendLine($"$Shortcut.Save(); ");
-                var tempFile = Path.GetTempFileName().Replace(".tmp", ".ps1");
-                File.WriteAllText(tempFile, sb.ToString());
-
-                Process process = new Process();
-                process.StartInfo.UseShellExecute = true;
-                process.StartInfo.FileName = "powershell";
-                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                process.StartInfo.Arguments = $"-File {tempFile}";
-                process.Start();
-
+                IShellLink link = (IShellLink)new ShellLink();
+                link.SetDescription("SQRL OSS Client");
+                link.SetPath(GetClientExePath(installPath));
+                link.SetIconLocation(GetClientExePath(installPath), 0);
+                link.SetWorkingDirectory(installPath);
+                IPersistFile iconFile = (IPersistFile)link;
+                iconFile.Save(shortcutLocation, false);
                 Inventory.Instance.AddFile(shortcutLocation);
                 Inventory.Instance.Save();
             });
         }
+
+
 
         public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
         {
