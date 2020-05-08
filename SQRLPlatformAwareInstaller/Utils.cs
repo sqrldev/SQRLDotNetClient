@@ -7,6 +7,8 @@ using Serilog;
 using System.IO;
 using System.Security.AccessControl;
 using Microsoft.Win32;
+using System.Security.Cryptography;
+using SQRLCommonUI.Models;
 
 namespace SQRLPlatformAwareInstaller
 {
@@ -24,14 +26,14 @@ namespace SQRLPlatformAwareInstaller
         {
             bool isAdmin = false;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                isAdmin= getuid() == 0;
+                isAdmin = getuid() == 0;
             else
             {
                 using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
                 {
                     WindowsPrincipal principal = new WindowsPrincipal(identity);
-                    isAdmin= principal.IsInRole(WindowsBuiltInRole.Administrator);
-                    
+                    isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+
                 }
             }
 
@@ -78,12 +80,13 @@ namespace SQRLPlatformAwareInstaller
                         // Manipulate the output filename here as desired.
                         String entryFileName = zipEntry.Name;
                         var fullZipToPath = Path.Combine(outFolder, entryFileName);
-                        
+
                         //Do not over-write the sqrl Db if it exists
-                        if (entryFileName.Equals("sqrl.db", StringComparison.OrdinalIgnoreCase) && File.Exists(fullZipToPath))
+                        if (entryFileName.Equals(PathConf.DBNAME, StringComparison.OrdinalIgnoreCase) && File.Exists(fullZipToPath))
                         {
                             GrantFullFileAccess(fullZipToPath);
                             Log.Information("Found existing SQRL DB, keeping existing");
+
                             continue;
                         }
 
@@ -131,6 +134,7 @@ namespace SQRLPlatformAwareInstaller
 
                 ac.AddAccessRule(fileAccessRule);
                 fi.SetAccessControl(ac);
+
             }
         }
 
@@ -185,9 +189,64 @@ namespace SQRLPlatformAwareInstaller
         public static string GetRegistrySubKey(string keyAsString)
         {
             var index = keyAsString.IndexOf("\\");
-            if (index == -1 || index == keyAsString.Length-1) return null;
+            if (index == -1 || index == keyAsString.Length - 1) return null;
 
-            return keyAsString.Substring(index+1);
+            return keyAsString.Substring(index + 1);
         }
+
+        /// <summary>
+        /// Generates the Hex Sha256 Hash of a File
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string GetFileHashSha256(string path)
+        {
+            SHA256 Sha256 = SHA256.Create();
+            using (FileStream stream = File.OpenRead(path))
+            {
+                return String.Join(String.Empty, Array.ConvertAll(Sha256.ComputeHash(stream), x => x.ToString("X2")));
+            }
+        }
+
+
+
+        /// <summary>
+        /// Moves the Db from the current location to the new user space location
+        /// </summary>
+        /// <param name="currentPath"></param>
+        /// <returns></returns>
+        public static bool MoveDb(string currentPath)
+        {
+            Log.Information($"Attemting to move Db from: {currentPath} to: {PathConf.FullClientDbPath}");
+            bool success = false;
+            if (!Directory.Exists(PathConf.ClientDBPath))
+            {
+                Directory.CreateDirectory(PathConf.ClientDBPath);
+
+                Utils.GrantFullFileAccess(PathConf.ClientDBPath);
+
+
+            }
+
+            if (!File.Exists(PathConf.FullClientDbPath))
+            {
+                File.Copy(currentPath, PathConf.FullClientDbPath, false);
+                Utils.GrantFullFileAccess(PathConf.FullClientDbPath);
+                if (Utils.GetFileHashSha256(PathConf.FullClientDbPath).Equals(Utils.GetFileHashSha256(currentPath)))
+                {
+                    File.Delete(currentPath);
+                    Log.Information($"Successfully moved Db from {currentPath} to {PathConf.FullClientDbPath} ");
+                    success = true;
+                }
+            }
+            else
+            {
+                Log.Warning($"Tried to move the DB, but there is already a Db in place in {PathConf.FullClientDbPath}, not moving forward ");
+                success = false;
+            }
+
+            return success;
+        }
+
     }
 }

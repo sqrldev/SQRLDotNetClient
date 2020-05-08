@@ -12,6 +12,9 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using ToolBox.Bridge;
 using System.Threading.Tasks;
+using Avalonia.Controls;
+using SQRLCommonUI.Models;
+using SQRLDotNetClientUI.DB.DBContext;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -464,6 +467,78 @@ namespace SQRLDotNetClientUI.ViewModels
                 return "SQRLPlatformAwareInstaller_linux";
 
             return "";
+        }
+
+        /// <summary>
+        /// Allows a user to pick and load or import a sqrl.db file to be used to store application identities and settings
+        /// </summary>
+        private async void ImportDB()
+        {
+            Log.Information("User chose to Import New DB File");
+            var ofdDB = new OpenFileDialog();
+            ofdDB.Title = _loc.GetLocalizationValue("DbFileTitle");
+            FileDialogFilter fdf = new FileDialogFilter();
+            fdf.Extensions.Add("db");
+            fdf.Name = "sqrl";
+            ofdDB.Filters.Add(fdf);
+            var result = await ofdDB.ShowAsync(_mainWindow);
+            if (result != null)
+            {
+                Log.Information($"Chose File {result[0]}");
+                if (string.Compare(PathConf.FullClientDbPath.Trim(), result[0].Trim(), true) == 0)
+                {
+                    Log.Error("The chosen file is the same as the currently loaded Db File, Abort");
+                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), _loc.GetLocalizationValue("DbFileAlreadyLoaded"), messageBoxIcon: MessageBoxIcons.ERROR).ShowDialog(this);
+                }
+                else
+                {
+                    var diagResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("GenericQuestionTitle"),
+                           string.Format(_loc.GetLocalizationValue("DbMoveQuestion"), PathConf.FullClientDbPath, result[0], Path.Combine(PathConf.DefaultClientDBPath, PathConf.DBNAME)),
+                           MessageBoxSize.Medium, MessageBoxButtons.Custom, MessageBoxIcons.QUESTION, new MessageBoxCustomButton [] {
+                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("DbMoveAndLoad"),MessagBoxDialogResult.CUSTOM1,true),
+                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("DbJustLoad"),MessagBoxDialogResult.CUSTOM2,false),
+                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("BtnCancel"),MessagBoxDialogResult.CANCEL,false)})
+
+                           .ShowDialog(this);
+                    switch (diagResult)
+                    {
+                        // Move and Load
+                        case MessagBoxDialogResult.CUSTOM1:
+                            {
+                                string newDbLocation = Path.Combine(PathConf.DefaultClientDBPath, PathConf.DBNAME);
+                                Log.Information($"User chose to move Db file from:{result[0]} to {newDbLocation}");
+                                try
+                                {
+                                    SQRLDBContext.DisposeDB();
+                                    File.Move(result[0], newDbLocation, true);
+                                    PathConf.ClientDBPath = Path.GetDirectoryName(newDbLocation);
+                                    Models.AppSettings.Instance.Initialize();
+                                    _identityManager.Initialize();
+                                    ((MainWindowViewModel)_mainWindow.DataContext).Content = new MainMenuViewModel();
+                                }
+                                catch(Exception err)
+                                {
+                                    Log.Error($"Error moving DB File Error: {err.ToString()}");
+                                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), _loc.GetLocalizationValue("DbMoveError"), messageBoxIcon: MessageBoxIcons.ERROR).ShowDialog(this);                                    
+                                }
+                            }
+                            break;
+                        //Just Load
+                        case MessagBoxDialogResult.CUSTOM2:
+                            {
+                                Log.Information($"User chose to load new Db File in Place");
+                                PathConf.ClientDBPath = Path.GetDirectoryName(result[0]);
+                                SQRLDBContext.DisposeDB();
+                                Models.AppSettings.Instance.Initialize();
+                                _identityManager.Initialize();
+                                ((MainWindowViewModel)_mainWindow.DataContext).Content = new MainMenuViewModel();
+                            }
+                            break;
+                    }
+                }
+            }
+            else
+                Log.Information("No Db File Chosen");
         }
     }
 }

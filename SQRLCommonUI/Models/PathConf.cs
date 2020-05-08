@@ -15,6 +15,8 @@ namespace SQRLCommonUI.Models
     {
         private static PathConfModel _model = new PathConfModel();
 
+        public static readonly string DBNAME = "sqrl.db";
+        
         /// <summary>
         /// The full file path of the config file.
         /// </summary>
@@ -30,6 +32,16 @@ namespace SQRLCommonUI.Models
             RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ?
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) :
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "SQRL");
+
+
+        public static string FullClientDbPath
+        {
+            get
+            {
+                LoadConfig();
+                return Path.Combine(_model.ClientDBPath, PathConf.DBNAME);
+            }
+        }
 
         /// <summary>
         /// The default client database directory.
@@ -114,6 +126,9 @@ namespace SQRLCommonUI.Models
             string serialized = JsonSerializer.Serialize(_model, _model.GetType(), options);
             File.WriteAllText(ConfFile, serialized);
         }
+
+
+        
     }
 
     /// <summary>

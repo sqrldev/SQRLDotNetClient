@@ -1,6 +1,7 @@
 ﻿using GitHubApi;
 using Microsoft.Win32;
 using Serilog;
+using SQRLCommonUI.Models;
 using SQRLPlatformAwareInstaller.Models;
 using System;
 using System.Diagnostics;
@@ -23,6 +24,11 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 // Extract installation archive
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
+                if (File.Exists(Path.Combine(installPath, PathConf.DBNAME)))
+                {
+                    Utils.MoveDb(Path.Combine(installPath, PathConf.DBNAME));
+                }
+               
                 Inventory.Instance.AddDirectory(installPath);
 
                 try
@@ -118,5 +124,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 DownloadUrl = selectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().browser_download_url
             };
         }
+
+        
     }
 }

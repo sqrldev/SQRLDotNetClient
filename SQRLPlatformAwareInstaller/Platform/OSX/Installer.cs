@@ -1,5 +1,6 @@
 ﻿using GitHubApi;
 using Serilog;
+using SQRLCommonUI.Models;
 using SQRLPlatformAwareInstaller.Models;
 using System;
 using System.Diagnostics;
@@ -36,6 +37,11 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
             {
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, Path.Combine(installPath, "SQRL.app/Contents/MacOS"));
+                if (File.Exists(Path.Combine(installPath, "SQRL.app/Contents/MacOS", PathConf.DBNAME)))
+                {
+                    Utils.MoveDb(Path.Combine(installPath, "SQRL.app/Contents/MacOS", PathConf.DBNAME));
+                }
+              
                 Inventory.Instance.AddDirectory(Path.Combine(installPath, "SQRL.app"));
 
                 try
@@ -81,5 +87,7 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
                 DownloadUrl = selectedRelease.assets.Where(x => x.name.Contains("osx-x64.zip")).First().browser_download_url
             };
         }
+
+        
     }
 }

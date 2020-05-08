@@ -31,6 +31,13 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
             {
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
+
+                //If the DB Exists in the current install path
+                if (File.Exists(Path.Combine(installPath, PathConf.DBNAME)))
+                {
+                    Utils.MoveDb(Path.Combine(installPath, PathConf.DBNAME));
+                }
+                
                 Inventory.Instance.AddDirectory(installPath);
 
                 Log.Information("Copying installer into installation location (for auto update)");
@@ -107,5 +114,8 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 DownloadUrl = selectedRelease.assets.Where(x => x.name.Contains("linux-x64.zip")).First().browser_download_url
             };
         }
+
+
+        
     }
 }

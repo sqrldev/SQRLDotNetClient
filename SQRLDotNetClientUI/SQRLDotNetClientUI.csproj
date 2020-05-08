@@ -80,6 +80,7 @@
     <None Remove="Assets\Icons\error.png" />
     <None Remove="Assets\Icons\MenuIcons\AddUser_16x.png" />
     <None Remove="Assets\Icons\MenuIcons\CheckOut_16x.png" />
+    <None Remove="Assets\Icons\MenuIcons\db_16x.png" />
     <None Remove="Assets\Icons\MenuIcons\DeleteUser_16x.png" />
     <None Remove="Assets\Icons\MenuIcons\Export_16x.png" />
     <None Remove="Assets\Icons\MenuIcons\Import_16x.png" />
@@ -139,6 +140,7 @@
     <EmbeddedResource Include="Assets\Fonts\UbuntuMono-Regular.ttf" />
     <EmbeddedResource Include="Assets\Icons\MenuIcons\AddUser_16x.png" />
     <EmbeddedResource Include="Assets\Icons\MenuIcons\CheckOut_16x.png" />
+    <EmbeddedResource Include="Assets\Icons\MenuIcons\db_16x.png" />
     <EmbeddedResource Include="Assets\Icons\MenuIcons\DeleteUser_16x.png" />
     <EmbeddedResource Include="Assets\Icons\MenuIcons\Export_16x.png" />
     <EmbeddedResource Include="Assets\Icons\MenuIcons\Import_16x.png" />
@@ -328,10 +330,5 @@
     <EmbeddedResource Include="Views\AppSettingsView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="sqrl.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>
