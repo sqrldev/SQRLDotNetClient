@@ -217,7 +217,7 @@ namespace SQRLPlatformAwareInstaller
         /// <returns></returns>
         public static bool MoveDb(string currentPath)
         {
-            Log.Information($"Attemting to move Db from: {currentPath} to: {PathConf.FullClientDbPath}")
+            Log.Information($"Attemting to move Db from: {currentPath} to: {PathConf.FullClientDbPath}");
             bool success = false;
             if (!Directory.Exists(PathConf.ClientDBPath))
             {
