@@ -69,8 +69,10 @@ namespace SQRLDotNetClientUI
                     AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
 
                     // Perform database migrations
-                    SQRLDBContext _db = new SQRLDBContext();
+                    var _db = SQRLDBContext.Instance;
+                   
                     _db.Database.Migrate();
+                    
 
                     // No existing instance of the app running,
                     // so start the IPC server and run the app

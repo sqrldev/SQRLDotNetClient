@@ -80,7 +80,12 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         private AppSettings()
         {
-            _db = new SQRLDBContext();
+            Initialize();
+        }
+
+        public void Initialize()
+        {
+            _db = SQRLDBContext.Instance;
             _userData = GetUserData();
             Reload();
         }
@@ -131,5 +136,7 @@ namespace SQRLDotNetClientUI.Models
 
             return result;
         }
+
+      
     }
 }

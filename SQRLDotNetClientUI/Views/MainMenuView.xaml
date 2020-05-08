@@ -5,7 +5,8 @@
              xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
              xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
-             x:Class="SQRLDotNetClientUI.Views.MainMenuView">
+             x:Class="SQRLDotNetClientUI.Views.MainMenuView"
+             >
   
   <!-- Start layout -->
 
@@ -90,6 +91,13 @@
           </MenuItem.Icon>
         </MenuItem>
         <Separator/>
+        <MenuItem Header="{loc:Localization SwitchDBMenuItemHeader}" Command="{Binding ImportDB}">
+          <MenuItem.Icon>
+            <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.db_16x.png"/>
+          </MenuItem.Icon>
+        </MenuItem>
+        <Separator/>
+        
         <MenuItem Header="{loc:Localization AboutMenuItemHeader}" Command="{Binding About}">
           <MenuItem.Icon>
             <Image Source="resm:SQRLDotNetClientUI.Assets.Icons.MenuIcons.About_16x.png"/>

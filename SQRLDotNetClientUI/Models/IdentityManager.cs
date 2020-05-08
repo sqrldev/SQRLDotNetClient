@@ -31,11 +31,19 @@ namespace SQRLDotNetClientUI.Models
         /// </summary>
         private IdentityManager()
         {
-            _db = new SQRLDBContext();
-            _currentIdentityDB = GetIdentityInternal(_appSettings.LastLoadedIdentity);
-            if (_currentIdentityDB != null) _currentIdentity = DeserializeIdentity(_currentIdentityDB.DataBytes);
+            Initialize();
 
             _log.Information("IdentityManager initialized.");
+        }
+
+        public void Initialize()
+        {
+            _db = SQRLDBContext.Instance;
+            _currentIdentityDB = GetIdentityInternal(_appSettings.LastLoadedIdentity);
+            if (_currentIdentityDB != null)
+                _currentIdentity = DeserializeIdentity(_currentIdentityDB.DataBytes);
+            else
+                _currentIdentity = null;
         }
 
         /// <summary>
@@ -293,6 +301,12 @@ namespace SQRLDotNetClientUI.Models
         /// This event is raised if the number of available identities changes.
         /// </summary>
         public event EventHandler<IdentityCountChangedEventArgs> IdentityCountChanged;
+
+
+        public void ReloadDb()
+        {
+            Initialize();
+        }
     }
 
     public class IdentityChangedEventArgs : EventArgs

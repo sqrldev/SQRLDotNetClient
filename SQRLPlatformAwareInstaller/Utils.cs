@@ -7,6 +7,7 @@ using Serilog;
 using System.IO;
 using System.Security.AccessControl;
 using Microsoft.Win32;
+using System.Security.Cryptography;
 
 namespace SQRLPlatformAwareInstaller
 {
@@ -24,14 +25,14 @@ namespace SQRLPlatformAwareInstaller
         {
             bool isAdmin = false;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                isAdmin= getuid() == 0;
+                isAdmin = getuid() == 0;
             else
             {
                 using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
                 {
                     WindowsPrincipal principal = new WindowsPrincipal(identity);
-                    isAdmin= principal.IsInRole(WindowsBuiltInRole.Administrator);
-                    
+                    isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+
                 }
             }
 
@@ -78,12 +79,13 @@ namespace SQRLPlatformAwareInstaller
                         // Manipulate the output filename here as desired.
                         String entryFileName = zipEntry.Name;
                         var fullZipToPath = Path.Combine(outFolder, entryFileName);
-                        
+
                         //Do not over-write the sqrl Db if it exists
                         if (entryFileName.Equals("sqrl.db", StringComparison.OrdinalIgnoreCase) && File.Exists(fullZipToPath))
                         {
                             GrantFullFileAccess(fullZipToPath);
                             Log.Information("Found existing SQRL DB, keeping existing");
+
                             continue;
                         }
 
@@ -131,6 +133,7 @@ namespace SQRLPlatformAwareInstaller
 
                 ac.AddAccessRule(fileAccessRule);
                 fi.SetAccessControl(ac);
+
             }
         }
 
@@ -185,9 +188,24 @@ namespace SQRLPlatformAwareInstaller
         public static string GetRegistrySubKey(string keyAsString)
         {
             var index = keyAsString.IndexOf("\\");
-            if (index == -1 || index == keyAsString.Length-1) return null;
+            if (index == -1 || index == keyAsString.Length - 1) return null;
 
-            return keyAsString.Substring(index+1);
+            return keyAsString.Substring(index + 1);
         }
+
+        /// <summary>
+        /// Generates the Hex Sha256 Hash of a File
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string GetFileHashSha256(string path)
+        {
+            SHA256 Sha256 = SHA256.Create();
+            using (FileStream stream = File.OpenRead(path))
+            {
+                return String.Join(String.Empty, Array.ConvertAll(Sha256.ComputeHash(stream), x => x.ToString("X2")));
+            }
+        }
+
     }
 }

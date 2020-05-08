@@ -4,6 +4,7 @@ using Avalonia.Platform;
 using ReactiveUI;
 using SQRLDotNetClientUI.Views;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,6 +21,8 @@ namespace SQRLDotNetClientUI.ViewModels
         private MessagBoxDialogResult _result;
         private string _message = "";
         private string _internalIcon { get; set; } = "resm:SQRLDotNetClientUI.Assets.Icons.ok.png";
+
+        private MessageBoxButtonCustom[] _customButtons;
 
         /// <summary>
         /// Gets or sets the message to be displayed.
@@ -57,13 +60,13 @@ namespace SQRLDotNetClientUI.ViewModels
         /// <param name="messageBoxButtons">MessageBox button combiniation to display (default is "OK").</param>
         /// <param name="messageBoxIcon">MessageBox icon to display (default is "OK").</param>
         public MessageBoxViewModel(string title, string message, MessageBoxSize messageBoxSize = MessageBoxSize.Medium, 
-            MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK, MessageBoxIcons messageBoxIcon = MessageBoxIcons.OK)
+            MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK, MessageBoxIcons messageBoxIcon = MessageBoxIcons.OK, MessageBoxButtonCustom[] customButtons =null)
         {
             _buttonClicked = new AutoResetEvent(false);
             this.Title = title;
             this.Message = message;
             this._messageBoxButtons = messageBoxButtons;
-
+            this._customButtons = customButtons;
             _internalIcon = messageBoxIcon switch
             {
                 MessageBoxIcons.ERROR => "resm:SQRLDotNetClientUI.Assets.Icons.error.png",
@@ -101,7 +104,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 Content = content,
                 Name = name,
                 Margin = new Thickness(10, 0),
-                Width = 60,
+                MinWidth = 60,
                 IsDefault = isDefault
             };
             
@@ -134,6 +137,14 @@ namespace SQRLDotNetClientUI.ViewModels
                         AddButton("No", _loc.GetLocalizationValue("BtnNo"), MessagBoxDialogResult.NO);
                     }
                     break;
+                case MessageBoxButtons.Custom:
+                    {
+                        foreach(var btn in _customButtons)
+                        {
+                            AddButton(Guid.NewGuid().ToString(),btn.Label, btn.DialogResult, btn.IsDefault);
+                        }
+                    }
+                    break;
                 default:
                     {
                         AddButton("OK", _loc.GetLocalizationValue("BtnOK"), MessagBoxDialogResult.OK, isDefault: true);
@@ -157,6 +168,22 @@ namespace SQRLDotNetClientUI.ViewModels
                 _buttonClicked.WaitOne();
                 return _result;
             });
+        }
+    }
+
+    public class  MessageBoxButtonCustom
+    {
+        public string Label { get; set; }
+
+        public MessagBoxDialogResult DialogResult { get; set; }
+
+        public bool IsDefault { get; set; }
+
+        public MessageBoxButtonCustom(string label, MessagBoxDialogResult result, bool isDefault =false)
+        {
+            this.Label = label;
+            this.DialogResult = result;
+            this.IsDefault = isDefault;
         }
     }
 }

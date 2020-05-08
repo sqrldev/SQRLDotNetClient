@@ -89,7 +89,8 @@ namespace SQRLDotNetClientUI.Views
     {
         OK,
         YesNo,
-        OKCancel
+        OKCancel,
+        Custom
     }
 
     /// <summary>
@@ -111,6 +112,10 @@ namespace SQRLDotNetClientUI.Views
         OK,
         NO,
         YES,
-        CANCEL
+        CANCEL,
+        CUSTOM1,
+        CUSTOM2,
+        CUSTOM3,
+        CUSTOM4
     }
 }

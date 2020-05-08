@@ -1,13 +1,46 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Serilog;
+using SQRLCommonUI.Models;
 using SQRLDotNetClientUI.DB.Models;
 using System;
 using System.IO;
 
 namespace SQRLDotNetClientUI.DB.DBContext
 {
-    public class SQRLDBContext: DbContext
+    public sealed class SQRLDBContext: DbContext
     {
+        private static SQRLDBContext _instance;
+
+        /// <summary>
+        /// The constructor is private, use the <Instance>property</Instance>
+        /// to get the singletion class instance.
+        /// </summary>
+        private SQRLDBContext():base()
+        {
+            
+        }
+
+        /// <summary>
+        /// Allows us to dispose the singleton instance if needed to reload the DB File
+        /// </summary>
+        public static void DisposeDB()
+        {
+            _instance.Dispose();
+            _instance = null;
+        }
+
+        /// <summary>
+        /// Gets the singleton <c>SQRLDBContext</c> instance.
+        /// </summary>
+        public static SQRLDBContext Instance
+        {
+            get 
+            {
+                if (_instance == null) _instance = new SQRLDBContext();
+                    return _instance;
+            }
+        }
+
         /// <summary>
         /// Used for saving user state like last loaded identity etc. 
         /// </summary>
@@ -20,13 +53,14 @@ namespace SQRLDotNetClientUI.DB.DBContext
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            var directory = Path.GetDirectoryName(AppContext.BaseDirectory);
-            Log.Information($"DB Directory: {directory}");
-            if (!File.Exists(Path.Combine(directory, "sqrl.db")))
-                directory = "";
-            Console.WriteLine($"{directory}: {File.Exists(Path.Combine(directory, "sqrl.db"))}");
+            if (!Directory.Exists(Path.GetDirectoryName(PathConf.FullClientDbPath)))
+            {
+                Log.Information("Db Directory did not exist, creating");
+                Directory.CreateDirectory(Path.GetDirectoryName(PathConf.FullClientDbPath));
+            }
 
-            options.UseSqlite($"Data Source={Path.Combine(directory,"sqrl.db")}");
+
+            options.UseSqlite($"Data Source={PathConf.FullClientDbPath}");
         }
     }
 }

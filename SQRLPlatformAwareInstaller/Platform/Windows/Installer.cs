@@ -1,6 +1,7 @@
 ﻿using GitHubApi;
 using Microsoft.Win32;
 using Serilog;
+using SQRLCommonUI.Models;
 using SQRLPlatformAwareInstaller.Models;
 using System;
 using System.Diagnostics;
@@ -23,6 +24,11 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 // Extract installation archive
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
+                if (File.Exists(Path.Combine(installPath, "sqrl.db")))
+                {
+                    MoveDb(Path.Combine(installPath, "sqrl.db"));
+                }
+               
                 Inventory.Instance.AddDirectory(installPath);
 
                 try
@@ -117,6 +123,43 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 DownloadSize = Math.Round((selectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().size / 1024M) / 1024M, 2),
                 DownloadUrl = selectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().browser_download_url
             };
+        }
+
+        /// <summary>
+        /// Moves the Db from the current location to the new user space location
+        /// </summary>
+        /// <param name="currentPath"></param>
+        /// <returns></returns>
+        public bool MoveDb(string currentPath)
+        {
+            bool success = false;
+            if (!Directory.Exists(PathConf.ClientDBPath))
+            {
+                Directory.CreateDirectory(PathConf.ClientDBPath);
+                
+                Utils.GrantFullFileAccess(PathConf.ClientDBPath);
+
+                Inventory.Instance.AddDirectory(PathConf.ClientDBPath);
+            }
+            
+            if (!File.Exists(PathConf.FullClientDbPath))
+            {
+                File.Copy(currentPath, PathConf.FullClientDbPath, false);
+                Utils.GrantFullFileAccess(PathConf.FullClientDbPath);
+                if (Utils.GetFileHashSha256(PathConf.FullClientDbPath).Equals(Utils.GetFileHashSha256(currentPath)))
+                {
+                    File.Delete(currentPath);
+                    Log.Information($"Successfully moved Db from {currentPath} to {PathConf.FullClientDbPath} ");
+                    success = true;
+                }
+            }
+            else
+            {
+                Log.Warning($"Tried to move the DB, but there is already a Db in place in {PathConf.FullClientDbPath}, not moving forward ");
+                success = false;
+            }
+            
+            return success;
         }
     }
 }
