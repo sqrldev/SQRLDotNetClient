@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -105,7 +106,25 @@ namespace SQRLCommonUI.Models
             }
             else
             {
-                _model = JsonSerializer.Deserialize<PathConfModel>(File.ReadAllText(ConfFile));
+                try
+                {
+                    _model = JsonSerializer.Deserialize<PathConfModel>(File.ReadAllText(ConfFile));
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error deserializing path config file:\r\n{ex}");
+                }
+                finally
+                {
+                    if (_model == null)
+                        _model = new PathConfModel();
+
+                    if (string.IsNullOrEmpty(_model.ClientInstallPath))
+                        _model.ClientInstallPath = DefaultClientInstallPath;
+
+                    if (string.IsNullOrEmpty(_model.ClientDBPath))
+                        _model.ClientDBPath = DefaultClientDBPath;
+                }
             }
         }
 
