@@ -333,19 +333,37 @@ namespace SQRLDotNetClientUI.ViewModels
             SQRLOptions sqrlOpts = new SQRLOptions(SQRLOptions.SQRLOpts.CPS | SQRLOptions.SQRLOpts.SUK);
             var serverResponse = SQRL.GenerateQueryCommand(this.Site, siteKvp, sqrlOpts, null, 0, priorSiteKeys);
 
-            if (serverResponse.CommandFailed)
+            // Man-In-The-Middle (MITM) attack mitigation
+            var mitmWarningEnabled = _identityManager.CurrentIdentity.Block1.OptionFlags.EnableMITMAttackWarning;
+            if (serverResponse.CommandFailed && !serverResponse.IPMatches && mitmWarningEnabled)
             {
-                
+                // Server indicates an IP mismatch and the user wants to be warned 
+                // of MITM attacks, so show a warning message and give the user a chance to drop out
+
+                var dialogResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("WarningMessageBoxTitle"),
+                    _loc.GetLocalizationValue("MITMAttackWarningMessage"),
+                    MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.WARNING)
+                    .ShowDialog(this);
+
+                if (dialogResult == MessagBoxDialogResult.NO)
+                {
+                    this.IsBusy = false;
+                    ShowMainScreenAndClose();
+                    return;
+                }
+            }
+
+            // Command failed but not due to mitm detection - abort!
+            if (serverResponse.CommandFailed && serverResponse.IPMatches)
+            {
                 var dialogResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                    _loc.GetLocalizationValue("SQRLCommandFailedUnknown"), 
+                    _loc.GetLocalizationValue("SQRLCommandFailedUnknown"),
                     MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
                     .ShowDialog(this);
 
-                if (dialogResult == MessagBoxDialogResult.OK)
-                {
-                    this.IsBusy = false;
-                    return;
-                }
+                this.IsBusy = false;
+                ShowMainScreenAndClose();
+                return;
             }
 
             // New account, ask if they want to create one
