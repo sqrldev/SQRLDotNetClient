@@ -164,14 +164,15 @@
     { "RadButExortWithRescueCode": "Require the super-secure Rescue Code for later decryption and use of the backup for maximum storage security." },
     { "MissingLibGdiPlusErrorMessage": "It seems that you are missing the \"libgdiplus\" library. Some parts of the app will not function correctly until this library is installed.\r\n\r\nYou will find install instructions on the project's Github Wiki." },
     { "UninstallMenuItemHeader": "Uninstall this app" },
-    { "SwitchDBMenuItemHeader": "Switch Database" },
     { "ReallyUninstallQuestion": "Are you really sure you want to uninstall the SQRL client application from your system?" },
+    { "SwitchDBMenuItemHeader": "Switch Database" },
     { "DbMoveQuestion": "Currently loadded DB File Is:\r\n\r\n{0}\r\n\r\nYou have chosen to load a new Db File:\r\n\r\n{1}\r\n\r\nWould you like to move this new Db File to the default SQRL Path at:\r\n\r\n{2}\r\n\r\n and then load it.\r\nOr should we just load this new Db in place?" },
     { "DbMoveAndLoad": "Move it and Load It" },
     { "DbJustLoad": "Just Load It" },
     { "DbFileAlreadyLoaded": "The selected Db File is the same as the currently loaded Db File, try again by selecting a different file" },
     { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" },
-    { "DbFileTitle": "Select a valid sqrl.db file" }
+    { "DbFileTitle": "Select a valid sqrl.db file" },
+    { "MITMAttackWarningMessage": "=== !! WARNING !! ===\r\n\r\nPossible Login Attack Detected\r\n\r\nThe website you were attempting to login to with SQRL may have been \"spoofing\" the actual website's identity in an attempt to capture your SQRL identity and use it to login to the real website as you.\r\n\r\nYou should ONLY be continuing if you know what you are doing!\r\n\r\nProceed with login anyway?" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -338,14 +339,15 @@
     { "RadButExortWithRescueCode": "Require the super-secure Rescue Code for later decryption and use of the backup for maximum storage security." },
     { "MissingLibGdiPlusErrorMessage": "It seems that you are missing the \"libgdiplus\" library. Some parts of the app will not function correctly until this library is installed.\r\n\r\nYou will find install instructions on the project's Github Wiki." },
     { "UninstallMenuItemHeader": "Uninstall this app" },
-    { "SwitchDBMenuItemHeader": "Switch Database" },
     { "ReallyUninstallQuestion": "Are you really sure you want to uninstall the SQRL client application from your system?" },
+    { "SwitchDBMenuItemHeader": "Switch Database" },
     { "DbMoveQuestion": "Currently loadded DB File Is:\r\n\r\n{0}\r\n\r\nYou have chosen to load a new Db File:\r\n\r\n{1}\r\n\r\nWould you like to move this new Db File to the default SQRL Path at:\r\n\r\n{2}\r\n\r\n and then load it.\r\nOr should we just load this new Db in place?" },
     { "DbMoveAndLoad": "Move it and Load It" },
     { "DbJustLoad": "Just Load It" },
     { "DbFileAlreadyLoaded": "The selected Db File is the same as the currently loaded Db File, try again by selecting a different file" },
     { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" },
-    { "DbFileTitle": "Select a valid sqrl.db file" }
+    { "DbFileTitle": "Select a valid sqrl.db file" },
+    { "MITMAttackWarningMessage": "=== !! WARNING !! ===\r\n\r\nPossible Login Attack Detected\r\n\r\nThe website you were attempting to login to with SQRL may have been \"spoofing\" the actual website's identity in an attempt to capture your SQRL identity and use it to login to the real website as you.\r\n\r\nYou should ONLY be continuing if you know what you are doing!\r\n\r\nProceed with login anyway?" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -512,13 +514,14 @@
     { "RadButExortWithRescueCode": "Erfordere den super-sicheren Rettungscode zur späteren Backup-Entschüsselung für maximale Sicherheit." },
     { "MissingLibGdiPlusErrorMessage": "Die wichtige Progrmmbibliothek \"libgdiplus\" fehlt. Einige Teile dieser App funktionieren nicht korrekt, solange diese Bibliothek nicht installiert ist.\r\n\r\nInstallationsanweisungen finden Sie im Projekt-Wiki auf Github." },
     { "UninstallMenuItemHeader": "App deinstallieren" },
-    { "SwitchDBMenuItemHeader": "Datenbank ändern" },
     { "ReallyUninstallQuestion": "Sind Sie wirklich sicher, dass Sie die SQRL Client-App deinstallieren möchten?" },
+    { "SwitchDBMenuItemHeader": "Datenbank ändern" },
     { "DbMoveQuestion": "Currently loadded DB File Is:\r\n\r\n{0}\r\n\r\nYou have chosen to load a new Db File:\r\n\r\n{1}\r\n\r\nWould you like to move this new Db File to the default SQRL Path at:\r\n\r\n{2}\r\n\r\n and then load it.\r\nOr should we just load this new Db in place?" },
     { "DbMoveAndLoad": "Move it and Load It" },
     { "DbJustLoad": "Just Load It" },
     { "DbFileAlreadyLoaded": "The selected Db File is the same as the currently loaded Db File, try again by selecting a different file" },
     { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" },
-    { "DbFileTitle": "Select a valid sqrl.db file" }
+    { "DbFileTitle": "Select a valid sqrl.db file" },
+    { "MITMAttackWarningMessage": "=== !! WARNUNG !! ===\r\n\r\nMöglicher Login-Angriff entdeckt\r\n\r\nSQRL hat festgestellt, dass Sie beim aktuellen Login-Vorgang einem sogenannten \"Spoofing\"-Angriff ausgesetzt sein könnten. Dabei gibt sich eine bösartige Webseite für eine andere aus, um an Ihre Zugangsdaten zu gelangen.\r\n\r\nSie sollten NUR fortfahren, wenn Sie wissen, was Sie tun!\r\n\r\nTrotzdem mit der Anmeldung fortfahren?" }
   ]
 }
