@@ -275,9 +275,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public void Cancel()
         {
-            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
-                                           _loc.GetLocalizationValue("CPSAbortMessage"), 
-                                           _loc.GetLocalizationValue("CPSAbortLinkText"));
+            HandlePendingCPS();
             ShowMainScreenAndClose();
         }
 
@@ -330,22 +328,38 @@ namespace SQRLDotNetClientUI.ViewModels
             var siteKvp = SQRL.CreateSiteKey(this.Site, this.AltID, imk);
 
             var priorSiteKeys = GeneratePriorKeyInfo(imk);
-            SQRLOptions sqrlOpts = new SQRLOptions(SQRLOptions.SQRLOpts.CPS | SQRLOptions.SQRLOpts.SUK);
+            SQRLOptions sqrlOpts = new SQRLOptions(SQRLOptions.SQRLOpts.SUK);
             var serverResponse = SQRL.GenerateQueryCommand(this.Site, siteKvp, sqrlOpts, null, 0, priorSiteKeys);
 
-            if (serverResponse.CommandFailed)
+            // Man-In-The-Middle (MITM) attack mitigation
+            var mitmWarningEnabled = _identityManager.CurrentIdentity.Block1.OptionFlags.EnableMITMAttackWarning;
+            if (serverResponse.CommandFailed && !serverResponse.IPMatches && mitmWarningEnabled)
             {
-                
+                // Server indicates an IP mismatch and the user wants to be warned 
+                // of MITM attacks, so show a warning message and give the user a chance to drop out
+                var dialogResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("WarningMessageBoxTitle"),
+                    _loc.GetLocalizationValue("IPMismatchWarningMessage"),
+                    MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.WARNING)
+                    .ShowDialog(this);
+
+                HandlePendingCPS(serverResponse.SuccessUrl);
+
+                this.IsBusy = false;
+                ShowMainScreenAndClose();
+                return;
+            }
+
+            // Command failed but not due to mitm detection - abort!
+            if (serverResponse.CommandFailed && serverResponse.IPMatches)
+            {
                 var dialogResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"),
-                    _loc.GetLocalizationValue("SQRLCommandFailedUnknown"), 
+                    _loc.GetLocalizationValue("SQRLCommandFailedUnknown"),
                     MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
                     .ShowDialog(this);
 
-                if (dialogResult == MessagBoxDialogResult.OK)
-                {
-                    this.IsBusy = false;
-                    return;
-                }
+                this.IsBusy = false;
+                ShowMainScreenAndClose();
+                return;
             }
 
             // New account, ask if they want to create one
@@ -396,6 +410,7 @@ namespace SQRLDotNetClientUI.ViewModels
                     addClientData = new StringBuilder();
                     addClientData.AppendLineWindows($"btn={askResponse}");
                 }
+
                 if (serverResponse.SQRLDisabled)
                 {
                     var disabledAccountAlert = string.Format(_loc.GetLocalizationValue("SqrlDisabledAlert"), this.SiteID, Environment.NewLine);
@@ -440,22 +455,44 @@ namespace SQRLDotNetClientUI.ViewModels
                             }
                         }
                     }
-
                 }
                 //Here
                 switch (Action)
                 {
                     case LoginAction.Login:
                         {
+                            // Check if CPS is engaged (spoofing protection!)
+                            if (!SQRL.CPS.PendingResponse)
+                            {
+                                // The server doesn't seem to have established a CPS request 
+                                // as it should have by now. We'll have to warn the user.
+
+                                var dialogResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("WarningMessageBoxTitle"),
+                                    _loc.GetLocalizationValue("NoCPSWarningMessage"),
+                                    MessageBoxSize.Medium, MessageBoxButtons.YesNo, MessageBoxIcons.WARNING)
+                                    .ShowDialog(this);
+
+                                if (dialogResult == MessagBoxDialogResult.NO)
+                                {
+                                    this.IsBusy = false;
+                                    ShowMainScreenAndClose();
+                                    return;
+                                }
+                                else
+                                {
+                                    sqrlOpts.CPS = false;
+                                }
+                            }
+                            else
+                            {
+                                sqrlOpts.CPS = true;
+                            }
+
                             addClientData = GenerateINS(imk, serverResponse, addClientData);
                             serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.ident, serverResponse.NewNutURL, 
                                 siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
-                            
-                            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
-                                _loc.GetLocalizationValue("CPSAbortMessage"), 
-                                _loc.GetLocalizationValue("CPSAbortLinkText"),
-                                new Uri(serverResponse.SuccessUrl));
-                            
+
+                            HandlePendingCPS(serverResponse.SuccessUrl);
                             ShowMainScreenAndClose();
                         }
                         break;
@@ -476,10 +513,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                 serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.disable, serverResponse.NewNutURL, 
                                     siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts);
 
-                                SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"),
-                                    _loc.GetLocalizationValue("CPSAbortMessage"), 
-                                    _loc.GetLocalizationValue("CPSAbortLinkText"));
-
+                                HandlePendingCPS();
                                 ShowMainScreenAndClose();
                             }
                         }
@@ -502,9 +536,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                     serverResponse = SQRL.GenerateSQRLCommand(SQRLCommands.remove, serverResponse.NewNutURL, 
                                         siteKvp, serverResponse.FullServerRequest, addClientData, sqrlOpts, null, ursKey);
 
-                                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
-                                                                   _loc.GetLocalizationValue("CPSAbortMessage"),
-                                                                   _loc.GetLocalizationValue("CPSAbortLinkText"));
+                                    HandlePendingCPS();
                                     ShowMainScreenAndClose();
                                 }
                                 else
@@ -521,6 +553,19 @@ namespace SQRLDotNetClientUI.ViewModels
             }
 
             this.IsBusy = false;
+        }
+
+        /// <summary>
+        /// Responds to a potentially pending CPS request, passing in the given <paramref name="successUrl"/>, 
+        /// or a homebrew cancellation URL if no success URL is available.
+        /// </summary>
+        /// <param name="successUrl"></param>
+        private void HandlePendingCPS(string successUrl = null)
+        {
+            SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"),
+                _loc.GetLocalizationValue("CPSAbortMessage"),
+                _loc.GetLocalizationValue("CPSAbortLinkText"),
+                successUrl == null ? null : new Uri(successUrl));
         }
 
         /// <summary>
@@ -580,17 +625,13 @@ namespace SQRLDotNetClientUI.ViewModels
 
                 if (!serverResponse.CommandFailed)
                 {
-                    SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
-                                                   _loc.GetLocalizationValue("CPSAbortMessage"), 
-                                                   _loc.GetLocalizationValue("CPSAbortLinkText"),new Uri(serverResponse.SuccessUrl));
+                    HandlePendingCPS(serverResponse.SuccessUrl);
                     ShowMainScreenAndClose();
                 }
             }
             else
             {
-                SQRLCPSServer.HandlePendingCPS(_loc.GetLocalizationValue("CPSAbortHeader"), 
-                                               _loc.GetLocalizationValue("CPSAbortMessage"), 
-                                               _loc.GetLocalizationValue("CPSAbortLinkText"));
+                HandlePendingCPS();
                 ShowMainScreenAndClose();
             }
 

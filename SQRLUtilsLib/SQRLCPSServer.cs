@@ -317,10 +317,10 @@ namespace SQRLUtilsLib
         /// <param name="succesUrl">Success URL passed in if the response is a successful Auth Ident</param>
         public static void HandlePendingCPS(string header = "", string message = "", string backUrlText = "", Uri succesUrl = null)
         {
-            /* There are some points in the application where all else fails and we still wantt o try and gracefully exit CPS
-             * in these instances we may not have access to the localization so we are hard coding these here as backup
-             * they only get called this way in extreme cases.
-             */
+            // There are some points in the application where all else fails and we still want to try and gracefully exit CPS.
+            // In these instances we may not have access to the localization so we are hardcoding these here as backup.
+            // They only get called this way in extreme cases.
+
             if (string.IsNullOrEmpty(header))
             {
                 header = "Authentication Aborted";
