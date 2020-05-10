@@ -14,7 +14,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
     public static class VcRedistHelper
     {
         /// <summary>
-        /// The direct download link to the Visual C++ Redistributable runtime executable.
+        /// The direct download link to the 64-bit version of the Visual C++ Redistributable runtime installer.
         /// </summary>
         public static readonly string VcRedistDownloadLink = 
             "https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x64.exe";
@@ -59,9 +59,12 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 "vc_redist.x64.exe" : 
                 "vc_redist.x86.exe");
 
+            string downloadUrl = VcRedistDownloadLink;
+            if (!Environment.Is64BitProcess) downloadUrl = downloadUrl.Replace("x64", "x86");
+
             try
             {
-                wc.DownloadFile(VcRedistDownloadLink, downloadedFile);
+                wc.DownloadFile(downloadUrl, downloadedFile);
 
                 Process p = new Process();
                 p.StartInfo.FileName = downloadedFile;
