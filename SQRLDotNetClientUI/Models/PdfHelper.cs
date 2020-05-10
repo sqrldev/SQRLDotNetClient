@@ -125,7 +125,9 @@ namespace SQRLDotNetClientUI.Models
 
             float yPos = MARGIN_TOP;
             string title = "\"" + identity.IdentityName + "\" " + _loc.GetLocalizationValue("FileDialogFilterName");
-            string qrCodeMessage = _loc.GetLocalizationValue("IdentityDocumentQRCodeMessage");
+            string identityEncryptionMessage = blockTypes.Contains(1) ?
+                _loc.GetLocalizationValue("IdentityDocEncMsgPassword") :
+                _loc.GetLocalizationValue("IdentityDocEncMsgRC");
             string textualIdentityMessage = _loc.GetLocalizationValue("IdentityDocumentTextualIdentityMessage");
             string guidanceMessage = _loc.GetLocalizationValue("IdentityDocumentGuidanceMessage");
             var identityBytes = identity.ToByteArray(includeHeader: true, blockTypes);
@@ -155,7 +157,7 @@ namespace SQRLDotNetClientUI.Models
                 float qrCodeXPos = PAGE_WIDTH / 2 - qrCodeWidth / 2;
 
                 yPos += 10 + DrawTextBlock(canvas, title, yPos, _fontBold, 23, SKColors.Black);
-                yPos += -15 + DrawTextBlock(canvas, qrCodeMessage, yPos, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
+                yPos += -15 + DrawTextBlock(canvas, identityEncryptionMessage, yPos, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
                 canvas.DrawBitmap(qrCode, new SKRect(qrCodeXPos, yPos, qrCodeXPos + qrCodeWidth, yPos + qrCodeHeight));
                 yPos += qrCodeHeight + 15;
                 yPos += 10 + DrawTextBlock(canvas, textualIdentityMessage, yPos, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
