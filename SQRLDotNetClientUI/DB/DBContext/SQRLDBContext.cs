@@ -53,9 +53,9 @@ namespace SQRLDotNetClientUI.DB.DBContext
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            if (!Directory.Exists(Path.GetDirectoryName(PathConf.ClientDBPath)))
+            if (!Directory.Exists(PathConf.ClientDBPath))
             {
-                Log.Information("Db Directory did not exist, creating");
+                Log.Information("DB directory did not exist, creating");
                 Directory.CreateDirectory(PathConf.ClientDBPath);
             }
 
