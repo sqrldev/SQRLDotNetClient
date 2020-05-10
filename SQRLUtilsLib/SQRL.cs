@@ -1526,10 +1526,11 @@ namespace SQRLUtilsLib
         }
 
         /// <summary>
-        /// Generates or overwrites the type 3 block within <c>newId</c> using the given <c>oldIuk</c>
-        /// as well as all previous IUKs from the type 3 block of <c>oldIdentity</c> if available.
+        /// Generates a new or overwrites an existing type 3 block within <c>newId</c>, adding the given <c>oldIuk</c>
+        /// (if not <c>null</c>) as well as all previous IUKs from <c>oldIdentity</c> (if available).
         /// </summary>
-        /// <param name="oldIuk">The old Identity Unlock Key (IUK) to add to thenew  type 3 block.</param>
+        /// <param name="oldIuk">The Identity Unlock Key (IUK) that should be added to the type 3 block.
+        /// Just pass <c>null</c> if no additional IUK shall be added.</param>
         /// <param name="oldIdentity">The old identity, whose block 3 which will be be added in with the new identity's block 3.</param>
         /// <param name="newID">The identity which will hold the newly created block 3.</param>
         /// <param name="oldImk">The Identiy Master Key (IMK) of the of the <c>oldIdentity</c>.</param>
@@ -1540,7 +1541,14 @@ namespace SQRLUtilsLib
 
             byte[] decryptedBlock3 = null;
             List<byte> unencryptedOldKeys = new List<byte>();
-            unencryptedOldKeys.AddRange(oldIuk);
+            int oldIukLength = 0;
+
+            if (oldIuk != null)
+            {
+                unencryptedOldKeys.AddRange(oldIuk);
+                oldIukLength = oldIuk.Length;
+            }
+
             int skip = 0;
 
             if (oldIdentity.HasBlock(3) && oldIdentity.Block3.EncryptedPrevIUKs.Count > 0)
@@ -1564,14 +1572,14 @@ namespace SQRLUtilsLib
             }
             List<byte> plainText = new List<byte>();
             ushort oldLength = (ushort)(oldIdentity.HasBlock(3) ? oldIdentity.Block3.Length : 54);
-            ushort newLength = (ushort)(oldLength + 32 > 150 ? 150 : oldLength + 32);
+            ushort newLength = (ushort)(oldLength + oldIukLength > 150 ? 150 : oldLength + oldIukLength);
             plainText.AddRange(GetBytes(newLength));
             if (!newID.HasBlock(3)) newID.Blocks.Add(new SQRLBlock3());
             newID.Block3.Length = newLength;
             plainText.AddRange(GetBytes(newID.Block3.Type));
             plainText.AddRange(GetBytes((ushort)(unencryptedOldKeys.Count / 32)));
             newID.Block3.Edition = (ushort)(unencryptedOldKeys.Count / 32);
-            byte[] result = AesGcmEncrypt(unencryptedOldKeys.ToArray(), plainText.ToArray(),new byte[12], newImk);
+            byte[] result = AesGcmEncrypt(unencryptedOldKeys.ToArray(), plainText.ToArray(), new byte[12], newImk);
             skip = 0;
             while (skip+16 < result.Length)
             {
