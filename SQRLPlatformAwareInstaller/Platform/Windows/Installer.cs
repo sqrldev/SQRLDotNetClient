@@ -21,7 +21,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 Log.Information($"Installing on Windows to {installPath}");
 
                 Log.Information($"Checking for Visual C++ redistributable runtime");
-                if (VcRedistHelper.IsRuntimeInstalled())
+                if (!VcRedistHelper.IsRuntimeInstalled())
                 {
                     Log.Warning("Visual C++ redistributable not found, installing");
                     var exitCode = VcRedistHelper.InstallRuntime();
