@@ -172,7 +172,8 @@
     { "DbFileAlreadyLoaded": "The selected Db File is the same as the currently loaded Db File, try again by selecting a different file" },
     { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" },
     { "DbFileTitle": "Select a valid sqrl.db file" },
-    { "MITMAttackWarningMessage": "=== !! WARNING !! ===\r\n\r\nPossible Login Attack Detected\r\n\r\nThe website you were attempting to login to with SQRL may have been \"spoofing\" the actual website's identity in an attempt to capture your SQRL identity and use it to login to the real website as you.\r\n\r\nYou should ONLY be continuing if you know what you are doing!\r\n\r\nProceed with login anyway?" }
+    { "IPMismatchWarningMessage": "=== !! WARNING !! ===\r\n\r\nPossible Login Attack Detected\r\n(IP Mismatch)\r\n\r\nThe website you were attempting to login to with SQRL may have been \"spoofing\" the actual website's identity in an attempt to capture your SQRL identity and use it to login to the real website as you.\r\n\r\nAborting login." },
+    { "NoCPSWarningMessage": "=== !! WARNING !! ===\r\n\r\nMissing Identity Spoof Protection\r\n(No CPS)\r\n\r\nThe website you were attempting to login to with SQRL may have been \"spoofing\" the actual website's identity in an attempt to capture your SQRL identity and use it to login to the real website as you.\r\n\r\nYou should ONLY be continuing if you know what you are doing!\r\n\r\nProceed with login anyway?" }
   ],
   "en-US": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -347,7 +348,8 @@
     { "DbFileAlreadyLoaded": "The selected Db File is the same as the currently loaded Db File, try again by selecting a different file" },
     { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" },
     { "DbFileTitle": "Select a valid sqrl.db file" },
-    { "MITMAttackWarningMessage": "=== !! WARNING !! ===\r\n\r\nPossible Login Attack Detected\r\n\r\nThe website you were attempting to login to with SQRL may have been \"spoofing\" the actual website's identity in an attempt to capture your SQRL identity and use it to login to the real website as you.\r\n\r\nYou should ONLY be continuing if you know what you are doing!\r\n\r\nProceed with login anyway?" }
+    { "IPMismatchWarningMessage": "=== !! WARNING !! ===\r\n\r\nPossible Login Attack Detected\r\n(IP Mismatch)\r\n\r\nThe website you were attempting to login to with SQRL may have been \"spoofing\" the actual website's identity in an attempt to capture your SQRL identity and use it to login to the real website as you.\r\n\r\nAborting login." },
+    { "NoCPSWarningMessage": "=== !! WARNING !! ===\r\n\r\nMissing Identity Spoof Protection\r\n(No CPS)\r\n\r\nThe website you were attempting to login to with SQRL may have been \"spoofing\" the actual website's identity in an attempt to capture your SQRL identity and use it to login to the real website as you.\r\n\r\nYou should ONLY be continuing if you know what you are doing!\r\n\r\nProceed with login anyway?" }
   ],
   "de-DE": [
     { "SQRLTag": "Secure Quick Reliable Login" },
@@ -522,6 +524,7 @@
     { "DbFileAlreadyLoaded": "The selected Db File is the same as the currently loaded Db File, try again by selecting a different file" },
     { "DbMoveError": "There was an error moving the Db file as requested, please try again. Error: {0}" },
     { "DbFileTitle": "Select a valid sqrl.db file" },
-    { "MITMAttackWarningMessage": "=== !! WARNUNG !! ===\r\n\r\nMöglicher Login-Angriff entdeckt\r\n\r\nSQRL hat festgestellt, dass Sie beim aktuellen Login-Vorgang einem sogenannten \"Spoofing\"-Angriff ausgesetzt sein könnten. Dabei gibt sich eine bösartige Webseite für eine andere aus, um an Ihre Zugangsdaten zu gelangen.\r\n\r\nSie sollten NUR fortfahren, wenn Sie wissen, was Sie tun!\r\n\r\nTrotzdem mit der Anmeldung fortfahren?" }
+    { "IPMismatchWarningMessage": "=== !! WARNUNG !! ===\r\n\r\nMöglicher Login-Angriff entdeckt (SameIP)\r\n\r\nSQRL hat festgestellt, dass Sie beim aktuellen Login-Vorgang einem sogenannten \"Spoofing\"-Angriff ausgesetzt sein könnten. Dabei gibt sich eine bösartige Webseite für eine andere aus, um Ihre Online-Identität zu stehlen.\r\n\r\nLogin-Vorgang abgebrochen." },
+    { "NoCPSWarningMessage": "=== !! WARNUNG !! ===\r\n\r\nFehlender \"Spoofing\"-Schutz (kein CPS)\r\n\r\nSQRL hat festgestellt, dass Sie beim aktuellen Login-Vorgang einem sogenannten \"Spoofing\"-Angriff ausgesetzt sein könnten. Dabei gibt sich eine bösartige Webseite für eine andere aus, um Ihre Online-Identität zu stehlen.\r\n\r\nSie sollten NUR fortfahren, wenn Sie wissen, was Sie tun!\r\n\r\nTrotzdem mit der Anmeldung fortfahren?" }
   ]
 }
