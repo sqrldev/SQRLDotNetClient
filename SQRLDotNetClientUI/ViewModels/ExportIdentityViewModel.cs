@@ -22,6 +22,7 @@ namespace SQRLDotNetClientUI.ViewModels
         private Avalonia.Media.Imaging.Bitmap _qrImage;
         private bool _exportWithPassword = true;
         private bool _showQrCode = false;
+        private bool _showBackButton = true;
 
         /// <summary>
         /// Gets a list of block types to export depending on the export
@@ -74,12 +75,23 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether or not to display the
+        /// "back" button in the UI.
+        /// </summary>
+        public bool ShowBackButton
+        {
+            get { return _showBackButton; }
+            set { this.RaiseAndSetIfChanged(ref _showBackButton, value); }
+        }
+
+        /// <summary>
         /// Creates a new instance and initializes.
         /// </summary>
-        public ExportIdentityViewModel()
+        public ExportIdentityViewModel(bool showBackButton = false)
         {
             this.QRImage = null;
             this.Title = _loc.GetLocalizationValue("ExportIdentityWindowTitle");
+            this.ShowBackButton = showBackButton;
             this.Identity = _identityManager.CurrentIdentity;
 
             this.WhenAnyValue(x => x.ExportWithPassword)

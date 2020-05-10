@@ -44,7 +44,7 @@
     <StackPanel DockPanel.Dock="Bottom">
       
       <DockPanel>
-        <Button Content="{loc:Localization BtnBack}" Command="{Binding Back}" DockPanel.Dock="Left" Width="120" HorizontalAlignment="Left" />
+        <Button Content="{loc:Localization BtnBack}" Command="{Binding Back}" IsVisible="{Binding ShowBackButton}" DockPanel.Dock="Left" Width="120" HorizontalAlignment="Left" />
         <Button Content="{loc:Localization BtnDone}" Command="{Binding Done}" DockPanel.Dock="Right" Width="120" HorizontalAlignment="Right" />
       </DockPanel>
 
