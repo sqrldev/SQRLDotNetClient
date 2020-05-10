@@ -22,12 +22,13 @@
         <RowDefinition />
         <RowDefinition />
         <RowDefinition />
+        <RowDefinition />
       </Grid.RowDefinitions>
       
       <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="50" HorizontalAlignment="Right" 
              VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Margin="10"></Image>
       
-      <TextBlock Text="{loc:Localization ImportSetupMessage}" Margin="10" FontSize="15" TextWrapping="Wrap" 
+      <TextBlock Text="{Binding ImportSetupMessage}" Margin="10" FontSize="15" TextWrapping="Wrap" 
                  Grid.Row="0" Grid.Column="1"/>
 
       <TextBlock Text="{loc:Localization IdentityNameLabel}" Margin="10,10,0,10" Grid.Row="1" Grid.Column="0" Width="90"/>
@@ -37,15 +38,18 @@
         </i:Interaction.Behaviors>
       </loc:CopyPasteTextBox>
 
-      <TextBlock Text="{loc:Localization RescueCodeLabel}" Margin="10,10,0,10" Grid.Row="2" Grid.Column="0" Width="90"/>
-      <loc:CopyPasteTextBox Margin="10,0,10,10" Text="{Binding RescueCode}" Width="250" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1"  />
+      <TextBlock Text="{loc:Localization PasswordLabel}" IsVisible="{Binding ImportWithPassword}" Margin="10,10,0,10" Grid.Row="2" Grid.Column="0" Width="90"/>
+      <loc:CopyPasteTextBox Margin="10,0,10,10" Text="{Binding Password}" IsVisible="{Binding ImportWithPassword}" PasswordChar="*" Width="250" HorizontalAlignment="Left" Grid.Row="2" Grid.Column="1"  />
+
+      <TextBlock Text="{loc:Localization RescueCodeLabel}" IsVisible="{Binding !ImportWithPassword}" Margin="10,10,0,10" Grid.Row="3" Grid.Column="0" Width="90"/>
+      <loc:CopyPasteTextBox Margin="10,0,10,10" Text="{Binding RescueCode}" IsVisible="{Binding !ImportWithPassword}" Width="250" HorizontalAlignment="Left" Grid.Row="3" Grid.Column="1"  />
       
     </Grid>
 
     <v:NewPasswordWidget DockPanel.Dock="Top" Margin="10"
                          NewPassword="{Binding NewPassword}"
                          NewPasswordVerification="{Binding NewPasswordVerification}"
-                         PasswordsMatch="{Binding PasswordsMatch}" />
+                         PasswordsMatch="{Binding PasswordsMatch}" IsVisible="{Binding !ImportWithPassword}"/>
 
     <DockPanel DockPanel.Dock="Bottom" Margin="10">
       <Button Content="{loc:Localization BtnCancel}" Margin="10" Command="{Binding Cancel}" Width="90" HorizontalAlignment="Left" DockPanel.Dock="Left" />
