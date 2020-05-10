@@ -15,9 +15,12 @@ namespace SQRLDotNetClientUI.ViewModels
     public class ImportIdentitySetupViewModel : ViewModelBase
     {
         private bool _canSave = true;
+        private bool _importWithPassword = true;
         private bool _passwordsMatch = true;
+        private string _password = "";
         private string _newPassword = "";
         private string _newPasswordVerification = "";
+        private string _importSetupMessage = "";
 
         /// <summary>
         /// The SQRL identity to be imported.
@@ -45,6 +48,23 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets if the identity to be imported has a block
+        /// of type 1 and can therefore be imported using the password,
+        /// or if the rescue code is required.
+        /// </summary>
+        public bool ImportWithPassword
+        {
+            get => _importWithPassword;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _importWithPassword, value);
+                this.ImportSetupMessage = value ?
+                    _loc.GetLocalizationValue("ImportSetupMessagePassword") :
+                    _loc.GetLocalizationValue("ImportSetupMessageRescueCode");
+            }
+        }
+
+        /// <summary>
         /// Gets or sets if the new password and the password 
         /// verification are equal.
         /// </summary>
@@ -56,6 +76,15 @@ namespace SQRLDotNetClientUI.ViewModels
                 this.RaiseAndSetIfChanged(ref _passwordsMatch, value);
                 this.CanSave = value;
             }
+        }
+
+        /// <summary>
+        /// The master password of the identity to be imported.
+        /// </summary>
+        public string Password
+        {
+            get => _password;
+            set => this.RaiseAndSetIfChanged(ref _password, value);
         }
 
         /// <summary>
@@ -77,6 +106,15 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         /// <summary>
+        /// The message to display at the top of the import setup screen.
+        /// </summary>
+        public string ImportSetupMessage
+        {
+            get => _importSetupMessage;
+            set => this.RaiseAndSetIfChanged(ref _importSetupMessage, value);
+        }
+
+        /// <summary>
         /// Creates a new <c>ImportIdentitySetupViewModel</c> instance.
         /// </summary>
         public ImportIdentitySetupViewModel()
@@ -91,8 +129,9 @@ namespace SQRLDotNetClientUI.ViewModels
         /// <param name="identity">The identity to be imported.</param>
         public ImportIdentitySetupViewModel(SQRLIdentity identity)
         {
-            Init();
             this.Identity = identity;
+            this.ImportWithPassword = this.Identity.HasBlock(1);
+            Init();
         }
 
         /// <summary>
@@ -126,61 +165,91 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         public async void VerifyAndImportIdentity()
         {
-            var progressBlock1 = new Progress<KeyValuePair<int, string>>();
-            var progressBlock2 = new Progress<KeyValuePair<int, string>>();
-            var progressDecryptBlock2 = new Progress<KeyValuePair<int, string>>();
+            var prgEncBlock1 = new Progress<KeyValuePair<int, string>>();
+            var prgEncBlock2 = new Progress<KeyValuePair<int, string>>();
+            var prgDecBlock1 = new Progress<KeyValuePair<int, string>>();
+            var prgDecBlock2 = new Progress<KeyValuePair<int, string>>();
 
-            var progressDialog = new ProgressDialogViewModel(new List<Progress<KeyValuePair<int, string>>>() { 
-                progressBlock1, progressBlock2, progressDecryptBlock2 }, this);
+            List<Progress<KeyValuePair<int, string>>> progressList = this.ImportWithPassword ?
+                new List<Progress<KeyValuePair<int, string>>>() { prgEncBlock1, prgDecBlock1 } :
+                new List<Progress<KeyValuePair<int, string>>>() { prgEncBlock1, prgEncBlock2, prgDecBlock2 };
+
+            var progressDialog = new ProgressDialogViewModel(progressList, this);
             progressDialog.ShowDialog();
-            
 
-            var iukData = await SQRL.DecryptBlock2(
-                this.Identity, SQRL.CleanUpRescueCode(this.RescueCode), progressDecryptBlock2);
+            SQRLIdentity newId = this.Identity.Clone();
 
-            if (iukData.DecryptionSucceeded)
+            if (this.ImportWithPassword)
             {
-                SQRLIdentity newId = this.Identity.Clone();
-                byte[] imk = SQRL.CreateIMK(iukData.Iuk);
+                var block1Keys = await SQRL.DecryptBlock1(this.Identity, this.Password, prgDecBlock1);
 
-                if (!newId.HasBlock(0)) SQRL.GenerateIdentityBlock0(imk, newId);
-                var block1 = SQRL.GenerateIdentityBlock1(iukData.Iuk, this.NewPassword, newId, progressBlock1);
-                var block2 = SQRL.GenerateIdentityBlock2(iukData.Iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, progressBlock2);
-                await Task.WhenAll(block1, block2);
-                
-                progressDialog.Close();
-
-                if (newId.HasBlock(3)) SQRL.GenerateIdentityBlock3(iukData.Iuk, this.Identity, newId, imk, imk); 
-
-                newId.IdentityName = this.IdentityName;
-
-                try
+                if (!block1Keys.DecryptionSucceeded)
                 {
-                    _identityManager.ImportIdentity(newId, true);
-                }
-                catch (InvalidOperationException e)
-                {
+                    progressDialog.Close();
+
                     var btnRsult = await new MessageBoxViewModel(
-                        _loc.GetLocalizationValue("ErrorTitleGeneric"), e.Message,
+                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                        _loc.GetLocalizationValue("InvalidPasswordMessage"),
                         MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
                         .ShowDialog(this);
+
+                    return;
                 }
-                finally
-                {
-                    ((MainWindowViewModel)_mainWindow.DataContext).Content =
-                    ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
-                }
+
+                if (!newId.HasBlock(0)) SQRL.GenerateIdentityBlock0(block1Keys.Imk, newId);
+
+                newId = await SQRL.GenerateIdentityBlock1(block1Keys.Imk, block1Keys.Ilk, 
+                    this.Password, newId, prgEncBlock1);
+
+                if (newId.HasBlock(3)) SQRL.GenerateIdentityBlock3(
+                    null, this.Identity, newId, block1Keys.Imk, block1Keys.Imk);
             }
             else
             {
-                
-                progressDialog.Close();
+                var iukData = await SQRL.DecryptBlock2(this.Identity, 
+                    SQRL.CleanUpRescueCode(this.RescueCode), prgDecBlock2);
 
+                if (!iukData.DecryptionSucceeded)
+                {
+                    progressDialog.Close();
+
+                    var btnRsult = await new MessageBoxViewModel(
+                        _loc.GetLocalizationValue("ErrorTitleGeneric"),
+                        _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                        MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                        .ShowDialog(this);
+
+                    return;
+                }
+
+                byte[] imk = SQRL.CreateIMK(iukData.Iuk);
+
+                if (!newId.HasBlock(0)) SQRL.GenerateIdentityBlock0(imk, newId);
+                var block1 = SQRL.GenerateIdentityBlock1(iukData.Iuk, this.NewPassword, newId, prgEncBlock1);
+                var block2 = SQRL.GenerateIdentityBlock2(iukData.Iuk, SQRL.CleanUpRescueCode(this.RescueCode), newId, prgEncBlock2);
+                await Task.WhenAll(block1, block2);
+
+                if (newId.HasBlock(3)) SQRL.GenerateIdentityBlock3(iukData.Iuk, this.Identity, newId, imk, imk);
+            }
+
+            progressDialog.Close();
+            newId.IdentityName = this.IdentityName;
+
+            try
+            {
+                _identityManager.ImportIdentity(newId, true);
+            }
+            catch (InvalidOperationException e)
+            {
                 var btnRsult = await new MessageBoxViewModel(
-                    _loc.GetLocalizationValue("ErrorTitleGeneric"),
-                    _loc.GetLocalizationValue("InvalidRescueCodeMessage"),
+                    _loc.GetLocalizationValue("ErrorTitleGeneric"), e.Message,
                     MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
                     .ShowDialog(this);
+            }
+            finally
+            {
+                ((MainWindowViewModel)_mainWindow.DataContext).Content =
+                    ((MainWindowViewModel)_mainWindow.DataContext).MainMenu;
             }
         }
     }
