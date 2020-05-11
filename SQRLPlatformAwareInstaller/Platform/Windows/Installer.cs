@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SQRLPlatformAwareInstaller.Platform.Windows
@@ -20,11 +19,25 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
             await Task.Run(() =>
             {
                 Log.Information($"Installing on Windows to {installPath}");
+
+                Log.Information($"Checking for Visual C++ redistributable runtime");
+                if (!VcRedistHelper.IsRuntimeInstalled())
+                {
+                    Log.Warning("Visual C++ redistributable not found, installing");
+                    var exitCode = VcRedistHelper.InstallRuntime();
+                    Log.Information($"Installation of Visual C++ redistributable returned with exit code {exitCode}");
+                }
+                else
+                    Log.Information("Visual C++ redistributable was found");
+
                 Inventory.Instance.Load();
 
                 // Extract installation archive
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
+
+                // Check if a database exists in the installation directory 
+                // (which is bad) and if it does, move it to user space.
                 if (File.Exists(Path.Combine(installPath, PathConf.DBNAME)))
                 {
                     Utils.MoveDb(Path.Combine(installPath, PathConf.DBNAME));
