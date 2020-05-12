@@ -51,6 +51,7 @@ namespace SQRLPlatformAwareInstaller
         {
             if (!Directory.Exists(outFolder))
             {
+                Log.Information($"Creating folder \"{outFolder}\"");
                 Directory.CreateDirectory(outFolder);
             }
 
