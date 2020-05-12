@@ -1,5 +1,7 @@
 ﻿using ReactiveUI;
+using Serilog;
 using System.Diagnostics;
+using System.IO;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -9,7 +11,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
     /// </summary>
     public class InstallationCompleteViewModel: ViewModelBase
     {
-        private string _installPath = "";
+        private string _clientExePath = "";
         private bool _launchOnFinish = true;
 
         /// <summary>
@@ -31,9 +33,13 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             Init();
         }
 
-        public InstallationCompleteViewModel(string installPath)
+        /// <summary>
+        /// Creates a new instance and passes in the <paramref name="clientExePath"/>.
+        /// </summary>
+        /// <param name="clientExePath">The full path to the client executable.</param>
+        public InstallationCompleteViewModel(string clientExePath)
         {
-            this._installPath = installPath;
+            this._clientExePath = clientExePath;
             Init();
         }
 
@@ -50,9 +56,9 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// </summary>
         public void Finish()
         {
-            if(this.LaunchOnFinish)
+            if (this.LaunchOnFinish)
             {
-                LaunchSQRL(this._installPath);
+                LaunchSQRL();
             }
             System.Environment.Exit(0);
         }
@@ -60,11 +66,12 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <summary>
         /// Launches the freshly installed SQRL client app.
         /// </summary>
-        /// <param name="installPath"></param>
-        private void LaunchSQRL(string installPath)
+        private void LaunchSQRL()
         {
+            Log.Information($"Launching client from installer");
             var process = new Process();
-            process.StartInfo.FileName = installPath;
+            process.StartInfo.FileName = _clientExePath;
+            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(_clientExePath);
             process.StartInfo.UseShellExecute = true;
             process.Start();
         }
