@@ -16,6 +16,8 @@
       "BtnFinish": "Finish",
       "InstallStatusInstalling": "Installing...",
       "InstallStatusDownloading": "Downloading...",
+      "InstallStatusWaitingForClientExit": "Waiting for SQRL client to be closed...",
+      "InstallStatusError": "Error during installion, please check log file and report to devs!",
       "SchemaRegistrationWarning": "WARNING: Exising sqrl:// schema registration found, if you proceed, it will be overwritten!",
       "SelectInstallVersionLabel": "Select version to install:",
       "DescriptionLabel": "Description:",
@@ -48,6 +50,8 @@
       "BtnFinish": "Finish",
       "InstallStatusInstalling": "Installing...",
       "InstallStatusDownloading": "Downloading...",
+      "InstallStatusWaitingForClientExit": "Waiting for SQRL client to be closed...",
+      "InstallStatusError": "Error during installion, please check log file and report to devs!",
       "SchemaRegistrationWarning": "WARNING: Exising sqrl:// schema registration found, if you proceed, it will be overwritten!",
       "SelectInstallVersionLabel": "Select version to install:",
       "DescriptionLabel": "Description:",
@@ -80,6 +84,8 @@
       "BtnFinish": "Fertig",
       "InstallStatusInstalling": "Installiere...",
       "InstallStatusDownloading": "Lade herunter...",
+      "InstallStatusWaitingForClientExit": "Warte, bis der SQRL-Client geschlossen wird...",
+      "InstallStatusError": "Fehler bei der Installation - bitte Logdatei überprüfen und den Entwicklern melden!",
       "SchemaRegistrationWarning": "WARNUNG: Existierende sqrl:// Schema-Registrierung gefunden, diese wird überschrieben!",
       "SelectInstallVersionLabel": "Version auswählen:",
       "DescriptionLabel": "Beschreibung:",
@@ -92,7 +98,7 @@
       "NoReleasesMessage": "Keine Releases verfügbar? Probieren Sie, Vorab-Releases zu aktivieren!",
       "TitleUninstall": "SQRL Client deinstallieren",
       "UninstallMessage": "Sie sind im Begriff, die SQRL Client-App von Ihrem Computer zu entfernen.\r\n\r\nSämtliche Programm-Daten werden dabei gelöscht. Ihre Benutzerdaten (z.B. ihre SQRL-Identitäten) bleiben dabei erhalten. Drücken Sie \"Deinstallieren\", um fortzufahren.",
-      "BtnUninstall":  "Deinstallieren"
+      "BtnUninstall": "Deinstallieren"
     }
   ]
 }
