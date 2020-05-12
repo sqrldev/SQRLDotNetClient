@@ -295,8 +295,12 @@ namespace SQRLPlatformAwareInstaller.ViewModels
 
             // Check if client is running and kill it if necessary
             Log.Information($"Checking if client is running");
-            var procName = Path.GetFileNameWithoutExtension(_installer.GetClientExePath(this.InstallationPath));
-            Process[] processes = Process.GetProcessesByName(procName);
+            // On macOS, process names are truncated to 15 chararcters, 
+            // so we cannot match the full process name
+            var procName = Path.GetFileNameWithoutExtension(_installer.GetClientExePath(this.InstallationPath))
+                .Substring(0, 15);
+            Process[] processes = Process.GetProcesses()
+                .Where(x => x.ProcessName.StartsWith(procName)).ToArray();
             if (processes.Length > 0)
             {
                 var clientProcess = processes[0];
