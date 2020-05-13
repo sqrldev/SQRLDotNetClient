@@ -16,8 +16,11 @@ namespace SQRLCommonUI.Models
     {
         private static PathConfModel _model = new PathConfModel();
 
+        /// <summary>
+        /// The file name, excluding the path, of the client database file.
+        /// </summary>
         public static readonly string DBNAME = "sqrl.db";
-        
+
         /// <summary>
         /// The full file path of the config file.
         /// </summary>
@@ -29,20 +32,10 @@ namespace SQRLCommonUI.Models
         /// The default client installation directory.
         /// </summary>
         public static readonly string DefaultClientInstallPath = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ?
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "SQRL") :
+            Path.Combine("/opt", "SQRL") :
             RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ?
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)) :
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "SQRL");
-
-
-        public static string FullClientDbPath
-        {
-            get
-            {
-                LoadConfig();
-                return Path.Combine(_model.ClientDBPath, PathConf.DBNAME);
-            }
-        }
 
         /// <summary>
         /// The default client database directory.
@@ -81,6 +74,18 @@ namespace SQRLCommonUI.Models
             {
                 _model.ClientDBPath = value;
                 SaveConfig();
+            }
+        }
+
+        /// <summary>
+        /// The full file path, including the file name, to the client database.
+        /// </summary>
+        public static string FullClientDbPath
+        {
+            get
+            {
+                LoadConfig();
+                return Path.Combine(_model.ClientDBPath, PathConf.DBNAME);
             }
         }
 
@@ -144,10 +149,7 @@ namespace SQRLCommonUI.Models
             Directory.CreateDirectory(Path.GetDirectoryName(ConfFile));
             string serialized = JsonSerializer.Serialize(_model, _model.GetType(), options);
             File.WriteAllText(ConfFile, serialized);
-        }
-
-
-        
+        }   
     }
 
     /// <summary>

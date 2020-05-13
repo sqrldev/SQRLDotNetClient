@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using SQRLCommonUI.AvaloniaExtensions;
 using SQRLPlatformAwareInstaller.ViewModels;
 using SQRLPlatformAwareInstaller.Views;
+using System.Runtime.InteropServices;
 
 namespace SQRLPlatformAwareInstaller
 {
@@ -11,6 +12,15 @@ namespace SQRLPlatformAwareInstaller
     {
         public override void Initialize()
         {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
+                RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                if (!Utils.IsAdmin())
+                {
+                    throw new System.Exception("This app must be run as an administrator in Windows or sudo/root in Linux");
+                }
+            }
+
             AvaloniaXamlLoader.Load(this);
 
             // This is here only to be able to manually load a specific translation 
