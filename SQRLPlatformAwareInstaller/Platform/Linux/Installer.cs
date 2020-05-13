@@ -68,7 +68,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 // Change owner of installed files to the actual user behind the "sudo"
                 string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
                 string chownInstallDir = $"chown -R {user}:{user} {installPath}";
-                string chownDbFile = $"chown {user}:{user} {PathConf.FullClientDbPath}";
+                string chownDbFile = $"chown -R {user}:{user} {PathConf.ClientDBPath}";
                 Log.Information($"Determined username for chown: \"{user}\"");
                 Log.Information($"Running command: {chownInstallDir}");
                 _shell.Term(chownInstallDir, Output.Internal);
