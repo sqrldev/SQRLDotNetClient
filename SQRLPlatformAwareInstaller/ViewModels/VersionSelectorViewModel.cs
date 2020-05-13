@@ -166,6 +166,15 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         }
 
         /// <summary>
+        /// Gets a value indicating whether it should be allowed for the user to change
+        /// the installation path through the UI.
+        /// </summary>
+        public bool CanChangeInstallPath
+        {
+            get { return !RuntimeInformation.IsOSPlatform(OSPlatform.OSX); }
+        }
+
+        /// <summary>
         /// Creates a new instance and performs some initializations.
         /// </summary>
         public VersionSelectorViewModel()

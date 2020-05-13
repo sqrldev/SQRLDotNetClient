@@ -51,7 +51,7 @@
         <TextBlock TextWrapping="Wrap" Margin="3,0,0,0">MB</TextBlock>
       </StackPanel>
     
-      <Button Content="{loc:Localization BtnInstallPath}" Margin="0,10" Grid.Row="6" Grid.Column="0" Command="{Binding FolderPicker}" />
+      <Button Content="{loc:Localization BtnInstallPath}" Command="{Binding FolderPicker}" IsEnabled="{Binding CanChangeInstallPath}" Margin="0,10" Grid.Row="6" Grid.Column="0" />
       <TextBox Margin="10" Width="400" MaxWidth="400" HorizontalAlignment="Left" Grid.Row="6" Grid.Column="1" Text="{Binding InstallationPath}" IsReadOnly="True"/>
       <StackPanel Margin="0,10" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Vertical">
         <TextBlock Text="{Binding InstallStatus}" Foreground="{Binding InstallStatusColor}" FontWeight="Bold" />
