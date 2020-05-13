@@ -56,7 +56,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 sb.AppendLine("MimeType=x-scheme-handler/sqrl");
                 File.WriteAllText(Path.Combine(installPath, "sqrldev-sqrl.desktop"), sb.ToString());
 
-                _shell.Term($"chmod -R 750 {installPath}", Output.Internal);
+                _shell.Term($"chmod -R 755 {installPath}", Output.Internal);
                 _shell.Term($"chmod +x {GetClientExePath(installPath)}", Output.Internal);
                 _shell.Term($"chmod +x {Path.Combine(installPath, "sqrldev-sqrl.desktop")}", Output.Internal);
                 _shell.Term($"chmod +x {Path.Combine(installPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
@@ -65,13 +65,10 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl", Output.Internal);
                 _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
 
-                // Change owner of installed files to the actual user behind the "sudo"
+                // Change owner of database dir/file to the actual user behind the "sudo"
                 string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
-                string chownInstallDir = $"chown -R {user}:{user} {installPath}";
                 string chownDbFile = $"chown -R {user}:{user} {PathConf.ClientDBPath}";
                 Log.Information($"Determined username for chown: \"{user}\"");
-                Log.Information($"Running command: {chownInstallDir}");
-                _shell.Term(chownInstallDir, Output.Internal);
                 Log.Information($"Running command: {chownDbFile}");
                 _shell.Term(chownDbFile, Output.Internal);
 
