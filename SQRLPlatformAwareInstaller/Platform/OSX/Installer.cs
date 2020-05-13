@@ -16,53 +16,47 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
         private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
         private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
 
+        #pragma warning disable 1998
         public async Task Install(string archiveFilePath, string installPath, string versionTag)
         {
-            Log.Information($"Installing on macOS to {installPath}");
-            Inventory.Instance.Load();
-
-            string fileName = Path.GetTempFileName().Replace(".tmp", ".zip");
-
-            await Task.Run(() =>
+            // The "async" in the delegate is needed, otherwise exceptions within
+            // the delegate won't "bubble up" to the exception handlers upstream.
+            await Task.Run(async () =>
             {
+                Inventory.Instance.Load();
+                Log.Information($"Installing on macOS to {installPath}");
+
+                string fileName = Path.GetTempFileName().Replace(".tmp", ".zip");
+
+                // Download an extract initial SQRL application template
                 Log.Information("Downloading Mac app folder structure from Github");
                 GitHubHelper.DownloadFile("https://github.com/sqrldev/SQRLDotNetClient/raw/PlatformInstaller/Installers/MacOsX/SQRL.app.zip", fileName);
-
                 Log.Information("Creating initial SQRL application template");
                 Utils.ExtractZipFile(fileName, string.Empty, installPath);
                 File.Delete(fileName);
-            });
-            
-            await Task.Run(() =>
-            {
+
+                // Extract main installation archive
                 Log.Information($"Extracting main installation archive");
                 Utils.ExtractZipFile(archiveFilePath, string.Empty, Path.Combine(installPath, "SQRL.app/Contents/MacOS"));
+
+                // Check if a database exists in the installation directory 
+                // (which is bad) and if it does, move it to user space.
                 if (File.Exists(Path.Combine(installPath, "SQRL.app/Contents/MacOS", PathConf.DBNAME)))
                 {
                     Utils.MoveDb(Path.Combine(installPath, "SQRL.app/Contents/MacOS", PathConf.DBNAME));
                 }
-              
+
                 Inventory.Instance.AddDirectory(Path.Combine(installPath, "SQRL.app"));
 
-                try
-                {
-                    Log.Information("Copying installer into installation location (for auto update)");
-                    File.Copy(Process.GetCurrentProcess().MainModule.FileName, Path.Combine(
-                        installPath, "SQRL.app/Contents/MacOS",
-                        Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), false);
-                }
-                catch (Exception fc)
-                {
-                    Log.Error($"File copy exception while copying installer:\r\n{fc}");
-                }
+                // Set executable bit on executables
+                Log.Information("Changing executable file to be executable a+x");
+                _shell.Term($"chmod a+x {GetClientExePath(installPath)}", Output.Internal);
+                _shell.Term($"chmod a+x {Path.Combine(installPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
+
+                Inventory.Instance.Save();
             });
-
-            Log.Information("Changing executable file to be executable a+x");
-            _shell.Term($"chmod a+x {GetClientExePath(installPath)}", Output.Internal);
-            _shell.Term($"chmod a+x {Path.Combine(installPath, "SQRL.app/Contents/MacOS", Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
-
-            Inventory.Instance.Save();
         }
+        #pragma warning restore 1998
 
         public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
         {

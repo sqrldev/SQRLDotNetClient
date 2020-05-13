@@ -14,12 +14,17 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
 {
     class Installer : IInstaller
     {
+        #pragma warning disable 1998
         public async Task Install(string archiveFilePath, string installPath, string versionTag)
         {
-            await Task.Run(() =>
+            // The "async" in the delegate is needed, otherwise exceptions within
+            // the delegate won't "bubble up" to the exception handlers upstream.
+            await Task.Run(async () =>
             {
+                Inventory.Instance.Load();
                 Log.Information($"Installing on Windows to {installPath}");
 
+                // Checking for Visual C++redistributable runtime
                 Log.Information($"Checking for Visual C++ redistributable runtime");
                 if (!VcRedistHelper.IsRuntimeInstalled())
                 {
@@ -29,8 +34,6 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 }
                 else
                     Log.Information("Visual C++ redistributable was found");
-
-                Inventory.Instance.Load();
 
                 // Extract installation archive
                 Log.Information($"Extracting main installation archive");
@@ -42,19 +45,8 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 {
                     Utils.MoveDb(Path.Combine(installPath, PathConf.DBNAME));
                 }
-               
-                Inventory.Instance.AddDirectory(installPath);
 
-                try
-                {
-                    Log.Information("Copying installer into installation location (for auto update)");
-                    File.Copy(Process.GetCurrentProcess().MainModule.FileName, 
-                        Path.Combine(installPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)), false);
-                }
-                catch (Exception fc)
-                {
-                    Log.Warning($"File copy exception while copying installer:\r\n{fc}");
-                }
+                Inventory.Instance.AddDirectory(installPath);
 
                 // Create registry keys for sqrl:// scheme registration
                 Log.Information("Creating registry keys for sqrl:// protocol scheme");
@@ -90,7 +82,6 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
 
                 // Create Desktop Shortcut
                 Log.Information("Create Windows desktop shortcut");
-                
                 string shortcutLocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "SQRL OSS Client.lnk");
                 IShellLink link = (IShellLink)new ShellLink();
                 link.SetDescription("SQRL OSS Client");
@@ -100,11 +91,11 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
                 IPersistFile iconFile = (IPersistFile)link;
                 iconFile.Save(shortcutLocation, false);
                 Inventory.Instance.AddFile(shortcutLocation);
+
                 Inventory.Instance.Save();
             });
         }
-
-
+        #pragma warning restore 1998
 
         public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
         {

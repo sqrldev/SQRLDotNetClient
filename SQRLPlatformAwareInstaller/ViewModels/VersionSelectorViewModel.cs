@@ -13,6 +13,8 @@ using SQRLPlatformAwareInstaller.Models;
 using SQRLPlatformAwareInstaller.Platform;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using System.Diagnostics;
+using Avalonia.Media;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -29,6 +31,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private string _installationPath;
         private string _warning = "";
         private string _installStatus = "";
+        private IBrush _installStatusColor = Brushes.Black;
         private string _downloadedFileName;
         private GithubRelease[] _releases;
         private GithubRelease _selectedRelease;
@@ -74,6 +77,18 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             set
             {
                 { this.RaiseAndSetIfChanged(ref _installStatus, value); }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the text color of the install status lavbel.
+        /// </summary>
+        public IBrush InstallStatusColor
+        {
+            get { return this._installStatusColor; }
+            set
+            {
+                { this.RaiseAndSetIfChanged(ref _installStatusColor, value); }
             }
         }
 
@@ -256,18 +271,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private async void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
             Log.Information("Download completed");
-
-            Dispatcher.UIThread.Post(() =>
-            {
-                this.InstallStatus = _loc.GetLocalizationValue("InstallStatusInstalling");
-                this.DownloadPercentage = 0;
-                this.IsProgressIndeterminate = true;
-            });
-
             await InstallOnPlatform(this._downloadedFileName);
-
-            ((MainWindowViewModel)_mainWindow.DataContext).Content = 
-                new InstallationCompleteViewModel(_installer.GetClientExePath(this.InstallationPath));
         }
 
         /// <summary>
@@ -277,14 +281,73 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <param name="downloadedFileName">The downloaded application files to install.</param>
         private async Task InstallOnPlatform(string downloadedFileName)
         {
+            // Set the progress bar to "indeterminate"
+            Dispatcher.UIThread.Post(() =>
+            {
+                this.DownloadPercentage = 0;
+                this.IsProgressIndeterminate = true;
+            });
+
             // Write the installation path to the config file so that
             // we can locate the installation later
-            Log.Information($"Writing installation path {this.InstallationPath} to config file");
+            Log.Information($"Writing installation path to config file: \"{this.InstallationPath}\"");
             PathConf.ClientInstallPath = this.InstallationPath;
+
+            // Check if client is running and kill it if necessary
+            Log.Information($"Checking if client is running");
+            // On macOS, process names are truncated to 15 chararcters, 
+            // so we cannot match the full process name
+            var procName = Path.GetFileNameWithoutExtension(_installer.GetClientExePath(this.InstallationPath))
+                .Substring(0, 15);
+            Process[] processes = Process.GetProcesses()
+                .Where(x => x.ProcessName.StartsWith(procName)).ToArray();
+            if (processes.Length > 0)
+            {
+                var clientProcess = processes[0];
+
+                Log.Warning($"Client is running, trying to kill it");
+                clientProcess.Kill();
+
+                // Since the below call to "WaitForExit()" could potentially block
+                // forever if killing the client fails for some reason, we better
+                // give an indication of what's going on in the UI and hopefully have the
+                // user help out closing the client if our programmatic approach fails.
+                Dispatcher.UIThread.Post(() => this.InstallStatus = 
+                    _loc.GetLocalizationValue("InstallStatusWaitingForClientExit"));
+
+                await Task.Run(() => clientProcess.WaitForExit());
+
+                Log.Information($"Client exited, continuing");
+            }
+            else 
+                Log.Information($"Client not running, continuing");
+
+            // Set status "installing" in UI
+            Dispatcher.UIThread.Post(() => this.InstallStatus = 
+                _loc.GetLocalizationValue("InstallStatusInstalling"));
 
             // Perform the actual installation
             Log.Information($"Launching installation");
-            await _installer.Install(downloadedFileName, this.InstallationPath, this.SelectedRelease.tag_name);
+            try
+            {
+                await _installer.Install(downloadedFileName, this.InstallationPath, this.SelectedRelease.tag_name);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error during installation:\r\n{ex}");
+                Dispatcher.UIThread.Post(() =>
+                {
+                    this.InstallStatusColor = Brushes.Red;
+                    this.InstallStatus = _loc.GetLocalizationValue("InstallStatusError");
+                    this.DownloadPercentage = 100;
+                    this.IsProgressIndeterminate = false;
+                });
+                
+                return;
+            }
+
+            ((MainWindowViewModel)_mainWindow.DataContext).Content =
+                new InstallationCompleteViewModel(_installer.GetClientExePath(this.InstallationPath));
         }
 
         /// <summary>
