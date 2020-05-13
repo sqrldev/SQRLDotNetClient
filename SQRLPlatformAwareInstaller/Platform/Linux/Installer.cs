@@ -66,7 +66,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
 
                 // Change owner of installed files to the actual user behind the "sudo"
-                string user = _shell.Term("logname", Output.Hidden).stdout;
+                string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
                 string chownInstallDir = $"chown -R {user}:{user} {installPath}";
                 string chownDbFile = $"chown {user}:{user} {PathConf.FullClientDbPath}";
                 Log.Information($"Determined username for chown: \"{user}\"");
