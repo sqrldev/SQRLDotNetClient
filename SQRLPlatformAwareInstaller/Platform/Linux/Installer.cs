@@ -56,14 +56,20 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 sb.AppendLine("MimeType=x-scheme-handler/sqrl");
                 File.WriteAllText(Path.Combine(installPath, "sqrldev-sqrl.desktop"), sb.ToString());
 
-                _shell.Term($"chmod -R 755 {installPath}", Output.Internal);
-                _shell.Term($"chmod a+x {GetClientExePath(installPath)}", Output.Internal);
+                _shell.Term($"chmod -R 750 {installPath}", Output.Internal);
+                _shell.Term($"chmod +x {GetClientExePath(installPath)}", Output.Internal);
                 _shell.Term($"chmod +x {Path.Combine(installPath, "sqrldev-sqrl.desktop")}", Output.Internal);
-                _shell.Term($"chmod a+x {Path.Combine(installPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
+                _shell.Term($"chmod +x {Path.Combine(installPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
                 _shell.Term($"xdg-desktop-menu install {Path.Combine(installPath, "sqrldev-sqrl.desktop")}", Output.Internal);
                 _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop", Output.Internal);
                 _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl", Output.Internal);
                 _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
+
+                // Change owner of installed files to the actual user behind the "sudo"
+                var user = _shell.Term("logname", Output.Internal).stdout;
+                Log.Information($"Determined username for chown: {user}");
+                _shell.Term($"chown -R {user}:{user} {installPath}", Output.Internal);
+                _shell.Term($"chown {user}:{user} {PathConf.FullClientDbPath}", Output.Internal);
 
                 Inventory.Instance.Save();
             });
