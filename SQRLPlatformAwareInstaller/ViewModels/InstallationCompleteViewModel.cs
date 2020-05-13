@@ -2,6 +2,8 @@
 using Serilog;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
+using ToolBox.Bridge;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -73,6 +75,13 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             process.StartInfo.FileName = _clientExePath;
             process.StartInfo.WorkingDirectory = Path.GetDirectoryName(_clientExePath);
             process.StartInfo.UseShellExecute = true;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                ShellConfigurator shell = new ShellConfigurator(BridgeSystem.Bash);
+                string user = shell.Term("logname", Output.Hidden).stdout.Trim();
+                process.StartInfo.UserName = user;
+                process.StartInfo.UseShellExecute = false;
+            }
             process.Start();
         }
     }
