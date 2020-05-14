@@ -30,8 +30,9 @@ namespace SQRLDotNetClientUI.Models
         private static string _assetsPath = $"{_assemblyName}.Assets.";
         private static LocalizationExtension _loc = new LocalizationExtension();
         private static SKDocument _document = null;
-        private static SKCanvas _currentPageCanvas = null;
-        private static int _currentPage = 1;
+        private static SKCanvas _canvas = null;
+        private static int _nrOfPages = 0;
+        private static float _yPos = 0.0f;
 
         /* 
          * Loading custom fonts produces an empty page on linux, maybe this is
@@ -70,7 +71,7 @@ namespace SQRLDotNetClientUI.Models
 
             identityName = identityName != null ? identityName : "";
 
-            float yPos = MARGIN_TOP + HEADER_ICON_SIZE + 80;
+            _nrOfPages = 0;
             string title = _loc.GetLocalizationValue("RescueCodeDocumentTitle");
             string warning = _loc.GetLocalizationValue("RescueCodeDocumentDiscardWarning");
             string text = _loc.GetLocalizationValue("RescueCodeDocumentText");
@@ -92,23 +93,23 @@ namespace SQRLDotNetClientUI.Models
             using (var stream = new SKFileWStream(fileName))
             using (_document = SKDocument.CreatePdf(stream, metadata))
             {
-                _currentPageCanvas = _document.BeginPage(PAGE_WIDTH, PAGE_HEIGHT);
-                _currentPage = 1;
+                StartNextPage();
+                _yPos = MARGIN_TOP + HEADER_ICON_SIZE + 80;
 
                 DrawHeader();
-                yPos += 10 + DrawTextBlock(title, yPos, _fontBold, 25, SKColors.Black);
-                yPos += 20 + DrawTextBlock(warning, yPos, _fontBold, 20, SKColors.Red);
-                yPos += 30 + DrawTextBlock(text, yPos, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
+                _yPos += 10 + DrawTextBlock(title, _fontBold, 25, SKColors.Black);
+                _yPos += 20 + DrawTextBlock(warning, _fontBold, 20, SKColors.Red);
+                _yPos += 30 + DrawTextBlock(text, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
                 if (!string.IsNullOrEmpty(identityName))
                 {
-                    yPos += 05 + DrawTextBlock(identityLabel, yPos, _fontRegular, 12, SKColors.DarkGray);
-                    yPos += 15 + DrawTextBlock(identityName, yPos, _fontBold, 16, SKColors.Black);
+                    _yPos += 05 + DrawTextBlock(identityLabel, _fontRegular, 12, SKColors.DarkGray);
+                    _yPos += 15 + DrawTextBlock(identityName, _fontBold, 16, SKColors.Black);
                 }
-                yPos += 10 + DrawTextBlock(rescueCodeLabel, yPos, _fontRegular, 12, SKColors.DarkGray);
-                yPos += 15 + DrawTextBlock(rescueCode, yPos, _fontBold, 24, SKColors.Black);
+                _yPos += 10 + DrawTextBlock(rescueCodeLabel, _fontRegular, 12, SKColors.DarkGray);
+                _yPos += 15 + DrawTextBlock(rescueCode, _fontBold, 24, SKColors.Black);
                 DrawFooter();
 
-                _document.EndPage();
+                EndPage();
                 _document.Close();
             }
         }
@@ -128,7 +129,7 @@ namespace SQRLDotNetClientUI.Models
                     nameof(fileName), nameof(identity)));
             }
 
-            float yPos = MARGIN_TOP;
+            _nrOfPages = 0;
             string title = "\"" + identity.IdentityName + "\" " + _loc.GetLocalizationValue("FileDialogFilterName");
             string identityEncryptionMessage = blockTypes.Contains(1) ?
                 _loc.GetLocalizationValue("IdentityDocEncMsgPassword") :
@@ -157,18 +158,19 @@ namespace SQRLDotNetClientUI.Models
             using (_document = SKDocument.CreatePdf(stream, metadata))
             {
                 StartNextPage();
+                _yPos = MARGIN_TOP;
 
                 float qrCodeWidth = (qrCode.Width <= QRCODE_MAX_SIZE) ? qrCode.Width : QRCODE_MAX_SIZE;
                 float qrCodeHeight = (qrCode.Height <= QRCODE_MAX_SIZE) ? qrCode.Height : QRCODE_MAX_SIZE;
                 float qrCodeXPos = PAGE_WIDTH / 2 - qrCodeWidth / 2;
 
-                yPos += 10 + DrawTextBlock(title, yPos, _fontBold, 23, SKColors.Black);
-                yPos += -15 + DrawTextBlock(identityEncryptionMessage, yPos, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
-                _currentPageCanvas.DrawBitmap(qrCode, new SKRect(qrCodeXPos, yPos, qrCodeXPos + qrCodeWidth, yPos + qrCodeHeight));
-                yPos += qrCodeHeight + 15;
-                yPos += 10 + DrawTextBlock(textualIdentityMessage, yPos, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
-                yPos += 15 + DrawTextBlock(textualIdentity, yPos, _fontMonoBold, 12, SKColors.Black, SKTextAlign.Center, 1.3f);
-                yPos += 00 + DrawTextBlock(guidanceMessage, yPos, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
+                _yPos += 10 + DrawTextBlock(title, _fontBold, 23, SKColors.Black);
+                _yPos += -15 + DrawTextBlock(identityEncryptionMessage, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
+                _canvas.DrawBitmap(qrCode, new SKRect(qrCodeXPos, _yPos, qrCodeXPos + qrCodeWidth, _yPos + qrCodeHeight));
+                _yPos += qrCodeHeight + 15;
+                _yPos += 10 + DrawTextBlock(textualIdentityMessage, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
+                _yPos += 15 + DrawTextBlock(textualIdentity, _fontMonoBold, 12, SKColors.Black, SKTextAlign.Center, 1.3f);
+                _yPos += 00 + DrawTextBlock(guidanceMessage, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
                 DrawFooter();
 
                 EndPage();
@@ -182,7 +184,9 @@ namespace SQRLDotNetClientUI.Models
         private static void StartNextPage()
         {
             EndPage();
-            _currentPageCanvas = _document.BeginPage(PAGE_WIDTH, PAGE_HEIGHT);
+            _canvas = _document.BeginPage(PAGE_WIDTH, PAGE_HEIGHT);
+            _yPos = MARGIN_TOP;
+            _nrOfPages++;
         }
 
         /// <summary>
@@ -192,11 +196,11 @@ namespace SQRLDotNetClientUI.Models
         {
             if (_document == null) return;
 
-            if (_currentPageCanvas != null)
+            if (_canvas != null)
             {
-                _currentPageCanvas.Flush();
+                _canvas.Flush();
                 _document.EndPage();
-                _currentPageCanvas.Dispose();
+                _canvas.Dispose();
             }
         }
 
@@ -230,11 +234,13 @@ namespace SQRLDotNetClientUI.Models
             var logoStream = _assembly.GetManifestResourceStream(_assetsPath + "SQRL_icon_normal_256.png");
             logoStream.Seek(0, SeekOrigin.Begin);
 
-            _currentPageCanvas.DrawBitmap(SKBitmap.Decode(logoStream), 
+            _canvas.DrawBitmap(SKBitmap.Decode(logoStream), 
                 new SKRect(imgX, imgY, imgX + HEADER_ICON_SIZE, imgY + HEADER_ICON_SIZE));
 
-            DrawTextBlock(_loc.GetLocalizationValue("SQRLTag"), 
-                imgY + HEADER_ICON_SIZE + 20, _fontBold, 12, SKColors.Black);
+            float yBackup = _yPos; // Backup current y position
+            _yPos = imgY + HEADER_ICON_SIZE + 20;
+            DrawTextBlock(_loc.GetLocalizationValue("SQRLTag"), _fontBold, 12, SKColors.Black);
+            _yPos = yBackup; // Restore y position
         }
 
         /// <summary>
@@ -249,7 +255,7 @@ namespace SQRLDotNetClientUI.Models
             var logoStream = _assembly.GetManifestResourceStream(_assetsPath + "SQRL_icon_normal_256.png");
             logoStream.Seek(0, SeekOrigin.Begin);
 
-            _currentPageCanvas.DrawBitmap(SKBitmap.Decode(logoStream),
+            _canvas.DrawBitmap(SKBitmap.Decode(logoStream),
                 new SKRect(imgX, imgY, imgX + FOOTER_ICON_SIZE, imgY + FOOTER_ICON_SIZE));
 
             string footerText = string.Format(
@@ -257,9 +263,10 @@ namespace SQRLDotNetClientUI.Models
                 _assemblyName + " v " + _assembly.GetName().Version,
                 DateTime.Now.ToLongDateString());
 
-            DrawTextBlock(footerText,
-                imgY + FOOTER_ICON_SIZE + 20,
-                _fontRegular, 8, SKColors.DarkGray);
+            float yBackup = _yPos; // Backup current y position
+            _yPos = imgY + FOOTER_ICON_SIZE + 20;
+            DrawTextBlock(footerText, _fontRegular, 8, SKColors.DarkGray);
+            _yPos = yBackup; // Restore y position
         }
 
         /// <summary>
@@ -273,7 +280,7 @@ namespace SQRLDotNetClientUI.Models
         /// <param name="textAlign">The alignment for the text to be drawn.</param>
         /// <param name="lineHeightFactor">A value indicating the line heigt. The default line heigt factor is 1.</param>
         /// <returns>Returns the height of the text block which was drawn to the document.</returns>
-        private static float DrawTextBlock(string text, float y, SKTypeface typeface, float textSize,
+        private static float DrawTextBlock(string text, SKTypeface typeface, float textSize,
             SKColor color, SKTextAlign textAlign = SKTextAlign.Center, float lineHeightFactor = 1.0f)
         {
             List<string> lineBreakSequences = new List<string>() {"\r", "\n", "\r\n" };
@@ -333,10 +340,11 @@ namespace SQRLDotNetClientUI.Models
 
                     if (totalLineWidth >= blockWidth || token == null)
                     {
-                        _currentPageCanvas.DrawText(line.ToString(), xPos, y, paint);
+                        if (_yPos + lineHeight > PAGE_HEIGHT - MARGIN_TOP) StartNextPage();
+                        _canvas.DrawText(line.ToString(), xPos, _yPos, paint);
                         line.Clear();
                         lines++;
-                        y += lineHeight;
+                        _yPos += lineHeight;
                         if (token != null) goto StartLine;
                     }
                     else
@@ -346,10 +354,11 @@ namespace SQRLDotNetClientUI.Models
 
                         if (i == tokens.Count - 1) // Last word
                         {
-                            _currentPageCanvas.DrawText(line.ToString(), xPos, y, paint);
+                            if (_yPos + lineHeight > PAGE_HEIGHT - MARGIN_TOP) StartNextPage();
+                            _canvas.DrawText(line.ToString(), xPos, _yPos, paint);
                             line.Clear();
                             lines++;
-                            y += lineHeight;
+                            _yPos += lineHeight;
                         }
                     }
                 }                
