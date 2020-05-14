@@ -29,7 +29,9 @@ namespace SQRLDotNetClientUI.Models
         private static string _assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
         private static string _assetsPath = $"{_assemblyName}.Assets.";
         private static LocalizationExtension _loc = new LocalizationExtension();
+        private static SKDocument _document = null;
         private static SKCanvas _currentPageCanvas = null;
+        private static int _currentPage = 1;
 
         /* 
          * Loading custom fonts produces an empty page on linux, maybe this is
@@ -88,9 +90,10 @@ namespace SQRLDotNetClientUI.Models
             };
 
             using (var stream = new SKFileWStream(fileName))
-            using (var document = SKDocument.CreatePdf(stream, metadata))
+            using (_document = SKDocument.CreatePdf(stream, metadata))
             {
-                _currentPageCanvas = document.BeginPage(PAGE_WIDTH, PAGE_HEIGHT);
+                _currentPageCanvas = _document.BeginPage(PAGE_WIDTH, PAGE_HEIGHT);
+                _currentPage = 1;
 
                 DrawHeader();
                 yPos += 10 + DrawTextBlock(title, yPos, _fontBold, 25, SKColors.Black);
@@ -105,8 +108,8 @@ namespace SQRLDotNetClientUI.Models
                 yPos += 15 + DrawTextBlock(rescueCode, yPos, _fontBold, 24, SKColors.Black);
                 DrawFooter();
 
-                document.EndPage();
-                document.Close();
+                _document.EndPage();
+                _document.Close();
             }
         }
 
@@ -151,9 +154,9 @@ namespace SQRLDotNetClientUI.Models
 
             using (SKBitmap qrCode = CreateQRCode(identityBytes))
             using (var stream = new SKFileWStream(fileName))
-            using (var document = SKDocument.CreatePdf(stream, metadata))
+            using (_document = SKDocument.CreatePdf(stream, metadata))
             {
-                _currentPageCanvas = document.BeginPage(PAGE_WIDTH, PAGE_HEIGHT);
+                StartNextPage();
 
                 float qrCodeWidth = (qrCode.Width <= QRCODE_MAX_SIZE) ? qrCode.Width : QRCODE_MAX_SIZE;
                 float qrCodeHeight = (qrCode.Height <= QRCODE_MAX_SIZE) ? qrCode.Height : QRCODE_MAX_SIZE;
@@ -168,8 +171,32 @@ namespace SQRLDotNetClientUI.Models
                 yPos += 00 + DrawTextBlock(guidanceMessage, yPos, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
                 DrawFooter();
 
-                document.EndPage();
-                document.Close();
+                EndPage();
+                _document.Close();
+            }
+        }
+
+        /// <summary>
+        /// Ends the current page if it exists and starts a new page.
+        /// </summary>
+        private static void StartNextPage()
+        {
+            EndPage();
+            _currentPageCanvas = _document.BeginPage(PAGE_WIDTH, PAGE_HEIGHT);
+        }
+
+        /// <summary>
+        /// Ends the current page.
+        /// </summary>
+        private static void EndPage()
+        {
+            if (_document == null) return;
+
+            if (_currentPageCanvas != null)
+            {
+                _currentPageCanvas.Flush();
+                _document.EndPage();
+                _currentPageCanvas.Dispose();
             }
         }
 
