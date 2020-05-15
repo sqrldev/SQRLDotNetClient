@@ -1,15 +1,20 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Serilog;
 using SQRLCommonUI.AvaloniaExtensions;
 using SQRLPlatformAwareInstaller.ViewModels;
 using SQRLPlatformAwareInstaller.Views;
 using System.Runtime.InteropServices;
+using ToolBox.Bridge;
 
 namespace SQRLPlatformAwareInstaller
 {
+    
     public class App : Application
     {
+        private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
+        private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
         public override void Initialize()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
@@ -17,6 +22,13 @@ namespace SQRLPlatformAwareInstaller
             {
                 if (!Utils.IsAdmin())
                 {
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        Log.Information("Launched on Linux without Sudo, trying to re-launch if possible");
+                        Log.Information("Checking if pkexec exists"); //This allows us to elevate a program
+                        var result = _shell.Term("command -v pkexec", Output.Internal);
+                        
+                    }
                     throw new System.Exception("This app must be run as an administrator in Windows or sudo/root in Linux");
                 }
             }
