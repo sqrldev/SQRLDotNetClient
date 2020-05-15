@@ -268,8 +268,8 @@ namespace SQRLDotNetClientUI.Models
             _yPos = imgY + FOOTER_ICON_SIZE + 20;
             DrawTextBlock(footerText, _fontRegular, 8, SKColors.DarkGray, 3f,
                 SKTextAlign.Center, 1f, true);
-            DrawTextBlock("Page " + _pageNr, _fontRegular, 6, SKColors.DarkGray, 0f,
-                SKTextAlign.Right, 1f, true);
+            DrawTextBlock(string.Format(_loc.GetLocalizationValue("Page"), _pageNr), 
+                _fontRegular, 6, SKColors.DarkGray, 0f, SKTextAlign.Right, 1f, true);
             _yPos = yBackup; // Restore y position
         }
 
