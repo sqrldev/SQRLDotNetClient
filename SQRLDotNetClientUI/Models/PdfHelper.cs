@@ -31,7 +31,7 @@ namespace SQRLDotNetClientUI.Models
         private static LocalizationExtension _loc = new LocalizationExtension();
         private static SKDocument _document = null;
         private static SKCanvas _canvas = null;
-        private static int _nrOfPages = 0;
+        private static int _pageNr = 0;
         private static float _yPos = 0.0f;
 
         /* 
@@ -71,7 +71,7 @@ namespace SQRLDotNetClientUI.Models
 
             identityName = identityName != null ? identityName : "";
 
-            _nrOfPages = 0;
+            _pageNr = 0;
             string title = _loc.GetLocalizationValue("RescueCodeDocumentTitle");
             string warning = _loc.GetLocalizationValue("RescueCodeDocumentDiscardWarning");
             string text = _loc.GetLocalizationValue("RescueCodeDocumentText");
@@ -95,7 +95,6 @@ namespace SQRLDotNetClientUI.Models
             {
                 StartNextPage();
                 DrawHeader();
-                DrawFooter();
 
                 _yPos = MARGIN_TOP + HEADER_ICON_SIZE + 80;
                 DrawTextBlock(title, _fontBold, 25, SKColors.Black, 15f);
@@ -130,7 +129,7 @@ namespace SQRLDotNetClientUI.Models
                     nameof(fileName), nameof(identity)));
             }
 
-            _nrOfPages = 0;
+            _pageNr = 0;
             string title = "\"" + identity.IdentityName + "\" " + _loc.GetLocalizationValue("FileDialogFilterName");
             string identityEncryptionMessage = blockTypes.Contains(1) ?
                 _loc.GetLocalizationValue("IdentityDocEncMsgPassword") :
@@ -159,7 +158,6 @@ namespace SQRLDotNetClientUI.Models
             using (_document = SKDocument.CreatePdf(stream, metadata))
             {
                 StartNextPage();
-                DrawFooter();
 
                 float qrCodeWidth = (qrCode.Width <= QRCODE_MAX_SIZE) ? qrCode.Width : QRCODE_MAX_SIZE;
                 float qrCodeHeight = (qrCode.Height <= QRCODE_MAX_SIZE) ? qrCode.Height : QRCODE_MAX_SIZE;
@@ -185,11 +183,11 @@ namespace SQRLDotNetClientUI.Models
             EndPage();
             _canvas = _document.BeginPage(PAGE_WIDTH, PAGE_HEIGHT);
             _yPos = MARGIN_TOP;
-            _nrOfPages++;
+            _pageNr++;
         }
 
         /// <summary>
-        /// Ends the current page.
+        /// Draws the footer and ends the current page.
         /// </summary>
         private static void EndPage()
         {
@@ -197,6 +195,8 @@ namespace SQRLDotNetClientUI.Models
 
             if (_canvas != null)
             {
+                DrawFooter();
+
                 _canvas.Flush();
                 _document.EndPage();
                 _canvas.Dispose();
@@ -264,8 +264,10 @@ namespace SQRLDotNetClientUI.Models
 
             float yBackup = _yPos; // Backup current y position
             _yPos = imgY + FOOTER_ICON_SIZE + 20;
-            DrawTextBlock(footerText, _fontRegular, 8, SKColors.DarkGray, 0f,
+            DrawTextBlock(footerText, _fontRegular, 8, SKColors.DarkGray, 3f,
                 SKTextAlign.Center, 1f, true);
+            DrawTextBlock("Page " + _pageNr, _fontRegular, 6, SKColors.DarkGray, 0f,
+                SKTextAlign.Right, 1f, true);
             _yPos = yBackup; // Restore y position
         }
 
@@ -278,6 +280,8 @@ namespace SQRLDotNetClientUI.Models
         /// <param name="paddingBottom">Adds additional vertical "whitespace" below the bitmap.</param>
         private static float DrawBitmap(SKBitmap bitmap, SKRect rect, float paddingBottom = 15f)
         {
+            CheckAndTriggerPageBreak(rect.Height);
+
             _canvas.DrawBitmap(bitmap, rect);
             _yPos += rect.Height + paddingBottom;
 
@@ -357,7 +361,7 @@ namespace SQRLDotNetClientUI.Models
 
                     if (totalLineWidth >= blockWidth || token == null)
                     {
-                        if (_yPos + lineHeight > PAGE_HEIGHT - MARGIN_TOP && !noPageBreak) StartNextPage();
+                        if (!noPageBreak) CheckAndTriggerPageBreak(lineHeight);
                         _canvas.DrawText(line.ToString(), xPos, _yPos, paint);
                         line.Clear();
                         lines++;
@@ -371,7 +375,7 @@ namespace SQRLDotNetClientUI.Models
 
                         if (i == tokens.Count - 1) // Last word
                         {
-                            if (_yPos + lineHeight > PAGE_HEIGHT - MARGIN_TOP && !noPageBreak) StartNextPage();
+                            if (!noPageBreak) CheckAndTriggerPageBreak(lineHeight);
                             _canvas.DrawText(line.ToString(), xPos, _yPos, paint);
                             line.Clear();
                             lines++;
@@ -384,6 +388,22 @@ namespace SQRLDotNetClientUI.Models
 
                 // Return the total height of the text block
                 return lines * lineHeight;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the current Y position plus the given <paramref name="height"/> 
+        /// exceeds the maximum Y position for the page, and if it does, triggers a
+        /// page break.
+        /// </summary>
+        /// <param name="height">The heigt of the object to check.</param>
+        private static void CheckAndTriggerPageBreak(float height)
+        {
+            float maxY =  PAGE_HEIGHT - MARGIN_TOP - 30;
+
+            if (_yPos + height > maxY)
+            {
+                StartNextPage();
             }
         }
 
