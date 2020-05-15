@@ -94,20 +94,21 @@ namespace SQRLDotNetClientUI.Models
             using (_document = SKDocument.CreatePdf(stream, metadata))
             {
                 StartNextPage();
-                _yPos = MARGIN_TOP + HEADER_ICON_SIZE + 80;
-
                 DrawHeader();
-                _yPos += 10 + DrawTextBlock(title, _fontBold, 25, SKColors.Black);
-                _yPos += 20 + DrawTextBlock(warning, _fontBold, 20, SKColors.Red);
-                _yPos += 30 + DrawTextBlock(text, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
+                DrawFooter();
+
+                _yPos = MARGIN_TOP + HEADER_ICON_SIZE + 80;
+                DrawTextBlock(title, _fontBold, 25, SKColors.Black, 15f);
+                DrawTextBlock(warning, _fontBold, 20, SKColors.Red, 20f);
+                DrawTextBlock(text, _fontRegular, 12, SKColors.DarkGray, 30f, SKTextAlign.Left, 1.3f);
+
                 if (!string.IsNullOrEmpty(identityName))
                 {
-                    _yPos += 05 + DrawTextBlock(identityLabel, _fontRegular, 12, SKColors.DarkGray);
-                    _yPos += 15 + DrawTextBlock(identityName, _fontBold, 16, SKColors.Black);
+                    DrawTextBlock(identityLabel, _fontRegular, 12, SKColors.DarkGray, 15f);
+                    DrawTextBlock(identityName, _fontBold, 16, SKColors.Black);
                 }
-                _yPos += 10 + DrawTextBlock(rescueCodeLabel, _fontRegular, 12, SKColors.DarkGray);
-                _yPos += 15 + DrawTextBlock(rescueCode, _fontBold, 24, SKColors.Black);
-                DrawFooter();
+                DrawTextBlock(rescueCodeLabel, _fontRegular, 12, SKColors.DarkGray, 25f);
+                DrawTextBlock(rescueCode, _fontBold, 24, SKColors.Black);
 
                 EndPage();
                 _document.Close();
@@ -158,20 +159,18 @@ namespace SQRLDotNetClientUI.Models
             using (_document = SKDocument.CreatePdf(stream, metadata))
             {
                 StartNextPage();
-                _yPos = MARGIN_TOP;
+                DrawFooter();
 
                 float qrCodeWidth = (qrCode.Width <= QRCODE_MAX_SIZE) ? qrCode.Width : QRCODE_MAX_SIZE;
                 float qrCodeHeight = (qrCode.Height <= QRCODE_MAX_SIZE) ? qrCode.Height : QRCODE_MAX_SIZE;
                 float qrCodeXPos = PAGE_WIDTH / 2 - qrCodeWidth / 2;
 
-                _yPos += 10 + DrawTextBlock(title, _fontBold, 23, SKColors.Black);
-                _yPos += -15 + DrawTextBlock(identityEncryptionMessage, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
-                _canvas.DrawBitmap(qrCode, new SKRect(qrCodeXPos, _yPos, qrCodeXPos + qrCodeWidth, _yPos + qrCodeHeight));
-                _yPos += qrCodeHeight + 15;
-                _yPos += 10 + DrawTextBlock(textualIdentityMessage, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
-                _yPos += 15 + DrawTextBlock(textualIdentity, _fontMonoBold, 12, SKColors.Black, SKTextAlign.Center, 1.3f);
-                _yPos += 00 + DrawTextBlock(guidanceMessage, _fontRegular, 12, SKColors.DarkGray, SKTextAlign.Left, 1.3f);
-                DrawFooter();
+                DrawTextBlock(title, _fontBold, 23, SKColors.Black, 10f);
+                DrawTextBlock(identityEncryptionMessage, _fontRegular, 12, SKColors.DarkGray, -5f, SKTextAlign.Left, 1.3f);
+                DrawBitmap(qrCode, new SKRect(qrCodeXPos, _yPos, qrCodeXPos + qrCodeWidth, _yPos + qrCodeHeight), 15f);
+                DrawTextBlock(textualIdentityMessage, _fontRegular, 12, SKColors.DarkGray, 10f, SKTextAlign.Left, 1.3f);
+                DrawTextBlock(textualIdentity, _fontMonoBold, 12, SKColors.Black, 15f, SKTextAlign.Center, 1.3f); ;
+                DrawTextBlock(guidanceMessage, _fontRegular, 12, SKColors.DarkGray, 0f, SKTextAlign.Left, 1.3f);
 
                 EndPage();
                 _document.Close();
@@ -201,6 +200,7 @@ namespace SQRLDotNetClientUI.Models
                 _canvas.Flush();
                 _document.EndPage();
                 _canvas.Dispose();
+                _canvas = null;
             }
         }
 
@@ -260,28 +260,45 @@ namespace SQRLDotNetClientUI.Models
 
             string footerText = string.Format(
                 _loc.GetLocalizationValue("PrintDocumentFooterMessage"),
-                _assemblyName + " v " + _assembly.GetName().Version,
-                DateTime.Now.ToLongDateString());
+                _assemblyName + " v " + _assembly.GetName().Version, DateTime.Now.ToLongDateString());
 
             float yBackup = _yPos; // Backup current y position
             _yPos = imgY + FOOTER_ICON_SIZE + 20;
-            DrawTextBlock(footerText, _fontRegular, 8, SKColors.DarkGray);
+            DrawTextBlock(footerText, _fontRegular, 8, SKColors.DarkGray, 0f,
+                SKTextAlign.Center, 1f, true);
             _yPos = yBackup; // Restore y position
         }
 
         /// <summary>
-        /// Draws a block of text onto the document and returns the height of that block.
+        /// Draws a bitmap to the document and returns the height of the drawing,
+        /// excluding the <paramref name="paddingBottom"/>.
+        /// </summary>
+        /// <param name="bitmap">The bitmap to draw onto the document.</param>
+        /// <param name="rect">The position and size for the drawing operation.</param>
+        /// <param name="paddingBottom">Adds additional vertical "whitespace" below the bitmap.</param>
+        private static float DrawBitmap(SKBitmap bitmap, SKRect rect, float paddingBottom = 15f)
+        {
+            _canvas.DrawBitmap(bitmap, rect);
+            _yPos += rect.Height + paddingBottom;
+
+            return rect.Height;
+        }
+
+        /// <summary>
+        /// Draws a block of text onto the document and returns the height of that block,
+        /// excluding the secified <paramref name="paddingBottom"/>.
         /// </summary>
         /// <param name="text">The text to be printed onto the document.</param>
-        /// <param name="y">The y position of the text block.</param>
         /// <param name="typeface">The font to be used for drawing the text.</param>
         /// <param name="textSize">The size of the text.</param>
         /// <param name="color">The color to be used for drawing the text.</param>
+        /// <param name="paddingBottom">Adds additional vertical "whitespace" below the textblock.</param>
         /// <param name="textAlign">The alignment for the text to be drawn.</param>
         /// <param name="lineHeightFactor">A value indicating the line heigt. The default line heigt factor is 1.</param>
-        /// <returns>Returns the height of the text block which was drawn to the document.</returns>
-        private static float DrawTextBlock(string text, SKTypeface typeface, float textSize,
-            SKColor color, SKTextAlign textAlign = SKTextAlign.Center, float lineHeightFactor = 1.0f)
+        /// <param name="noPageBreak">If set to <c>treue</c>, drawing the text will never cause a page break.</param>
+        /// <returns>Returns the height of the text block which was drawn to the document, excluding <paramref name="paddingBottom"/>.</returns>
+        private static float DrawTextBlock(string text, SKTypeface typeface, float textSize, SKColor color, float paddingBottom = 15f,
+            SKTextAlign textAlign = SKTextAlign.Center, float lineHeightFactor = 1.0f, bool noPageBreak = false)
         {
             List<string> lineBreakSequences = new List<string>() {"\r", "\n", "\r\n" };
 
@@ -340,7 +357,7 @@ namespace SQRLDotNetClientUI.Models
 
                     if (totalLineWidth >= blockWidth || token == null)
                     {
-                        if (_yPos + lineHeight > PAGE_HEIGHT - MARGIN_TOP) StartNextPage();
+                        if (_yPos + lineHeight > PAGE_HEIGHT - MARGIN_TOP && !noPageBreak) StartNextPage();
                         _canvas.DrawText(line.ToString(), xPos, _yPos, paint);
                         line.Clear();
                         lines++;
@@ -354,14 +371,16 @@ namespace SQRLDotNetClientUI.Models
 
                         if (i == tokens.Count - 1) // Last word
                         {
-                            if (_yPos + lineHeight > PAGE_HEIGHT - MARGIN_TOP) StartNextPage();
+                            if (_yPos + lineHeight > PAGE_HEIGHT - MARGIN_TOP && !noPageBreak) StartNextPage();
                             _canvas.DrawText(line.ToString(), xPos, _yPos, paint);
                             line.Clear();
                             lines++;
                             _yPos += lineHeight;
                         }
                     }
-                }                
+                }
+
+                _yPos += paddingBottom;
 
                 // Return the total height of the text block
                 return lines * lineHeight;
