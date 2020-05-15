@@ -496,7 +496,7 @@
     { "LanguageMenuHeader": "_Sprache" },
     { "DefaultLanguageMenuItemHeader": "_Standard" },
     { "MissingInstaller": "Das Installations-Programm konnte nicht gefunden werden, deshalb konnte das automatische Update nicht gestartet werden. Möchten Sie zur Download-Seite weitergeleitet werden, um das neueste Installations-Programm herunterzuladen?" },
-    { "RescueCodeDocumentTitle": "This is your Identity‘s Rescue Code" },
+    { "RescueCodeDocumentTitle": "Dies ist der Rettungscode für Ihre Identität" },
     { "RescueCodeDocumentDiscardWarning": "!! DO NOT DISCARD THIS PAGE !!" },
     { "RescueCodeDocumentText": "This is the irreplaceable SQRL Rescue Code for the SQRL identity you are creating. This code cannot be recreated and must not be lost, misplaced or destroyed. It will allow you to recover from any disaster that might occur. If your identity‘s password is forgotten, or if your SQRL identity should become compromised, this Rescue Code allows you to recover from any situation.\r\n\r\n(Some situations may also require your SQRL identity. So be sure to also keep a backup of your identity.)\r\n\r\nThis printout should be stored in a safe and secure place where it cannot be found by others, but CAN be retrieved if you should ever need it. That need may never arise. But if it does, you‘ll be glad that you kept it safe and secure." },
     { "PrintDocumentFooterMessage": "Dieses Dokument wurde erzeugt von {0} am {1}." },
