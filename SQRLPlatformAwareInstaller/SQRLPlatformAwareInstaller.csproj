@@ -33,6 +33,7 @@
     <AvaloniaResource Remove="Assets\linux.png" />
     <AvaloniaResource Remove="Assets\Localization\localization.json" />
     <AvaloniaResource Remove="Assets\mac.png" />
+    <AvaloniaResource Remove="Assets\SQRLPlatformAwareInstaller_linux.policy" />
     <AvaloniaResource Remove="Assets\SQRL_icon_light_128.png" />
     <AvaloniaResource Remove="Assets\SQRL_icon_light_16.png" />
     <AvaloniaResource Remove="Assets\SQRL_icon_light_256.png" />
@@ -65,6 +66,7 @@
     <None Remove="Assets\linux.png" />
     <None Remove="Assets\Localization\localization.json" />
     <None Remove="Assets\mac.png" />
+    <None Remove="Assets\SQRLPlatformAwareInstaller_linux.policy" />
     <None Remove="Assets\SQRL_icon_light_128.png" />
     <None Remove="Assets\SQRL_icon_light_16.png" />
     <None Remove="Assets\SQRL_icon_light_256.png" />
@@ -87,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Icons\alert-triangle.png" />
+    <EmbeddedResource Include="Assets\SQRLPlatformAwareInstaller_linux.policy" />
     <EmbeddedResource Include="Assets\unknown.png" />
     <EmbeddedResource Include="Assets\linux.png" />
     <EmbeddedResource Include="Assets\mac.png" />

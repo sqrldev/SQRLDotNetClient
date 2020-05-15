@@ -1,4 +1,6 @@
-﻿using GitHubApi;
+﻿using Avalonia;
+using Avalonia.Platform;
+using GitHubApi;
 using Serilog;
 using SQRLCommonUI.Models;
 using SQRLPlatformAwareInstaller.Models;
@@ -17,7 +19,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
         private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
         private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
 
-        #pragma warning disable 1998
+#pragma warning disable 1998
         public async Task Install(string archiveFilePath, string installPath, string versionTag)
         {
             // The "async" in the delegate is needed, otherwise exceptions within
@@ -37,7 +39,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 {
                     Utils.MoveDb(Path.Combine(installPath, PathConf.DBNAME));
                 }
-                
+
                 Inventory.Instance.AddDirectory(installPath);
 
                 // Create icon, register sqrl:// scheme etc.
@@ -72,10 +74,45 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 Log.Information($"Running command: {chownDbFile}");
                 _shell.Term(chownDbFile, Output.Internal);
 
+                Log.Information("All us good up to this point, lets setup Linux for UAC (if we can)");
+                var result = _shell.Term("command -v pkexec", Output.Internal);
+                if (string.IsNullOrEmpty(result.stderr) && !string.IsNullOrEmpty(result.stdout))
+                {
+                    Log.Information("Creating SQRL_HOME Environment Variable and adding SQRL_HOME to PATH");
+                    string sqrlvarsFile = "/etc/profile.d/sqrl-vars.sh";
+                    using (StreamWriter sw = new StreamWriter(sqrlvarsFile))
+                    {
+                        sw.WriteLine($"export SQRL_HOME={installPath}");
+                        sw.WriteLine($"export PATH=$PATH:$SQRL_HOME");
+                        sw.Close();
+                    }
+                    Inventory.Instance.AddFile(sqrlvarsFile);
+                    Log.Information("Creating polkit rule for SQRL");
+                    var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+                    string sqrlPolkitPolicyFile = Path.Combine("/usr/share/polkit-1/actions", "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy");
+                    using (StreamWriter sw = new StreamWriter(sqrlvarsFile))
+                    {
+                        string policyFile = "";
+                        using (var stream = new StreamReader(assets.Open(new Uri("resm:SQRLPlatformAwareInstaller.Assets.SQRLPlatformAwareInstaller_linux.policy"))))
+                        {
+                            policyFile = stream.ReadToEnd();
+                        }
+                        policyFile = policyFile.Replace("INSTALLER_PATH", Path.Combine(installPath, "SQRLPlatformAwareInstaller_linux"));
+                        sw.Write(policyFile);
+                        sw.Close();
+                    }
+                    Inventory.Instance.AddFile(sqrlPolkitPolicyFile);
+
+                }
+                else
+                {
+                    Log.Warning("pkexec was not found , we can't automatically elevate permissions UAC style, user will have to do manually");
+                }
+
                 Inventory.Instance.Save();
             });
         }
-        #pragma warning restore 1998
+#pragma warning restore 1998
 
         public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
         {
@@ -110,6 +147,6 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
         }
 
 
-        
+
     }
 }
