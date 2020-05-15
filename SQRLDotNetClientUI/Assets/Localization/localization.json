@@ -532,7 +532,7 @@
     { "DbJustLoad": "Nur laden" },
     { "DbFileAlreadyLoaded": "Die von Ihnen ausgewählte Datenbank-Datei ist die bereits aktuell geladene Datei. Bitte wählen Sie eine andere Datenbank-Datei." },
     { "DbMoveError": "Beim Verschieben der Datenbank-Datei ist ein Fehler aufgetreten, bitte versuchen Sie es erneut. Fehler: {0}" },
-    { "DbFileTitle": "Select a valid sqrl.db file" },
+    { "DbFileTitle": "Wählen Sie eine gültige \"sqrl.db\" Datenbank-Datei" },
     { "IPMismatchWarningMessage": "=== !! WARNUNG !! ===\r\n\r\nMöglicher Login-Angriff entdeckt (SameIP)\r\n\r\nSQRL hat festgestellt, dass Sie beim aktuellen Login-Vorgang einem sogenannten \"Spoofing\"-Angriff ausgesetzt sein könnten. Dabei gibt sich eine bösartige Webseite für eine andere aus, um Ihre Online-Identität zu stehlen.\r\n\r\nLogin-Vorgang abgebrochen." },
     { "NoCPSWarningMessage": "=== !! WARNUNG !! ===\r\n\r\nFehlender \"Spoofing\"-Schutz (kein CPS)\r\n\r\nSQRL hat festgestellt, dass Sie beim aktuellen Login-Vorgang einem sogenannten \"Spoofing\"-Angriff ausgesetzt sein könnten. Dabei gibt sich eine bösartige Webseite für eine andere aus, um Ihre Online-Identität zu stehlen.\r\n\r\nSie sollten NUR fortfahren, wenn Sie wissen, was Sie tun!\r\n\r\nTrotzdem mit der Anmeldung fortfahren?" }
   ]
