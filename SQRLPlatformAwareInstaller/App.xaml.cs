@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.IO;
+using System;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -24,31 +25,46 @@ namespace SQRLPlatformAwareInstaller
             {
                 if (!Utils.IsAdmin())
                 {
+                    bool nogo=true;
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     {
                         Log.Information("Launched on Linux without Sudo, trying to re-launch if possible");
                         Log.Information("Checking if pkexec exists"); //This allows us to elevate a program
                         var result = _shell.Term("command -v pkexec", Output.Internal);
-                        if(string.IsNullOrEmpty(result.stderr) && !string.IsNullOrEmpty(result.stdout))
+                        if(string.IsNullOrEmpty(result.stderr.Trim()) && !string.IsNullOrEmpty(result.stdout.Trim()))
                         {
+                            string pkexec = result.stdout.Trim();
                             Log.Information("pkexec exists!");
                             result = _shell.Term("command -v $SQRL_HOME/SQRLPlatformAwareInstaller_linux");
-                            if(string.IsNullOrEmpty(result.stderr) && !string.IsNullOrEmpty(result.stdout))
+                            if(string.IsNullOrEmpty(result.stderr.Trim()) && !string.IsNullOrEmpty(result.stdout.Trim()))
                             {
                                 Log.Information("Found Installer in Path!");
-                                _shell.Term("pkexec SQRLPlatformAwareInstaller_linux",Output.External);
-                                Environment.Exit(0);
+                                
+                                var tmpScript = Path.GetTempFileName().Replace(".tmp",",sh");
+
+                                using(StreamWriter sw = new StreamWriter(tmpScript))
+                                {
+                                    sw.WriteLine("#!/bin/sh");
+                                    sw.WriteLine($"{pkexec} {result.stdout.Trim()}");
+                                }
+                                Log.Information($"Created launcher script at:{tmpScript}");
+                                _shell.Term($"chmod a+x {tmpScript}");
+                                Process proc = new Process();
+                                proc.StartInfo.FileName = tmpScript;
+                                proc.Start();
+                                nogo=false;
                             }
-                            else
-                                goto NoGo;
+                            
                         }
-                        else 
-                            goto NoGo;
+                        
                         
                     }
                     
-                    NoGo:
-                    throw new System.Exception("This app must be run as an administrator in Windows or sudo/root in Linux");
+              
+                    if(nogo)
+                        throw new System.Exception("This app must be run as an administrator in Windows or sudo/root in Linux");
+                    else
+                        Environment.Exit(0);    
                     
                 }
             }
