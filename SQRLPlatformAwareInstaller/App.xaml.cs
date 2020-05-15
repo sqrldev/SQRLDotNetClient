@@ -1,4 +1,6 @@
-﻿using Avalonia;
+﻿using System;
+using System.Diagnostics;
+using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Serilog;
@@ -27,9 +29,27 @@ namespace SQRLPlatformAwareInstaller
                         Log.Information("Launched on Linux without Sudo, trying to re-launch if possible");
                         Log.Information("Checking if pkexec exists"); //This allows us to elevate a program
                         var result = _shell.Term("command -v pkexec", Output.Internal);
+                        if(string.IsNullOrEmpty(result.stderr) && !string.IsNullOrEmpty(result.stdout))
+                        {
+                            Log.Information("pkexec exists!");
+                            result = _shell.Term("command -v SQRLPlatformAwareInstaller_linux");
+                            if(string.IsNullOrEmpty(result.stderr) && !string.IsNullOrEmpty(result.stdout))
+                            {
+                                Log.Information("Found Installer in Path!");
+                                _shell.Term("pkexec SQRLPlatformAwareInstaller_linux",Output.External);
+                                Environment.Exit(0);
+                            }
+                            else
+                                goto NoGo;
+                        }
+                        else 
+                            goto NoGo;
                         
                     }
+                    
+                    NoGo:
                     throw new System.Exception("This app must be run as an administrator in Windows or sudo/root in Linux");
+                    
                 }
             }
 
