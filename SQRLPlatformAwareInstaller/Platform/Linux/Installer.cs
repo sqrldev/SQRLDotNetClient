@@ -83,7 +83,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                     using (StreamWriter sw = new StreamWriter(sqrlvarsFile))
                     {
                         sw.WriteLine($"export SQRL_HOME={installPath}");
-                        sw.WriteLine($"export PATH=$PATH:$SQRL_HOME");
+                        sw.WriteLine("export PATH=$PATH:$SQRL_HOME");
                         sw.Close();
                     }
                     Inventory.Instance.AddFile(sqrlvarsFile);
@@ -101,6 +101,8 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                         sw.Write(policyFile);
                         sw.Close();
                     }
+                    _shell.Term("export SQRL_HOME={installPath}", Output.Internal);
+                    _shell.Term("export PATH=$PATH:$SQRL_HOME", Output.Internal);
                     Inventory.Instance.AddFile(sqrlPolkitPolicyFile);
 
                 }

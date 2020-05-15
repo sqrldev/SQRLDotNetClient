@@ -32,7 +32,7 @@ namespace SQRLPlatformAwareInstaller
                         if(string.IsNullOrEmpty(result.stderr) && !string.IsNullOrEmpty(result.stdout))
                         {
                             Log.Information("pkexec exists!");
-                            result = _shell.Term("command -v SQRLPlatformAwareInstaller_linux");
+                            result = _shell.Term("command -v $SQRL_HOME/SQRLPlatformAwareInstaller_linux");
                             if(string.IsNullOrEmpty(result.stderr) && !string.IsNullOrEmpty(result.stdout))
                             {
                                 Log.Information("Found Installer in Path!");

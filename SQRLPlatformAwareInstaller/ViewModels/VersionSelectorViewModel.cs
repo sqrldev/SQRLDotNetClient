@@ -198,10 +198,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             // path was specified on the command line, it will overrule the
             // one from the config file!
             string installPath = PathConf.ClientInstallPath;
-            string[] args = Environment.GetCommandLineArgs();
-            if (args.Length > 1 && Directory.Exists(args[1]))
+            
+
+            if (!string.IsNullOrEmpty(InstallerCommands.Instance.InstallPath) && Directory.Exists(InstallerCommands.Instance.InstallPath))
             {
-                installPath = args[1];
+                installPath = InstallerCommands.Instance.InstallPath;
             }
             this.InstallationPath = installPath;
 
