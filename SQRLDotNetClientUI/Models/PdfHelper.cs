@@ -54,10 +54,10 @@ namespace SQRLDotNetClientUI.Models
             SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
 
         /// <summary>
-        /// Creates a PDF document prominently displaying the given rescue code and 
-        /// providing some guidance for the user.
+        /// Creates a PDF document prominently displaying the given <paramref name="rescueCode"/> 
+        /// and <paramref name="identityName"/>, providing additional guidance for the user.
         /// </summary>
-        /// <param name="fileName">The full file name (including the path) for the document.</param>
+        /// <param name="fileName">The full file name (including the path) for the document to be created.</param>
         /// <param name="rescueCode">The rescue code to be printed to the document.</param>
         /// <param name="identityName">The name of the identity. This is optional, just
         /// pass <c>null</c> if no identity name should be printed to the pdf file.</param>
@@ -123,10 +123,13 @@ namespace SQRLDotNetClientUI.Models
         /// <param name="blockTypes">Spciefies a list of block types to include.</param>
         public static void CreateIdentityDocument(string fileName, SQRLIdentity identity, List<ushort> blockTypes)
         {
-            if (string.IsNullOrEmpty(fileName) || identity == null)
+            if (string.IsNullOrEmpty(fileName) || 
+                identity == null || 
+                blockTypes == null ||
+                blockTypes.Count < 1)
             {
-                throw new ArgumentException(string.Format("{0} and {1} must be specified and valid!", 
-                    nameof(fileName), nameof(identity)));
+                throw new ArgumentException(string.Format("{0}, {1} and {2} must be specified and valid!", 
+                    nameof(fileName), nameof(identity), nameof(blockTypes)));
             }
 
             _pageNr = 0;
