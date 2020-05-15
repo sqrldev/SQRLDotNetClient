@@ -161,11 +161,10 @@ namespace SQRLDotNetClientUI.Models
 
                 float qrCodeWidth = (qrCode.Width <= QRCODE_MAX_SIZE) ? qrCode.Width : QRCODE_MAX_SIZE;
                 float qrCodeHeight = (qrCode.Height <= QRCODE_MAX_SIZE) ? qrCode.Height : QRCODE_MAX_SIZE;
-                float qrCodeXPos = PAGE_WIDTH / 2 - qrCodeWidth / 2;
 
                 DrawTextBlock(title, _fontBold, 23, SKColors.Black, 10f);
                 DrawTextBlock(identityEncryptionMessage, _fontRegular, 12, SKColors.DarkGray, -5f, SKTextAlign.Left, 1.3f);
-                DrawBitmap(qrCode, new SKRect(qrCodeXPos, _yPos, qrCodeXPos + qrCodeWidth, _yPos + qrCodeHeight), 15f);
+                DrawBitmap(qrCode, SKTextAlign.Center, qrCodeWidth, qrCodeHeight, 15f);
                 DrawTextBlock(textualIdentityMessage, _fontRegular, 12, SKColors.DarkGray, 10f, SKTextAlign.Left, 1.3f);
                 DrawTextBlock(textualIdentity, _fontMonoBold, 12, SKColors.Black, 15f, SKTextAlign.Center, 1.3f); ;
                 DrawTextBlock(guidanceMessage, _fontRegular, 12, SKColors.DarkGray, 0f, SKTextAlign.Left, 1.3f);
@@ -276,14 +275,33 @@ namespace SQRLDotNetClientUI.Models
         /// excluding the <paramref name="paddingBottom"/>.
         /// </summary>
         /// <param name="bitmap">The bitmap to draw onto the document.</param>
-        /// <param name="rect">The position and size for the drawing operation.</param>
+        /// <param name="align">The image alignment.</param>
+        /// <param name="width">The desired width of the drawing.</param>
+        /// <param name="height">The desired height of the drawing.</param>
         /// <param name="paddingBottom">Adds additional vertical "whitespace" below the bitmap.</param>
-        private static float DrawBitmap(SKBitmap bitmap, SKRect rect, float paddingBottom = 15f)
+        private static float DrawBitmap(SKBitmap bitmap, SKTextAlign align, float width, float height, float paddingBottom = 15f)
         {
-            CheckAndTriggerPageBreak(rect.Height);
+            CheckAndTriggerPageBreak(height);
 
+            float imgXPos;
+
+            switch (align)
+            {
+                case SKTextAlign.Left:
+                default:
+                    imgXPos = MARGIN_LEFT;
+                    break;
+                case SKTextAlign.Center:
+                    imgXPos = PAGE_WIDTH / 2 - width / 2;
+                    break;
+                case SKTextAlign.Right:
+                    imgXPos = PAGE_WIDTH - MARGIN_LEFT - width;
+                    break;
+            }
+
+            SKRect rect = new SKRect(imgXPos, _yPos, imgXPos + width, _yPos + height);
             _canvas.DrawBitmap(bitmap, rect);
-            _yPos += rect.Height + paddingBottom;
+            _yPos += height + paddingBottom;
 
             return rect.Height;
         }
@@ -394,17 +412,21 @@ namespace SQRLDotNetClientUI.Models
         /// <summary>
         /// Checks if the current Y position plus the given <paramref name="height"/> 
         /// exceeds the maximum Y position for the page, and if it does, triggers a
-        /// page break.
+        /// page break. The return value is <c>true</c> if a page break was triggered,
+        /// or <c>false</c> otherwise.
         /// </summary>
         /// <param name="height">The heigt of the object to check.</param>
-        private static void CheckAndTriggerPageBreak(float height)
+        private static bool CheckAndTriggerPageBreak(float height)
         {
             float maxY =  PAGE_HEIGHT - MARGIN_TOP - 30;
 
             if (_yPos + height > maxY)
             {
                 StartNextPage();
+                return true;
             }
+
+            return false;
         }
 
         /// <summary>
