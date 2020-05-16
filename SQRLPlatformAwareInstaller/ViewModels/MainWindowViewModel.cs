@@ -36,11 +36,15 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <summary>
         /// Creates a new instance and sets the content of the window.
         /// </summary>
-        public MainWindowViewModel()
+        public MainWindowViewModel(bool rootBail=false)
         {
             ViewModelBase viewModel = null;
 
-            
+            if(rootBail)
+            {
+                viewModel = new RootBailViewModel();
+            }
+            else
             if (InstallerCommands.Instance != null && InstallerCommands.Instance.Action == InstallerAction.Uninstall)
             {
 

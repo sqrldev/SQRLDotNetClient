@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using ToolBox.Bridge;
 
 namespace SQRLCommonUI.Models
 {
@@ -15,6 +16,8 @@ namespace SQRLCommonUI.Models
     public static class PathConf
     {
         private static PathConfModel _model = new PathConfModel();
+        private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
+        private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
 
         /// <summary>
         /// The file name, excluding the path, of the client database file.
@@ -24,9 +27,22 @@ namespace SQRLCommonUI.Models
         /// <summary>
         /// The full file path of the config file.
         /// </summary>
-        public static readonly string ConfFile = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create),
-            "SQRL", "sqrl.conf");
+        public static string ConfFile
+        {
+            get
+            {
+                string cfPath = "";
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && AdminCheck.IsAdmin())
+                {
+                    string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
+                    string home = _shell.Term($"getent passwd {user} | cut -d: -f6", Output.Hidden).stdout.Trim();
+                    cfPath = Path.Combine(home, ".config", "SQRL", "sqrl.conf");
+                }
+                else
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "SQRL", "sqrl.conf");
+                return cfPath;
+            }
+        }
 
         /// <summary>
         /// The default client installation directory.
@@ -40,8 +56,25 @@ namespace SQRLCommonUI.Models
         /// <summary>
         /// The default client database directory.
         /// </summary>
-        public static readonly string DefaultClientDBPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SQRL");
+        public static string DefaultClientDBPath
+        {
+            get
+            {
+                string defaultDbPath = "";
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && AdminCheck.IsAdmin())
+                {
+                    string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
+                    string home = _shell.Term($"getent passwd {user} | cut -d: -f6", Output.Hidden).stdout.Trim();
+                    defaultDbPath = Path.Combine(home, "SQRL");
+                }
+                else
+                    defaultDbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SQRL");
+
+                return defaultDbPath;
+            }
+
+
+        }
 
         /// <summary>
         /// Gets or sets the SQRL client installation directory path.
@@ -149,7 +182,15 @@ namespace SQRLCommonUI.Models
             Directory.CreateDirectory(Path.GetDirectoryName(ConfFile));
             string serialized = JsonSerializer.Serialize(_model, _model.GetType(), options);
             File.WriteAllText(ConfFile, serialized);
-        }   
+
+            // Because Root owns everything UGH!
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && AdminCheck.IsAdmin())
+            {
+                string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
+                _shell.Term($"chown {user} {ConfFile}");
+                _shell.Term($"chown {user} {Path.GetDirectoryName(ConfFile)}");
+            }
+        }
     }
 
     /// <summary>

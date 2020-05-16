@@ -10,6 +10,7 @@ using SQRLPlatformAwareInstaller.ViewModels;
 using SQRLPlatformAwareInstaller.Views;
 using System.Runtime.InteropServices;
 using ToolBox.Bridge;
+using SQRLCommonUI.Models;
 
 namespace SQRLPlatformAwareInstaller
 {
@@ -18,12 +19,13 @@ namespace SQRLPlatformAwareInstaller
     {
         private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
         private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
+        private bool rootBail = false;
         public override void Initialize()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
                 RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                if (!Utils.IsAdmin())
+                if (!AdminCheck.IsAdmin())
                 {
                     bool nogo=true;
 
@@ -71,10 +73,10 @@ namespace SQRLPlatformAwareInstaller
                         
                         
                     }
-                    
-              
-                    if(nogo)
-                        throw new System.Exception("This app must be run as an administrator in Windows or sudo/root in Linux");
+
+
+                    if (nogo)
+                        rootBail = true;
                     else
                         Environment.Exit(0);    
                     
@@ -96,7 +98,7 @@ namespace SQRLPlatformAwareInstaller
             {
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
+                    DataContext = new MainWindowViewModel(rootBail),
                     Width = 600,
                     Height = 525
                 };

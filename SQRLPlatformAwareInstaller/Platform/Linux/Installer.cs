@@ -65,10 +65,20 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 _shell.Term($"xdg-desktop-menu install {Path.Combine(installPath, "sqrldev-sqrl.desktop")}", Output.Internal);
                 _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop", Output.Internal);
                 _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl", Output.Internal);
-                _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
+                string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
+                string home = _shell.Term($"getent passwd {user} | cut -d: -f6", Output.Hidden).stdout.Trim();
+                if (AdminCheck.IsAdmin())
+                {
+                    _shell.Term($"update-desktop-database {home}/.local/share/applications/", Output.Internal);
+                }
+                else
+                {
+                    _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
+                }
+                
 
                 // Change owner of database dir/file to the actual user behind the "sudo"
-                string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
+                
                 string chownDbFile = $"chown -R {user}:{user} {PathConf.ClientDBPath}";
                 Log.Information($"Determined username for chown: \"{user}\"");
                 Log.Information($"Running command: {chownDbFile}");
@@ -131,7 +141,17 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
             var desktopFile = Path.Combine(PathConf.ClientInstallPath, "sqrldev-sqrl.desktop");
             _shell.Term($"xdg-mime uninstall {desktopFile}", Output.Internal);
             _shell.Term($"xdg-desktop-menu uninstall sqrldev-sqrl.desktop", Output.Internal);
-            _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
+            string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
+            string home = _shell.Term($"getent passwd {user} | cut -d: -f6", Output.Hidden).stdout.Trim();
+            if (AdminCheck.IsAdmin())
+            {
+                _shell.Term($"update-desktop-database {home}/.local/share/applications/", Output.Internal);
+            }
+            else
+            {
+                _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
+            }
+            
 
             // Run the inventory-based uninstaller
             await Uninstaller.Run(progress, dryRun);
