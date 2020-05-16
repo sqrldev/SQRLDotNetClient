@@ -37,7 +37,7 @@ namespace SQRLPlatformAwareInstaller
                     {
                         Log.Information("Launched on Linux without Sudo, trying to re-launch if possible");
                         Log.Information("Checking if pkexec exists"); //This allows us to elevate a program
-
+                        
                         //Checks to see if pkexec exists, if it doesn't bail #NothingWeCanDo
                         var result = _shell.Term("command -v pkexec", Output.Internal);
                         if(string.IsNullOrEmpty(result.stderr.Trim()) && !string.IsNullOrEmpty(result.stdout.Trim()))
@@ -81,6 +81,7 @@ namespace SQRLPlatformAwareInstaller
                         Environment.Exit(0);    
                     
                 }
+                Log.Information($"Current Program: {Process.GetCurrentProcess().MainModule.FileName}");
             }
 
             AvaloniaXamlLoader.Load(this);
