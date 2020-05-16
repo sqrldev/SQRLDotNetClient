@@ -15,9 +15,10 @@ namespace SQRLCommonUI.Models
     /// </summary>
     public static class PathConf
     {
-        private static PathConfModel _model = new PathConfModel();
         private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
         private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
+        private static PathConfModel _model = new PathConfModel();
+        
 
         /// <summary>
         /// The file name, excluding the path, of the client database file.

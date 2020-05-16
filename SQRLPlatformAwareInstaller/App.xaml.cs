@@ -46,7 +46,7 @@ namespace SQRLPlatformAwareInstaller
                             string pkexec = result.stdout.Trim();
                             Log.Information("pkexec exists!");
                             result = _shell.Term("command -v $SQRL_HOME/SQRLPlatformAwareInstaller_linux");
-                            if(string.IsNullOrEmpty(result.stderr.Trim()) && !string.IsNullOrEmpty(result.stdout.Trim()))
+                            if(string.IsNullOrEmpty(result.stderr.Trim()) && !string.IsNullOrEmpty(result.stdout.Trim()) && File.Exists(Path.Combine("/usr/share/polkit-1/actions", "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy")))
                             {
                                 Log.Information("Found Installer in Path!");
                                 
