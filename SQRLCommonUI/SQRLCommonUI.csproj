@@ -34,10 +34,10 @@
 
   <ItemGroup>
     <None Update="C:\Users\jose\.nuget\packages\dein.toolbox\1.6.4\contentFiles\any\any\cmd.bat">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="C:\Users\jose\.nuget\packages\dein.toolbox\1.6.4\contentFiles\any\any\cmd.sh">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
