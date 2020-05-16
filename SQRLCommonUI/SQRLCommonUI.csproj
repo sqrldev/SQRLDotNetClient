@@ -5,6 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+      <TrimmerRootAssembly Include="mscorlib" />
+	  <TrimmerRootAssembly Include="System.Net.WebClient" />
+    <TrimmerRootAssembly Include="ToolBox" />
+ 
+    <TrimmerRootAssembly Include="System.IO.Compression" />
+    
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Assets\Localization\Flags\default_16.png" />
     <None Remove="Assets\Localization\Flags\germany_16.png" />
     <None Remove="Assets\Localization\Flags\united_states_16.png" />
@@ -22,6 +30,15 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.9" />
     <PackageReference Include="dein.ToolBox" Version="1.6.4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="C:\Users\jose\.nuget\packages\dein.toolbox\1.6.4\contentFiles\any\any\cmd.bat">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\jose\.nuget\packages\dein.toolbox\1.6.4\contentFiles\any\any\cmd.sh">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
