@@ -75,6 +75,14 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 _shell.Term(chownDbFile, Output.Internal);
 
                 Log.Information("All us good up to this point, lets setup Linux for UAC (if we can)");
+
+                /*
+                 * Creates the required file and system changes for SQRL to be available
+                 * ubiquitous throughout the system via a new 
+                 * environment variable SQRL_HOME and the addition of this variable to the system PATH.
+                 * 
+                 * Note that the later won't take effect until the user logs out or reboots
+                 */
                 var result = _shell.Term("command -v pkexec", Output.Internal);
                 if (string.IsNullOrEmpty(result.stderr) && !string.IsNullOrEmpty(result.stdout))
                 {

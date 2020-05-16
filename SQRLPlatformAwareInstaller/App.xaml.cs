@@ -26,13 +26,21 @@ namespace SQRLPlatformAwareInstaller
                 if (!Utils.IsAdmin())
                 {
                     bool nogo=true;
+
+                    //If Platform is Linux we can throw a hail mary and try to elevate the program by using the 
+                    //polkit protocol via pkexe see: https://www.freedesktop.org/software/polkit/docs/0.105/pkexec.1.html
+                    //In short the pkexec application allows you to request authorization and impersonation rights for an application
+                    //in order for this to work you need to have an application speciific policy installed in the application (see Platform/Linux/Installer)
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     {
                         Log.Information("Launched on Linux without Sudo, trying to re-launch if possible");
                         Log.Information("Checking if pkexec exists"); //This allows us to elevate a program
+
+                        //Checks to see if pkexec exists, if it doesn't bail #NothingWeCanDo
                         var result = _shell.Term("command -v pkexec", Output.Internal);
                         if(string.IsNullOrEmpty(result.stderr.Trim()) && !string.IsNullOrEmpty(result.stdout.Trim()))
                         {
+                            //Checks to make sure that SQRL_HOME environment variable exists as well as the SQRLPlatformInstaller this is needed for the polkit invokation
                             string pkexec = result.stdout.Trim();
                             Log.Information("pkexec exists!");
                             result = _shell.Term("command -v $SQRL_HOME/SQRLPlatformAwareInstaller_linux");
@@ -40,6 +48,10 @@ namespace SQRLPlatformAwareInstaller
                             {
                                 Log.Information("Found Installer in Path!");
                                 
+                                /*Polkit invokation forbids having a "dead" parent, so if we invoke polkit directly from here
+                                  and then kill the process it will abort. First we need to write the polkit invocation
+                                  to a shell script which is invoked externally so that we can kill our current instance of the installer cleanly.
+                                */
                                 var tmpScript = Path.GetTempFileName().Replace(".tmp",",sh");
 
                                 using(StreamWriter sw = new StreamWriter(tmpScript))
