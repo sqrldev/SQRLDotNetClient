@@ -103,8 +103,10 @@ namespace SQRLCommonUI.Models
         /// </summary>
         public static void LoadConfig()
         {
+            Log.Information($"Config File:{ConfFile}");
             if (!File.Exists(ConfFile))
             {
+                
                 // In no config file exists, "loading" shall reset the config to 
                 // default values. We achieve this by simply creating a new model.
                 _model = new PathConfModel();
