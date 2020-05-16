@@ -115,7 +115,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                         {
                             policyFile = stream.ReadToEnd();
                         }
-                        policyFile = policyFile.Replace("INSTALLER_PATH", Path.Combine(installPath, "SQRLPlatformAwareInstaller_linux"));
+                        policyFile = policyFile.Replace("INSTALLER_PATH", "/tmp/SQRLPlatformAwareInstaller_linux");
                         sw.Write(policyFile);
                         sw.Close();
                     }
