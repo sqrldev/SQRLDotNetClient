@@ -6,6 +6,9 @@ using System.Text;
 
 namespace SQRLCommonUI.Models
 {
+    /// <summary>
+    /// This class allows you to check if the current application is being run as root / admin
+    /// </summary>
     public class AdminCheck
     {
         [DllImport("libc")]

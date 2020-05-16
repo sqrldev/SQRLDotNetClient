@@ -56,6 +56,12 @@ namespace SQRLPlatformAwareInstaller
                                 */
                                 var tmpScript = Path.GetTempFileName().Replace(".tmp",",sh");
                                 Log.Information($"Copying Installer From:{Process.GetCurrentProcess().MainModule.FileName} to: /tmp/SQRLPlatformAwareInstaller_linux");
+                                
+                                /*
+                                 * Copy the current installer to /tmp/ so that it can comply with polkit requirements. Not this doesn't work correctly if you are in debug mode
+                                 * in debug mode the file you are running is a dll not an executable so be mindful of this
+                                 */ 
+                                
                                 File.Copy(Process.GetCurrentProcess().MainModule.FileName, "/tmp/SQRLPlatformAwareInstaller_linux",true);
                                 _shell.Term("chmod 777 /tmp/SQRLPlatformAwareInstaller_linux", Output.Hidden);
                                 using (StreamWriter sw = new StreamWriter(tmpScript))

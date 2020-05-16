@@ -33,6 +33,10 @@ namespace SQRLCommonUI.Models
             get
             {
                 string cfPath = "";
+                /*
+                 * If this is running on linux we and running as admin we need to hack our way
+                 * to find the current user's home directory so that we get the correct config path
+                 */
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && AdminCheck.IsAdmin())
                 {
                     string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
@@ -62,6 +66,10 @@ namespace SQRLCommonUI.Models
             get
             {
                 string defaultDbPath = "";
+                /*
+                * If this is running on linux we and running as admin we need to hack our way
+                * to find the current user's home directory so that we get the correct Default DB path
+                */
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && AdminCheck.IsAdmin())
                 {
                     string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
@@ -186,7 +194,7 @@ namespace SQRLCommonUI.Models
             string serialized = JsonSerializer.Serialize(_model, _model.GetType(), options);
             File.WriteAllText(ConfFile, serialized);
 
-            // Because Root owns everything UGH!
+            // Because in Linux Root Owns Everything we need to change the owner of the config back to our current user
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && AdminCheck.IsAdmin())
             {
                 string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
