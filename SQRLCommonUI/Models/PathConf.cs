@@ -18,7 +18,7 @@ namespace SQRLCommonUI.Models
         private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
         private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
         private static PathConfModel _model = new PathConfModel();
-        
+
 
         /// <summary>
         /// The file name, excluding the path, of the client database file.
@@ -37,11 +37,9 @@ namespace SQRLCommonUI.Models
                  * If this is running on linux we and running as admin we need to hack our way
                  * to find the current user's home directory so that we get the correct config path
                  */
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && AdminCheck.IsAdmin())
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && SystemAndShellUtils.IsAdmin())
                 {
-                    string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
-                    string home = _shell.Term($"getent passwd {user} | cut -d: -f6", Output.Hidden).stdout.Trim();
-                    cfPath = Path.Combine(home, ".config", "SQRL", "sqrl.conf");
+                    cfPath = Path.Combine(SystemAndShellUtils.GetHomePath(), ".config", "SQRL", "sqrl.conf");
                 }
                 else
                     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "SQRL", "sqrl.conf");
@@ -70,19 +68,15 @@ namespace SQRLCommonUI.Models
                 * If this is running on linux we and running as admin we need to hack our way
                 * to find the current user's home directory so that we get the correct Default DB path
                 */
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && AdminCheck.IsAdmin())
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && SystemAndShellUtils.IsAdmin())
                 {
-                    string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
-                    string home = _shell.Term($"getent passwd {user} | cut -d: -f6", Output.Hidden).stdout.Trim();
-                    defaultDbPath = Path.Combine(home, "SQRL");
+                    defaultDbPath = Path.Combine(SystemAndShellUtils.GetHomePath(), "SQRL");
                 }
                 else
                     defaultDbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SQRL");
 
                 return defaultDbPath;
             }
-
-
         }
 
         /// <summary>
@@ -145,10 +139,10 @@ namespace SQRLCommonUI.Models
         /// </summary>
         public static void LoadConfig()
         {
-            Log.Information($"Config File:{ConfFile}");
+            Log.Information($"Config File: {ConfFile}");
             if (!File.Exists(ConfFile))
             {
-                
+
                 // In no config file exists, "loading" shall reset the config to 
                 // default values. We achieve this by simply creating a new model.
                 _model = new PathConfModel();
@@ -195,9 +189,9 @@ namespace SQRLCommonUI.Models
             File.WriteAllText(ConfFile, serialized);
 
             // Because in Linux Root Owns Everything we need to change the owner of the config back to our current user
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && AdminCheck.IsAdmin())
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && SystemAndShellUtils.IsAdmin())
             {
-                string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
+                var user = SystemAndShellUtils.GetCurrentUser();
                 _shell.Term($"chown {user} {ConfFile}");
                 _shell.Term($"chown {user} {Path.GetDirectoryName(ConfFile)}");
             }

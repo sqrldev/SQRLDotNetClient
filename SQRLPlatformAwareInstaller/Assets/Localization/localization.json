@@ -106,9 +106,9 @@
       "TitleUninstall": "SQRL Client deinstallieren",
       "UninstallMessage": "Sie sind im Begriff, die SQRL Client-App von Ihrem Computer zu entfernen.\r\n\r\nSämtliche Programm-Daten werden dabei gelöscht. Ihre Benutzerdaten (z.B. ihre SQRL-Identitäten) bleiben dabei erhalten. Drücken Sie \"Deinstallieren\", um fortzufahren.",
       "BtnUninstall": "Deinstallieren",
-      "BtnExit": "Ausfahrt",
+      "BtnExit": "Beenden",
       "BailTitle": "FEHLER: Das SQRL-Installationsprogramm erfordert Root-Zugriff",
-      "RootAccessRequired": "Für die Installation / Aktualisierung von SQRL ist Root- oder Administratorzugriff erforderlich.\r\n\r\nDie Sitzung konnte nicht automatisch erhöht werden. Schließen Sie das Installationsprogramm und führen Sie es als sudo aus, um es erneut zu versuchen"
+      "RootAccessRequired": "Für die Installation / Aktualisierung von SQRL ist Root- oder Administratorzugriff erforderlich.\r\n\r\nDie Berechtigung der aktuellen Sitzung konnte nicht automatisch erhöht werden. Schließen Sie das Installationsprogramm und führen Sie es mit \"sudo\" erneut aus"
     }
   ]
 }

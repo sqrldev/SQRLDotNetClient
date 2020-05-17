@@ -25,7 +25,7 @@ namespace SQRLPlatformAwareInstaller
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
                 RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                if (!AdminCheck.IsAdmin())
+                if (!SystemAndShellUtils.IsAdmin())
                 {
                     bool nogo=true;
 
@@ -55,7 +55,7 @@ namespace SQRLPlatformAwareInstaller
                                   to a shell script which is invoked externally so that we can kill our current instance of the installer cleanly.
                                 */
                                 var tmpScript = Path.GetTempFileName().Replace(".tmp",",sh");
-                                Log.Information($"Copying Installer From:{Process.GetCurrentProcess().MainModule.FileName} to: /tmp/SQRLPlatformAwareInstaller_linux");
+                                Log.Information($"Copying Installer From: {Process.GetCurrentProcess().MainModule.FileName} to: /tmp/SQRLPlatformAwareInstaller_linux");
                                 
                                 /*
                                  * Copy the current installer to /tmp/ so that it can comply with polkit requirements. Not this doesn't work correctly if you are in debug mode
@@ -76,10 +76,7 @@ namespace SQRLPlatformAwareInstaller
                                 proc.Start();
                                 nogo=false;
                             }
-                            
                         }
-                        
-                        
                     }
 
 

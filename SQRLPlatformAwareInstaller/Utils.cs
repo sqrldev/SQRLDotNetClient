@@ -115,10 +115,7 @@ namespace SQRLPlatformAwareInstaller
                 fi.SetAccessControl(ac);
 
             }
-            else if ((RuntimeInformation.IsOSPlatform(OSPlatform.Linux)))
-            {
-                _shell.Term($"chmod 755 {file}", Output.Hidden);
-            }
+            
         }
 
         /// <summary>

@@ -4,7 +4,7 @@
  "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
 <policyconfig>
   <action id="org.freedesktop.policykit.pkexec.SQRLPlatformAwareInstaller_linux">
-    <description>Run SQRL Platform Installer  Program</description>
+    <description>Run SQRL Platform Installer Program</description>
     <message>Authentication is required to run the SQRL Platform Installer</message>
     <icon_name>system-software-install</icon_name>
     <defaults>
