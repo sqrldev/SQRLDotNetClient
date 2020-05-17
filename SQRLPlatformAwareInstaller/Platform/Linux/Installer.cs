@@ -62,8 +62,8 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 SystemAndShellUtils.Chmod(installPath, Recursive: true);
                 
                 SystemAndShellUtils.SetExecutableBit(GetClientExePath(installPath));
-                SystemAndShellUtils.SetExecutableBit(Path.Combine(installPath, "sqrldev-sqrl.desktop");
-                SystemAndShellUtils.SetExecutableBit(Path.Combine(installPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName));
+                SystemAndShellUtils.SetExecutableBit(Path.Combine(installPath, "sqrldev-sqrl.desktop"));
+                SystemAndShellUtils.SetExecutableBit(Path.Combine(installPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)));
                 _shell.Term($"xdg-desktop-menu install {Path.Combine(installPath, "sqrldev-sqrl.desktop")}", Output.Internal);
                 _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop", Output.Internal);
                 _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl", Output.Internal);
