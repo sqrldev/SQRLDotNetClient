@@ -83,13 +83,22 @@ namespace SQRLCommonUI.Models
         /// <returns></returns>
         public static bool IsPolKitAvailable()
         {
-            bool pkInstalled = false;
+
+            return !string.IsNullOrEmpty(GetPolKitLocation());
+        }
+
+
+        public static string GetPolKitLocation()
+        {
+            string polKitLocation="";
             var result = _shell.Term("command -v pkexec", Output.Internal);
-            if (string.IsNullOrEmpty(result.stderr.Trim()) && !string.IsNullOrEmpty(result.stdout))
+            if (string.IsNullOrEmpty(result.stderr.Trim()) && !string.IsNullOrEmpty(result.stdout.Trim()))
             {
-                pkInstalled = true;
+                polKitLocation = result.stdout.Trim();
+                Log.Information("pkexec exists!");
+
             }
-            return pkInstalled;
+            return polKitLocation;
         }
 
 

@@ -17,8 +17,7 @@ namespace SQRLPlatformAwareInstaller
     
     public class App : Application
     {
-        private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
-        private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
+        
         private bool rootBail = false;
         public override void Initialize()
         {
@@ -39,14 +38,13 @@ namespace SQRLPlatformAwareInstaller
                         Log.Information("Checking if pkexec exists"); //This allows us to elevate a program
                         
                         //Checks to see if pkexec exists, if it doesn't bail #NothingWeCanDo
-                        var result = _shell.Term("command -v pkexec", Output.Internal);
-                        if(string.IsNullOrEmpty(result.stderr.Trim()) && !string.IsNullOrEmpty(result.stdout.Trim()))
+                        
+                        if(SystemAndShellUtils.IsPolKitAvailable())
                         {
                             //Checks to make sure that SQRL_HOME environment variable exists as well as the SQRLPlatformInstaller this is needed for the polkit invokation
-                            string pkexec = result.stdout.Trim();
-                            Log.Information("pkexec exists!");
                             
-                            if(string.IsNullOrEmpty(result.stderr.Trim()) && File.Exists(Path.Combine("/usr/share/polkit-1/actions", "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy")))
+                            
+                            if( File.Exists(Path.Combine("/usr/share/polkit-1/actions", "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy")))
                             {
                                 Log.Information("Found Installer in Path!");
                                 
@@ -63,14 +61,16 @@ namespace SQRLPlatformAwareInstaller
                                  */ 
                                 
                                 File.Copy(Process.GetCurrentProcess().MainModule.FileName, "/tmp/SQRLPlatformAwareInstaller_linux",true);
-                                _shell.Term("chmod 777 /tmp/SQRLPlatformAwareInstaller_linux", Output.Hidden);
+                                
+                                SystemAndShellUtils.Chmod("/tmp/SQRLPlatformAwareInstaller_linux", 777);
                                 using (StreamWriter sw = new StreamWriter(tmpScript))
                                 {
                                     sw.WriteLine("#!/bin/sh");
-                                    sw.WriteLine($"{pkexec} /tmp/SQRLPlatformAwareInstaller_linux");
+                                    sw.WriteLine($"{SystemAndShellUtils.GetPolKitLocation()} /tmp/SQRLPlatformAwareInstaller_linux");
                                 }
                                 Log.Information($"Created launcher script at:{tmpScript}");
-                                _shell.Term($"chmod a+x {tmpScript}");
+                                
+                                SystemAndShellUtils.SetExecutableBit(tmpScript);
                                 Process proc = new Process();
                                 proc.StartInfo.FileName = tmpScript;
                                 proc.Start();
