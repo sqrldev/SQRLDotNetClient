@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -50,8 +51,10 @@ namespace SQRLCommonUI.Models
             string home = "";
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && SystemAndShellUtils.IsAdmin())
             {
-                string user = GetCurrentUser();
-                home = _shell.Term($"getent passwd {user} | cut -d: -f6", Output.Hidden).stdout.Trim();
+                
+                home = _shell.Term($"getent passwd { GetCurrentUser()} | cut -d: -f6", Output.Hidden).stdout.Trim();
+                Log.Information($"Current User Home Directory: {home}");
+
             }
 
             return home;
@@ -68,6 +71,7 @@ namespace SQRLCommonUI.Models
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && SystemAndShellUtils.IsAdmin())
             {
                 user = _shell.Term("logname", Output.Hidden).stdout.Trim();
+                Log.Information($"Current User: {user}");
             }
 
             return user;
@@ -97,6 +101,7 @@ namespace SQRLCommonUI.Models
         /// <param name="Recursive">If true, the permission changes are applied recursiverlly</param>
         public static void Chmod(string Path, int Permissions=755, bool Recursive=false )
         {
+            Log.Information($"Changing Permissions On File: {Path} To: {Permissions} Recursivelly: {Recursive}");
             _shell.Term($"chmod {(Recursive ? "-R " : "")}{Permissions} {Path}",Output.Hidden);
         }
 
@@ -106,6 +111,7 @@ namespace SQRLCommonUI.Models
         /// <param name="Path">Path of the file to be set as executable</param>
         public static void SetExecutableBit(string Path)
         {
+            Log.Information($"Setting File: {Path} as executable");
             _shell.Term($"chmod a+x {Path}", Output.Hidden);
         }
     }
