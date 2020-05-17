@@ -5,6 +5,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using ToolBox.Bridge;
 
 namespace SQRLCommonUI.Models
 {
@@ -14,7 +15,10 @@ namespace SQRLCommonUI.Models
     /// </summary>
     public static class PathConf
     {
+        private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
+        private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
         private static PathConfModel _model = new PathConfModel();
+
 
         /// <summary>
         /// The file name, excluding the path, of the client database file.
@@ -24,9 +28,24 @@ namespace SQRLCommonUI.Models
         /// <summary>
         /// The full file path of the config file.
         /// </summary>
-        public static readonly string ConfFile = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create),
-            "SQRL", "sqrl.conf");
+        public static string ConfFile
+        {
+            get
+            {
+                string cfPath = "";
+                /*
+                 * If this is running on linux we and running as admin we need to hack our way
+                 * to find the current user's home directory so that we get the correct config path
+                 */
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && SystemAndShellUtils.IsAdmin())
+                {
+                    cfPath = Path.Combine(SystemAndShellUtils.GetHomePath(), ".config", "SQRL", "sqrl.conf");
+                }
+                else
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "SQRL", "sqrl.conf");
+                return cfPath;
+            }
+        }
 
         /// <summary>
         /// The default client installation directory.
@@ -40,8 +59,25 @@ namespace SQRLCommonUI.Models
         /// <summary>
         /// The default client database directory.
         /// </summary>
-        public static readonly string DefaultClientDBPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SQRL");
+        public static string DefaultClientDBPath
+        {
+            get
+            {
+                string defaultDbPath = "";
+                /*
+                * If this is running on linux we and running as admin we need to hack our way
+                * to find the current user's home directory so that we get the correct Default DB path
+                */
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && SystemAndShellUtils.IsAdmin())
+                {
+                    defaultDbPath = Path.Combine(SystemAndShellUtils.GetHomePath(), "SQRL");
+                }
+                else
+                    defaultDbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SQRL");
+
+                return defaultDbPath;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the SQRL client installation directory path.
@@ -103,8 +139,10 @@ namespace SQRLCommonUI.Models
         /// </summary>
         public static void LoadConfig()
         {
+            Log.Information($"Config File: {ConfFile}");
             if (!File.Exists(ConfFile))
             {
+
                 // In no config file exists, "loading" shall reset the config to 
                 // default values. We achieve this by simply creating a new model.
                 _model = new PathConfModel();
@@ -149,7 +187,15 @@ namespace SQRLCommonUI.Models
             Directory.CreateDirectory(Path.GetDirectoryName(ConfFile));
             string serialized = JsonSerializer.Serialize(_model, _model.GetType(), options);
             File.WriteAllText(ConfFile, serialized);
-        }   
+
+            // Because in Linux Root Owns Everything we need to change the owner of the config back to our current user
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && SystemAndShellUtils.IsAdmin())
+            {
+                var user = SystemAndShellUtils.GetCurrentUser();
+                _shell.Term($"chown {user} {ConfFile}");
+                _shell.Term($"chown {user} {Path.GetDirectoryName(ConfFile)}");
+            }
+        }
     }
 
     /// <summary>

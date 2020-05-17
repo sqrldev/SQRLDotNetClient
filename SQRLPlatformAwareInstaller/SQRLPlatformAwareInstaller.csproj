@@ -26,13 +26,16 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaResource Remove="Assets\crown.png" />
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
     <AvaloniaResource Remove="Assets\Fonts\SpaceMono-Regular.ttf" />
+    <AvaloniaResource Remove="Assets\key.png" />
     <AvaloniaResource Remove="Assets\linux.png" />
     <AvaloniaResource Remove="Assets\Localization\localization.json" />
     <AvaloniaResource Remove="Assets\mac.png" />
+    <AvaloniaResource Remove="Assets\SQRLPlatformAwareInstaller_linux.policy" />
     <AvaloniaResource Remove="Assets\SQRL_icon_light_128.png" />
     <AvaloniaResource Remove="Assets\SQRL_icon_light_16.png" />
     <AvaloniaResource Remove="Assets\SQRL_icon_light_256.png" />
@@ -53,18 +56,22 @@
     <AvaloniaResource Remove="Assets\windows.png" />
     <AvaloniaResource Remove="Views\InstallationCompleteView.xaml" />
     <AvaloniaResource Remove="Views\MainInstallView.xaml" />
+    <AvaloniaResource Remove="Views\RootBailView.xaml" />
     <AvaloniaResource Remove="Views\UninstallView.xaml" />
     <AvaloniaResource Remove="Views\VersionSelectorView.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Assets\crown.png" />
     <None Remove="Assets\Fonts\SpaceMono-Bold.ttf" />
     <None Remove="Assets\Fonts\SpaceMono-BoldItalic.ttf" />
     <None Remove="Assets\Fonts\SpaceMono-Italic.ttf" />
     <None Remove="Assets\Fonts\SpaceMono-Regular.ttf" />
     <None Remove="Assets\Icons\alert-triangle.png" />
+    <None Remove="Assets\key.png" />
     <None Remove="Assets\linux.png" />
     <None Remove="Assets\Localization\localization.json" />
     <None Remove="Assets\mac.png" />
+    <None Remove="Assets\SQRLPlatformAwareInstaller_linux.policy" />
     <None Remove="Assets\SQRL_icon_light_128.png" />
     <None Remove="Assets\SQRL_icon_light_16.png" />
     <None Remove="Assets\SQRL_icon_light_256.png" />
@@ -82,19 +89,23 @@
     <None Remove="Assets\windows.png" />
     <None Remove="Views\InstallationCompleteView.xaml" />
     <None Remove="Views\MainInstallView.xaml" />
+    <None Remove="Views\RootBailView.xaml" />
     <None Remove="Views\UninstallView.xaml" />
     <None Remove="Views\VersionSelectorView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Assets\Icons\alert-triangle.png" />
+    <EmbeddedResource Include="Assets\SQRLPlatformAwareInstaller_linux.policy" />
     <EmbeddedResource Include="Assets\unknown.png" />
     <EmbeddedResource Include="Assets\linux.png" />
     <EmbeddedResource Include="Assets\mac.png" />
     <EmbeddedResource Include="Assets\windows.png" />
+    <EmbeddedResource Include="Assets\crown.png" />
+    <EmbeddedResource Include="Assets\key.png" />
     <Content Include="Assets\SQRL_icon_light_128.png" />
     <Content Include="Assets\SQRL_icon_light_16.png" />
     <Content Include="Assets\SQRL_icon_light_64.png" />
-    <Content Include="Assets\SQRL_icon_normal_128.png" />
+    <EmbeddedResource Include="Assets\SQRL_icon_normal_128.png" />
     <Content Include="Assets\SQRL_icon_normal_64.png" />
   </ItemGroup>
   <ItemGroup>
@@ -117,7 +128,7 @@
     <PackageReference Include="Avalonia" Version="0.9.9" />
     <PackageReference Include="Avalonia.Desktop" Version="0.9.9" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.9" />
-    <PackageReference Include="dein.ToolBox" Version="1.5.4" />
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Serilog" Version="2.9.0" />
@@ -144,6 +155,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\UninstallView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\RootBailView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

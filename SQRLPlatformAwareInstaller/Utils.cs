@@ -9,37 +9,15 @@ using System.Security.AccessControl;
 using Microsoft.Win32;
 using System.Security.Cryptography;
 using SQRLCommonUI.Models;
+using ToolBox.Bridge;
 
 namespace SQRLPlatformAwareInstaller
 {
     public static class Utils
     {
-        [DllImport("libc")]
-        private static extern uint getuid();
 
-        /// <summary>
-        /// Returns <c>true</c> if the current user has Administrator rights
-        /// on Windows or is the root user on Linux/macOS.
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsAdmin()
-        {
-            bool isAdmin = false;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                isAdmin = getuid() == 0;
-            else
-            {
-                using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
-                {
-                    WindowsPrincipal principal = new WindowsPrincipal(identity);
-                    isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
-
-                }
-            }
-
-            return isAdmin;
-        }
-
+        private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
+        private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
         /// <summary>
         /// Extracts the zip archive specified by <paramref name="archivePath"/> into the
         /// output directory <paramref name="outFolder"/> using <paramref name="password"/>.
@@ -137,6 +115,7 @@ namespace SQRLPlatformAwareInstaller
                 fi.SetAccessControl(ac);
 
             }
+            
         }
 
         /// <summary>

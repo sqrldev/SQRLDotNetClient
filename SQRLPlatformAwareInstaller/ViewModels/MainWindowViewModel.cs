@@ -1,5 +1,6 @@
 ﻿using ReactiveUI;
 using Serilog;
+using SQRLPlatformAwareInstaller.Models;
 using System;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
@@ -8,7 +9,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
     /// The view model for the installer's main window.
     /// </summary>
     public class MainWindowViewModel : ViewModelBase
-    {   
+    {
         ViewModelBase content;
         ViewModelBase priorContent;
 
@@ -35,18 +36,22 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <summary>
         /// Creates a new instance and sets the content of the window.
         /// </summary>
-        public MainWindowViewModel()
+        /// <param name="rootBail">When this parameter is passed (true) it tells the installer to abort and presents a warning to the user regarding sudo/root requirement</param>
+        public MainWindowViewModel(bool rootBail = false)
         {
             ViewModelBase viewModel = null;
 
-            string[] args = Environment.GetCommandLineArgs();
-
-            if (args.Length > 1 && args[1].ToLower() == "-uninstall")
+            if (rootBail)
             {
-                Log.Information($"Installer was called with \"{args[1]}\" command line switch - launching uninstall screen");
-                viewModel = new UninstallViewModel();
+                viewModel = new RootBailViewModel();
             }
             else
+            if (InstallerCommands.Instance != null && InstallerCommands.Instance.Action == InstallerAction.Uninstall)
+            {
+                Log.Information($"Installer was called with \"{InstallerCommands.Instance}\" command line switches - launching uninstall screen");
+                viewModel = new UninstallViewModel();
+            }
+            else if (InstallerCommands.Instance != null && InstallerCommands.Instance.Action == InstallerAction.Install)
             {
                 viewModel = new MainInstallViewModel();
             }

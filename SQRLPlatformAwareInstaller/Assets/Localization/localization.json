@@ -30,7 +30,11 @@
       "NoReleasesMessage": "No releases available? Try enabling pre-releases!",
       "TitleUninstall": "Uninstall SQRL Client",
       "UninstallMessage": "You are about to uninstall the SQRL client application.\r\n\r\nAll application data will be removed. Your user data (e.g. the database containing your SQRL identites) will be retained. Press \"Uninstall\" to continue.",
-      "BtnUninstall": "Uninstall"
+      "BtnUninstall": "Uninstall",
+      "BtnExit": "Exit",
+      "BailTitle": "ERROR: SQRL Installer Requires Root Access",
+      "RootAccessRequired": "Root or Admin Access is Required to Install / Update SQRL.\r\n\r\nSession couldn't be automatically elevated, please close the installer and run as sudo to try again"
+
     }
   ],
   "en-US": [
@@ -64,7 +68,10 @@
       "NoReleasesMessage": "No releases available? Try enabling pre-releases!",
       "TitleUninstall": "Uninstall SQRL Client",
       "UninstallMessage": "You are about to uninstall the SQRL client application.\r\n\r\nAll application data will be removed. Your user data (e.g. the database containing your SQRL identites) will be retained. Press \"Uninstall\" to continue.",
-      "BtnUninstall": "Uninstall"
+      "BtnUninstall": "Uninstall",
+      "BtnExit": "Exit",
+      "BailTitle": "ERROR: SQRL Installer Requires Root Access",
+      "RootAccessRequired": "Root or Admin Access is Required to Install / Update SQRL.\r\n\r\nSession couldn't be automatically elevated, please close the installer and run as sudo to try again"
     }
   ],
   "de-DE": [
@@ -98,7 +105,10 @@
       "NoReleasesMessage": "Keine Releases verfügbar? Probieren Sie, Vorab-Releases zu aktivieren!",
       "TitleUninstall": "SQRL Client deinstallieren",
       "UninstallMessage": "Sie sind im Begriff, die SQRL Client-App von Ihrem Computer zu entfernen.\r\n\r\nSämtliche Programm-Daten werden dabei gelöscht. Ihre Benutzerdaten (z.B. ihre SQRL-Identitäten) bleiben dabei erhalten. Drücken Sie \"Deinstallieren\", um fortzufahren.",
-      "BtnUninstall": "Deinstallieren"
+      "BtnUninstall": "Deinstallieren",
+      "BtnExit": "Beenden",
+      "BailTitle": "FEHLER: Das SQRL-Installationsprogramm erfordert Root-Zugriff",
+      "RootAccessRequired": "Für die Installation / Aktualisierung von SQRL ist Root- oder Administratorzugriff erforderlich.\r\n\r\nDie Berechtigung der aktuellen Sitzung konnte nicht automatisch erhöht werden. Schließen Sie das Installationsprogramm und führen Sie es mit \"sudo\" erneut aus"
     }
   ]
 }

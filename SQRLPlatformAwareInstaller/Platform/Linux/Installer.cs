@@ -1,4 +1,6 @@
-﻿using GitHubApi;
+﻿using Avalonia;
+using Avalonia.Platform;
+using GitHubApi;
 using Serilog;
 using SQRLCommonUI.Models;
 using SQRLPlatformAwareInstaller.Models;
@@ -17,7 +19,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
         private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
         private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
 
-        #pragma warning disable 1998
+#pragma warning disable 1998
         public async Task Install(string archiveFilePath, string installPath, string versionTag)
         {
             // The "async" in the delegate is needed, otherwise exceptions within
@@ -37,7 +39,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 {
                     Utils.MoveDb(Path.Combine(installPath, PathConf.DBNAME));
                 }
-                
+
                 Inventory.Instance.AddDirectory(installPath);
 
                 // Create icon, register sqrl:// scheme etc.
@@ -56,26 +58,76 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                 sb.AppendLine("MimeType=x-scheme-handler/sqrl");
                 File.WriteAllText(Path.Combine(installPath, "sqrldev-sqrl.desktop"), sb.ToString());
 
-                _shell.Term($"chmod -R 755 {installPath}", Output.Internal);
-                _shell.Term($"chmod +x {GetClientExePath(installPath)}", Output.Internal);
-                _shell.Term($"chmod +x {Path.Combine(installPath, "sqrldev-sqrl.desktop")}", Output.Internal);
-                _shell.Term($"chmod +x {Path.Combine(installPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName))}", Output.Internal);
+                
+                SystemAndShellUtils.Chmod(installPath, Recursive: true);
+                
+                SystemAndShellUtils.SetExecutableBit(GetClientExePath(installPath));
+                SystemAndShellUtils.SetExecutableBit(Path.Combine(installPath, "sqrldev-sqrl.desktop"));
+                SystemAndShellUtils.SetExecutableBit(Path.Combine(installPath, Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName)));
                 _shell.Term($"xdg-desktop-menu install {Path.Combine(installPath, "sqrldev-sqrl.desktop")}", Output.Internal);
                 _shell.Term($"gio mime x-scheme-handler/sqrl sqrldev-sqrl.desktop", Output.Internal);
                 _shell.Term($"xdg-mime default sqrldev-sqrl.desktop x-scheme-handler/sqrl", Output.Internal);
-                _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
+             
+                _shell.Term($"update-desktop-database {SystemAndShellUtils.GetHomePath()}/.local/share/applications/", Output.Internal);
+
+
 
                 // Change owner of database dir/file to the actual user behind the "sudo"
-                string user = _shell.Term("logname", Output.Hidden).stdout.Trim();
+                var user = SystemAndShellUtils.GetCurrentUser();
                 string chownDbFile = $"chown -R {user}:{user} {PathConf.ClientDBPath}";
                 Log.Information($"Determined username for chown: \"{user}\"");
                 Log.Information($"Running command: {chownDbFile}");
                 _shell.Term(chownDbFile, Output.Internal);
 
+                Log.Information("All is good up to this point, lets setup Linux for UAC (if we can)");
+
+                /*
+                 * Creates the required file and system changes for SQRL to be available
+                 * ubiquitous throughout the system via a new 
+                 * environment variable SQRL_HOME and the addition of this variable to the system PATH.
+                 * 
+                 * Note that the later won't take effect until the user logs out or reboots
+                 */
+                
+                if (SystemAndShellUtils.IsPolKitAvailable())
+                {
+                    Log.Information("Creating SQRL_HOME Environment Variable and adding SQRL_HOME to PATH");
+                    string sqrlvarsFile = "/etc/profile.d/sqrl-vars.sh";
+                    using (StreamWriter sw = new StreamWriter(sqrlvarsFile))
+                    {
+                        sw.WriteLine($"export SQRL_HOME={installPath}");
+                        sw.WriteLine("export PATH=$PATH:$SQRL_HOME");
+                        sw.Close();
+                    }
+                    Inventory.Instance.AddFile(sqrlvarsFile);
+                    Log.Information("Creating polkit rule for SQRL");
+                    var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+                    string sqrlPolkitPolicyFile = Path.Combine("/usr/share/polkit-1/actions", "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy");
+                    using (StreamWriter sw = new StreamWriter(sqrlPolkitPolicyFile))
+                    {
+                        string policyFile = "";
+                        using (var stream = new StreamReader(assets.Open(new Uri("resm:SQRLPlatformAwareInstaller.Assets.SQRLPlatformAwareInstaller_linux.policy"))))
+                        {
+                            policyFile = stream.ReadToEnd();
+                        }
+                        policyFile = policyFile.Replace("INSTALLER_PATH", "/tmp/SQRLPlatformAwareInstaller_linux");
+                        sw.Write(policyFile);
+                        sw.Close();
+                    }
+                    _shell.Term("export SQRL_HOME={installPath}", Output.Internal);
+                    _shell.Term("export PATH=$PATH:$SQRL_HOME", Output.Internal);
+                    Inventory.Instance.AddFile(sqrlPolkitPolicyFile);
+
+                }
+                else
+                {
+                    Log.Warning("pkexec was not found , we can't automatically elevate permissions UAC style, user will have to do manually");
+                }
+
                 Inventory.Instance.Save();
             });
         }
-        #pragma warning restore 1998
+#pragma warning restore 1998
 
         public async Task Uninstall(IProgress<Tuple<int, string>> progress = null, bool dryRun = true)
         {
@@ -84,7 +136,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
             var desktopFile = Path.Combine(PathConf.ClientInstallPath, "sqrldev-sqrl.desktop");
             _shell.Term($"xdg-mime uninstall {desktopFile}", Output.Internal);
             _shell.Term($"xdg-desktop-menu uninstall sqrldev-sqrl.desktop", Output.Internal);
-            _shell.Term($"update-desktop-database ~/.local/share/applications/", Output.Internal);
+            _shell.Term($"update-desktop-database {SystemAndShellUtils.GetHomePath()}/.local/share/applications/", Output.Internal);
 
             // Run the inventory-based uninstaller
             await Uninstaller.Run(progress, dryRun);
@@ -110,6 +162,6 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
         }
 
 
-        
+
     }
 }
