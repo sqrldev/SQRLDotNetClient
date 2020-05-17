@@ -87,7 +87,10 @@ namespace SQRLCommonUI.Models
             return !string.IsNullOrEmpty(GetPolKitLocation());
         }
 
-
+        /// <summary>
+        /// Gets the location of pkexec for policy kit
+        /// </summary>
+        /// <returns></returns>
         public static string GetPolKitLocation()
         {
             string polKitLocation="";
