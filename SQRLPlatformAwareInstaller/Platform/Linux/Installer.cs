@@ -24,7 +24,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
         {
             // The "async" in the delegate is needed, otherwise exceptions within
             // the delegate won't "bubble up" to the exception handlers upstream.
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 Inventory.Instance.Load();
                 Log.Information($"Installing on Linux to {installPath}");
