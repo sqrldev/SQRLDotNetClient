@@ -55,10 +55,12 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 viewModel = new UninstallViewModel();
             }
             else if (CommandLineArgs.Instance.Action == InstallerAction.Update &&
-                     !string.IsNullOrEmpty(CommandLineArgs.Instance.ZipFilePath))
+                     !string.IsNullOrEmpty(CommandLineArgs.Instance.ZipFilePath) &&
+                     !string.IsNullOrEmpty(CommandLineArgs.Instance.VersionTag))
             {
                 Log.Information("Launching version selector screen with update zip path");
-                viewModel = new VersionSelectorViewModel(CommandLineArgs.Instance.ZipFilePath);
+                viewModel = new VersionSelectorViewModel(CommandLineArgs.Instance.ZipFilePath,
+                    CommandLineArgs.Instance.VersionTag);
             }
             else
             {

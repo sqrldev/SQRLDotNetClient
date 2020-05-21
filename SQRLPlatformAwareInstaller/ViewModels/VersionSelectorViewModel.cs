@@ -187,18 +187,20 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// Creates a new instance and performs some initializations.
         /// </summary>
         /// <param name="installArchivePath">The path to the update zip file.</param>
-        public VersionSelectorViewModel(string installArchivePath)
+        /// <param name="versionTag">The version tag corresponding to the provided update zip file.</param>
+        public VersionSelectorViewModel(string installArchivePath, string versionTag)
         {
             Log.Information($"Version selection screen launched with existing update zip file path \"{installArchivePath}\"");
             Log.Information($"Initiating installation of existing update package");
-            Init(installArchivePath);
+            Init(installArchivePath, versionTag);
         }
 
         /// <summary>
         /// Performs initialization tasks.
         /// </summary>
-        /// <param name="installArchivePath">The path to an existing update zip file. (Optional)</param>
-        private async void Init(string installArchivePath = null)
+        /// <param name="installArchivePath">The path to an existing update zip file (optional).</param>
+        /// <param name="versionTag">The version tag corresponding to the provided update zip file (optional).</param>
+        private async void Init(string installArchivePath = null, string versionTag = null)
         {
             this.Title = _loc.GetLocalizationValue("TitleVersionSelector");         
 
@@ -221,10 +223,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             // If we have an update zip file already, this means a previous
             // instance of the installer has already downloaded the update
             // from Github, and we just need to finish the installation.
-            if (!string.IsNullOrEmpty(installArchivePath))
+            if (!string.IsNullOrEmpty(installArchivePath) &&
+                !string.IsNullOrEmpty(versionTag))
             {
                 this.HasReleases = true;
-                await InstallOnPlatform(installArchivePath);
+                await InstallOnPlatform(installArchivePath, versionTag);
                 return;
             }
 
@@ -306,7 +309,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private async void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
             Log.Information("Download completed");
-            await InstallOnPlatform(this._downloadedFileName);
+            await InstallOnPlatform(this._downloadedFileName, this.SelectedRelease?.tag_name);
         }
 
         /// <summary>
@@ -314,7 +317,9 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// according to the detected platform.
         /// </summary>
         /// <param name="downloadedFileName">The downloaded application files to install.</param>
-        private async Task InstallOnPlatform(string downloadedFileName)
+        /// <param name="versionTag">The version tag corresponding to the selected release or
+        /// the provided update zip file.</param>
+        private async Task InstallOnPlatform(string downloadedFileName, string versionTag)
         {
             // Set the progress bar to "indeterminate"
             Dispatcher.UIThread.Post(() =>
@@ -365,7 +370,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             Log.Information($"Launching installation");
             try
             {
-                await _installer.Install(downloadedFileName, this.InstallationPath, this.SelectedRelease?.tag_name);
+                await _installer.Install(downloadedFileName, this.InstallationPath, versionTag);
             }
             catch (Exception ex)
             {
