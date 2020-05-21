@@ -38,11 +38,22 @@ namespace SQRLPlatformAwareInstaller.Models
 
         /// <summary>
         /// Command line switch -z | zip "path". Specifies the location of the temporary 
-        /// update zip file (used in conjunction with update action)
+        /// update zip file (used in conjunction with update action). If this is set, the
+        /// "version" argument has to be provided, too.
         /// </summary>
         [Option('z', "zip", Required = false, Default = "", 
             HelpText = "Specifies the location of the temporary update zip file (used in conjunction with update action)")]
         public string ZipFilePath { get; set; }
+
+        /// <summary>
+        /// Command line switch -v | version "version tag". When used in conjunction with the 
+        /// "install" action, specifies the version tag of the release to pre-select in the UI.
+        /// When used in conjunction with the "update" action, specifies the version tag of the
+        /// update archive provided with the <see cref="ZipFilePath">-z</see> switch.
+        /// </summary>
+        [Option('v', "version", Required = false, Default = "",
+            HelpText = "Specifies the version tag to preselect (install) or the version tag of the existing update zip file (update)")]
+        public string VersionTag { get; set; }
 
         /// <summary>
         /// Provides static access to the command line arguments passed to the
@@ -64,7 +75,8 @@ namespace SQRLPlatformAwareInstaller.Models
                     {
                         Action = InstallerAction.Install,
                         InstallPath = null,
-                        ZipFilePath = null
+                        ZipFilePath = null,
+                        VersionTag = null
                     };
                 }
             }
@@ -72,7 +84,7 @@ namespace SQRLPlatformAwareInstaller.Models
 
         public override string ToString()
         {
-            return $"-a {this.Action} -p: {this.InstallPath} -z: {this.ZipFilePath}";
+            return $"-a {this.Action} -p: {this.InstallPath} -z: {this.ZipFilePath} -v: {VersionTag}";
         }
     }
 }
