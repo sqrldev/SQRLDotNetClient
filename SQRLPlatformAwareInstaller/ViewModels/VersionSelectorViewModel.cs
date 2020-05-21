@@ -189,14 +189,15 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <param name="installArchivePath">The path to the update zip file.</param>
         public VersionSelectorViewModel(string installArchivePath)
         {
-            Log.Information("Version selection screen launched with archive path");
+            Log.Information($"Version selection screen launched with existing update zip file path \"{installArchivePath}\"");
+            Log.Information($"Initiating installation of existing update package");
             Init(installArchivePath);
         }
 
         /// <summary>
         /// Performs initialization tasks.
         /// </summary>
-        /// <param name="installArchivePath">The path to the update zip file.</param>
+        /// <param name="installArchivePath">The path to an existing update zip file. (Optional)</param>
         private async void Init(string installArchivePath = null)
         {
             this.Title = _loc.GetLocalizationValue("TitleVersionSelector");         
@@ -217,7 +218,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             _installer = Activator.CreateInstance(
                 Implementation.ForType<IInstaller>()) as IInstaller;
 
-            // If we have an archive path already, this means a previous
+            // If we have an update zip file already, this means a previous
             // instance of the installer has already downloaded the update
             // from Github, and we just need to finish the installation.
             if (!string.IsNullOrEmpty(installArchivePath))
