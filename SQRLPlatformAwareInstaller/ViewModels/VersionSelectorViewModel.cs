@@ -184,25 +184,32 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         }
 
         /// <summary>
+        /// Creates a new instance and performs some initializations.
+        /// </summary>
+        /// <param name="installArchivePath">The path to the update zip file.</param>
+        public VersionSelectorViewModel(string installArchivePath)
+        {
+            Log.Information("Version selection screen launched with archive path");
+            Init(installArchivePath);
+        }
+
+        /// <summary>
         /// Performs initialization tasks.
         /// </summary>
-        private void Init()
+        /// <param name="installArchivePath">The path to the update zip file.</param>
+        private async void Init(string installArchivePath = null)
         {
             this.Title = _loc.GetLocalizationValue("TitleVersionSelector");         
-
-            this.WhenAnyValue(x => x.EnablePreReleases)
-                .Subscribe(x => GetReleases());
 
             // Let's set the preset for the client installation path.
             // We first fetch the path from the config file, but if a valid
             // path was specified on the command line, it will overrule the
             // one from the config file!
             string installPath = PathConf.ClientInstallPath;
-            
-
-            if (!string.IsNullOrEmpty(InstallerCommands.Instance.InstallPath) && Directory.Exists(InstallerCommands.Instance.InstallPath))
+            if (!string.IsNullOrEmpty(CommandLineArgs.Instance.InstallPath) && 
+                Directory.Exists(CommandLineArgs.Instance.InstallPath))
             {
-                installPath = InstallerCommands.Instance.InstallPath;
+                installPath = CommandLineArgs.Instance.InstallPath;
             }
             this.InstallationPath = installPath;
 
@@ -210,9 +217,26 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             _installer = Activator.CreateInstance(
                 Implementation.ForType<IInstaller>()) as IInstaller;
 
+            // If we have an archive path already, this means a previous
+            // instance of the installer has already downloaded the update
+            // from Github, and we just need to finish the installation.
+            if (!string.IsNullOrEmpty(installArchivePath))
+            {
+                this.HasReleases = true;
+                await InstallOnPlatform(installArchivePath);
+                return;
+            }
+
+            // If we get here, we need to let the user choose a release
+            // and download and install it
+
+            this.WhenAnyValue(x => x.EnablePreReleases)
+                .Subscribe(x => GetReleases());
+
             // Initialize the web client we use to download stuff from Github
             _webClient = new WebClient();
-            _webClient.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
+            _webClient.CachePolicy = new System.Net.Cache.RequestCachePolicy(
+                System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
             _webClient.Headers.Add("User-Agent", GitHubHelper.SQRLInstallerUserAgent);
 
             // Fetch releases from Github
@@ -340,7 +364,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             Log.Information($"Launching installation");
             try
             {
-                await _installer.Install(downloadedFileName, this.InstallationPath, this.SelectedRelease.tag_name);
+                await _installer.Install(downloadedFileName, this.InstallationPath, this.SelectedRelease?.tag_name);
             }
             catch (Exception ex)
             {
