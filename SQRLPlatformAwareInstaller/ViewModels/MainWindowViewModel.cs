@@ -36,23 +36,33 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// <summary>
         /// Creates a new instance and sets the content of the window.
         /// </summary>
-        /// <param name="rootBail">When this parameter is passed (true) it tells the installer to abort and presents a warning to the user regarding sudo/root requirement</param>
+        /// <param name="rootBail">When this parameter is passed (true) it tells the installer to abort and 
+        /// presents a warning to the user regarding sudo/root requirement</param>
         public MainWindowViewModel(bool rootBail = false)
         {
             ViewModelBase viewModel = null;
 
+            Log.Information($"Installer was called with \"{CommandLineArgs.Instance}\" command line switches");
+
             if (rootBail)
             {
+                Log.Information("Launching \"root bail\" screen");
                 viewModel = new RootBailViewModel();
             }
-            else
-            if (InstallerCommands.Instance != null && InstallerCommands.Instance.Action == InstallerAction.Uninstall)
+            else if (CommandLineArgs.Instance.Action == InstallerAction.Uninstall)
             {
-                Log.Information($"Installer was called with \"{InstallerCommands.Instance}\" command line switches - launching uninstall screen");
+                Log.Information("Launching uninstall screen");
                 viewModel = new UninstallViewModel();
             }
-            else if (InstallerCommands.Instance != null && InstallerCommands.Instance.Action == InstallerAction.Install)
+            else if (CommandLineArgs.Instance.Action == InstallerAction.Update &&
+                     !string.IsNullOrEmpty(CommandLineArgs.Instance.ZipFilePath))
             {
+                Log.Information("Launching version selector screen with update zip path");
+                viewModel = new VersionSelectorViewModel(CommandLineArgs.Instance.ZipFilePath);
+            }
+            else
+            {
+                Log.Information("Launching main install screen");
                 viewModel = new MainInstallViewModel();
             }
 
