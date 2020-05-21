@@ -32,18 +32,21 @@ namespace SQRLCommonUI.Models
         {
             get
             {
-                string cfPath = "";
-                /*
-                 * If this is running on linux we and running as admin we need to hack our way
-                 * to find the current user's home directory so that we get the correct config path
-                 */
+                string path = "";
+                
+                // If this is running on linux we and running as admin we need to hack our way
+                // to find the current user's home directory so that we get the correct config path.
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && SystemAndShellUtils.IsAdmin())
                 {
-                    cfPath = Path.Combine(SystemAndShellUtils.GetHomePath(), ".config", "SQRL", "sqrl.conf");
+                    path = Path.Combine(SystemAndShellUtils.GetHomePath(), ".config", "SQRL", "sqrl.conf");
                 }
                 else
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "SQRL", "sqrl.conf");
-                return cfPath;
+                {
+                    path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData,
+                        Environment.SpecialFolderOption.Create), "SQRL", "sqrl.conf");
+                }
+                    
+                return path;
             }
         }
 
