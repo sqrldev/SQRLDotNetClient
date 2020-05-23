@@ -309,7 +309,33 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private async void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
             Log.Information("Download completed");
-            await InstallOnPlatform(this._downloadedFileName, this.SelectedRelease?.tag_name);
+
+            // Try to extract and launch the new installer binary from the downloaded
+            // update package, so that it can continue with the installation.
+            try
+            {
+                Log.Information("Extracting new installer from downloaded archive.");
+                var installerExecutableName = CommonUtils.GetInstallerByPlatform();
+                var outFile = Path.Combine(Path.GetTempPath(), installerExecutableName);
+                Utils.ExtractSingleFile(this._downloadedFileName, null, installerExecutableName, outFile);
+                SystemAndShellUtils.SetExecutableBit(outFile);
+
+                Process process = new Process();
+                process.StartInfo.FileName = outFile;
+                process.StartInfo.WorkingDirectory = Path.GetDirectoryName(outFile);
+                process.StartInfo.ArgumentList.Add($"-a Update");
+                process.StartInfo.ArgumentList.Add($"-z \"{_downloadedFileName}\"");
+                process.StartInfo.ArgumentList.Add($"-v \"{_selectedRelease?.tag_name}\"");
+
+                process.Start();
+                Environment.Exit(0);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error extracting new installer from downloaded archive:\r\n{ex}");
+                Log.Error($"Continuing installation with current, outdated installer");
+                await InstallOnPlatform(this._downloadedFileName, this.SelectedRelease?.tag_name);
+            }
         }
 
         /// <summary>
@@ -375,19 +401,27 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             catch (Exception ex)
             {
                 Log.Error($"Error during installation:\r\n{ex}");
-                Dispatcher.UIThread.Post(() =>
-                {
-                    this.InstallStatusColor = Brushes.Red;
-                    this.InstallStatus = _loc.GetLocalizationValue("InstallStatusError");
-                    this.DownloadPercentage = 100;
-                    this.IsProgressIndeterminate = false;
-                });
-                
+                SetErrorStatus();
                 return;
             }
 
             ((MainWindowViewModel)_mainWindow.DataContext).Content =
                 new InstallationCompleteViewModel(_installer.GetClientExePath(this.InstallationPath));
+        }
+
+        /// <summary>
+        /// Displays a red error status message in the UI, asking the user to
+        /// check the log file and provide information to the developers.
+        /// </summary>
+        private void SetErrorStatus()
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                this.InstallStatusColor = Brushes.Red;
+                this.InstallStatus = _loc.GetLocalizationValue("InstallStatusError");
+                this.DownloadPercentage = 100;
+                this.IsProgressIndeterminate = false;
+            });
         }
 
         /// <summary>
