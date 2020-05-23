@@ -17,8 +17,8 @@ namespace SQRLPlatformAwareInstaller
     
     public class App : Application
     {
-        
         private bool rootBail = false;
+
         public override void Initialize()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || 
@@ -28,49 +28,59 @@ namespace SQRLPlatformAwareInstaller
                 {
                     bool nogo=true;
 
-                    //If Platform is Linux we can throw a hail mary and try to elevate the program by using the 
-                    //polkit protocol via pkexe see: https://www.freedesktop.org/software/polkit/docs/0.105/pkexec.1.html
-                    //In short the pkexec application allows you to request authorization and impersonation rights for an application
-                    //in order for this to work you need to have an application speciific policy installed in the application (see Platform/Linux/Installer)
+                    // If platform is Linux we can throw a hail mary and try to elevate the program by using the 
+                    // polkit protocol via pkexe, see: https://www.freedesktop.org/software/polkit/docs/0.105/pkexec.1.html
+                    // In short, the pkexec application allows you to request authorization and impersonation rights 
+                    // for an application in order for this to work you need to have an application specific policy 
+                    // installed in the application (see Platform/Linux/Installer)
+
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     {
-                        Log.Information("Launched on Linux without Sudo, trying to re-launch if possible");
+                        Log.Information("Launched on Linux without sudo, trying to re-launch if possible");
                         Log.Information("Checking if pkexec exists"); //This allows us to elevate a program
                         
-                        //Checks to see if pkexec exists, if it doesn't bail #NothingWeCanDo
-                        
+                        // Check if pkexec exists, if it doesn't bail #NothingWeCanDo
                         if(SystemAndShellUtils.IsPolKitAvailable())
                         {
-                            //Checks to make sure that SQRL_HOME environment variable exists as well as the SQRLPlatformInstaller this is needed for the polkit invokation
-                            
-                            
-                            if( File.Exists(Path.Combine("/usr/share/polkit-1/actions", "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy")))
+                            Log.Information("PolicyKit available, pkexec exists!");
+
+                            // Checks to make sure that SQRL_HOME environment variable exists as well as the SQRLPlatformInstaller 
+                            // this is needed for the polkit invokation
+
+                            if ( File.Exists(Path.Combine("/usr/share/polkit-1/actions", 
+                                "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy")))
                             {
-                                Log.Information("Found Installer in Path!");
-                                
-                                /*Polkit invokation forbids having a "dead" parent, so if we invoke polkit directly from here
-                                  and then kill the process it will abort. First we need to write the polkit invocation
-                                  to a shell script which is invoked externally so that we can kill our current instance of the installer cleanly.
-                                */
-                                var tmpScript = Path.GetTempFileName().Replace(".tmp",",sh");
-                                Log.Information($"Copying Installer From: {Process.GetCurrentProcess().MainModule.FileName} to: /tmp/SQRLPlatformAwareInstaller_linux");
-                                
-                                /*
-                                 * Copy the current installer to /tmp/ so that it can comply with polkit requirements. Not this doesn't work correctly if you are in debug mode
-                                 * in debug mode the file you are running is a dll not an executable so be mindful of this
-                                 */ 
-                                
-                                File.Copy(Process.GetCurrentProcess().MainModule.FileName, "/tmp/SQRLPlatformAwareInstaller_linux",true);
-                                
-                                SystemAndShellUtils.Chmod("/tmp/SQRLPlatformAwareInstaller_linux", 777);
+                                Log.Information("Found existing PoliryKit policy file for Installer!");
+
+                                // Copy the current installer to /tmp/ so that it can comply with polkit requirements. Note this 
+                                // doesn't work correctly if you are in debug mode. In debug mode the file you are running is a dll, 
+                                // not an executable, so be mindful of this
+
+                                string currentLocation = Process.GetCurrentProcess().MainModule.FileName;
+                                string tempLocation = $"/tmp/{CommonUtils.GetInstallerByPlatform()}";
+
+                                if (currentLocation != tempLocation)
+                                {
+                                    Log.Information($"Copying Installer from \"{currentLocation}\" to \"{tempLocation}\"");
+                                    File.Copy(Process.GetCurrentProcess().MainModule.FileName, "/tmp/SQRLPlatformAwareInstaller_linux", true);
+                                    SystemAndShellUtils.Chmod("/tmp/SQRLPlatformAwareInstaller_linux", 777);
+                                }
+
+                                // PolKit invocation forbids having a "dead" parent, so if we invoke PolKit directly from here
+                                // and then kill the process, it will abort. First we need to write the polkit invocation
+                                // to a shell script which is invoked externally, so that we can kill our current instance of 
+                                // the installer cleanly.
+
+                                var tmpScript = Path.GetTempFileName().Replace(".tmp", ".sh");
                                 using (StreamWriter sw = new StreamWriter(tmpScript))
                                 {
                                     sw.WriteLine("#!/bin/sh");
-                                    sw.WriteLine($"{SystemAndShellUtils.GetPolKitLocation()} /tmp/SQRLPlatformAwareInstaller_linux");
+                                    sw.WriteLine($"{SystemAndShellUtils.GetPolKitLocation()} {tempLocation}");
                                 }
-                                Log.Information($"Created launcher script at:{tmpScript}");
+                                Log.Information($"Created launcher script at: {tmpScript}");
                                 
                                 SystemAndShellUtils.SetExecutableBit(tmpScript);
+
                                 Process proc = new Process();
                                 proc.StartInfo.FileName = tmpScript;
                                 proc.Start();
@@ -79,14 +89,12 @@ namespace SQRLPlatformAwareInstaller
                         }
                     }
 
-
                     if (nogo)
                         rootBail = true;
                     else
                         Environment.Exit(0);    
-                    
                 }
-                Log.Information($"Current Program: {Process.GetCurrentProcess().MainModule.FileName}");
+                Log.Information($"Current program: {Process.GetCurrentProcess().MainModule.FileName}");
             }
 
             AvaloniaXamlLoader.Load(this);
