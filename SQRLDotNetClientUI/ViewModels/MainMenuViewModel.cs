@@ -372,7 +372,7 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             IBridgeSystem _bridgeSystem = BridgeSystem.Bash;
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string installer = GetInstallerByPlatform();
+            string installer = CommonUtils.GetInstallerByPlatform();
             if (File.Exists(Path.Combine(directory, installer)))
             {
                 var tempFile = Path.GetTempPath();
@@ -452,21 +452,6 @@ namespace SQRLDotNetClientUI.ViewModels
                     throw;
                 }
             }
-        }
-
-        /// <summary>
-        /// Returns the name of the installer corresponding to the current platform.
-        /// </summary>
-        private string GetInstallerByPlatform()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return "SQRLPlatformAwareInstaller_win.exe";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                return "SQRLPlatformAwareInstaller_osx";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                return "SQRLPlatformAwareInstaller_linux";
-
-            return "";
         }
 
         /// <summary>
