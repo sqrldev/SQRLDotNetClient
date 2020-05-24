@@ -9,7 +9,6 @@ using SQRLCommonUI.AvaloniaExtensions;
 using SQRLPlatformAwareInstaller.ViewModels;
 using SQRLPlatformAwareInstaller.Views;
 using System.Runtime.InteropServices;
-using ToolBox.Bridge;
 using SQRLCommonUI.Models;
 
 namespace SQRLPlatformAwareInstaller
@@ -31,8 +30,8 @@ namespace SQRLPlatformAwareInstaller
                     // If platform is Linux we can throw a hail mary and try to elevate the program by using the 
                     // polkit protocol via pkexe, see: https://www.freedesktop.org/software/polkit/docs/0.105/pkexec.1.html
                     // In short, the pkexec application allows you to request authorization and impersonation rights 
-                    // for an application in order for this to work you need to have an application specific policy 
-                    // installed in the application (see Platform/Linux/Installer)
+                    // for an application. In order for this to work, you need to have an application specific policy 
+                    // installed in the application (see Platform/Linux/Installer).
 
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     {
@@ -50,7 +49,7 @@ namespace SQRLPlatformAwareInstaller
                             if ( File.Exists(Path.Combine("/usr/share/polkit-1/actions", 
                                 "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy")))
                             {
-                                Log.Information("Found existing PoliryKit policy file for Installer!");
+                                Log.Information("Found existing PolicyKit policy file for Installer!");
 
                                 // Copy the current installer to /tmp/ so that it can comply with polkit requirements. Note this 
                                 // doesn't work correctly if you are in debug mode. In debug mode the file you are running is a dll, 
@@ -94,7 +93,7 @@ namespace SQRLPlatformAwareInstaller
                     else
                         Environment.Exit(0);    
                 }
-                Log.Information($"Current program: {Process.GetCurrentProcess().MainModule.FileName}");
+                Log.Information($"Current executable path: {Process.GetCurrentProcess().MainModule.FileName}");
             }
 
             AvaloniaXamlLoader.Load(this);

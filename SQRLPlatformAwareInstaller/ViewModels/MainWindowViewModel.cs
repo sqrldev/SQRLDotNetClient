@@ -42,7 +42,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         {
             ViewModelBase viewModel = null;
 
-            Log.Information($"Installer was called with \"{CommandLineArgs.Instance}\" command line switches");
+            Log.Information($"Installer was called with these command line switches: {CommandLineArgs.Instance}");
 
             if (rootBail)
             {

@@ -84,7 +84,12 @@ namespace SQRLPlatformAwareInstaller.Models
 
         public override string ToString()
         {
-            return $"-a {this.Action} -p: {this.InstallPath} -z: {this.ZipFilePath} -v: {VersionTag}";
+            string a = string.IsNullOrEmpty(this.Action.ToString()) ? "" : $"-a {this.Action} ";
+            string p = string.IsNullOrEmpty(this.InstallPath.ToString()) ? "" : $"-p {this.InstallPath} ";
+            string z = string.IsNullOrEmpty(this.ZipFilePath.ToString()) ? "" : $"-z {this.ZipFilePath} ";
+            string v = string.IsNullOrEmpty(this.VersionTag.ToString()) ? "" : $"-a {this.VersionTag} ";
+
+            return $"{a}{p}{z}{v}";
         }
     }
 }
