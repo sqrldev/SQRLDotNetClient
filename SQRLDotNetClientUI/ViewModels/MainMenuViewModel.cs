@@ -332,8 +332,8 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             Log.Information("User initiated installation of update");
 
-            var installPathArgument = $"\"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\"";
-            bool success = await RunInstaller(installPathArgument);
+            var installPath = $"\"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\"";
+            bool success = await RunInstaller($"-a Install {installPath}");
             if (success)
             {
                 Log.CloseAndFlush();
@@ -355,7 +355,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (result != MessagBoxDialogResult.YES) return;
 
-            var uninstallArgument = "-uninstall";
+            var uninstallArgument = "-a Uninstall";
             bool success = await RunInstaller(uninstallArgument);
             if (success)
             {
@@ -455,7 +455,8 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         /// <summary>
-        /// Allows a user to pick and load or import a sqrl.db file to be used to store application identities and settings
+        /// Allows a user to pick and load or import a sqrl.db file to be used to 
+        /// store application identities and settings.
         /// </summary>
         private async void ImportDB()
         {
@@ -473,18 +474,21 @@ namespace SQRLDotNetClientUI.ViewModels
                 if (string.Compare(PathConf.FullClientDbPath.Trim(), result[0].Trim(), true) == 0)
                 {
                     Log.Error("The chosen file is the same as the currently loaded Db File, Abort");
-                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), _loc.GetLocalizationValue("DbFileAlreadyLoaded"), messageBoxIcon: MessageBoxIcons.ERROR).ShowDialog(this);
+                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), 
+                        _loc.GetLocalizationValue("DbFileAlreadyLoaded"), messageBoxIcon: MessageBoxIcons.ERROR)
+                        .ShowDialog(this);
                 }
                 else
                 {
                     var diagResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("GenericQuestionTitle"),
-                           string.Format(_loc.GetLocalizationValue("DbMoveQuestion"), PathConf.FullClientDbPath, result[0], Path.Combine(PathConf.DefaultClientDBPath, PathConf.DBNAME)),
-                           MessageBoxSize.Medium, MessageBoxButtons.Custom, MessageBoxIcons.QUESTION, new MessageBoxCustomButton [] {
-                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("DbMoveAndLoad"),MessagBoxDialogResult.CUSTOM1,true),
-                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("DbJustLoad"),MessagBoxDialogResult.CUSTOM2,false),
-                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("BtnCancel"),MessagBoxDialogResult.CANCEL,false)})
-
+                        string.Format(_loc.GetLocalizationValue("DbMoveQuestion"), 
+                        PathConf.FullClientDbPath, result[0], Path.Combine(PathConf.DefaultClientDBPath, PathConf.DBNAME)),
+                        MessageBoxSize.Medium, MessageBoxButtons.Custom, MessageBoxIcons.QUESTION, new MessageBoxCustomButton [] {
+                            new MessageBoxCustomButton (_loc.GetLocalizationValue("DbMoveAndLoad"),MessagBoxDialogResult.CUSTOM1,true),
+                            new MessageBoxCustomButton (_loc.GetLocalizationValue("DbJustLoad"),MessagBoxDialogResult.CUSTOM2,false),
+                            new MessageBoxCustomButton (_loc.GetLocalizationValue("BtnCancel"),MessagBoxDialogResult.CANCEL,false)})
                            .ShowDialog(this);
+
                     switch (diagResult)
                     {
                         // Move and Load
@@ -504,7 +508,9 @@ namespace SQRLDotNetClientUI.ViewModels
                                 catch(Exception err)
                                 {
                                     Log.Error($"Error moving DB File Error: {err.ToString()}");
-                                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), _loc.GetLocalizationValue("DbMoveError"), messageBoxIcon: MessageBoxIcons.ERROR).ShowDialog(this);                                    
+                                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), 
+                                        _loc.GetLocalizationValue("DbMoveError"), messageBoxIcon: MessageBoxIcons.ERROR)
+                                        .ShowDialog(this);                                    
                                 }
                             }
                             break;
