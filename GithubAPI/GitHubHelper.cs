@@ -35,16 +35,16 @@ namespace GitHubApi
         /// <summary>
         /// Specifies the keyword that, when present in a release tag, tells
         /// the release checker to omit those releases if we're not in 
-        /// testing mode (<seealso cref="_testReleaseFile"/>).
+        /// testing mode (<seealso cref="_testEnvironmentVariable"/>).
         /// </summary>
         private static readonly string _testReleaseKeyword = "test";
 
         /// <summary>
-        /// Specifies the "magic" file name for switching to testing/dev mode.
-        /// If a file with this name is present in the executable's directory,
+        /// Specifies the environment variable name for switching to testing/dev mode.
+        /// If an environment variable with this name is present and non-empty in the system,
         /// test releases will be included in the release list (<seealso cref="_testReleaseKeyword"/>.
         /// </summary>
-        private static readonly string _testReleaseFile = "TESTING";
+        private static readonly string _testEnvironmentVariable = "SQRL_TESTMODE";
 
         /// <summary>
         /// Defines the file name for the Github authrorization file which must
@@ -98,15 +98,12 @@ namespace GitHubApi
 
                 if (fromFile) return releases;
 
-                // If a file with the specified "magic" name exists in the executable's
-                // directory, we show all releases, otherwise we hide those which contain 
-                // the defined test keyword.
-                var testFile = Path.Combine(Path.GetDirectoryName(
-                    Assembly.GetExecutingAssembly().Location), _testReleaseFile);
-
-                if (File.Exists(testFile))
+                // If the test mode environment variable exists,
+                // we show all releases, otherwise we hide test releases.
+                var envVar = Environment.GetEnvironmentVariable(_testEnvironmentVariable);
+                if (!string.IsNullOrEmpty(envVar))
                 {
-                    Log.Information("Magic file found, enabling test releases!");
+                    Log.Information("Testing environment variable found, enabling test releases!");
                 }
                 else
                 {
