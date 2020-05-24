@@ -338,32 +338,43 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         {
             Log.Information("Download completed");
 
-            // Try to extract and launch the new installer binary from the downloaded
-            // update package, so that it can continue with the installation.
-            try
+            if (CommandLineArgs.Instance.Action == InstallerAction.Update)
             {
-                Log.Information("Extracting new installer from downloaded archive.");
-                var installerExecutableName = CommonUtils.GetInstallerByPlatform();
-                var outFile = Path.Combine(Path.GetTempPath(), installerExecutableName);
-                Utils.ExtractSingleFile(this._downloadedFileName, null, installerExecutableName, outFile);
-                SystemAndShellUtils.SetExecutableBit(outFile);
+                // We're in "update" mode, so try to extract and launch the new installer binary from 
+                // the downloaded update package, so that it can continue with the installation.
+                // This way, we don't need to wait for the next release to benefit from enhancements
+                // in the installer.
+                try
+                {
+                    Log.Information("Extracting new installer from downloaded archive.");
+                    var installerExeName = CommonUtils.GetInstallerByPlatform();
+                    var tempDir = Path.Combine(Path.GetTempPath(), "SQRL", DateTime.Now.Ticks.ToString());
+                    var installerTempFilePath = Path.Combine(tempDir, installerExeName);
+                    Log.Information($"Temp file path for installer: \"{installerTempFilePath}\"");
+                    var outFile = Path.Combine(tempDir, installerExeName);
 
-                Process process = new Process();
-                process.StartInfo.FileName = outFile;
-                process.StartInfo.WorkingDirectory = Path.GetDirectoryName(outFile);
-                process.StartInfo.ArgumentList.Add($"-a Update");
-                process.StartInfo.ArgumentList.Add($"-z \"{_downloadedFileName}\"");
-                process.StartInfo.ArgumentList.Add($"-v \"{_selectedRelease?.tag_name}\"");
+                    Directory.CreateDirectory(tempDir);
+                    Utils.ExtractSingleFile(this._downloadedFileName, null, installerExeName, outFile);
+                    SystemAndShellUtils.SetExecutableBit(outFile);
 
-                process.Start();
-                Environment.Exit(0);
+                    Process process = new Process();
+                    process.StartInfo.FileName = outFile;
+                    process.StartInfo.WorkingDirectory = Path.GetDirectoryName(outFile);
+                    process.StartInfo.ArgumentList.Add($"-a Update");
+                    process.StartInfo.ArgumentList.Add($"-z \"{_downloadedFileName}\"");
+                    process.StartInfo.ArgumentList.Add($"-v \"{_selectedRelease?.tag_name}\"");
+                    process.Start();
+
+                    Environment.Exit(0);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error extracting new installer from downloaded archive:\r\n{ex}");
+                    Log.Error($"Continuing installation with current, outdated installer");
+                }
             }
-            catch (Exception ex)
-            {
-                Log.Error($"Error extracting new installer from downloaded archive:\r\n{ex}");
-                Log.Error($"Continuing installation with current, outdated installer");
-                await InstallOnPlatform(this._downloadedFileName, this.SelectedRelease?.tag_name);
-            }
+
+            await InstallOnPlatform(this._downloadedFileName, this.SelectedRelease?.tag_name);
         }
 
         /// <summary>
