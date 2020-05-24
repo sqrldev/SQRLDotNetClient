@@ -2,10 +2,9 @@ param (
     [string]$token = "",
     [string]$milestone = "" , 
 	[string]$milestonedesc = ""  
-	
  )
 
-#Navigate to our UI Client Folder
+#Navigate to our UI Client folder
 cd SQRLDotNetClientUI
 
 echo "Building the Windows Client Release"
@@ -17,38 +16,38 @@ dotnet publish -r linux-x64 -c Release /p:PublishSingleFile=false /p:PublishTrim
 echo "Building the OSX Client Release"
 dotnet publish -r osx-x64 -c Release /p:PublishSingleFile=false /p:PublishTrimmed=true
 
-#Navigate Back to Our Manin Solution Folder
+#Navigate back to our main solution folder
 cd ..
-#Navigate Back to Our Installer Folder Folder
+#Navigate to our Installer folder
 cd .\SQRLPlatformAwareInstaller\
 
-#Building the Installer Binaries
-echo "Building the Windows Platform Aware Installer Binnary"
+#Building the Installer binaries
+echo "Building the Windows Platform Aware Installer binary"
 dotnet publish -r win-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
 
-echo "Building the Linux Platform Aware Installer Binnary"
+echo "Building the Linux Platform Aware Installer binary"
 dotnet publish -r linux-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
 
-echo "Building the OSX Platform Aware Installer Binnary"
+echo "Building the OSX Platform Aware Installer binary"
 dotnet publish -r osx-x64 -c Release /p:PublishSingleFile=true /p:PublishTrimmed=true
 
-echo "Renaming the Installer with the platform _platform postfix"
+echo "Renaming the Installer with the _platform postfix"
 Move-Item ".\bin\Release\netcoreapp3.1\osx-x64\publish\SQRLPlatformAwareInstaller" -Destination ".\bin\Release\netcoreapp3.1\osx-x64\publish\SQRLPlatformAwareInstaller_osx"  -Force
 Move-Item ".\bin\Release\netcoreapp3.1\linux-x64\publish\SQRLPlatformAwareInstaller" -Destination ".\bin\Release\netcoreapp3.1\linux-x64\publish\SQRLPlatformAwareInstaller_linux"  -Force
 Move-Item ".\bin\Release\netcoreapp3.1\win-x64\publish\SQRLPlatformAwareInstaller.exe" -Destination ".\bin\Release\netcoreapp3.1\win-x64\publish\SQRLPlatformAwareInstaller_win.exe" -Force
 
 #Copying the installer into the regular client folder to be included in the zip
-echo "Copying the Installer into the client folder to include in the release"
+echo "Copying the Installer into the Client folder to be included in the release"
 Copy-Item ".\bin\Release\netcoreapp3.1\osx-x64\publish\SQRLPlatformAwareInstaller_osx" -Destination "..\SQRLDotNetClientUI\bin\Release\netcoreapp3.1\osx-x64\publish" -Force
 Copy-Item ".\bin\Release\netcoreapp3.1\linux-x64\publish\SQRLPlatformAwareInstaller_linux" -Destination "..\SQRLDotNetClientUI\bin\Release\netcoreapp3.1\linux-x64\publish" -Force
 Copy-Item ".\bin\Release\netcoreapp3.1\win-x64\publish\SQRLPlatformAwareInstaller_win.exe" -Destination "..\SQRLDotNetClientUI\bin\Release\netcoreapp3.1\win-x64\publish" -Force
 
 
-#Create Temporary Directory to Publish into
+#Create temporary directory to publish into
 mkdir "C:\Temp\SQRL\Publish\" -Force
 
-#Zip Client Folder
-echo "Zipping Linnux Client"
+#Zip Client folder
+echo "Zipping Linux Client"
 Compress-Archive -Path "..\SQRLDotNetClientUI\bin\Release\netcoreapp3.1\linux-x64\publish\*" -CompressionLevel Optimal -DestinationPath "C:\Temp\SQRL\Publish\linux-x64.zip" -Force
 
 echo "Zipping Windows Client"
@@ -58,12 +57,13 @@ echo "Zipping OSX Client"
 Compress-Archive -Path "..\SQRLDotNetClientUI\bin\Release\netcoreapp3.1\win-x64\publish\*" -CompressionLevel Optimal -DestinationPath "C:\Temp\SQRL\Publish\win-x64.zip" -Force
 
 
-#Copying Platform Aware Installer (binary) to Publishing Folder
+#Copying Platform-Aware Installer (binary) to publishing folder
+echo "Copying Platform-Aware Installer (binary) to publishing folder"
 tar -cvzf C:\Temp\SQRL\Publish\SQRLPlatformAwareInstaller_osx.tar.gz -C .\bin\Release\netcoreapp3.1\osx-x64\publish\ ./SQRLPlatformAwareInstaller_osx
 tar -cvzf C:\Temp\SQRL\Publish\SQRLPlatformAwareInstaller_linux.tar.gz -C .\bin\Release\netcoreapp3.1\linux-x64\publish\ ./SQRLPlatformAwareInstaller_linux
 Copy-Item ".\bin\Release\netcoreapp3.1\win-x64\publish\SQRLPlatformAwareInstaller_win.exe" -Destination "C:\Temp\SQRL\Publish\" -Force
 
-echo "Creating Github Release for Milestone: $milestone"
+echo "Creating Github release for milestone: $milestone"
 $releaseParams = 
 @{
   "tag_name" = "$milestone"
@@ -76,21 +76,17 @@ $releaseParams =
 
 $gitUrl= "https://api.github.com/repos/sqrldev/SQRLDotNetClient/releases"
 
-
 $header = @{
  "Accept"="application/vnd.github.v3+json"
  "Authorization"="token $token"
  "Content-Type"="application/json"
 } 
 
-
 $newRelease= Invoke-WebRequest -Uri $gitUrl -Method Post -Body ($releaseParams|ConvertTo-Json) -ContentType "application/json" -Headers $header
 
-echo "Release Created"
-
+echo "Release created"
 
 $jsonObject = ConvertFrom-Json $([String]::new($newRelease.Content))
-
 
 Get-ChildItem "C:\Temp\SQRL\Publish"| 
 #For each file in the publishing folder upload the asset
@@ -102,7 +98,7 @@ Foreach-Object {
         "Content-Type"= $contentType
     }
     $fileName = $_.Name
-    echo "Uploading File: $fileName"
+    echo "Uploading file: $fileName"
     $uploadUrl = $jsonObject.upload_url.replace("{?name,label}","")
     $fileUrl = $uploadUrl+"?name="+$fileName
     
@@ -127,4 +123,4 @@ Foreach-Object {
     Start-Sleep -s 10
 }
 
-echo "Release Creation Complete"
+echo "Release creation complete!"
