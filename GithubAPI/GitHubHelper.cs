@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Serilog;
+using SQRLCommonUI.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -58,45 +59,68 @@ namespace GitHubApi
         /// </summary>
         /// <param name="enablePreReleases">If set to <c>true</c>, pre-releases will be
         /// included in the release listing.</param>
-        public async static Task<GithubRelease[]> GetReleases(bool enablePreReleases = false)
+        /// <param name="fromFile">If set to <c>true</c>, the releases will not be fetched
+        /// from Github, but instead be read from a local file.</param>
+        public async static Task<GithubRelease[]> GetReleases(bool enablePreReleases = false, bool fromFile = false)
         {
+            string source = fromFile ? "local file" : "Github";
+            Log.Information($"Getting releases from {source}");
+
             return await Task.Run(() =>
             {
                 string jsonData = "";
-                var wc = new WebClient
-                {
-                    CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
-                };
-
-                AddHeaders(wc);
 
                 try
                 {
-                    jsonData = wc.DownloadString($"https://api.github.com/repos/{SQRLGithubProjectOwner}/{SQRLGithubProjectName}/releases");
+                    if (fromFile)
+                    {
+                        jsonData = File.ReadAllText(CommonUtils.GetReleasesFilePath());
+                    }
+                    else
+                    {
+                        var wc = new WebClient
+                        {
+                            CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
+                        };
+                        AddHeaders(wc);
+                        jsonData = wc.DownloadString($"https://api.github.com/repos/{SQRLGithubProjectOwner}/{SQRLGithubProjectName}/releases");
+                        File.WriteAllText(CommonUtils.GetReleasesFilePath(), jsonData);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"Error downloading releases: {ex}");
+                    Log.Error($"Error downloading or reading releases:\r\n{ex}");
                 }
+
                 var releases = !string.IsNullOrEmpty(jsonData) ? 
                     (JsonConvert.DeserializeObject<List<GithubRelease>>(jsonData)).ToArray() :
                     new GithubRelease[] { };
 
-                var testFile = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                _testReleaseFile);
+                if (fromFile) return releases;
 
                 // If a file with the specified "magic" name exists in the executable's
                 // directory, we show all releases, otherwise we hide those which contain 
                 // the defined test keyword.
-                releases = File.Exists(testFile) ? 
-                    releases : 
-                    releases.Where(x => !x.tag_name.ToLower().Contains(_testReleaseKeyword)).ToArray();
+                var testFile = Path.Combine(Path.GetDirectoryName(
+                    Assembly.GetExecutingAssembly().Location), _testReleaseFile);
 
-                /// Do we want pre-releases included?
-                releases = enablePreReleases ?
-                    releases :
-                    releases.Where(x => !x.prerelease).ToArray();
+                if (File.Exists(testFile))
+                {
+                    Log.Information("Magic file found, enabling test releases!");
+                }
+                else
+                {
+                    // Remove test releases
+                    releases = releases.Where(x => !x.tag_name.ToLower()
+                    .Contains(_testReleaseKeyword)).ToArray();
+                }
+
+                // Do we want pre-releases included?
+                if (!enablePreReleases)
+                {
+                    // Remove pre-releases
+                    releases = releases.Where(x => !x.prerelease).ToArray();
+                }
 
                 return releases;
             });
