@@ -333,7 +333,7 @@ namespace SQRLDotNetClientUI.ViewModels
             Log.Information("User initiated installation of update");
 
             var installPath = $"\"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\"";
-            bool success = await RunInstaller($"-a Install {installPath}");
+            bool success = await RunInstaller($"-a Update -p {installPath}");
             if (success)
             {
                 Log.CloseAndFlush();
@@ -355,8 +355,8 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (result != MessagBoxDialogResult.YES) return;
 
-            var uninstallArgument = "-a Uninstall";
-            bool success = await RunInstaller(uninstallArgument);
+            var installPath = $"\"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\"";
+            bool success = await RunInstaller($"-a Uninstall -p {installPath}");
             if (success)
             {
                 Log.CloseAndFlush();
@@ -372,24 +372,31 @@ namespace SQRLDotNetClientUI.ViewModels
         {
             IBridgeSystem _bridgeSystem = BridgeSystem.Bash;
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string installer = CommonUtils.GetInstallerByPlatform();
-            if (File.Exists(Path.Combine(directory, installer)))
+            var installerExeName = CommonUtils.GetInstallerByPlatform();
+            var installerFilePath = Path.Combine(directory, installerExeName);
+
+            if (File.Exists(installerFilePath))
             {
-                var tempFile = Path.GetTempPath();
-                File.Copy(Path.Combine(directory, installer), Path.Combine(tempFile, Path.GetFileName(installer)), true);
+                var tempDir = Path.Combine(Path.GetTempPath(), "SQRL", DateTime.Now.Ticks.ToString());
+                var installerTempFilePath = Path.Combine(tempDir, installerExeName);
+                Log.Information($"Temp file path for installer: \"{installerTempFilePath}\"");
+
+                Directory.CreateDirectory(tempDir);
+                File.Copy(installerFilePath, installerTempFilePath, true);
+
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     var _shell = new ShellConfigurator(_bridgeSystem);
                     Log.Information("Changing executable file to be executable a+x");
-                    _shell.Term($"chmod a+x {Path.Combine(tempFile, Path.GetFileName(installer))}", Output.Internal);
+                    _shell.Term($"chmod a+x {installerTempFilePath}", Output.Internal);
                 }
 
                 Log.Information("Starting Installer");
                 Process proc = new Process();
-                proc.StartInfo.FileName = Path.Combine(tempFile, Path.GetFileName(installer));
+                proc.StartInfo.FileName = installerTempFilePath;
                 proc.StartInfo.Arguments = arguments;
-                Log.Information($"Installer Location: {proc.StartInfo.FileName}");
-                Log.Information($"Installer Arguments: {proc.StartInfo.Arguments}");
+                Log.Information($"Installer location: {proc.StartInfo.FileName}");
+                Log.Information($"Installer arguments: {proc.StartInfo.Arguments}");
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     proc.StartInfo.UseShellExecute = true;
