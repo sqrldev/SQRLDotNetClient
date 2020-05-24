@@ -226,8 +226,34 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             if (!string.IsNullOrEmpty(installArchivePath) &&
                 !string.IsNullOrEmpty(versionTag))
             {
-                this.HasReleases = true;
-                await InstallOnPlatform(installArchivePath, versionTag);
+                // Enable all releases, since we don't know what the user did
+                // in the "previous" installer run
+                this.EnablePreReleases = true;
+
+                try
+                {
+                    // Try to fetch releases from file first, only if it's not available,
+                    // fall back to fetching them online.
+                    await GetReleases(fromFile: true);
+                    if (!HasReleases) await GetReleases(fromFile: false);
+
+                    // Try pre-selecting the release from what was passed in the -v command 
+                    // line switch, so that it matches what was initially chosen by the user
+                    if (HasReleases)
+                    {
+                        this.SelectedRelease = this.Releases.Where(x => x.tag_name == versionTag)?.First();
+                    }
+
+                    // Now start the actual installation using the zip archive
+                    // and version tag passed in.
+                    await InstallOnPlatform(installArchivePath, versionTag);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error continuing installation with new intaller:\r\n{ex}");
+                    SetErrorStatus();
+                }
+
                 return;
             }
 
@@ -235,7 +261,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             // and download and install it
 
             this.WhenAnyValue(x => x.EnablePreReleases)
-                .Subscribe(x => GetReleases());
+                .Subscribe(async x => await GetReleases());
 
             // Initialize the web client we use to download stuff from Github
             _webClient = new WebClient();
@@ -244,15 +270,17 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             _webClient.Headers.Add("User-Agent", GitHubHelper.SQRLInstallerUserAgent);
 
             // Fetch releases from Github
-            GetReleases();
+            await GetReleases();
         }
 
         /// <summary>
         /// Fetches available releases from Github.
         /// </summary>
-        private async void GetReleases()
+        /// <param name="fromFile">If set to <c>true</c>, the releases will not be fetched
+        /// from Github, but instead be read from a local file.</param>
+        private async Task GetReleases(bool fromFile = false)
         {
-            this.Releases = await GitHubHelper.GetReleases(this.EnablePreReleases);
+            this.Releases = await GitHubHelper.GetReleases(this.EnablePreReleases, fromFile);
             this.HasReleases = this.Releases.Length > 0;
             if (!this.HasReleases) return;
 
