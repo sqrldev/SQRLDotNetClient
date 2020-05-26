@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Serilog;
-using SQRLCommonUI.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,12 +9,12 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace GitHubApi
+namespace SQRLCommonUI.Models
 {
     /// <summary>
     /// A helper class to check for new releases on Github.
     /// </summary>
-    public static class GitHubHelper
+    public static class GithubHelper
     {
         /// <summary>
         /// The HTTP user agent for the installer.
@@ -127,12 +126,12 @@ namespace GitHubApi
         /// Downloads the zip archive of the latest release to a local file and 
         /// returns the full path to that file.
         /// </summary>
-        /// <param name="enablePreReleases">If set to <c>true</c>, pre-releases will
-        /// be considered when determining the latest release.</param>
+        /// <param name="enablePreReleases">If set to <c>true</c>, pre-releases will be
+        /// included when determining the latest release.</param>
         /// <returns>Returns the full file path of the downloaded file.</returns>
         public async static Task<string> DownloadLatestRelease(bool enablePreReleases = false)
         {
-            return await Task.Run( async () =>
+            return await Task.Run(async () =>
             {
                 var releases = await GetReleases(enablePreReleases);
                 if (releases.Length < 1)
@@ -140,9 +139,17 @@ namespace GitHubApi
                     throw new Exception("No releases found!");
                 }
                 var latestRelease = releases.OrderBy(x => x.created_at).First();
+                var downloadLink = CommonUtils.GetDownloadLinkByPlatform(latestRelease);
 
+                var fileName = Path.GetFileName(downloadLink);
+                var tempFilePath = Path.GetTempFileName();
 
-                return "";
+                if (!DownloadFile(downloadLink, tempFilePath))
+                {
+                    throw new Exception("Error downloading release!");
+                }
+
+                return tempFilePath;
             });
         }
 

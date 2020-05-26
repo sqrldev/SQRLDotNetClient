@@ -5,7 +5,6 @@ using System.Linq;
 using System.IO;
 using Avalonia.Controls;
 using Microsoft.Win32;
-using GitHubApi;
 using Serilog;
 using System.Runtime.InteropServices;
 using SQRLCommonUI.Models;
@@ -267,7 +266,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             _webClient = new WebClient();
             _webClient.CachePolicy = new System.Net.Cache.RequestCachePolicy(
                 System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
-            _webClient.Headers.Add("User-Agent", GitHubHelper.SQRLInstallerUserAgent);
+            _webClient.Headers.Add("User-Agent", GithubHelper.SQRLInstallerUserAgent);
 
             // Fetch releases from Github
             await GetReleases();
@@ -280,7 +279,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         /// from Github, but instead be read from a local file.</param>
         private async Task GetReleases(bool fromFile = false)
         {
-            this.Releases = await GitHubHelper.GetReleases(this.EnablePreReleases, fromFile);
+            this.Releases = await GithubHelper.GetReleases(this.EnablePreReleases, fromFile);
             this.HasReleases = this.Releases.Length > 0;
             if (!this.HasReleases) return;
 

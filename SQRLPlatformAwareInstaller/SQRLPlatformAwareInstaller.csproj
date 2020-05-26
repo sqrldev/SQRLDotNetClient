@@ -164,7 +164,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GithubAPI\GithubAPI.csproj" />
     <ProjectReference Include="..\SQRLCommonUI\SQRLCommonUI.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -311,7 +311,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 Log.Information("User initiated update check");
             }
 
-            this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates(
+            this.NewUpdateAvailable = await GithubHelper.CheckForUpdates(
                 Assembly.GetExecutingAssembly().GetName().Version);
 
             App.LastUpdateCheck = DateTime.Now;

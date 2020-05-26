@@ -1,10 +1,8 @@
-﻿using GitHubApi;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Serilog;
 using SQRLCommonUI.Models;
 using SQRLPlatformAwareInstaller.Models;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;

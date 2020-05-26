@@ -1,4 +1,4 @@
-﻿using GitHubApi;
+﻿using SQRLCommonUI.Models;
 using System;
 using System.Threading.Tasks;
 

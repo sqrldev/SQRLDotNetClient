@@ -1,5 +1,4 @@
-﻿using GitHubApi;
-using Serilog;
+﻿using Serilog;
 using SQRLCommonUI.Models;
 using SQRLPlatformAwareInstaller.Models;
 using System;
@@ -30,7 +29,7 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
 
                 // Download an extract initial SQRL application template
                 Log.Information("Downloading Mac app folder structure from Github");
-                GitHubHelper.DownloadFile("https://github.com/sqrldev/SQRLDotNetClient/raw/PlatformInstaller/Installers/MacOsX/SQRL.app.zip", fileName);
+                GithubHelper.DownloadFile("https://github.com/sqrldev/SQRLDotNetClient/raw/PlatformInstaller/Installers/MacOsX/SQRL.app.zip", fileName);
                 Log.Information("Creating initial SQRL application template");
                 Utils.ExtractZipFile(fileName, string.Empty, installPath);
                 File.Delete(fileName);
