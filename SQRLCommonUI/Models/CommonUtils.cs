@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -19,6 +20,22 @@ namespace SQRLCommonUI.Models
                 return "SQRLPlatformAwareInstaller_osx";
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 return "SQRLPlatformAwareInstaller_linux";
+
+            return "";
+        }
+
+        /// <summary>
+        /// Returns the download link for the installation archive of the given <paramref name="release"/>.
+        /// </summary>
+        /// <param name="release">The release for which the download link should be returned.</param>
+        public static string GetDownloadLinkByPlatform(GithubRelease release)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return release.assets.Where(x => x.name.Contains("win-x64.zip")).First().browser_download_url;
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return release.assets.Where(x => x.name.Contains("osx-x64.zip")).First().browser_download_url;
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return release.assets.Where(x => x.name.Contains("linux-x64.zip")).First().browser_download_url;
 
             return "";
         }
