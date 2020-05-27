@@ -11,7 +11,7 @@ using SQRLDotNetClientUI.Models;
 using Serilog;
 using System.Reflection;
 using System.Threading.Tasks;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 
 namespace SQRLDotNetClientUI.ViewModels
 {

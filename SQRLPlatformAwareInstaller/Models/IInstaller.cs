@@ -1,4 +1,4 @@
-﻿using SQRLCommonUI.Models;
+﻿using SQRLCommon.Models;
 using System;
 using System.Threading.Tasks;
 

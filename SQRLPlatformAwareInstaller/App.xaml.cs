@@ -5,11 +5,11 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Serilog;
-using SQRLCommonUI.AvaloniaExtensions;
+using SQRLCommon.AvaloniaExtensions;
 using SQRLPlatformAwareInstaller.ViewModels;
 using SQRLPlatformAwareInstaller.Views;
 using System.Runtime.InteropServices;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 
 namespace SQRLPlatformAwareInstaller
 {

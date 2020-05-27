@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="525"
              xmlns:vm="clr-namespace:SQRLPlatformAwareInstaller.ViewModels;assembly=SQRLPlatformAwareInstaller"
-             xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
+             xmlns:loc="clr-namespace:SQRLCommon.AvaloniaExtensions;assembly=SQRLCommon"
              x:Class="SQRLPlatformAwareInstaller.Views.VersionSelectorView">
   
   <DockPanel LastChildFill="False" Margin="20">

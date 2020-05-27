@@ -11,7 +11,7 @@ using System;
 using SQRLDotNetClientUI.Platform;
 using Avalonia.Controls;
 using System.Collections.Generic;
-using SQRLCommonUI.AvaloniaExtensions;
+using SQRLCommon.AvaloniaExtensions;
 using ReactiveUI;
 using SQRLUtilsLib;
 using System.Threading;

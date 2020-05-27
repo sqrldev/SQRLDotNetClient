@@ -14,7 +14,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Controls;
 using ReactiveUI;
 
-namespace SQRLCommonUI.AvaloniaExtensions
+namespace SQRLCommon.AvaloniaExtensions
 {
     /// <summary>
     /// This extension allows you to have strings in different languages based on

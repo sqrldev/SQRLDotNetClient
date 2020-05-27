@@ -1,13 +1,11 @@
 ﻿using Serilog;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
 using ToolBox.Bridge;
 
-namespace SQRLCommonUI.Models
+namespace SQRLCommon.Models
 {
     /// <summary>
     /// A helper class for reading and writing the config file

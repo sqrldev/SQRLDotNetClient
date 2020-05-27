@@ -7,7 +7,7 @@ using Avalonia.Controls;
 using Microsoft.Win32;
 using Serilog;
 using System.Runtime.InteropServices;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 using SQRLPlatformAwareInstaller.Models;
 using SQRLPlatformAwareInstaller.Platform;
 using System.Threading.Tasks;

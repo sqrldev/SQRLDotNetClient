@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SQRLCommonUI.Models
+namespace SQRLCommon.Models
 {
     /// <summary>
     /// Represents a Github release for the use with the Github API.

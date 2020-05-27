@@ -5,7 +5,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 
-namespace SQRLCommonUI.AvaloniaExtensions
+namespace SQRLCommon.AvaloniaExtensions
 {
     public class CopyPasteTextBox : TextBox, IStyleable
     {

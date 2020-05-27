@@ -8,7 +8,7 @@ using System.IO;
 using System.Security.AccessControl;
 using Microsoft.Win32;
 using System.Security.Cryptography;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 using ToolBox.Bridge;
 
 namespace SQRLPlatformAwareInstaller

@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Threading;
-using SQRLCommonUI.AvaloniaExtensions;
+using SQRLCommon.AvaloniaExtensions;
 using SQRLDotNetClientUI.Models;
 using System.Reactive.Linq;
 using System;

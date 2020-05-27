@@ -1,5 +1,5 @@
 ﻿using Serilog;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;

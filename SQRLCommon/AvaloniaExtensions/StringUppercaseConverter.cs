@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SQRLCommonUI.AvaloniaExtensions
+namespace SQRLCommon.AvaloniaExtensions
 {
     public class StringUppercaseConverter : IValueConverter
     {

@@ -2,7 +2,7 @@
 using System;
 
 
-namespace SQRLCommonUI.AvaloniaExtensions
+namespace SQRLCommon.AvaloniaExtensions
 {
     public class EnumBooleanConverter : IValueConverter
     {

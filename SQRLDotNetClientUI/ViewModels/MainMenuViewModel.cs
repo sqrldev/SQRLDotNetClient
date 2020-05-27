@@ -5,7 +5,7 @@ using System;
 using SQRLDotNetClientUI.Models;
 using Serilog;
 using Avalonia.Controls.ApplicationLifetimes;
-using SQRLCommonUI.AvaloniaExtensions;
+using SQRLCommon.AvaloniaExtensions;
 using System.Reflection;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -13,7 +13,7 @@ using System.Diagnostics;
 using ToolBox.Bridge;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 using SQRLDotNetClientUI.DB.DBContext;
 
 namespace SQRLDotNetClientUI.ViewModels

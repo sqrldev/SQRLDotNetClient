@@ -1,6 +1,6 @@
 using Avalonia;
 using ReactiveUI;
-using SQRLCommonUI.AvaloniaExtensions;
+using SQRLCommon.AvaloniaExtensions;
 using SQRLDotNetClientUI.Models;
 using SQRLDotNetClientUI.Views;
 

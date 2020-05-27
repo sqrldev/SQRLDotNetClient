@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace SQRLCommonUI.Models
+namespace SQRLCommon.Models
 {
     /// <summary>
     /// A helper class to check for new releases on Github.

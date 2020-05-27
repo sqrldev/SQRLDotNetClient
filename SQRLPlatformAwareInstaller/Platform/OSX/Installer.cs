@@ -1,5 +1,5 @@
 ﻿using Serilog;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 using SQRLPlatformAwareInstaller.Models;
 using System;
 using System.Diagnostics;

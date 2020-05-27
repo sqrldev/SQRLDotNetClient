@@ -1,12 +1,9 @@
 ﻿using Serilog;
-using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
-using System.Text;
 using ToolBox.Bridge;
 
-namespace SQRLCommonUI.Models
+namespace SQRLCommon.Models
 {
     /// <summary>
     /// This class allows you to check if the current application is being run as root / admin

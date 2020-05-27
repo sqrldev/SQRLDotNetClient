@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace SQRLCommonUI.Models
+namespace SQRLCommon.Models
 {
     public static class CommonUtils
     {

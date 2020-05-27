@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32;
 using Serilog;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 using SQRLPlatformAwareInstaller.Models;
 using System;
 using System.IO;

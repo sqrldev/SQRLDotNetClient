@@ -258,7 +258,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SQRLCommonUI\SQRLCommonUI.csproj" />
+    <ProjectReference Include="..\SQRLCommon\SQRLCommon.csproj" />
     <ProjectReference Include="..\SQRLUtilsLib\SQRLUtilsLib.csproj" />
   </ItemGroup>
   <ItemGroup>
