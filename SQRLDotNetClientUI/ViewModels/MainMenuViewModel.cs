@@ -434,6 +434,17 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (File.Exists(installerTempFilePath))
             {
+                // On Linux, try launching the installer using PolicyKit,
+                // first, and only if that fails, fall back to a regular launch.
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    if (SystemAndShellUtils.LaunchInstallerUsingPolKit(arguments, 
+                        copyCurrentProcessExecutable: false))
+                    {
+                        return true;
+                    }
+                }
+
                 Log.Information("Installer found in temp directory, launching installer");
                 Process proc = new Process();
                 proc.StartInfo.FileName = installerTempFilePath;

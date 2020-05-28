@@ -99,7 +99,8 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                     Inventory.Instance.AddFile(sqrlvarsFile);
                     Log.Information("Creating polkit rule for SQRL");
                     var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-                    string sqrlPolkitPolicyFile = Path.Combine("/usr/share/polkit-1/actions", "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy");
+                    string sqrlPolkitPolicyFile = Path.Combine("/usr/share/polkit-1/actions", 
+                        "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy");
                     using (StreamWriter sw = new StreamWriter(sqrlPolkitPolicyFile))
                     {
                         string policyFile = "";
