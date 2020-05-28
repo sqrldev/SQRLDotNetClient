@@ -35,67 +35,18 @@ namespace SQRLPlatformAwareInstaller
 
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     {
-                        Log.Information("Launched on Linux without sudo, trying to re-launch if possible");
-                        Log.Information("Checking if pkexec exists"); //This allows us to elevate a program
-                        
-                        // Check if pkexec exists, if it doesn't bail #NothingWeCanDo
-                        if(SystemAndShellUtils.IsPolKitAvailable())
-                        {
-                            Log.Information("PolicyKit available, pkexec exists!");
-
-                            // Checks to make sure that SQRL_HOME environment variable exists as well as the SQRLPlatformInstaller 
-                            // this is needed for the polkit invokation
-
-                            if ( File.Exists(Path.Combine("/usr/share/polkit-1/actions", 
-                                "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy")))
-                            {
-                                Log.Information("Found existing PolicyKit policy file for Installer!");
-
-                                // Copy the current installer to /tmp/ so that it can comply with polkit requirements. Note this 
-                                // doesn't work correctly if you are in debug mode. In debug mode the file you are running is a dll, 
-                                // not an executable, so be mindful of this
-
-                                string currentLocation = Process.GetCurrentProcess().MainModule.FileName;
-                                string tempLocation = $"/tmp/{CommonUtils.GetInstallerByPlatform()}";
-
-                                if (currentLocation != tempLocation)
-                                {
-                                    Log.Information($"Copying Installer from \"{currentLocation}\" to \"{tempLocation}\"");
-                                    File.Copy(Process.GetCurrentProcess().MainModule.FileName, "/tmp/SQRLPlatformAwareInstaller_linux", true);
-                                    SystemAndShellUtils.Chmod("/tmp/SQRLPlatformAwareInstaller_linux", 777);
-                                }
-
-                                // PolKit invocation forbids having a "dead" parent, so if we invoke PolKit directly from here
-                                // and then kill the process, it will abort. First we need to write the polkit invocation
-                                // to a shell script which is invoked externally, so that we can kill our current instance of 
-                                // the installer cleanly.
-
-                                var tmpScript = Path.GetTempFileName().Replace(".tmp", ".sh");
-                                using (StreamWriter sw = new StreamWriter(tmpScript))
-                                {
-                                    sw.WriteLine("#!/bin/sh");
-                                    sw.WriteLine($"{SystemAndShellUtils.GetPolKitLocation()} {tempLocation}");
-                                }
-                                Log.Information($"Created launcher script at: {tmpScript}");
-                                
-                                SystemAndShellUtils.SetExecutableBit(tmpScript);
-
-                                Process proc = new Process();
-                                proc.StartInfo.FileName = tmpScript;
-                                proc.Start();
-                                nogo=false;
-                            }
-                        }
+                        Log.Information("Launched on Linux without sudo, trying to re-launch using PolicyKit");
+                        nogo = !SystemAndShellUtils.LaunchInstallerUsingPolKit(copyCurrentProcessExecutable: true);
                     }
 
-                    if (nogo)
+                    if (nogo) 
                         rootBail = true;
-                    else
-                        Environment.Exit(0);    
+                    else 
+                        Environment.Exit(0);
                 }
-                Log.Information($"Current executable path: {Process.GetCurrentProcess().MainModule.FileName}");
             }
 
+            Log.Information($"Current executable path: {Process.GetCurrentProcess().MainModule.FileName}");
             AvaloniaXamlLoader.Load(this);
 
             // This is here only to be able to manually load a specific translation 
