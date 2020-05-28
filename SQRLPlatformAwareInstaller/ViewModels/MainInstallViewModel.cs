@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using Avalonia.Media.Imaging;
 using ReactiveUI;
 using Serilog;
+using SQRLCommon.Models;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -13,6 +14,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
     public class MainInstallViewModel: ViewModelBase
     {
         private Bitmap _platformImg;
+        private int _testingModeCounter = 0;
         
         /// <summary>
         /// An image representing the current OS platform.
@@ -82,6 +84,19 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 this.PlatformImg = new Bitmap(_assets.Open(new Uri("resm:SQRLPlatformAwareInstaller.Assets.linux.png")));
             else
                 this.PlatformImg = new Bitmap(_assets.Open(new Uri("resm:SQRLPlatformAwareInstaller.Assets.unknown.png")));
+        }
+
+        /// <summary>
+        /// Enables testing mode when clicking on the version label 5 times.
+        /// </summary>
+        public void EnableTestingMode()
+        {
+            _testingModeCounter++;
+            if (_testingModeCounter == 5)
+            {
+                Environment.SetEnvironmentVariable(GithubHelper.TestModeEnvVar, "true");
+                Log.Information("Testing mode enabled");
+            }
         }
 
         /// <summary>

@@ -22,7 +22,7 @@
     <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
       <Image DockPanel.Dock="Left" Margin="10" VerticalAlignment="Top" Source="resm:SQRLPlatformAwareInstaller.Assets.SQRL_icon_normal_32.png"
            Stretch="None" HorizontalAlignment="Left"/>
-      <TextBlock Text="{Binding Version}" DockPanel.Dock="Right" Margin="10" HorizontalAlignment="Right" Foreground="LightGray" FontSize="10" />
+      <Button Content="{Binding Version}" Command="{Binding EnableTestingMode}" DockPanel.Dock="Right" Margin="10" BorderThickness="0" Background="Transparent" HorizontalAlignment="Right" Foreground="LightGray" FontSize="10" />
     </DockPanel>
     
     <TextBlock Text="{loc:Localization InstallerGreeting}" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="10" VerticalAlignment="Top" Grid.Row="1" Grid.Column="0" />

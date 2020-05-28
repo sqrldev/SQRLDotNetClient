@@ -39,16 +39,9 @@ namespace SQRLCommon.Models
         /// <summary>
         /// Specifies the keyword that, when present in a release tag, tells
         /// the release checker to omit those releases if we're not in 
-        /// testing mode (<seealso cref="_testEnvironmentVariable"/>).
+        /// testing mode (<seealso cref="TestModeEnvVar"/>).
         /// </summary>
         private static readonly string _testReleaseKeyword = "test";
-
-        /// <summary>
-        /// Specifies the environment variable name for switching to testing/dev mode.
-        /// If an environment variable with this name is present and non-empty in the system,
-        /// test releases will be included in the release list (<seealso cref="_testReleaseKeyword"/>.
-        /// </summary>
-        private static readonly string _testEnvironmentVariable = "SQRL_TESTMODE";
 
         /// <summary>
         /// Defines the file name for the Github authrorization file which must
@@ -57,6 +50,13 @@ namespace SQRLCommon.Models
         /// executable's working directory. This is for development only!
         /// </summary>
         private static readonly string _githubAuthFile = "GithubAuthToken.txt";
+
+        /// <summary>
+        /// Specifies the environment variable name for switching to testing/dev mode.
+        /// If an environment variable with this name is present and non-empty in the system,
+        /// test releases will be included in the release list (<seealso cref="_testReleaseKeyword"/>.
+        /// </summary>
+        public static readonly string TestModeEnvVar = "SQRL_TESTMODE";
 
         /// <summary>
         /// Retrieves information about releases from Github.
@@ -104,7 +104,7 @@ namespace SQRLCommon.Models
 
                 // If the test mode environment variable exists,
                 // we show all releases, otherwise we hide test releases.
-                var envVar = Environment.GetEnvironmentVariable(_testEnvironmentVariable);
+                var envVar = Environment.GetEnvironmentVariable(TestModeEnvVar);
                 if (!string.IsNullOrEmpty(envVar))
                 {
                     Log.Information("Testing environment variable found, enabling test releases!");
