@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using System.Diagnostics;
 using Avalonia.Media;
+using System.Collections.Generic;
 
 namespace SQRLPlatformAwareInstaller.ViewModels
 {
@@ -109,7 +110,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             set 
             { 
                 this.RaiseAndSetIfChanged(ref _selectedRelease, value); 
-                SetDownloadSize(); 
+                SelectedReleaseChanged(); 
             }
         }
 
@@ -179,11 +180,12 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         public VersionSelectorViewModel()
         {
             Log.Information("Version selection screen launched");
-            Init();
+            Init(updateMode: false);
+            GetReleasesAsync();
         }
 
         /// <summary>
-        /// Creates a new instance and performs some initializations.
+        /// Creates a new instance and immediately performs an update using the specified parameters.
         /// </summary>
         /// <param name="installArchivePath">The path to the update zip file.</param>
         /// <param name="versionTag">The version tag corresponding to the provided update zip file.</param>
@@ -191,15 +193,26 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         {
             Log.Information($"Version selection screen launched with existing update zip file path \"{installArchivePath}\"");
             Log.Information($"Initiating installation of existing update package");
-            Init(installArchivePath, versionTag);
+            Init(updateMode: true);
+            ApplyUpdate(installArchivePath, versionTag);
+        }
+
+        /// <summary>
+        /// This is just an async wrapper around <see cref="GetReleases(bool)"/> so
+        /// that it can be called from the constructor.
+        /// </summary>
+        private async void GetReleasesAsync()
+        {
+            await GetReleases();
         }
 
         /// <summary>
         /// Performs initialization tasks.
         /// </summary>
-        /// <param name="installArchivePath">The path to an existing update zip file (optional).</param>
-        /// <param name="versionTag">The version tag corresponding to the provided update zip file (optional).</param>
-        private async void Init(string installArchivePath = null, string versionTag = null)
+        /// <param name="updateMode">Set to <c>true</c> if we are in update mode
+        /// and don't want to trigger release updates when pre-releases are 
+        /// enabled/disabled.</param>
+        private void Init(bool updateMode)
         {
             this.Title = _loc.GetLocalizationValue("TitleVersionSelector");         
 
@@ -219,48 +232,11 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             _installer = Activator.CreateInstance(
                 Implementation.ForType<IInstaller>()) as IInstaller;
 
-            // If we have an update zip file already, this means a previous
-            // instance of the installer has already downloaded the update
-            // from Github, and we just need to finish the installation.
-            if (!string.IsNullOrEmpty(installArchivePath) &&
-                !string.IsNullOrEmpty(versionTag))
+            if (!updateMode)
             {
-                // Enable all releases, since we don't know what the user did
-                // in the "previous" installer run
-                this.EnablePreReleases = true;
-
-                try
-                {
-                    // Try to fetch releases from file first, only if it's not available,
-                    // fall back to fetching them online.
-                    await GetReleases(fromFile: true);
-                    if (!HasReleases) await GetReleases(fromFile: false);
-
-                    // Try pre-selecting the release from what was passed in the -v command 
-                    // line switch, so that it matches what was initially chosen by the user
-                    if (HasReleases)
-                    {
-                        this.SelectedRelease = this.Releases.Where(x => x.tag_name == versionTag)?.First();
-                    }
-
-                    // Now start the actual installation using the zip archive
-                    // and version tag passed in.
-                    await InstallOnPlatform(installArchivePath, versionTag);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error continuing installation with new intaller:\r\n{ex}");
-                    SetErrorStatus();
-                }
-
-                return;
-            }
-
-            // If we get here, we need to let the user choose a release
-            // and download and install it
-
-            this.WhenAnyValue(x => x.EnablePreReleases)
+                this.WhenAnyValue(x => x.EnablePreReleases)
                 .Subscribe(async x => await GetReleases());
+            }
 
             // Initialize the web client we use to download stuff from Github
             _webClient = new WebClient();
@@ -268,8 +244,62 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
             _webClient.Headers.Add("User-Agent", GithubHelper.SQRLInstallerUserAgent);
 
-            // Fetch releases from Github
-            await GetReleases();
+            // Check for existing sqrl:// scheme registration on Windows and warn
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                Log.Information($"We are on Windows, checking to see if an existing version of SQRL exists");
+                if (Registry.ClassesRoot.OpenSubKey(@"sqrl") != null)
+                {
+                    Log.Information($"Display warning that we may overwrite an existing SQRL schema registration");
+                    this.Warning = _loc.GetLocalizationValue("SchemaRegistrationWarning");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Installs the pre-downloaded update package given in <paramref name="installArchivePath"/>.
+        /// </summary>
+        /// <param name="installArchivePath">The path to an existing update zip file.</param>
+        /// <param name="versionTag">The version tag corresponding to the provided update zip file.</param>
+        private async void ApplyUpdate(string installArchivePath, string versionTag)
+        {
+            // Enable all releases
+            this.EnablePreReleases = true;
+
+            try
+            {
+                // Try to fetch releases from file first, only if it's not available,
+                // fall back to fetching them online.
+                await GetReleases(fromFile: true);
+                if (!HasReleases) await GetReleases(fromFile: false);
+
+                // Try pre-selecting the release from what was passed in the -v command 
+                // line switch, so that it matches what was initially chosen by the user
+                if (HasReleases)
+                {
+                    var release = this.Releases.Where(x => x.tag_name == versionTag)?.First();
+                    if (this.SelectedRelease == null || this.SelectedRelease?.tag_name != release.tag_name)
+                    {
+                        this.SelectedRelease = release;
+                    }
+
+                    // Now start the actual installation using the zip archive
+                    // and version tag passed in.
+                    await InstallOnPlatform(installArchivePath, versionTag);
+                }
+                else
+                {
+                    Log.Error("Looks like we have not found any releases - aborting update!");
+                    SetErrorStatus();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error continuing installation with new intaller:\r\n{ex}");
+                SetErrorStatus();
+            }
+
+            return;
         }
 
         /// <summary>
@@ -283,98 +313,77 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             this.HasReleases = this.Releases.Length > 0;
             if (!this.HasReleases) return;
 
-            Log.Information($"Found {this.Releases?.Count()} Releases");
+            Log.Information($"Found {this.Releases?.Count()} releases");
             this.SelectedRelease = this.Releases.OrderByDescending(r => r.published_at).FirstOrDefault();
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                Log.Information($"We are on Windows, checking to see if an existing version of SQRL exists");
-                if (Registry.ClassesRoot.OpenSubKey(@"sqrl") != null)
-                {
-                    Log.Information($"Display warning that we may overwrite an existing SQRL schema registration");
-                    this.Warning = _loc.GetLocalizationValue("SchemaRegistrationWarning");
-                }
-            }
         }
 
         /// <summary>
         /// Sets the download size and URL for the selected release.
         /// </summary>
-        public void SetDownloadSize()
+        public void SelectedReleaseChanged()
         {
             if (SelectedRelease == null) return;
 
-            var downloadInfo = _installer.GetDownloadInfoForAsset(SelectedRelease);
+            var downloadInfo = GithubHelper.GetDownloadInfoForAsset(SelectedRelease);
             this.DownloadSize = downloadInfo?.DownloadSize;
             this._downloadUrl = downloadInfo?.DownloadUrl;
 
-            Log.Information($"Current download size is : {this.DownloadSize} MB");
-            Log.Information($"Current download URL is : {this._downloadUrl}");
+            Log.Information($"Selected release changed to {SelectedRelease.tag_name}");
+            Log.Information($"Current release asset download size is : {this.DownloadSize} MB");
+            Log.Information($"Current release asset download URL is : {this._downloadUrl}");
         }
 
         /// <summary>
-        /// Downloads the selected release file to a temporary file.
+        /// Downloads the selected release file to a temporary file and starts
+        /// the installation process.
         /// </summary>
-        public void DownloadInstall()
+        public async void DownloadInstall()
         {
             if (string.IsNullOrEmpty(this._downloadUrl)) return;
 
             this.InstallStatus = _loc.GetLocalizationValue("InstallStatusDownloading");
             this.CanInstall = false;
 
-            _webClient.DownloadProgressChanged += Wc_DownloadProgressChanged;
-            _webClient.DownloadFileCompleted += Wc_DownloadFileCompleted;
+            var progress = new Progress<KeyValuePair<int, string>>(x =>
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    this.DownloadPercentage = x.Key;
+                    this.InstallStatus = x.Value;
+                });
+            });
 
-            this._downloadedFileName = Path.GetTempFileName();
-            Log.Information($"Temporary download file name: {_downloadedFileName}");
-            _webClient.DownloadFileAsync(new Uri(this._downloadUrl), _downloadedFileName);
+            this._downloadedFileName = await GithubHelper.DownloadRelease(this.SelectedRelease, progress);
+            Log.Information($"Download completed, file path is \"{this._downloadedFileName}\"");
+            
+            await InstallOnPlatform(this._downloadedFileName, this.SelectedRelease?.tag_name);
+
+            //_webClient.DownloadProgressChanged += Wc_DownloadProgressChanged;
+            //_webClient.DownloadFileCompleted += Wc_DownloadFileCompleted;
+            //this._downloadedFileName = Path.GetTempFileName();
+            //Log.Information($"Temporary download file name: {_downloadedFileName}");
+            //_webClient.DownloadFileAsync(new Uri(this._downloadUrl), _downloadedFileName);
         }
+
+        /// <summary>
+        /// Event handler for "download progress changed" event.
+        /// </summary>
+        //private void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        //{
+        //    this.DownloadPercentage = e.ProgressPercentage;
+        //    this.InstallStatus = _loc.GetLocalizationValue("InstallStatusDownloading") +
+        //        $" {Math.Round(e.BytesReceived / 1024M / 1024M, 2)}/{Math.Round(e.TotalBytesToReceive / 1024M / 1024M, 2)} MB";
+        //}
 
         /// <summary>
         /// Event handler for the "download completed" event.
         /// </summary>
-        private async void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
-        {
-            Log.Information("Download completed");
+        //private async void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        //{
+        //    Log.Information("Download completed");
 
-            if (CommandLineArgs.Instance.Action == InstallerAction.Update)
-            {
-                // We're in "update" mode, so try to extract and launch the new installer binary from 
-                // the downloaded update package, so that it can continue with the installation.
-                // This way, we don't need to wait for the next release to benefit from enhancements
-                // in the installer.
-                try
-                {
-                    Log.Information("Extracting new installer from downloaded archive.");
-                    var installerExeName = CommonUtils.GetInstallerByPlatform();
-                    var tempDir = Path.Combine(Path.GetTempPath(), "SQRL", DateTime.Now.Ticks.ToString());
-                    var installerTempFilePath = Path.Combine(tempDir, installerExeName);
-                    Log.Information($"Temp file path for installer: \"{installerTempFilePath}\"");
-                    var outFile = Path.Combine(tempDir, installerExeName);
-
-                    Directory.CreateDirectory(tempDir);
-                    Utils.ExtractSingleFile(this._downloadedFileName, null, installerExeName, outFile);
-                    SystemAndShellUtils.SetExecutableBit(outFile);
-
-                    Process process = new Process();
-                    process.StartInfo.FileName = outFile;
-                    process.StartInfo.WorkingDirectory = Path.GetDirectoryName(outFile);
-                    process.StartInfo.ArgumentList.Add($"-a Update");
-                    process.StartInfo.ArgumentList.Add($"-z \"{_downloadedFileName}\"");
-                    process.StartInfo.ArgumentList.Add($"-v \"{_selectedRelease?.tag_name}\"");
-                    process.Start();
-
-                    Environment.Exit(0);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error extracting new installer from downloaded archive:\r\n{ex}");
-                    Log.Error($"Continuing installation with current, outdated installer");
-                }
-            }
-
-            await InstallOnPlatform(this._downloadedFileName, this.SelectedRelease?.tag_name);
-        }
+        //    await InstallOnPlatform(this._downloadedFileName, this.SelectedRelease?.tag_name);
+        //}
 
         /// <summary>
         /// Installs the contents of the archive specified by<paramref name="downloadedFileName"/> 
@@ -460,16 +469,6 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 this.DownloadPercentage = 100;
                 this.IsProgressIndeterminate = false;
             });
-        }
-
-        /// <summary>
-        /// Event handler for "download progress changed" event.
-        /// </summary>
-        private void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            this.DownloadPercentage = e.ProgressPercentage;
-            this.InstallStatus = _loc.GetLocalizationValue("InstallStatusDownloading") +
-                $" {Math.Round(e.BytesReceived / 1024M / 1024M, 2)}/{Math.Round(e.TotalBytesToReceive / 1024M / 1024M, 2)} MB";
         }
 
         /// <summary>

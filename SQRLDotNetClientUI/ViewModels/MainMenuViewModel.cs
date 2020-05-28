@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using SQRLCommon.Models;
 using SQRLDotNetClientUI.DB.DBContext;
+using System.Collections.Generic;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -331,12 +332,43 @@ namespace SQRLDotNetClientUI.ViewModels
         public async void InstallUpdate()
         {
             Log.Information("User initiated installation of update");
+            var installPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var progress = new Progress<KeyValuePair<int, string>>();
+            List<Progress<KeyValuePair<int, string>>> progressList =
+                new List<Progress<KeyValuePair<int, string>>>() { progress };
 
-            var installPath = $"\"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\"";
-            bool success = await RunInstaller($"-a Update -p {installPath}");
+            var progressDialog = new ProgressDialogViewModel(progressList, this);
+            progressDialog.ShowDialog();
+
+            string installArchivePath = "";
+            GithubRelease latestRelease;
+            try
+            {
+                Log.Information("Getting latest release from Github");
+                latestRelease = await GithubHelper.GetLatestRelease(enablePreReleases: true);
+                Log.Information("Downloading latest release from Github");
+                installArchivePath = await GithubHelper.DownloadRelease(latestRelease, progress);
+                Log.Information("Extracting intaller to temp directory");
+                CommonUtils.ExtractSingleFile(installArchivePath, null, CommonUtils.GetInstallerByPlatform(),
+                    Path.Combine(Path.GetTempPath(), CommonUtils.GetInstallerByPlatform()));
+            }
+            catch (Exception ex)
+            {
+                await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), ex.Message,
+                    MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog(this);
+                return;
+            }
+            finally
+            {
+                progressDialog.Close();
+            }
+
+            var args = $"-a Update -z \"{installArchivePath}\" -v \"{latestRelease.tag_name}\" -p \"{installPath}\"";
+            bool success = await RunInstaller(args, needsCopyingToTemp: false);
+            
             if (success)
             {
-                Log.CloseAndFlush();
                 _mainWindow.Exit();
             }
         }
@@ -365,33 +397,44 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         /// <summary>
-        /// Launches the installer binary, passing in the provided <paramref name="arguments"/>.
+        /// Launches the installer binary from the temp directory, passing in the provided <paramref name="arguments"/>.
         /// </summary>
         /// <param name="arguments">The command line arguments to pass to the installer.</param>
-        private async Task<bool> RunInstaller(string arguments)
+        /// <param name="needsCopyingToTemp">If set to <c>true</c>, the installer binary is copied from the
+        /// current exectuable's directory to the temp directory before launching it.</param>
+        private async Task<bool> RunInstaller(string arguments, bool needsCopyingToTemp = true)
         {
-            IBridgeSystem _bridgeSystem = BridgeSystem.Bash;
-            var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var installerExeName = CommonUtils.GetInstallerByPlatform();
-            var installerFilePath = Path.Combine(directory, installerExeName);
+            var installerTempFilePath = Path.Combine(Path.GetTempPath(), installerExeName);
 
-            if (File.Exists(installerFilePath))
+            if (needsCopyingToTemp)
             {
-                var tempDir = Path.Combine(Path.GetTempPath(), "SQRL", DateTime.Now.Ticks.ToString());
-                var installerTempFilePath = Path.Combine(tempDir, installerExeName);
-                Log.Information($"Temp file path for installer: \"{installerTempFilePath}\"");
+                Log.Information($"Copying installer from current exe path to temp dir was requested");
 
-                Directory.CreateDirectory(tempDir);
-                File.Copy(installerFilePath, installerTempFilePath, true);
+                var directory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                var installerFilePath = Path.Combine(directory, installerExeName);             
 
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                if (File.Exists(installerFilePath))
                 {
-                    var _shell = new ShellConfigurator(_bridgeSystem);
-                    Log.Information("Changing executable file to be executable a+x");
-                    _shell.Term($"chmod a+x {installerTempFilePath}", Output.Internal);
-                }
+                    Log.Information($"Installer found in current exe path, copying");
+                    File.Copy(installerFilePath, installerTempFilePath, true);
 
-                Log.Information("Starting Installer");
+                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        var _shell = new ShellConfigurator(BridgeSystem.Bash);
+                        Log.Information("Setting executable bit for installer in tempdir");
+                        _shell.Term($"chmod a+x {installerTempFilePath}", Output.Internal);
+                    }
+                }
+                else
+                {
+                    Log.Warning("Installer was NOT found in current exe path, copying aborted");
+                }
+            }
+
+            if (File.Exists(installerTempFilePath))
+            {
+                Log.Information("Installer found in temp directory, launching installer");
                 Process proc = new Process();
                 proc.StartInfo.FileName = installerTempFilePath;
                 proc.StartInfo.Arguments = arguments;
