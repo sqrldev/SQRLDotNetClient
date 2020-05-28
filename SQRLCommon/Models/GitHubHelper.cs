@@ -1,12 +1,15 @@
 ﻿using Newtonsoft.Json;
 using Serilog;
+using SQRLCommon.AvaloniaExtensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SQRLCommon.Models
@@ -16,6 +19,8 @@ namespace SQRLCommon.Models
     /// </summary>
     public static class GithubHelper
     {
+        private static LocalizationExtension _loc = new LocalizationExtension();
+
         /// <summary>
         /// The HTTP user agent for the installer.
         /// </summary>
@@ -62,8 +67,8 @@ namespace SQRLCommon.Models
         /// from Github, but instead be read from a local file.</param>
         public async static Task<GithubRelease[]> GetReleases(bool enablePreReleases = false, bool fromFile = false)
         {
-            string source = fromFile ? "local file" : "Github";
-            Log.Information($"Getting releases from {source}");
+            string source = fromFile ? "Local file" : "Github";
+            Log.Information($"Getting releases from soure: {source}");
 
             return await Task.Run(() =>
             {
@@ -123,35 +128,81 @@ namespace SQRLCommon.Models
         }
 
         /// <summary>
+        /// Returns the latest release found on Github.
+        /// </summary>
+        /// <param name="enablePreReleases">If set to <c>true</c>, pre-releases will be
+        /// considered when determining the latest release.</param>
+        /// <returns></returns>
+        public async static Task<GithubRelease> GetLatestRelease(bool enablePreReleases)
+        {
+            var releases = await GetReleases(enablePreReleases);
+            if (releases.Length < 1)
+            {
+                throw new Exception("No releases found!");
+            }
+            return releases.OrderByDescending(x => x.created_at).First();
+        }
+
+#pragma warning disable 1998
+        /// <summary>
         /// Downloads the zip archive of the latest release to a local file and 
         /// returns the full path to that file.
         /// </summary>
-        /// <param name="enablePreReleases">If set to <c>true</c>, pre-releases will be
-        /// included when determining the latest release.</param>
+        /// <param name="release">The release to download the installation archive for.</param>
+        /// <param name="progress">An optional progress object to receive download progress notifications.</param>
         /// <returns>Returns the full file path of the downloaded file.</returns>
-        public async static Task<string> DownloadLatestRelease(bool enablePreReleases = false)
+        public async static Task<string> DownloadRelease(GithubRelease release, IProgress<KeyValuePair<int, string>> progress = null)
         {
             return await Task.Run(async () =>
             {
-                var releases = await GetReleases(enablePreReleases);
-                if (releases.Length < 1)
-                {
-                    throw new Exception("No releases found!");
-                }
-                var latestRelease = releases.OrderBy(x => x.created_at).First();
-                var downloadLink = CommonUtils.GetDownloadLinkByPlatform(latestRelease);
+                AutoResetEvent downloadComplete = new AutoResetEvent(false);
+                bool success = false;
 
+                var wc = new WebClient
+                {
+                    CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore)
+                };
+
+                AddHeaders(wc);
+
+                if (progress != null)
+                {
+                    wc.DownloadProgressChanged += ((s, e) =>
+                    {
+                        decimal doneMB = Math.Round(e.BytesReceived / 1024M / 1024M, 2);
+                        decimal totalMB = Math.Round(e.TotalBytesToReceive / 1024M / 1024M, 2);
+
+                        string msg = _loc.GetLocalizationValue("InstallStatusDownloading") +
+                            $" {doneMB}/{totalMB} MB";
+
+                        progress.Report(new KeyValuePair<int, string>(e.ProgressPercentage, msg));
+                    });
+                }
+
+                wc.DownloadFileCompleted += ((s, e) =>
+                {
+                    success = (!e.Cancelled && e.Error == null);
+                    downloadComplete.Set();
+                });
+
+                var downloadLink = CommonUtils.GetDownloadLinkByPlatform(release);
                 var fileName = Path.GetFileName(downloadLink);
                 var tempFilePath = Path.GetTempFileName();
 
-                if (!DownloadFile(downloadLink, tempFilePath))
+                try
                 {
-                    throw new Exception("Error downloading release!");
+                    wc.DownloadFileAsync(new Uri(downloadLink), tempFilePath);
+                    downloadComplete.WaitOne();
+                    return success ? tempFilePath : null;
                 }
-
-                return tempFilePath;
+                catch (Exception ex)
+                {
+                    Log.Error($"Error downloading \"{downloadLink}\":\r\n{ex}");
+                    return null;
+                }
             });
         }
+#pragma warning restore 1998
 
         /// <summary>
         /// Downloads the resource specified by <paramref name="url"/> to the local file path
@@ -176,7 +227,7 @@ namespace SQRLCommon.Models
             }
             catch (Exception ex)
             {
-                Log.Error($"Error Downloading: {url} Error: {ex}");
+                Log.Error($"Error downloading \"{url}\":\r\n{ex}");
                 return false;
             }
         }
@@ -235,5 +286,51 @@ namespace SQRLCommon.Models
                 }
             }
         }
+
+        /// <summary>
+        /// Returns download information for the installation archive asset corresponding to 
+        /// the current platform contained within <paramref name="release"/>.
+        /// </summary>
+        /// <param name="release">The Github release to return download information for.</param>
+        public static DownloadInfo GetDownloadInfoForAsset(GithubRelease release)
+        {
+            string assetName = "";
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                assetName = "win-x64.zip";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                assetName = "linux-x64.zip";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                assetName = "osx-x64.zip";
+            else return null;
+
+            var asset = release.assets.Where(x => x.name.Contains(assetName))?.First();
+
+            if (asset == null) throw new Exception($"Github asset \"{assetName}\" not available!");
+
+            return new DownloadInfo
+            {
+                DownloadSize = Math.Round((asset.size / 1024M) / 1024M, 2),
+                DownloadUrl = asset.browser_download_url
+            };
+        }
+    }
+
+
+    /// <summary>
+    /// Holds information about a downloadable asset within a Github release,
+    /// such as download size and URL.
+    /// </summary>
+    public class DownloadInfo
+    {
+        /// <summary>
+        /// Gets or sets the asset's download size.
+        /// </summary>
+        public decimal DownloadSize { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the asset's download URL.
+        /// </summary>
+        public string DownloadUrl { get; set; } = "";
     }
 }

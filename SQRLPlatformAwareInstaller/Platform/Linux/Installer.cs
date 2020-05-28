@@ -30,7 +30,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
 
                 // Extract main installation archive
                 Log.Information($"Extracting main installation archive");
-                Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
+                CommonUtils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
 
                 // Check if a database exists in the installation directory 
                 // (which is bad) and if it does, move it to user space.
@@ -146,15 +146,6 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
         public string GetInstallerExePath(string installPath)
         {
             return Path.Combine(installPath, "SQRLPlatformAwareInstaller_linux");
-        }
-
-        public DownloadInfo GetDownloadInfoForAsset(GithubRelease selectedRelease)
-        {
-            return new DownloadInfo
-            {
-                DownloadSize = Math.Round((selectedRelease.assets.Where(x => x.name.Contains("linux-x64.zip")).First().size / 1024M) / 1024M, 2),
-                DownloadUrl = selectedRelease.assets.Where(x => x.name.Contains("linux-x64.zip")).First().browser_download_url
-            };
         }
     }
 }
