@@ -1,4 +1,6 @@
 ﻿using Serilog;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using ToolBox.Bridge;
@@ -130,6 +132,87 @@ namespace SQRLCommon.Models
                 Log.Information($"Setting executable bit for file \"{filePath}\"");
                 _shell.Term($"chmod a+x {filePath}", Output.Hidden);
             }
+        }
+
+        /// <summary>
+        /// Tries launching the installer exectuable from %TEMP% using PolicyKit's "pkexec" command.
+        /// </summary>
+        /// <param name="args">The command line arguments to pass into the installer.</param>
+        /// <param name="copyCurrentProcessExecutable">If set to <c>true</c>, the currently running process
+        /// exectuable will be copied to the temp directory as the installer executable to run, if it isn't
+        /// already running from there.</param>
+        /// <returns>Returns <c>true</c> if the installer could be launched using PolicyKit, or <c>false</c> othewise.</returns>
+        public static bool LaunchInstallerUsingPolKit(string args = "", bool copyCurrentProcessExecutable = false)
+        {
+            Log.Information("Trying to launch installer using PolicyKit");
+
+            // If PolicyKit is not available, there is no point in continuing.
+            if (!IsPolKitAvailable())
+            {
+                Log.Warning("PolicyKit NOT available, bailing out");
+                return false;
+            }
+            Log.Information("PolicyKit available, pkexec exists!");
+
+            // Check if the policy file for the installer exists, this is needed for the polkit invokation
+            if (!File.Exists(Path.Combine("/usr/share/polkit-1/actions", 
+                "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy")))
+            {
+                Log.Warning("PolicyKit policy file for installer not found, bailing out");
+                return false;
+            }
+            Log.Information("Found existing PolicyKit policy file for Installer!");
+
+            string currentExePath = Process.GetCurrentProcess().MainModule.FileName;
+            string tempExePath = $"/tmp/{CommonUtils.GetInstallerByPlatform()}";
+
+            if (copyCurrentProcessExecutable)
+            {
+                // Copy the current installer to /tmp/ so that it can comply with polkit requirements. Note this 
+                // doesn't work correctly if you are in debug mode. In debug mode the file you are running is a dll, 
+                // not an executable, so be mindful of this
+
+                if (currentExePath != tempExePath)
+                {
+                    Log.Information($"Copying Installer from \"{currentExePath}\" to \"{tempExePath}\"");
+                    File.Copy(currentExePath, tempExePath, true);
+                    SystemAndShellUtils.Chmod(tempExePath, 777);
+                }
+            }
+
+            // At this point, the installer exectuable must exist in the temp dir,
+            // so if it doesn't, bail out.
+            if (!File.Exists(tempExePath))
+            {
+                Log.Error($"Installer binary not found in \"{tempExePath}\", bailing out");
+                return false;
+            }
+
+            // PolKit invocation forbids having a "dead" parent, so if we invoke PolKit directly from here
+            // and then kill the process, it will abort. First we need to write the polkit invocation
+            // to a shell script which is invoked externally, so that we can kill our current instance of 
+            // the installer cleanly.
+
+            Log.Information($"Creating PolicyKit launcher script");
+            var tmpScript = Path.GetTempFileName().Replace(".tmp", ".sh");
+            using (StreamWriter sw = new StreamWriter(tmpScript))
+            {
+                sw.WriteLine("#!/bin/sh");
+                sw.WriteLine(string.IsNullOrWhiteSpace(args) ?
+                    $"{SystemAndShellUtils.GetPolKitLocation()} {tempExePath}" :
+                    $"{SystemAndShellUtils.GetPolKitLocation()} {tempExePath} {args}");
+            }
+            Log.Information($"Created PolicyKit launcher script at: {tmpScript}");
+            
+            Log.Information($"Setting executable bit for launcher script");
+            SetExecutableBit(tmpScript);
+
+            Log.Information($"Launching installer with args: {args}");
+            Process proc = new Process();
+            proc.StartInfo.FileName = tmpScript;
+            proc.StartInfo.WorkingDirectory = Path.GetDirectoryName(tmpScript);
+            proc.Start();
+            return true;
         }
     }
 }
