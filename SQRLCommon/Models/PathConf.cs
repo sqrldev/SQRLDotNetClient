@@ -84,9 +84,8 @@ namespace SQRLCommon.Models
         /// <summary>
         /// The default client installation directory.
         /// </summary>
-        public static readonly string DefaultLogPath = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ?
-            Path.Combine("/var/log", "SQRL") :
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SQRL", "Logs");
+        public static readonly string DefaultLogPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SQRL", "Logs");
 
         /// <summary>
         /// Gets or sets the SQRL client installation directory path.
