@@ -1,8 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Platform;
-using GitHubApi;
 using Serilog;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 using SQRLPlatformAwareInstaller.Models;
 using System;
 using System.Diagnostics;
@@ -31,7 +30,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
 
                 // Extract main installation archive
                 Log.Information($"Extracting main installation archive");
-                Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
+                CommonUtils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
 
                 // Check if a database exists in the installation directory 
                 // (which is bad) and if it does, move it to user space.
@@ -44,7 +43,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
 
                 // Create icon, register sqrl:// scheme etc.
                 Log.Information("Creating Linux desktop icon, application and registering SQRL invokation scheme");
-                GitHubHelper.DownloadFile(@"https://github.com/sqrldev/SQRLDotNetClient/raw/master/SQRLDotNetClientUI/Assets/SQRL_icon_normal_64.png",
+                GithubHelper.DownloadFile(@"https://github.com/sqrldev/SQRLDotNetClient/raw/master/SQRLDotNetClientUI/Assets/SQRL_icon_normal_64.png",
                         Path.Combine(installPath, "SQRL.png"));
 
                 StringBuilder sb = new StringBuilder();
@@ -81,17 +80,15 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
 
                 Log.Information("All is good up to this point, lets setup Linux for UAC (if we can)");
 
-                /*
-                 * Creates the required file and system changes for SQRL to be available
-                 * ubiquitous throughout the system via a new 
-                 * environment variable SQRL_HOME and the addition of this variable to the system PATH.
-                 * 
-                 * Note that the later won't take effect until the user logs out or reboots
-                 */
-                
+
+               // Creates the required file and system changes for SQRL to be available
+               // ubiquitous throughout the system via a new environment variable SQRL_HOME
+               // and the addition of this variable to the system PATH.
+               // Note that the latter won't take effect until the user logs out or reboots.
+
                 if (SystemAndShellUtils.IsPolKitAvailable())
                 {
-                    Log.Information("Creating SQRL_HOME Environment Variable and adding SQRL_HOME to PATH");
+                    Log.Information("Creating SQRL_HOME environment variable and adding SQRL_HOME to PATH");
                     string sqrlvarsFile = "/etc/profile.d/sqrl-vars.sh";
                     using (StreamWriter sw = new StreamWriter(sqrlvarsFile))
                     {
@@ -102,7 +99,8 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                     Inventory.Instance.AddFile(sqrlvarsFile);
                     Log.Information("Creating polkit rule for SQRL");
                     var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-                    string sqrlPolkitPolicyFile = Path.Combine("/usr/share/polkit-1/actions", "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy");
+                    string sqrlPolkitPolicyFile = Path.Combine("/usr/share/polkit-1/actions", 
+                        "org.freedesktop.policykit.SQRLPlatformAwareInstaller_linux.policy");
                     using (StreamWriter sw = new StreamWriter(sqrlPolkitPolicyFile))
                     {
                         string policyFile = "";
@@ -117,11 +115,10 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
                     _shell.Term("export SQRL_HOME={installPath}", Output.Internal);
                     _shell.Term("export PATH=$PATH:$SQRL_HOME", Output.Internal);
                     Inventory.Instance.AddFile(sqrlPolkitPolicyFile);
-
                 }
                 else
                 {
-                    Log.Warning("pkexec was not found , we can't automatically elevate permissions UAC style, user will have to do manually");
+                    Log.Warning("pkexec was not found, we can't automatically elevate permissions UAC style, user will have to do manually");
                 }
 
                 Inventory.Instance.Save();
@@ -151,17 +148,5 @@ namespace SQRLPlatformAwareInstaller.Platform.Linux
         {
             return Path.Combine(installPath, "SQRLPlatformAwareInstaller_linux");
         }
-
-        public DownloadInfo GetDownloadInfoForAsset(GithubRelease selectedRelease)
-        {
-            return new DownloadInfo
-            {
-                DownloadSize = Math.Round((selectedRelease.assets.Where(x => x.name.Contains("linux-x64.zip")).First().size / 1024M) / 1024M, 2),
-                DownloadUrl = selectedRelease.assets.Where(x => x.name.Contains("linux-x64.zip")).First().browser_download_url
-            };
-        }
-
-
-
     }
 }

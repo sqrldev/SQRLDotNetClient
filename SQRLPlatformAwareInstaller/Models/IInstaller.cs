@@ -1,4 +1,4 @@
-﻿using GitHubApi;
+﻿using SQRLCommon.Models;
 using System;
 using System.Threading.Tasks;
 
@@ -41,29 +41,5 @@ namespace SQRLPlatformAwareInstaller.Models
         /// </summary>
         /// <param name="installPath">The client installation path.</param>
         public string GetInstallerExePath(string installPath);
-
-        /// <summary>
-        /// Returns download information for the asset corresponding to the current platform
-        /// contained within <paramref name="selectedRelease"/>.
-        /// </summary>
-        /// <param name="selectedRelease">The selected Github release.</param>
-        DownloadInfo GetDownloadInfoForAsset(GithubRelease selectedRelease);
-    }
-
-    /// <summary>
-    /// Holds information about a downloadable asset within a Github release,
-    /// such as download size and URL.
-    /// </summary>
-    public class DownloadInfo
-    {
-        /// <summary>
-        /// Gets or sets the asset's download size.
-        /// </summary>
-        public decimal DownloadSize { get; set; } = 0;
-
-        /// <summary>
-        /// Gets or sets the asset's download URL.
-        /// </summary>
-        public string DownloadUrl { get; set; } = "";
     }
 }

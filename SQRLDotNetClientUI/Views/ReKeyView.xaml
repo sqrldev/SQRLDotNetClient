@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:SQRLDotNetClientUI.ViewModels;assembly=SQRLDotNetClientUI"
              xmlns:v="clr-namespace:SQRLDotNetClientUI.Views;assembly=SQRLDotNetClientUI"
-             xmlns:loc="clr-namespace:SQRLCommonUI.AvaloniaExtensions;assembly=SQRLCommonUI"
+             xmlns:loc="clr-namespace:SQRLCommon.AvaloniaExtensions;assembly=SQRLCommon"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="SQRLDotNetClientUI.Views.ReKeyView">
   

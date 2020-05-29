@@ -5,7 +5,7 @@ using System;
 using SQRLDotNetClientUI.Models;
 using Serilog;
 using Avalonia.Controls.ApplicationLifetimes;
-using SQRLCommonUI.AvaloniaExtensions;
+using SQRLCommon.AvaloniaExtensions;
 using System.Reflection;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -13,8 +13,9 @@ using System.Diagnostics;
 using ToolBox.Bridge;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 using SQRLDotNetClientUI.DB.DBContext;
+using System.Collections.Generic;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -311,7 +312,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 Log.Information("User initiated update check");
             }
 
-            this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates(
+            this.NewUpdateAvailable = await GithubHelper.CheckForUpdates(
                 Assembly.GetExecutingAssembly().GetName().Version);
 
             App.LastUpdateCheck = DateTime.Now;
@@ -331,12 +332,43 @@ namespace SQRLDotNetClientUI.ViewModels
         public async void InstallUpdate()
         {
             Log.Information("User initiated installation of update");
+            var installPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var progress = new Progress<KeyValuePair<int, string>>();
+            List<Progress<KeyValuePair<int, string>>> progressList =
+                new List<Progress<KeyValuePair<int, string>>>() { progress };
 
-            var installPathArgument = $"\"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\"";
-            bool success = await RunInstaller(installPathArgument);
+            var progressDialog = new ProgressDialogViewModel(progressList, this);
+            progressDialog.ShowDialog();
+
+            string installArchivePath = "";
+            GithubRelease latestRelease;
+            try
+            {
+                Log.Information("Getting latest release from Github");
+                latestRelease = await GithubHelper.GetLatestRelease(enablePreReleases: true);
+                Log.Information("Downloading latest release from Github");
+                installArchivePath = await GithubHelper.DownloadRelease(latestRelease, progress);
+                Log.Information("Extracting intaller to temp directory");
+                CommonUtils.ExtractSingleFile(installArchivePath, null, CommonUtils.GetInstallerByPlatform(),
+                    Path.Combine(Path.GetTempPath(), CommonUtils.GetInstallerByPlatform()));
+            }
+            catch (Exception ex)
+            {
+                await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), ex.Message,
+                    MessageBoxSize.Medium, MessageBoxButtons.OK, MessageBoxIcons.ERROR)
+                    .ShowDialog(this);
+                return;
+            }
+            finally
+            {
+                progressDialog.Close();
+            }
+
+            var args = $"-a Update -z \"{installArchivePath}\" -v \"{latestRelease.tag_name}\" -p \"{installPath}\"";
+            bool success = await RunInstaller(args, needsCopyingToTemp: false);
+            
             if (success)
             {
-                Log.CloseAndFlush();
                 _mainWindow.Exit();
             }
         }
@@ -355,8 +387,8 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (result != MessagBoxDialogResult.YES) return;
 
-            var uninstallArgument = "-uninstall";
-            bool success = await RunInstaller(uninstallArgument);
+            var installPath = $"\"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\"";
+            bool success = await RunInstaller($"-a Uninstall -p {installPath}");
             if (success)
             {
                 Log.CloseAndFlush();
@@ -365,31 +397,61 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         /// <summary>
-        /// Launches the installer binary, passing in the provided <paramref name="arguments"/>.
+        /// Launches the installer binary from the temp directory, passing in the provided <paramref name="arguments"/>.
         /// </summary>
         /// <param name="arguments">The command line arguments to pass to the installer.</param>
-        private async Task<bool> RunInstaller(string arguments)
+        /// <param name="needsCopyingToTemp">If set to <c>true</c>, the installer binary is copied from the
+        /// current exectuable's directory to the temp directory before launching it.</param>
+        private async Task<bool> RunInstaller(string arguments, bool needsCopyingToTemp = true)
         {
-            IBridgeSystem _bridgeSystem = BridgeSystem.Bash;
-            var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string installer = GetInstallerByPlatform();
-            if (File.Exists(Path.Combine(directory, installer)))
+            var installerExeName = CommonUtils.GetInstallerByPlatform();
+            var installerTempFilePath = Path.Combine(Path.GetTempPath(), installerExeName);
+
+            if (needsCopyingToTemp)
             {
-                var tempFile = Path.GetTempPath();
-                File.Copy(Path.Combine(directory, installer), Path.Combine(tempFile, Path.GetFileName(installer)), true);
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Log.Information($"Copying installer from current exe path to temp dir was requested");
+
+                var directory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                var installerFilePath = Path.Combine(directory, installerExeName);             
+
+                if (File.Exists(installerFilePath))
                 {
-                    var _shell = new ShellConfigurator(_bridgeSystem);
-                    Log.Information("Changing executable file to be executable a+x");
-                    _shell.Term($"chmod a+x {Path.Combine(tempFile, Path.GetFileName(installer))}", Output.Internal);
+                    Log.Information($"Installer found in current exe path, copying");
+                    File.Copy(installerFilePath, installerTempFilePath, true);
+
+                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        SystemAndShellUtils.SetExecutableBit(installerTempFilePath);
+                    }
+                }
+                else
+                {
+                    Log.Warning("Installer was NOT found in current exe path, copying aborted");
+                }
+            }
+
+            if (File.Exists(installerTempFilePath))
+            {
+                Log.Information("Installer found in temp directory, launching installer");
+
+                // On Linux, try launching the installer using PolicyKit,
+                // first, and only if that fails, fall back to a regular launch.
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    if (SystemAndShellUtils.LaunchInstallerUsingPolKit(arguments, 
+                        copyCurrentProcessExecutable: false))
+                    {
+                        return true;
+                    }
+
+                    Log.Information("Launching installer via PolicyKit failed, trying normal launch");
                 }
 
-                Log.Information("Starting Installer");
                 Process proc = new Process();
-                proc.StartInfo.FileName = Path.Combine(tempFile, Path.GetFileName(installer));
+                proc.StartInfo.FileName = installerTempFilePath;
                 proc.StartInfo.Arguments = arguments;
-                Log.Information($"Installer Location: {proc.StartInfo.FileName}");
-                Log.Information($"Installer Arguments: {proc.StartInfo.Arguments}");
+                Log.Information($"Installer location: {proc.StartInfo.FileName}");
+                Log.Information($"Installer arguments: {proc.StartInfo.Arguments}");
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
                     proc.StartInfo.UseShellExecute = true;
@@ -455,22 +517,8 @@ namespace SQRLDotNetClientUI.ViewModels
         }
 
         /// <summary>
-        /// Returns the name of the installer corresponding to the current platform.
-        /// </summary>
-        private string GetInstallerByPlatform()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return "SQRLPlatformAwareInstaller_win.exe";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                return "SQRLPlatformAwareInstaller_osx";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                return "SQRLPlatformAwareInstaller_linux";
-
-            return "";
-        }
-
-        /// <summary>
-        /// Allows a user to pick and load or import a sqrl.db file to be used to store application identities and settings
+        /// Allows a user to pick and load or import a sqrl.db file to be used to 
+        /// store application identities and settings.
         /// </summary>
         private async void ImportDB()
         {
@@ -488,18 +536,21 @@ namespace SQRLDotNetClientUI.ViewModels
                 if (string.Compare(PathConf.FullClientDbPath.Trim(), result[0].Trim(), true) == 0)
                 {
                     Log.Error("The chosen file is the same as the currently loaded Db File, Abort");
-                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), _loc.GetLocalizationValue("DbFileAlreadyLoaded"), messageBoxIcon: MessageBoxIcons.ERROR).ShowDialog(this);
+                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), 
+                        _loc.GetLocalizationValue("DbFileAlreadyLoaded"), messageBoxIcon: MessageBoxIcons.ERROR)
+                        .ShowDialog(this);
                 }
                 else
                 {
                     var diagResult = await new MessageBoxViewModel(_loc.GetLocalizationValue("GenericQuestionTitle"),
-                           string.Format(_loc.GetLocalizationValue("DbMoveQuestion"), PathConf.FullClientDbPath, result[0], Path.Combine(PathConf.DefaultClientDBPath, PathConf.DBNAME)),
-                           MessageBoxSize.Medium, MessageBoxButtons.Custom, MessageBoxIcons.QUESTION, new MessageBoxCustomButton [] {
-                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("DbMoveAndLoad"),MessagBoxDialogResult.CUSTOM1,true),
-                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("DbJustLoad"),MessagBoxDialogResult.CUSTOM2,false),
-                                                                                              new MessageBoxCustomButton (_loc.GetLocalizationValue("BtnCancel"),MessagBoxDialogResult.CANCEL,false)})
-
+                        string.Format(_loc.GetLocalizationValue("DbMoveQuestion"), 
+                        PathConf.FullClientDbPath, result[0], Path.Combine(PathConf.DefaultClientDBPath, PathConf.DBNAME)),
+                        MessageBoxSize.Medium, MessageBoxButtons.Custom, MessageBoxIcons.QUESTION, new MessageBoxCustomButton [] {
+                            new MessageBoxCustomButton (_loc.GetLocalizationValue("DbMoveAndLoad"),MessagBoxDialogResult.CUSTOM1,true),
+                            new MessageBoxCustomButton (_loc.GetLocalizationValue("DbJustLoad"),MessagBoxDialogResult.CUSTOM2,false),
+                            new MessageBoxCustomButton (_loc.GetLocalizationValue("BtnCancel"),MessagBoxDialogResult.CANCEL,false)})
                            .ShowDialog(this);
+
                     switch (diagResult)
                     {
                         // Move and Load
@@ -519,7 +570,9 @@ namespace SQRLDotNetClientUI.ViewModels
                                 catch(Exception err)
                                 {
                                     Log.Error($"Error moving DB File Error: {err.ToString()}");
-                                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), _loc.GetLocalizationValue("DbMoveError"), messageBoxIcon: MessageBoxIcons.ERROR).ShowDialog(this);                                    
+                                    await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), 
+                                        _loc.GetLocalizationValue("DbMoveError"), messageBoxIcon: MessageBoxIcons.ERROR)
+                                        .ShowDialog(this);                                    
                                 }
                             }
                             break;

@@ -164,8 +164,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GithubAPI\GithubAPI.csproj" />
-    <ProjectReference Include="..\SQRLCommonUI\SQRLCommonUI.csproj" />
+    <ProjectReference Include="..\SQRLCommon\SQRLCommon.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\sqrl_icon_normal_256.ico" />

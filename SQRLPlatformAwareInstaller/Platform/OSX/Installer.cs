@@ -1,6 +1,5 @@
-﻿using GitHubApi;
-using Serilog;
-using SQRLCommonUI.Models;
+﻿using Serilog;
+using SQRLCommon.Models;
 using SQRLPlatformAwareInstaller.Models;
 using System;
 using System.Diagnostics;
@@ -30,14 +29,14 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
 
                 // Download an extract initial SQRL application template
                 Log.Information("Downloading Mac app folder structure from Github");
-                GitHubHelper.DownloadFile("https://github.com/sqrldev/SQRLDotNetClient/raw/PlatformInstaller/Installers/MacOsX/SQRL.app.zip", fileName);
+                GithubHelper.DownloadFile("https://github.com/sqrldev/SQRLDotNetClient/raw/PlatformInstaller/Installers/MacOsX/SQRL.app.zip", fileName);
                 Log.Information("Creating initial SQRL application template");
-                Utils.ExtractZipFile(fileName, string.Empty, installPath);
+                CommonUtils.ExtractZipFile(fileName, string.Empty, installPath);
                 File.Delete(fileName);
 
                 // Extract main installation archive
                 Log.Information($"Extracting main installation archive");
-                Utils.ExtractZipFile(archiveFilePath, string.Empty, Path.Combine(installPath, "SQRL.app/Contents/MacOS"));
+                CommonUtils.ExtractZipFile(archiveFilePath, string.Empty, Path.Combine(installPath, "SQRL.app/Contents/MacOS"));
 
                 // Check if a database exists in the installation directory 
                 // (which is bad) and if it does, move it to user space.
@@ -72,16 +71,5 @@ namespace SQRLPlatformAwareInstaller.Platform.OSX
         {
             return Path.Combine(installPath, "SQRLPlatformAwareInstaller_osx");
         }
-
-        public DownloadInfo GetDownloadInfoForAsset(GithubRelease selectedRelease)
-        {
-            return new DownloadInfo
-            {
-                DownloadSize = Math.Round((selectedRelease.assets.Where(x => x.name.Contains("osx-x64.zip")).First().size / 1024M) / 1024M, 2),
-                DownloadUrl = selectedRelease.assets.Where(x => x.name.Contains("osx-x64.zip")).First().browser_download_url
-            };
-        }
-
-        
     }
 }

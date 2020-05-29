@@ -1,10 +1,8 @@
-﻿using GitHubApi;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Serilog;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 using SQRLPlatformAwareInstaller.Models;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
@@ -37,7 +35,7 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
 
                 // Extract installation archive
                 Log.Information($"Extracting main installation archive");
-                Utils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
+                CommonUtils.ExtractZipFile(archiveFilePath, string.Empty, installPath);
 
                 // Check if a database exists in the installation directory 
                 // (which is bad) and if it does, move it to user space.
@@ -111,16 +109,5 @@ namespace SQRLPlatformAwareInstaller.Platform.Windows
         {
             return Path.Combine(installPath, "SQRLPlatformAwareInstaller_win.exe");
         }
-
-        public DownloadInfo GetDownloadInfoForAsset(GithubRelease selectedRelease)
-        {
-            return new DownloadInfo
-            {
-                DownloadSize = Math.Round((selectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().size / 1024M) / 1024M, 2),
-                DownloadUrl = selectedRelease.assets.Where(x => x.name.Contains("win-x64.zip")).First().browser_download_url
-            };
-        }
-
-        
     }
 }

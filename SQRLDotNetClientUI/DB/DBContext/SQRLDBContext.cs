@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Serilog;
-using SQRLCommonUI.Models;
+using SQRLCommon.Models;
 using SQRLDotNetClientUI.DB.Models;
 using System;
 using System.IO;

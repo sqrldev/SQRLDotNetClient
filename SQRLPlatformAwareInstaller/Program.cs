@@ -9,6 +9,8 @@ using Avalonia.Logging.Serilog;
 using Avalonia.ReactiveUI;
 using Serilog;
 using Avalonia.Dialogs;
+using SQRLCommon.Models;
+
 namespace SQRLPlatformAwareInstaller
 {
     class Program
@@ -19,8 +21,8 @@ namespace SQRLPlatformAwareInstaller
         public static void Main(string[] args)
         {
             // Set up logging
-            string currentDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-            string logFilePath = Path.Combine(currentDir, "SQRLInstallerLog.log");
+            if (!Directory.Exists(PathConf.LogPath)) Directory.CreateDirectory(PathConf.LogPath);
+            string logFilePath = Path.Combine(PathConf.LogPath, "SQRLInstallerLog.log");
 
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()
@@ -46,7 +48,8 @@ namespace SQRLPlatformAwareInstaller
                 .With(new AvaloniaNativePlatformOptions { UseGpu = !RuntimeInformation.IsOSPlatform(OSPlatform.OSX) })
                 .LogToDebug()
                 .UseReactiveUI()
-                .UseManagedSystemDialogs(); //It is recommended by Avalonia Developers that we use Managed System Dialogs instead  of the native ones particularly for Linux
-
+                // It is recommended by Avalonia Developers that we use Managed System Dialogs 
+                // instead  of the native ones particularly for Linux
+                .UseManagedSystemDialogs(); 
     }
 }

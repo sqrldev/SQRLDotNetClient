@@ -1,5 +1,6 @@
 ﻿using ReactiveUI;
 using Serilog;
+using SQRLCommon.Models;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -71,17 +72,21 @@ namespace SQRLPlatformAwareInstaller.ViewModels
         private void LaunchSQRL()
         {
             Log.Information($"Launching client from installer");
-            var process = new Process();
-            process.StartInfo.FileName = _clientExePath;
-            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(_clientExePath);
-            process.StartInfo.UseShellExecute = true;
+
+            // On Linux, the installer is run as root, so we need to "downgrade"
+            // the client launch to the "real" user account.
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 ShellConfigurator shell = new ShellConfigurator(BridgeSystem.Bash);
                 string user = shell.Term("logname", Output.Hidden).stdout.Trim();
-                process.StartInfo.UserName = user;
-                process.StartInfo.UseShellExecute = false;
+                SystemAndShellUtils.LaunchClientAsUser(_clientExePath, user);
+                return;
             }
+
+            var process = new Process();
+            process.StartInfo.FileName = _clientExePath;
+            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(_clientExePath);
+            process.StartInfo.UseShellExecute = true;
             process.Start();
         }
     }

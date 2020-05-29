@@ -1,5 +1,4 @@
-﻿using SQRLCommonUI.AvaloniaExtensions;
-using System;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 using SkiaSharp;
@@ -8,6 +7,7 @@ using System.Text;
 using System.Collections.Generic;
 using SQRLUtilsLib;
 using QRCoder;
+using SQRLCommon.AvaloniaExtensions;
 
 namespace SQRLDotNetClientUI.Models
 {

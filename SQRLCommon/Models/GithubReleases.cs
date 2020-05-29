@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace GitHubApi
+namespace SQRLCommon.Models
 {
     /// <summary>
     /// Represents a Github release for the use with the Github API.
@@ -103,5 +101,4 @@ namespace GitHubApi
         public string type { get; set; }
         public bool site_admin { get; set; }
     }
-
 }

@@ -11,6 +11,7 @@ using SQRLDotNetClientUI.Models;
 using Serilog;
 using System.Reflection;
 using System.Threading.Tasks;
+using SQRLCommon.Models;
 
 namespace SQRLDotNetClientUI.ViewModels
 {
@@ -221,7 +222,7 @@ namespace SQRLDotNetClientUI.ViewModels
             TimeSpan timeSinceLastUpdate = DateTime.Now - App.LastUpdateCheck;
             if (timeSinceLastUpdate < App.MinTimeBetweenUpdateChecks) return;
 
-            this.NewUpdateAvailable = await GitHubApi.GitHubHelper.CheckForUpdates(
+            this.NewUpdateAvailable = await GithubHelper.CheckForUpdates(
                 Assembly.GetExecutingAssembly().GetName().Version);
         }
 

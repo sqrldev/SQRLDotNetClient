@@ -14,6 +14,7 @@ using Avalonia.Dialogs;
 using SQRLDotNetClientUI.DB.DBContext;
 using Microsoft.EntityFrameworkCore;
 using SQRLUtilsLib;
+using SQRLCommon.Models;
 
 namespace SQRLDotNetClientUI
 {
@@ -28,8 +29,8 @@ namespace SQRLDotNetClientUI
             Thread ipcThread = new Thread(StartIPCServer);
 
             // Set up logging
-            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string logFilePath = Path.Combine(currentDir, "log.txt");
+            if (!Directory.Exists(PathConf.LogPath)) Directory.CreateDirectory(PathConf.LogPath);
+            string logFilePath = Path.Combine(PathConf.LogPath, "SQRLClientLog.log");
 
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.Console()

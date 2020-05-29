@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Platform;
 using ReactiveUI;
-using SQRLCommonUI.AvaloniaExtensions;
+using SQRLCommon.AvaloniaExtensions;
 using SQRLPlatformAwareInstaller.Views;
 
 namespace SQRLPlatformAwareInstaller.ViewModels

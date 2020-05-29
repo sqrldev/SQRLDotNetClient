@@ -1,123 +1,14 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
-using ICSharpCode.SharpZipLib.Core;
-using ICSharpCode.SharpZipLib.Zip;
 using Serilog;
 using System.IO;
-using System.Security.AccessControl;
 using Microsoft.Win32;
 using System.Security.Cryptography;
-using SQRLCommonUI.Models;
-using ToolBox.Bridge;
+using SQRLCommon.Models;
 
 namespace SQRLPlatformAwareInstaller
 {
     public static class Utils
     {
-
-        private static IBridgeSystem _bridgeSystem { get; set; } = BridgeSystem.Bash;
-        private static ShellConfigurator _shell { get; set; } = new ShellConfigurator(_bridgeSystem);
-        /// <summary>
-        /// Extracts the zip archive specified by <paramref name="archivePath"/> into the
-        /// output directory <paramref name="outFolder"/> using <paramref name="password"/>.
-        /// </summary>
-        /// <param name="archivePath">The archive to extract.</param>
-        /// <param name="password">The password for the archive.</param>
-        /// <param name="outFolder">The output folder.</param>
-        public static void ExtractZipFile(string archivePath, string password, string outFolder)
-        {
-            if (!Directory.Exists(outFolder))
-            {
-                Log.Information($"Creating folder \"{outFolder}\"");
-                Directory.CreateDirectory(outFolder);
-            }
-
-            GrantFullFileAccess(outFolder);
-
-            using (Stream fsInput = File.OpenRead(archivePath))
-            {
-                using (var zipFile = new ZipFile(fsInput))
-                {
-                    //We don't password protect our install but maybe we should
-                    if (!String.IsNullOrEmpty(password))
-                    {
-                        // AES encrypted entries are handled automatically
-                        zipFile.Password = password;
-                    }
-
-                    long fileCount = zipFile.Count;
-
-                    foreach (ZipEntry zipEntry in zipFile)
-                    {
-                        if (!zipEntry.IsFile)
-                        {
-                            // Ignore directories
-                            continue;
-                        }
-
-                        // Manipulate the output filename here as desired.
-                        String entryFileName = zipEntry.Name;
-                        var fullZipToPath = Path.Combine(outFolder, entryFileName);
-
-                        //Do not over-write the sqrl Db if it exists
-                        if (entryFileName.Equals(PathConf.DBNAME, StringComparison.OrdinalIgnoreCase) && File.Exists(fullZipToPath))
-                        {
-                            GrantFullFileAccess(fullZipToPath);
-                            Log.Information("Found existing SQRL DB, keeping existing");
-
-                            continue;
-                        }
-
-                        var directoryName = Path.GetDirectoryName(fullZipToPath);
-                        if (directoryName.Length > 0 && directoryName != outFolder)
-                        {
-                            if (!Directory.Exists(directoryName))
-                            {
-                                Directory.CreateDirectory(directoryName);
-                            }
-
-                            GrantFullFileAccess(directoryName);
-                        }
-
-                        // 4K is optimum
-                        var buffer = new byte[4096];
-
-                        // Unzip file in buffered chunks. This is just as fast as unpacking
-                        // to a buffer the full size of the file, but does not waste memory.
-                        // The "using" will close the stream even if an exception occurs.
-                        using (var zipStream = zipFile.GetInputStream(zipEntry))
-                        using (Stream fsOutput = File.Create(fullZipToPath))
-                        {
-                            StreamUtils.Copy(zipStream, fsOutput, buffer);
-                            GrantFullFileAccess(fullZipToPath);
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Grants full access permissions for <paramref name="file"/> to the current user.
-        /// </summary>
-        /// <param name="file">The file to set the permissions for.</param>
-        public static void GrantFullFileAccess(string file)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                var fi = new FileInfo(file);
-                var ac = fi.GetAccessControl();
-
-                Log.Information($"Granting current user full file permissions to {file}");
-                var fileAccessRule = new FileSystemAccessRule(WindowsIdentity.GetCurrent().User, FileSystemRights.FullControl, AccessControlType.Allow);
-
-                ac.AddAccessRule(fileAccessRule);
-                fi.SetAccessControl(ac);
-
-            }
-            
-        }
-
         /// <summary>
         /// Parses the provided registry key string and returns its base key.
         /// </summary>
@@ -188,8 +79,6 @@ namespace SQRLPlatformAwareInstaller
             }
         }
 
-
-
         /// <summary>
         /// Moves the Db from the current location to the new user space location
         /// </summary>
@@ -197,21 +86,18 @@ namespace SQRLPlatformAwareInstaller
         /// <returns></returns>
         public static bool MoveDb(string currentPath)
         {
-            Log.Information($"Attemting to move Db from: {currentPath} to: {PathConf.FullClientDbPath}");
+            Log.Information($"Attemting to move DB from \"{currentPath}\" to \"{PathConf.FullClientDbPath}\"");
             bool success = false;
             if (!Directory.Exists(PathConf.ClientDBPath))
             {
                 Directory.CreateDirectory(PathConf.ClientDBPath);
-
-                Utils.GrantFullFileAccess(PathConf.ClientDBPath);
-
-
+                CommonUtils.GrantFullFileAccess(PathConf.ClientDBPath);
             }
 
             if (!File.Exists(PathConf.FullClientDbPath))
             {
                 File.Copy(currentPath, PathConf.FullClientDbPath, false);
-                Utils.GrantFullFileAccess(PathConf.FullClientDbPath);
+                CommonUtils.GrantFullFileAccess(PathConf.FullClientDbPath);
                 if (Utils.GetFileHashSha256(PathConf.FullClientDbPath).Equals(Utils.GetFileHashSha256(currentPath)))
                 {
                     File.Delete(currentPath);
@@ -221,12 +107,11 @@ namespace SQRLPlatformAwareInstaller
             }
             else
             {
-                Log.Warning($"Tried to move the DB, but there is already a Db in place in {PathConf.FullClientDbPath}, not moving forward ");
+                Log.Warning($"Tried to move the DB, but there is already a DB in place in \"{PathConf.FullClientDbPath}\", not moving forward ");
                 success = false;
             }
 
             return success;
         }
-
     }
 }
