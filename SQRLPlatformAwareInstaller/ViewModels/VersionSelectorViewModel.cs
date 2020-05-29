@@ -273,6 +273,9 @@ namespace SQRLPlatformAwareInstaller.ViewModels
                 await GetReleases(fromFile: true);
                 if (!HasReleases) await GetReleases(fromFile: false);
 
+                // Disable "Install" button
+                this.CanInstall = false;
+
                 // Try pre-selecting the release from what was passed in the -v command 
                 // line switch, so that it matches what was initially chosen by the user
                 if (HasReleases)
