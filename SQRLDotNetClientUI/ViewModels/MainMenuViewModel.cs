@@ -421,9 +421,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
                     if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
-                        var _shell = new ShellConfigurator(BridgeSystem.Bash);
-                        Log.Information("Setting executable bit for installer in tempdir");
-                        _shell.Term($"chmod a+x {installerTempFilePath}", Output.Internal);
+                        SystemAndShellUtils.SetExecutableBit(installerTempFilePath);
                     }
                 }
                 else
@@ -434,6 +432,8 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (File.Exists(installerTempFilePath))
             {
+                Log.Information("Installer found in temp directory, launching installer");
+
                 // On Linux, try launching the installer using PolicyKit,
                 // first, and only if that fails, fall back to a regular launch.
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -443,9 +443,10 @@ namespace SQRLDotNetClientUI.ViewModels
                     {
                         return true;
                     }
+
+                    Log.Information("Launching installer via PolicyKit failed, trying normal launch");
                 }
 
-                Log.Information("Installer found in temp directory, launching installer");
                 Process proc = new Process();
                 proc.StartInfo.FileName = installerTempFilePath;
                 proc.StartInfo.Arguments = arguments;
