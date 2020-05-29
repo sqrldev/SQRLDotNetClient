@@ -360,33 +360,7 @@ namespace SQRLPlatformAwareInstaller.ViewModels
             Log.Information($"Download completed, file path is \"{this._downloadedFileName}\"");
             
             await InstallOnPlatform(this._downloadedFileName, this.SelectedRelease?.tag_name);
-
-            //_webClient.DownloadProgressChanged += Wc_DownloadProgressChanged;
-            //_webClient.DownloadFileCompleted += Wc_DownloadFileCompleted;
-            //this._downloadedFileName = Path.GetTempFileName();
-            //Log.Information($"Temporary download file name: {_downloadedFileName}");
-            //_webClient.DownloadFileAsync(new Uri(this._downloadUrl), _downloadedFileName);
         }
-
-        /// <summary>
-        /// Event handler for "download progress changed" event.
-        /// </summary>
-        //private void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        //{
-        //    this.DownloadPercentage = e.ProgressPercentage;
-        //    this.InstallStatus = _loc.GetLocalizationValue("InstallStatusDownloading") +
-        //        $" {Math.Round(e.BytesReceived / 1024M / 1024M, 2)}/{Math.Round(e.TotalBytesToReceive / 1024M / 1024M, 2)} MB";
-        //}
-
-        /// <summary>
-        /// Event handler for the "download completed" event.
-        /// </summary>
-        //private async void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
-        //{
-        //    Log.Information("Download completed");
-
-        //    await InstallOnPlatform(this._downloadedFileName, this.SelectedRelease?.tag_name);
-        //}
 
         /// <summary>
         /// Installs the contents of the archive specified by<paramref name="downloadedFileName"/> 
