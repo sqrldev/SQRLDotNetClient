@@ -141,7 +141,7 @@ namespace SQRLCommon.Models
         /// <param name="copyCurrentProcessExecutable">If set to <c>true</c>, the currently running process
         /// exectuable will be copied to the temp directory as the installer executable to run, if it isn't
         /// already running from there.</param>
-        /// <returns>Returns <c>true</c> if the installer could be launched using PolicyKit, or <c>false</c> othewise.</returns>
+        /// <returns>Returns <c>true</c> if the installer could be launched using PolicyKit, or <c>false</c> otherwise.</returns>
         public static bool LaunchInstallerUsingPolKit(string args = "", bool copyCurrentProcessExecutable = false)
         {
             Log.Information("Trying to launch installer using PolicyKit");
@@ -203,11 +203,43 @@ namespace SQRLCommon.Models
                     $"{SystemAndShellUtils.GetPolKitLocation()} {tempExePath} {args}");
             }
             Log.Information($"Created PolicyKit launcher script at: {tmpScript}");
-            
-            Log.Information($"Setting executable bit for launcher script");
             SetExecutableBit(tmpScript);
 
             Log.Information($"Launching installer with args: {args}");
+            Process proc = new Process();
+            proc.StartInfo.FileName = tmpScript;
+            proc.StartInfo.WorkingDirectory = Path.GetDirectoryName(tmpScript);
+            proc.Start();
+            return true;
+        }
+
+        /// <summary>
+        /// Tries launching the client as the specified user by using "sudo -i -u xxx".
+        /// </summary>
+        /// <param name="clientExePath">The full path to the client executable.</param>
+        /// <param name="userName">The username to start the client with.</param>
+        /// <returns>Returns <c>true</c> if the client could be launched, or <c>false</c> otherwise.</returns>
+        public static bool LaunchClientAsUser(string clientExePath, string userName)
+        {
+            Log.Information($"Trying to launch client as user {userName}");
+
+            if (!File.Exists(clientExePath))
+            {
+                Log.Error($"Client binary not found in \"{clientExePath}\", bailing out");
+                return false;
+            }
+
+            Log.Information($"Creating client launcher script");
+            var tmpScript = Path.GetTempFileName().Replace(".tmp", ".sh");
+            using (StreamWriter sw = new StreamWriter(tmpScript))
+            {
+                sw.WriteLine("#!/bin/sh");
+                sw.WriteLine($"sudo -i -u {userName} {clientExePath}");
+            }
+            Log.Information($"Created client launcher script at: {tmpScript}");
+            SetExecutableBit(tmpScript);
+
+            Log.Information($"Executing client launcher script");
             Process proc = new Process();
             proc.StartInfo.FileName = tmpScript;
             proc.StartInfo.WorkingDirectory = Path.GetDirectoryName(tmpScript);
