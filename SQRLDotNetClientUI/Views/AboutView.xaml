@@ -16,7 +16,7 @@
       <StackPanel>
         <Image Source="resm:SQRLDotNetClientUI.Assets.sqrl_icon_normal_48_icon.ico" Height="40" HorizontalAlignment="Center" />
         <TextBlock Text="{loc:Localization SQRLTag}" TextAlignment="Center" FontSize="14" FontWeight="Bold" Width="340" MaxWidth="340" Margin="10,20,10,10" FontFamily="resm:SQRLDotNetClientUI.Assets.Fonts.SpaceMono-Regular.ttf" TextWrapping="Wrap"/>
-        <TextBlock Text="{Binding AppVersion}" TextAlignment="Center" FontSize="12" Margin="10,0,10,10" Width="340" MaxWidth="340" TextWrapping="Wrap"/>
+        <Button Content="{Binding AppVersion}" Command="{Binding EnableTestingMode}" HorizontalContentAlignment="Center" BorderThickness="0" Background="Transparent" FontSize="12" Margin="10,0,10,10" Width="340" MaxWidth="340"/>
         <TextBlock Text="{loc:Localization AboutText}" TextAlignment="Center" FontSize="12" Margin="10" Width="340" MaxWidth="340" TextWrapping="Wrap"/>
         <Button Content="{loc:Localization BtnViewRepository}" Command="{Binding ShowRepository}" Margin="0,5" Width="250" MaxWidth="250" HorizontalAlignment="Center"/>
         <Button Content="{loc:Localization BtnViewLicense}" Command="{Binding ShowLicense}" Width="250" MaxWidth="250" Margin="0,5" HorizontalAlignment="Center"/>

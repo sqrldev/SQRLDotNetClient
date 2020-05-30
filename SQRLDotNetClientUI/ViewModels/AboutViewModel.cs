@@ -1,5 +1,7 @@
 ﻿using ReactiveUI;
 using Serilog;
+using SQRLCommon.Models;
+using System;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -11,6 +13,7 @@ namespace SQRLDotNetClientUI.ViewModels
     public class AboutViewModel : ViewModelBase
     {
         private string _appVersion;
+        private int _testingModeCounter = 0;
 
         /// <summary>
         /// Gets or sets the app's executable version.
@@ -67,6 +70,19 @@ namespace SQRLDotNetClientUI.ViewModels
             p.StartInfo.UseShellExecute = true;
             p.StartInfo.FileName = @"https://raw.githubusercontent.com/sqrldev/SQRLDotNetClient/master/LICENSE";
             p.Start();
+        }
+
+        /// <summary>
+        /// Enables testing mode when clicking on the version label 5 times.
+        /// </summary>
+        public void EnableTestingMode()
+        {
+            _testingModeCounter++;
+            if (_testingModeCounter == 5)
+            {
+                Environment.SetEnvironmentVariable(GithubHelper.TestModeEnvVar, "true");
+                Log.Information("Testing mode enabled");
+            }
         }
     }
 }
