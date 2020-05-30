@@ -449,12 +449,13 @@ namespace SQRLDotNetClientUI.ViewModels
 
                 Process proc = new Process();
                 proc.StartInfo.FileName = installerTempFilePath;
+                proc.StartInfo.WorkingDirectory = Path.GetDirectoryName(installerTempFilePath);
                 proc.StartInfo.Arguments = arguments;
+                proc.StartInfo.UseShellExecute = true;
                 Log.Information($"Installer location: {proc.StartInfo.FileName}");
                 Log.Information($"Installer arguments: {proc.StartInfo.Arguments}");
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    proc.StartInfo.UseShellExecute = true;
                     proc.StartInfo.Verb = "runas";
                 }
                 proc.Start();
