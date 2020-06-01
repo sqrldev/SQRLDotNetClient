@@ -10,7 +10,6 @@ using System.Reflection;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using ToolBox.Bridge;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using SQRLCommon.Models;
@@ -332,7 +331,6 @@ namespace SQRLDotNetClientUI.ViewModels
         public async void InstallUpdate()
         {
             Log.Information("User initiated installation of update");
-            var installPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var progress = new Progress<KeyValuePair<int, string>>();
             List<Progress<KeyValuePair<int, string>>> progressList =
                 new List<Progress<KeyValuePair<int, string>>>() { progress };
@@ -364,7 +362,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 progressDialog.Close();
             }
 
-            var args = $"-a Update -z \"{installArchivePath}\" -v \"{latestRelease.tag_name}\" -p \"{installPath}\"";
+            var args = $"-a Update -z \"{installArchivePath}\" -v \"{latestRelease.tag_name}\" -p \"{PathConf.ClientInstallPath}\"";
             bool success = await RunInstaller(args, needsCopyingToTemp: false);
             
             if (success)
@@ -387,8 +385,7 @@ namespace SQRLDotNetClientUI.ViewModels
 
             if (result != MessagBoxDialogResult.YES) return;
 
-            var installPath = $"\"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\"";
-            bool success = await RunInstaller($"-a Uninstall -p {installPath}");
+            bool success = await RunInstaller($"-a Uninstall -p {PathConf.ClientInstallPath}");
             if (success)
             {
                 Log.CloseAndFlush();
@@ -523,7 +520,7 @@ namespace SQRLDotNetClientUI.ViewModels
         /// </summary>
         private async void ImportDB()
         {
-            Log.Information("User chose to Import New DB File");
+            Log.Information("User chose to import new DB file");
             var ofdDB = new OpenFileDialog();
             ofdDB.Title = _loc.GetLocalizationValue("DbFileTitle");
             FileDialogFilter fdf = new FileDialogFilter();
@@ -536,7 +533,7 @@ namespace SQRLDotNetClientUI.ViewModels
                 Log.Information($"Chose File {result[0]}");
                 if (string.Compare(PathConf.FullClientDbPath.Trim(), result[0].Trim(), true) == 0)
                 {
-                    Log.Error("The chosen file is the same as the currently loaded Db File, Abort");
+                    Log.Error("The chosen file is the same as the currently loaded DB file, abort");
                     await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), 
                         _loc.GetLocalizationValue("DbFileAlreadyLoaded"), messageBoxIcon: MessageBoxIcons.ERROR)
                         .ShowDialog(this);
@@ -558,7 +555,7 @@ namespace SQRLDotNetClientUI.ViewModels
                         case MessagBoxDialogResult.CUSTOM1:
                             {
                                 string newDbLocation = Path.Combine(PathConf.DefaultClientDBPath, PathConf.DBNAME);
-                                Log.Information($"User chose to move Db file from:{result[0]} to {newDbLocation}");
+                                Log.Information($"User chose to move DB file from:{result[0]} to {newDbLocation}");
                                 try
                                 {
                                     SQRLDBContext.DisposeDB();
@@ -570,7 +567,7 @@ namespace SQRLDotNetClientUI.ViewModels
                                 }
                                 catch(Exception err)
                                 {
-                                    Log.Error($"Error moving DB File Error: {err.ToString()}");
+                                    Log.Error($"Error moving DB file: {err.ToString()}");
                                     await new MessageBoxViewModel(_loc.GetLocalizationValue("ErrorTitleGeneric"), 
                                         _loc.GetLocalizationValue("DbMoveError"), messageBoxIcon: MessageBoxIcons.ERROR)
                                         .ShowDialog(this);                                    
@@ -580,7 +577,7 @@ namespace SQRLDotNetClientUI.ViewModels
                         //Just Load
                         case MessagBoxDialogResult.CUSTOM2:
                             {
-                                Log.Information($"User chose to load new Db File in Place");
+                                Log.Information($"User chose to load new DB file in place");
                                 PathConf.ClientDBPath = Path.GetDirectoryName(result[0]);
                                 SQRLDBContext.DisposeDB();
                                 Models.AppSettings.Instance.Initialize();
@@ -592,7 +589,9 @@ namespace SQRLDotNetClientUI.ViewModels
                 }
             }
             else
-                Log.Information("No Db File Chosen");
+            {
+                Log.Information("No DB file chosen");
+            }
         }
     }
 }
